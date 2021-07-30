@@ -1,0 +1,58 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+common:
+    files:
+        - dev_essential\.html
+        - html/.+\.css
+        - html/.+\.html
+        - html/.+\.js
+        - html/.+\.map
+        - html/.+\.md5
+        - html/.+\.svg
+        - html/bc_s\.png
+        - html/bdwn\.png
+        - html/closed\.png
+        - html/doc\.png
+        - html/doxygen\.png
+        - html/folderclosed\.png
+        - html/folderopen\.png
+        - html/nav_f\.png
+        - html/nav_g\.png
+        - html/nav_h\.png
+        - html/open\.png
+        - html/splitbar\.png
+        - html/sync_off\.png
+        - html/sync_on\.png
+        - html/tab_a\.png
+        - html/tab_b\.png
+        - html/tab_h\.png
+        - html/tab_s\.png
+        - html/doc/extern/license/MPL2\.0\.txt
+        - html/doc/extern/license/licenses\.txt
+        - html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
+        - html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
+        - html/extern/3rdparty/pcre/pcre-8\.39/LICENCE
+        - html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
+        - html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
+        - html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
+        - html/specification/ddl3.xsd
+        - html/specification/ddl4.xsd
+        - html/specification/mapping_configuration.xsd
+        - html/search/.+\.css
+        - html/search/.+\.html
+        - html/search/.+\.js
+        - html/search/close\.png
+        - html/search/mag_sel\.png
+        - html/search/search_l\.png
+        - html/search/search_m\.png
+        - html/search/search_r\.png

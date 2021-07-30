@@ -1,0 +1,170 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+debug:
+    conditions:
+        deb:
+            build_type: Debug
+    files:
+        - test/results/function/result_chrono_tests_Debug\.xml
+        - test/results/function/result_clara_include_test_Debug\.xml
+        - test/results/function/result_condvar_tests_Debug\.xml
+        - test/results/function/result_csv_reader_test_Debug\.xml
+        - test/results/function/result_current_function_tests_Debug\.xml
+        - test/results/function/result_datetime_tests_Debug\.xml
+        - test/results/function/result_delegate_tests_Debug\.xml
+        - test/results/function/result_dll_export_tests_Debug\.xml
+        - test/results/function/result_error_def_test_Debug\.xml
+        - test/results/function/result_filesystem_tests_Debug\.xml
+        - test/results/function/result_logging_tests_Debug\.xml
+        - test/results/function/result_maybe_unused_tests_Debug\.xml
+        - test/results/function/result_make_unique_tests_Debug\.xml
+        - test/results/function/result_memory_tests_Debug\.xml
+        - test/results/function/result_memorybuffer_tests_Debug\.xml
+        - test/results/function/result_mutex_tests_Debug\.xml
+        - test/results/function/result_path_tests_Debug\.xml
+        - test/results/function/result_pkg_rpc_test_Debug\.xml
+        - test/results/function/result_process_tests_Debug\.xml
+        - test/results/function/result_ref_counted_object_test_Debug\.xml
+        - test/results/function/result_regex_tests_Debug\.xml
+        - test/results/function/result_result_type_compat_test_Debug\.xml
+        - test/results/function/result_result_type_test_Debug\.xml
+        - test/results/function/result_result_util_test_Debug\.xml
+        - test/results/function/result_semaphore_tests_Debug\.xml
+        - test/results/function/result_shared_ptr_tests_Debug\.xml
+        - test/results/function/result_stack_ptr_tests_Debug\.xml
+        - test/results/function/result_strings_convert_tests_Debug\.xml
+        - test/results/function/result_strings_format_tests_Debug\.xml
+        - test/results/function/result_strings_numeric_traits_tests_Debug\.xml
+        - test/results/function/result_strings_tests_Debug\.xml
+        - test/results/function/result_system_tests_Debug\.xml
+        - test/results/function/result_tester_self_contained_header_files_Debug\.xml
+        - test/results/function/result_thread_tests_Debug\.xml
+        - test/results/function/result_timer_tests_Debug\.xml
+        - test/results/function/result_to_string_tests_Debug\.xml
+        - test/results/function/result_unicode_tests_Debug\.xml
+        - test/results/function/result_unique_ptr_tests_Debug\.xml
+        - test/results/function/result_uuid_tests_Debug\.xml
+        - test/results/function/result_variant_tests_Debug\.xml
+        - test/results/function/result_xml_tests_Debug\.xml
+        - test/results/function/result_ddl_codec_tests_Debug\.xml
+        - test/results/function/result_ddl_dd_create_tests_Debug\.xml
+        - test/results/function/result_ddl_infomodel_tests_Debug\.xml
+        - test/results/function/result_ddl_mapping_tests_Debug\.xml
+        - test/results/function/result_ddl_mediacoder_regression_tests_Debug\.xml
+        - test/results/function/result_ddl_dd_datastructures_tests_Debug\.xml
+
+release:
+    conditions:
+        deb:
+            build_type: Release
+    files:
+        - test/results/function/result_chrono_tests_Release\.xml
+        - test/results/function/result_clara_include_test_Release\.xml
+        - test/results/function/result_condvar_tests_Release\.xml
+        - test/results/function/result_csv_reader_test_Release\.xml
+        - test/results/function/result_current_function_tests_Release\.xml
+        - test/results/function/result_datetime_tests_Release\.xml
+        - test/results/function/result_delegate_tests_Release\.xml
+        - test/results/function/result_dll_export_tests_Release\.xml
+        - test/results/function/result_error_def_test_Release\.xml
+        - test/results/function/result_filesystem_tests_Release\.xml
+        - test/results/function/result_logging_tests_Release\.xml
+        - test/results/function/result_maybe_unused_tests_Release\.xml
+        - test/results/function/result_make_unique_tests_Release\.xml
+        - test/results/function/result_memory_tests_Release\.xml
+        - test/results/function/result_memorybuffer_tests_Release\.xml
+        - test/results/function/result_mutex_tests_Release\.xml
+        - test/results/function/result_path_tests_Release\.xml
+        - test/results/function/result_pkg_rpc_test_Release\.xml
+        - test/results/function/result_process_tests_Release\.xml
+        - test/results/function/result_ref_counted_object_test_Release\.xml
+        - test/results/function/result_regex_tests_Release\.xml
+        - test/results/function/result_result_type_compat_test_Release\.xml
+        - test/results/function/result_result_type_test_Release\.xml
+        - test/results/function/result_result_util_test_Release\.xml
+        - test/results/function/result_semaphore_tests_Release\.xml
+        - test/results/function/result_shared_ptr_tests_Release\.xml
+        - test/results/function/result_stack_ptr_tests_Release\.xml
+        - test/results/function/result_strings_convert_tests_Release\.xml
+        - test/results/function/result_strings_format_tests_Release\.xml
+        - test/results/function/result_strings_numeric_traits_tests_Release\.xml
+        - test/results/function/result_strings_tests_Release\.xml
+        - test/results/function/result_system_tests_Release\.xml
+        - test/results/function/result_tester_self_contained_header_files_Release\.xml
+        - test/results/function/result_thread_tests_Release\.xml
+        - test/results/function/result_timer_tests_Release\.xml
+        - test/results/function/result_to_string_tests_Release\.xml
+        - test/results/function/result_unicode_tests_Release\.xml
+        - test/results/function/result_unique_ptr_tests_Release\.xml
+        - test/results/function/result_uuid_tests_Release\.xml
+        - test/results/function/result_variant_tests_Release\.xml
+        - test/results/function/result_xml_tests_Release\.xml
+        - test/results/function/result_ddl_codec_tests_Release\.xml
+        - test/results/function/result_ddl_dd_create_tests_Release\.xml
+        - test/results/function/result_ddl_infomodel_tests_Release\.xml
+        - test/results/function/result_ddl_mapping_tests_Release\.xml
+        - test/results/function/result_ddl_mediacoder_regression_tests_Release\.xml
+        - test/results/function/result_ddl_dd_datastructures_tests_Release\.xml
+
+relwithdebinfo:
+    conditions:
+        deb:
+            build_type: RelWithDebInfo
+    files:
+        - test/results/function/result_chrono_tests_RelWithDebInfo\.xml
+        - test/results/function/result_clara_include_test_RelWithDebInfo\.xml
+        - test/results/function/result_condvar_tests_RelWithDebInfo\.xml
+        - test/results/function/result_csv_reader_test_RelWithDebInfo\.xml
+        - test/results/function/result_current_function_tests_RelWithDebInfo\.xml
+        - test/results/function/result_datetime_tests_RelWithDebInfo\.xml
+        - test/results/function/result_delegate_tests_RelWithDebInfo\.xml
+        - test/results/function/result_dll_export_tests_RelWithDebInfo\.xml
+        - test/results/function/result_error_def_test_RelWithDebInfo\.xml
+        - test/results/function/result_filesystem_tests_RelWithDebInfo\.xml
+        - test/results/function/result_logging_tests_RelWithDebInfo\.xml
+        - test/results/function/result_make_unique_tests_RelWithDebInfo\.xml
+        - test/results/function/result_maybe_unused_tests_RelWithDebInfo\.xml
+        - test/results/function/result_memory_tests_RelWithDebInfo\.xml
+        - test/results/function/result_memorybuffer_tests_RelWithDebInfo\.xml
+        - test/results/function/result_mutex_tests_RelWithDebInfo\.xml
+        - test/results/function/result_path_tests_RelWithDebInfo\.xml
+        - test/results/function/result_pkg_rpc_test_RelWithDebInfo\.xml
+        - test/results/function/result_process_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ref_counted_object_test_RelWithDebInfo\.xml
+        - test/results/function/result_regex_tests_RelWithDebInfo\.xml
+        - test/results/function/result_result_type_compat_test_RelWithDebInfo\.xml
+        - test/results/function/result_result_type_test_RelWithDebInfo\.xml
+        - test/results/function/result_result_util_test_RelWithDebInfo\.xml
+        - test/results/function/result_semaphore_tests_RelWithDebInfo\.xml
+        - test/results/function/result_shared_ptr_tests_RelWithDebInfo\.xml
+        - test/results/function/result_stack_ptr_tests_RelWithDebInfo\.xml
+        - test/results/function/result_strings_convert_tests_RelWithDebInfo\.xml
+        - test/results/function/result_strings_format_tests_RelWithDebInfo\.xml
+        - test/results/function/result_strings_numeric_traits_tests_RelWithDebInfo\.xml
+        - test/results/function/result_strings_tests_RelWithDebInfo\.xml
+        - test/results/function/result_system_tests_RelWithDebInfo\.xml
+        - test/results/function/result_tester_self_contained_header_files_RelWithDebInfo\.xml
+        - test/results/function/result_thread_tests_RelWithDebInfo\.xml
+        - test/results/function/result_timer_tests_RelWithDebInfo\.xml
+        - test/results/function/result_to_string_tests_RelWithDebInfo\.xml
+        - test/results/function/result_unicode_tests_RelWithDebInfo\.xml
+        - test/results/function/result_unique_ptr_tests_RelWithDebInfo\.xml
+        - test/results/function/result_uuid_tests_RelWithDebInfo\.xml
+        - test/results/function/result_variant_tests_RelWithDebInfo\.xml
+        - test/results/function/result_xml_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_codec_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_dd_create_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_infomodel_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_mapping_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_mediacoder_regression_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_dd_datastructures_tests_RelWithDebInfo\.xml

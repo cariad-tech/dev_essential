@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!--
+Copyright @ 2021 VW Group. All rights reserved.
+ 
+    This Source Code Form is subject to the terms of the Mozilla
+    Public License, v. 2.0. If a copy of the MPL was not distributed
+    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ 
+If it is not possible or desirable to put the notice in a particular file, then
+You may include the notice in a location (such as a LICENSE file in a
+relevant directory) where a recipient would be likely to look for such a notice.
+ 
+You may add additional accurate notices of copyright ownership.
+-->
+<ddl:ddl xmlns:ddl="ddl">
+  <header>
+    <language_version>1.0+</language_version>
+    <author>dev_essential team</author>
+    <date_creation>20100407</date_creation>
+    <date_change></date_change>
+    <description>ADTF Common Description File</description>
+  </header>
+  <units>
+    <baseunit name="nou" symbol="" description="this is the no unit class" />
+  </units>
+  <datatypes>
+    <datatype type="tBool" size="8" description="predefined ADTF tBool datatype" />
+    <datatype type="tInt16" size="16" description="predefined ADTF tInt16 datatype" />
+    <datatype type="tChar" size="8" description="predefined ADTF tChar datatype" />
+    <datatype type="tUInt64" size="64" description="predefined ADTF tUInt64 datatype" />
+    <datatype type="tUInt8" size="8" description="predefined ADTF tUInt8 datatype" />
+    <datatype type="tInt8" size="8" description="predefined ADTF tInt8 datatype" />
+    <datatype type="tUInt16" size="16" description="predefined ADTF tUInt16 datatype" />
+    <datatype type="tUInt32" size="32" description="predefined ADTF tUInt32 datatype" />
+    <datatype type="tInt32" size="32" description="predefined ADTF tInt32 datatype" />
+    <datatype type="tInt64" size="64" description="predefined ADTF tInt64 datatype" />
+    <datatype type="tFloat32" size="32" description="predefined ADTF tFloat32 datatype" />
+    <datatype type="tFloat64" size="64" description="predefined ADTF tFloat64 datatype" />
+  </datatypes>
+  <enums />
+  <structs>
+    <struct name="tCanMessageExt" version="1" alignment="1">
+      <element name="ui32Id" type="tUInt32" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="ui8Channel" type="tUInt8" bytepos="4" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="ui8Length" type="tUInt8" bytepos="5" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="pui8Data" type="tUInt8" bytepos="6" byteorder="LE" alignment="1" arraysize="8" />
+    </struct>
+    <struct name="tMediaTypeInfo" version="1" alignment="1">
+      <element name="ui32MajorType" type="tUInt32" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="ui32SubType" type="tUInt32" bytepos="4" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="ui32Flags" type="tUInt32" bytepos="8" byteorder="LE" alignment="1" arraysize="1" />
+    </struct>
+    <struct name="tCanMessage" version="1" alignment="1">
+      <element name="ui16Id" type="tUInt16" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="ui8Channel" type="tUInt8" bytepos="2" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="ui8Length" type="tUInt8" bytepos="3" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="pui8Data" type="tUInt8" bytepos="4" byteorder="LE" alignment="1" arraysize="8" />
+    </struct>
+    <struct name="adtf.core.media_type" version="1" alignment="1">
+      <element name="mediatype" type="tMediaTypeInfo" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+    </struct>
+    <struct name="tBitmapFormat" version="1" alignment="1">
+      <element name="nWidth" type="tInt32" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nHeight" type="tInt32" bytepos="4" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nBitsPerPixel" type="tInt16" bytepos="8" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nPixelFormat" type="tInt16" bytepos="10" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nBytesPerLine" type="tInt32" bytepos="12" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nSize" type="tInt32" bytepos="16" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nPaletteSize" type="tInt32" bytepos="20" byteorder="LE" alignment="1" arraysize="1" />
+    </struct>
+    <struct name="adtf.type.video" version="1">
+      <element name="sMediatype" type="tMediaTypeInfo" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="sBitmapFormat" type="tBitmapFormat" bytepos="12" byteorder="LE" alignment="1" arraysize="1" />
+    </struct>
+    <struct name="tWaveFormat" version="1" alignment="1">
+      <element name="nFormatType" type="tInt32" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nChannels" type="tInt32" bytepos="4" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nSamplesPerSec" type="tInt32" bytepos="8" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nBitsPerSample" type="tInt32" bytepos="12" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nNumSamples" type="tInt32" bytepos="16" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="nSize" type="tInt32" bytepos="20" byteorder="LE" alignment="1" arraysize="1" />
+    </struct>
+    <struct name="adtf.type.audio" version="1">
+      <element name="sMediatype" type="tMediaTypeInfo" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+      <element name="sWaveFormat" type="tWaveFormat" bytepos="12" byteorder="LE" alignment="1" arraysize="1" />
+    </struct>
+  </structs>
+  <streams>
+    <stream name="extended_can_stream" type="adtf.core.media_type" description="extended can">
+      <struct type="tCanMessageExt" bytepos="0" />
+    </stream>
+    <stream name="can_stream" type="adtf.core.media_type" description="can">
+      <struct type="tCanMessage" bytepos="0" />
+    </stream>
+    <stream name="video_stream" type="adtf.type.video" description="video stream" />
+    <stream name="audio_stream" type="adtf.type.audio" description="video stream" />
+  </streams>
+</ddl:ddl>

@@ -1,0 +1,6 @@
+* text=auto
+* whitespace=space-before-tab,tab-in-indent,trailing-space
+
+# Needed by conan to calculate the same recipe hash on every os
+# Further information in the conan docs: https://tinyurl.com/y27nm4q4
+conanfile*.py text eol=lf

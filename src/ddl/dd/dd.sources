@@ -1,0 +1,40 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+set(DD_SRC_DIR dd)
+
+set(DD_CPP
+    ${DD_SRC_DIR}/dd_common_types.cpp
+    ${DD_SRC_DIR}/dd_error.cpp
+    ${DD_SRC_DIR}/dd_offset_calculation.cpp
+    ${DD_SRC_DIR}/dd_offset_calculation.h
+    ${DD_SRC_DIR}/dd_alignment_calculation.cpp
+    ${DD_SRC_DIR}/dd_alignment_calculation.h
+    ${DD_SRC_DIR}/dd_typeinfomodel.cpp
+    ${DD_SRC_DIR}/dd_validationinfomodel.cpp
+    ${DD_SRC_DIR}/dd_struct_access.cpp
+
+    ${DD_SRC_DIR}/dd.cpp
+    ${DD_SRC_DIR}/ddelement.cpp
+    ${DD_SRC_DIR}/dddatatype.cpp
+    ${DD_SRC_DIR}/ddenum.cpp
+    ${DD_SRC_DIR}/ddunit.cpp
+    ${DD_SRC_DIR}/ddstructure.cpp
+
+    ${DD_SRC_DIR}/dd_fromxmlelement.h
+    ${DD_SRC_DIR}/dd_fromxmlelement.cpp
+    ${DD_SRC_DIR}/ddfile.cpp
+    ${DD_SRC_DIR}/ddstring.cpp
+    ${DD_SRC_DIR}/ddcompare.cpp
+)
+
+source_group(dd FILES ${DD_H} ${DD_CPP})

@@ -1,0 +1,33 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+set(MAPPING_SRC mapping)
+
+set(MAPPING_CPP
+    ${MAPPING_SRC}/configuration/map_assignment.cpp
+    ${MAPPING_SRC}/configuration/map_configuration.cpp
+    ${MAPPING_SRC}/configuration/map_header.cpp
+    ${MAPPING_SRC}/configuration/map_source.cpp
+    ${MAPPING_SRC}/configuration/map_target.cpp
+    ${MAPPING_SRC}/configuration/map_transformation.cpp
+    ${MAPPING_SRC}/configuration/map_trigger.cpp
+    ${MAPPING_SRC}/engine/data_trigger.cpp
+    ${MAPPING_SRC}/engine/element.cpp
+    ${MAPPING_SRC}/engine/mapping_engine.cpp
+    ${MAPPING_SRC}/engine/periodic_trigger.cpp
+    ${MAPPING_SRC}/engine/signal_trigger.cpp
+    ${MAPPING_SRC}/engine/source.cpp
+    ${MAPPING_SRC}/engine/target.cpp
+    ${MAPPING_SRC}/engine/trigger.cpp
+)
+
+source_group(mapping FILES ${MAPPING_CONFIGURATION_H} ${MAPPING_ENGINE_H} ${MAPPING_H} ${MAPPING_CPP})

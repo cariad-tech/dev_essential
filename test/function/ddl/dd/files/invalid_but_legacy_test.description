@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!--
+Copyright @ 2021 VW Group. All rights reserved.
+ 
+    This Source Code Form is subject to the terms of the Mozilla
+    Public License, v. 2.0. If a copy of the MPL was not distributed
+    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ 
+If it is not possible or desirable to put the notice in a particular file, then
+You may include the notice in a location (such as a LICENSE file in a
+relevant directory) where a recipient would be likely to look for such a notice.
+ 
+You may add additional accurate notices of copyright ownership.
+-->
+<adtf:ddl xmlns:adtf="adtf">
+  <header>
+    <language_version>3.00</language_version>
+    <author>dev_essential team</author>
+    <date_creation>11.03.2016</date_creation>
+    <date_change>11.03.2016</date_change>
+    <description>ADTF generated</description>
+  </header>
+  <units/>
+  <datatypes>
+    <datatype description="predefined ADTF tBool datatype" max="tTrue" min="tFalse" name="tBool" size="8" />
+    <datatype description="predefined ADTF tChar datatype" max="127" min="-128" name="tChar" size="8" />
+    <datatype description="predefined ADTF tFloat32 datatype" max="3.402823e+38" min="-3.402823e+38" name="tFloat32" size="32" />
+    <datatype description="predefined ADTF tFloat64 datatype" max="1.797693e+308" min="-1.797693e+308" name="tFloat64" size="64" />
+    <datatype description="predefined ADTF tInt16 datatype" max="32767" min="-32768" name="tInt16" size="16" />
+    <datatype description="predefined ADTF tInt32 datatype" max="2147483647" min="-2147483648" name="tInt32" size="32" />
+    <datatype description="predefined ADTF tInt64 datatype" max="9223372036854775807" min="-9223372036854775808" name="tInt64" size="64" />
+    <datatype description="predefined ADTF tInt8 datatype" max="127" min="-128" name="tInt8" size="8" />
+    <datatype description="predefined ADTF tUInt16 datatype" max="65535" min="0" name="tUInt16" size="16" />
+    <datatype description="predefined ADTF tUInt32 datatype" max="4294967295" min="0" name="tUInt32" size="32" />
+    <datatype description="predefined ADTF tUInt64 datatype" max="18446744073709551615" min="0" name="tUInt64" size="64" />
+    <datatype description="predefined ADTF tUInt8 datatype" max="255" min="0" name="tUInt8" size="8" />
+  </datatypes>
+  <enums/>
+  <structs>
+    <struct name="tVector3D" alignment="8" version="1">
+      <element name="x" type="tInt64" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="0" byteorder="LE"/>
+      </element>
+      <element name="y" type="tInt64" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="8" byteorder="LE"/>
+      </element>
+      <element name="z" type="tInt64" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="16" byteorder="LE"/>
+      </element>
+    </struct>
+    <struct name="tHeaderStruct" alignment="1" version="1">
+      <element name="ui32HeaderVal" type="tUInt32" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="0" byteorder="LE"/>
+      </element>
+      <element name="f64HeaderVal" type="tFloat64" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="4" byteorder="LE"/>
+      </element>
+    </struct>
+    <struct name="tSimpleStruct" alignment="1" version="1">
+      <element name="ui8Val" type="tUInt8" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="0" byteorder="LE"/>
+      </element>
+      <element name="ui16Val" type="tUInt16" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="1" byteorder="LE"/>
+      </element>
+      <element name="ui32Val" type="tUInt32" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="3" byteorder="LE"/>
+      </element>
+      <element name="i32Val" type="tInt32" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="7" byteorder="LE"/>
+      </element>
+      <element name="i64Val" type="tInt64" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="11" byteorder="LE"/>
+      </element>
+      <element name="f64Val" type="tFloat64" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="19" byteorder="LE"/>
+      </element>
+      <element name="f32Val" type="tFloat32" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="27" byteorder="LE"/>
+      </element>
+    </struct>
+    <struct name="tNestedStruct" alignment="1" version="1">
+      <element name="sHeaderStruct" type="tHeaderStruct" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="0" byteorder="LE"/>
+      </element>
+      <element name="sSimpleStruct" type="tSimpleStruct" arraysize="1">
+        <deserialized alignment="1"/>
+        <serialized bytepos="12" byteorder="LE"/>
+      </element>
+    </struct>
+  </structs>
+</adtf:ddl>

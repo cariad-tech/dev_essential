@@ -1,0 +1,30 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+set(DD_DATAMODEL_DIR ${CMAKE_SOURCE_DIR}/include/ddl/datamodel)
+
+set(DD_DATAMODEL_H
+    ${DD_DATAMODEL_DIR}/infomodel_base.h
+    ${DD_DATAMODEL_DIR}/datamodel_base.h
+    ${DD_DATAMODEL_DIR}/datamodel_keyvalue.h
+    ${DD_DATAMODEL_DIR}/datamodel_header.h
+    ${DD_DATAMODEL_DIR}/datamodel_units.h
+    ${DD_DATAMODEL_DIR}/datamodel_types.h
+    ${DD_DATAMODEL_DIR}/datamodel_streams.h
+    ${DD_DATAMODEL_DIR}/datamodel_datadefinition.h
+
+    ${DD_DATAMODEL_DIR}/xml_datamodel.h    
+    ${DD_DATAMODEL_DIR}/xml_ddtoxml_factory.h
+    ${DD_DATAMODEL_DIR}/xml_ddfromxml_factory.h
+)
+
+set(DD_DATAMODEL_INSTALL ${DD_DATAMODEL_H})

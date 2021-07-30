@@ -1,0 +1,411 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+common:
+    files:
+        - cmake/modules/FindJsonStubGenerator\.cmake
+        - cmake/stub_generation\.cmake
+        - doc/dev_essential\.html
+        - doc/changelog\.md
+        - doc/html/.+\.css
+        - doc/html/.+\.html
+        - doc/html/.+\.js
+        - doc/html/.+\.map
+        - doc/html/.+\.md5
+        - doc/html/.+\.svg
+        - doc/html/bc_s\.png
+        - doc/html/bdwn\.png
+        - doc/html/closed\.png
+        - doc/html/doc\.png
+        - doc/html/doxygen\.png
+        - doc/html/folderclosed\.png
+        - doc/html/folderopen\.png
+        - doc/html/nav_f\.png
+        - doc/html/nav_g\.png
+        - doc/html/nav_h\.png
+        - doc/html/open\.png
+        - doc/html/splitbar\.png
+        - doc/html/sync_off\.png
+        - doc/html/sync_on\.png
+        - doc/html/tab_a\.png
+        - doc/html/tab_b\.png
+        - doc/html/tab_h\.png
+        - doc/html/tab_s\.png
+        - doc/html/doc/extern/license/MPL2\.0\.txt
+        - doc/html/doc/extern/license/licenses\.txt
+        - doc/html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
+        - doc/html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
+        - doc/html/extern/3rdparty/pcre/pcre-8\.39/LICENCE
+        - doc/html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
+        - doc/html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
+        - doc/html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
+        - doc/html/search/.+\.css
+        - doc/html/search/.+\.html
+        - doc/html/search/.+\.js
+        - doc/html/search/close\.png
+        - doc/html/search/mag_sel\.png
+        - doc/html/search/search_l\.png
+        - doc/html/search/search_m\.png
+        - doc/html/search/search_r\.png
+        - doc/html/specification/ddl3.xsd
+        - doc/html/specification/ddl4.xsd
+        - doc/html/specification/mapping_configuration.xsd
+        - doc/license/MPL2\.0\.txt
+        - doc/license/licenses\.txt
+        - doc/license/boost_1_64_0/boost/current_function\.hpp
+        - doc/license/Clara-1\.1\.2/LICENSE\.txt
+        - doc/license/Clara-1\.1\.2/README\.md
+        - doc/license/pcre-8\.39/LICENCE
+        - doc/license/pugixml-1\.8/readme\.txt
+        - doc/license/utf8_v2_3_4/source/utf8\.h
+        - doc/license/uuid-1\.6\.2/license\.txt
+        - doc/specification/ddl3\.xsd
+        - doc/specification/ddl4\.xsd
+        - doc/specification/mapping_configuration\.xsd
+        - include/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
+        - include/3rdparty/clara/Clara-1\.1\.2/single_include/clara\.hpp
+        - include/a_util/base\.h
+        - include/a_util/base/delegate\.h
+        - include/a_util/base/detail/delegate_decl\.h
+        - include/a_util/base/detail/delegate_impl\.h
+        - include/a_util/base/types\.h
+        - include/a_util/concurrency\.h
+        - include/a_util/concurrency/atomic\.h
+        - include/a_util/concurrency/chrono\.h
+        - include/a_util/concurrency/condition_variable\.h
+        - include/a_util/concurrency/detail/fast_mutex_decl\.h
+        - include/a_util/concurrency/detail/fast_mutex_impl\.h
+        - include/a_util/concurrency/detail/semaphore_decl\.h
+        - include/a_util/concurrency/detail/semaphore_impl\.h
+        - include/a_util/concurrency/fast_mutex\.h
+        - include/a_util/concurrency/mutex\.h
+        - include/a_util/concurrency/semaphore\.h
+        - include/a_util/concurrency/shared_mutex\.h
+        - include/a_util/concurrency/thread\.h
+        - include/a_util/datetime\.h
+        - include/a_util/datetime/datetime\.h
+        - include/a_util/filesystem\.h
+        - include/a_util/filesystem/filesystem\.h
+        - include/a_util/filesystem/path\.h
+        - include/a_util/logging\.h
+        - include/a_util/logging/log\.h
+        - include/a_util/memory\.h
+        - include/a_util/memory/detail/stack_ptr_decl\.h
+        - include/a_util/memory/detail/stack_ptr_impl\.h
+        - include/a_util/memory/memory\.h
+        - include/a_util/memory/memorybuffer\.h
+        - include/a_util/memory/shared_ptr\.h
+        - include/a_util/memory/stack_ptr\.h
+        - include/a_util/memory/unique_ptr\.h
+        - include/a_util/parser\.h
+        - include/a_util/parser/csv_reader\.h
+        - include/a_util/preprocessor\.h
+        - include/a_util/preprocessor/current_function\.h
+        - include/a_util/preprocessor/detail/disable_warnings\.h
+        - include/a_util/preprocessor/dll_export\.h
+        - include/a_util/preprocessor/to_string\.h
+        - include/a_util/process\.h
+        - include/a_util/process/detail/process_impl\.h
+        - include/a_util/process/process\.h
+        - include/a_util/regex\.h
+        - include/a_util/regex/regularexpression\.h
+        - include/a_util/result\.h
+        - include/a_util/result/detail/error_description\.h
+        - include/a_util/result/detail/error_description_impl\.h
+        - include/a_util/result/detail/error_description_intf\.h
+        - include/a_util/result/detail/reference_counted_object\.h
+        - include/a_util/result/detail/reference_counted_object_disable_dynamic_alloc\.h
+        - include/a_util/result/detail/reference_counted_object_intf\.h
+        - include/a_util/result/detail/result_description_decl\.h
+        - include/a_util/result/detail/result_description_impl\.h
+        - include/a_util/result/detail/result_info_impl\.h
+        - include/a_util/result/detail/result_type_impl\.h
+        - include/a_util/result/error_def\.h
+        - include/a_util/result/result_info\.h
+        - include/a_util/result/result_info_decl\.h
+        - include/a_util/result/result_type\.h
+        - include/a_util/result/result_type_decl\.h
+        - include/a_util/result/result_util\.h
+        - include/a_util/strings\.h
+        - include/a_util/strings/detail/strings_convert_impl\.h
+        - include/a_util/strings/detail/strings_numeric_traits_impl\.h
+        - include/a_util/strings/strings_convert\.h
+        - include/a_util/strings/strings_convert_decl\.h
+        - include/a_util/strings/strings_format\.h
+        - include/a_util/strings/strings_functions\.h
+        - include/a_util/strings/strings_numeric_traits\.h
+        - include/a_util/strings/strings_numeric_traits_decl\.h
+        - include/a_util/strings/unicode\.h
+        - include/a_util/system\.h
+        - include/a_util/system/detail/timer_impl\.h
+        - include/a_util/system/system\.h
+        - include/a_util/system/timer\.h
+        - include/a_util/system/timer_decl\.h
+        - include/a_util/system/uuid\.h
+        - include/a_util/variant\.h
+        - include/a_util/variant/variant\.h
+        - include/a_util/xml\.h
+        - include/a_util/xml/dom\.h
+        - include/ddl/ddl\.h
+        - include/ddl/legacy_error_macros\.h
+        - include/ddl/codec/access_element\.h
+        - include/ddl/codec/bitserializer\.h
+        - include/ddl/codec/codec\.h
+        - include/ddl/codec/codec_factory\.h
+        - include/ddl/codec/pkg_codec\.h
+        - include/ddl/codec/static_codec\.h
+        - include/ddl/codec/struct_element\.h
+        - include/ddl/datamodel/datamodel_base\.h
+        - include/ddl/datamodel/datamodel_datadefinition\.h
+        - include/ddl/datamodel/datamodel_header\.h
+        - include/ddl/datamodel/datamodel_keyvalue\.h
+        - include/ddl/datamodel/datamodel_streams\.h
+        - include/ddl/datamodel/datamodel_types\.h
+        - include/ddl/datamodel/datamodel_units\.h
+        - include/ddl/datamodel/infomodel_base\.h
+        - include/ddl/datamodel/xml_datamodel\.h
+        - include/ddl/datamodel/xml_ddfromxml_factory\.h
+        - include/ddl/datamodel/xml_ddtoxml_factory\.h
+        - include/ddl/dd/ddcompare\.h
+        - include/ddl/dd/ddelement\.h
+        - include/ddl/dd/ddenum\.h
+        - include/ddl/dd/ddfile\.h
+        - include/ddl/dd/ddstring\.h
+        - include/ddl/dd/ddstructure\.h
+        - include/ddl/dd/dddatatype\.h
+        - include/ddl/dd/ddunit\.h
+        - include/ddl/dd/dd\.h
+        - include/ddl/dd/dd_common_types\.h
+        - include/ddl/dd/dd_error\.h
+        - include/ddl/dd/dd_infomodel_type\.h
+        - include/ddl/dd/dd_predefined_datatypes\.h
+        - include/ddl/dd/dd_predefined_units\.h
+        - include/ddl/dd/dd_struct_access\.h
+        - include/ddl/dd/dd_typeinfomodel\.h
+        - include/ddl/dd/dd_validationinfomodel\.h
+        - include/ddl/mapping/pkg_mapping\.h
+        - include/ddl/mapping/configuration/map_assignment\.h
+        - include/ddl/mapping/configuration/map_configuration\.h
+        - include/ddl/mapping/configuration/map_header\.h
+        - include/ddl/mapping/configuration/map_source\.h
+        - include/ddl/mapping/configuration/map_target\.h
+        - include/ddl/mapping/configuration/map_transformation\.h
+        - include/ddl/mapping/configuration/map_trigger\.h
+        - include/ddl/mapping/engine/data_trigger\.h
+        - include/ddl/mapping/engine/element\.h
+        - include/ddl/mapping/engine/mapping_engine\.h
+        - include/ddl/mapping/engine/mapping_environment_intf\.h
+        - include/ddl/mapping/engine/periodic_trigger\.h
+        - include/ddl/mapping/engine/signal_trigger\.h
+        - include/ddl/mapping/engine/source\.h
+        - include/ddl/mapping/engine/target\.h
+        - include/ddl/mapping/engine/trigger\.h
+        - include/ddl/serialization/pkg_serialization\.h
+        - include/ddl/serialization/serialization\.h
+        - include/ddl/utilities/dd_access_list\.h
+        - include/ddl/utilities/dd_access_map\.h
+        - include/ddl/utilities/dd_access_observer\.h
+        - include/ddl/utilities/dd_access_optional\.h
+        - include/ddl/utilities/std_to_string\.h
+        - include/json/allocator\.h
+        - include/json/assertions\.h
+        - include/json/autolink\.h
+        - include/json/config\.h
+        - include/json/features\.h
+        - include/json/forwards\.h
+        - include/json/json\.h
+        - include/json/reader\.h
+        - include/json/value\.h
+        - include/json/version\.h
+        - include/json/writer\.h
+        - include/jsonrpccpp/client\.h
+        - include/jsonrpccpp/client/batchcall\.h
+        - include/jsonrpccpp/client/batchresponse\.h
+        - include/jsonrpccpp/client/client\.h
+        - include/jsonrpccpp/client/iclientconnector\.h
+        - include/jsonrpccpp/client/rpcprotocolclient\.h
+        - include/jsonrpccpp/common/errors\.h
+        - include/jsonrpccpp/common/exception\.h
+        - include/jsonrpccpp/common/jsonparser\.h
+        - include/jsonrpccpp/common/procedure\.h
+        - include/jsonrpccpp/common/specification\.h
+        - include/jsonrpccpp/common/specificationparser\.h
+        - include/jsonrpccpp/common/specificationwriter\.h
+        - include/jsonrpccpp/common/version\.h
+        - include/jsonrpccpp/server\.h
+        - include/jsonrpccpp/server/abstractprotocolhandler\.h
+        - include/jsonrpccpp/server/abstractserver\.h
+        - include/jsonrpccpp/server/abstractserverconnector\.h
+        - include/jsonrpccpp/server/abstractthreadedserver\.h
+        - include/jsonrpccpp/server/iclientconnectionhandler\.h
+        - include/jsonrpccpp/server/iprocedureinvokationhandler\.h
+        - include/jsonrpccpp/server/requesthandlerfactory\.h
+        - include/jsonrpccpp/server/rpcprotocolserver12\.h
+        - include/jsonrpccpp/server/rpcprotocolserverv1\.h
+        - include/jsonrpccpp/server/rpcprotocolserverv2\.h
+        - include/jsonrpccpp/server/threadpool\.h
+        - include/rpc/detail/json_rpc_impl\.h
+        - include/rpc/http/http_rpc_server\.h
+        - include/rpc/http/json_http_rpc\.h
+        - include/rpc/http/threaded_http_server\.h
+        - include/rpc/json_rpc\.h
+        - include/rpc/rpc\.h
+        - include/rpc/rpc_object_registry\.h
+        - include/rpc/rpc_server\.h
+        - lib/cmake/3rdparty/clara-config-version\.cmake
+        - lib/cmake/3rdparty/clara-config\.cmake
+        - lib/cmake/dev_essential/dev_essential-config-version\.cmake
+        - lib/cmake/dev_essential/dev_essential-config\.cmake
+        - lib/cmake/dev_essential/dev_essential_targets\.cmake
+        - MPL2\.0\.txt
+        - README\.md
+
+debug:
+    conditions:
+        deb:
+            build_type: Debug
+    files:
+        - lib/cmake/dev_essential/dev_essential_targets-debug.cmake
+
+release:
+    conditions:
+        deb:
+            build_type: Release
+    files:
+        - lib/cmake/dev_essential/dev_essential_targets-release.cmake
+
+relwithdebinfo:
+    conditions:
+        deb:
+            build_type: RelWithDebInfo
+    files:
+        - lib/cmake/dev_essential/dev_essential_targets-relwithdebinfo.cmake
+
+linux_and_qnx:
+    conditions:
+        lagd_linux:
+            os: Linux
+        lagd_neutrino:
+            os: Neutrino
+    files:
+        - bin/jsonrpcstub
+
+linux_and_qnx_debug:
+    conditions:
+        lagd_linux:
+            os: Linux
+            build_type: Debug
+        lagd_neutrino:
+            os: Neutrino
+            build_type: Debug
+    files:
+        - lib/liba_util_concurrencyd\.a
+        - lib/liba_util_csv_readerd\.a
+        - lib/liba_util_datetimed\.a
+        - lib/liba_util_filesystemd\.a
+        - lib/liba_util_loggingd\.a
+        - lib/liba_util_memoryd\.a
+        - lib/liba_util_processd\.a
+        - lib/liba_util_regexd\.a
+        - lib/liba_util_resultd\.a
+        - lib/liba_util_stringsd\.a
+        - lib/liba_util_systemd\.a
+        - lib/liba_util_variantd\.a
+        - lib/liba_util_xmld\.a
+        - lib/libddld\.a
+        - lib/libpkg_rpcd\.a
+
+linux_and_qnx_release:
+    conditions:
+        lagd_linux_rel:
+            os: Linux
+            build_type: Release
+        lagd_neutrino_rel:
+            os: Neutrino
+            build_type: Release
+        lagd_linux_rewithdebinfo:
+            os: Linux
+            build_type: RelWithDebInfo
+        lagd_neutrino_relwithdebinfo:
+            os: Neutrino
+            build_type: RelWithDebInfo
+    files:
+        - lib/liba_util_concurrency\.a
+        - lib/liba_util_csv_reader\.a
+        - lib/liba_util_datetime\.a
+        - lib/liba_util_filesystem\.a
+        - lib/liba_util_logging\.a
+        - lib/liba_util_memory\.a
+        - lib/liba_util_process\.a
+        - lib/liba_util_regex\.a
+        - lib/liba_util_result\.a
+        - lib/liba_util_strings\.a
+        - lib/liba_util_system\.a
+        - lib/liba_util_variant\.a
+        - lib/liba_util_xml\.a
+        - lib/libddl\.a
+        - lib/libpkg_rpc\.a
+
+windows:
+    conditions:
+        lagd:
+            os: Windows
+    files:
+        - scripts/debugging/result\.natvis
+        - bin/jsonrpcstub\.exe
+
+windows_debug:
+    conditions:
+        lagd:
+            os: Windows
+            build_type: Debug
+    files:
+        - lib/a_util_concurrencyd\.lib
+        - lib/a_util_csv_readerd\.lib
+        - lib/a_util_datetimed\.lib
+        - lib/a_util_filesystemd\.lib
+        - lib/a_util_loggingd\.lib
+        - lib/a_util_memoryd\.lib
+        - lib/a_util_processd\.lib
+        - lib/a_util_regexd\.lib
+        - lib/a_util_resultd\.lib
+        - lib/a_util_stringsd\.lib
+        - lib/a_util_systemd\.lib
+        - lib/a_util_variantd\.lib
+        - lib/a_util_xmld\.lib
+        - lib/ddld\.lib
+        - lib/pkg_rpcd\.lib
+
+windows_release:
+    conditions:
+        lagd_rel:
+            os: Windows
+            build_type: Release
+        lagd_relwithdebinfo:
+            os: Windows
+            build_type: RelWithDebInfo
+    files:
+        - lib/a_util_concurrency\.lib
+        - lib/a_util_csv_reader\.lib
+        - lib/a_util_datetime\.lib
+        - lib/a_util_filesystem\.lib
+        - lib/a_util_logging\.lib
+        - lib/a_util_memory\.lib
+        - lib/a_util_process\.lib
+        - lib/a_util_regex\.lib
+        - lib/a_util_result\.lib
+        - lib/a_util_strings\.lib
+        - lib/a_util_system\.lib
+        - lib/a_util_variant\.lib
+        - lib/a_util_xml\.lib
+        - lib/ddl\.lib
+        - lib/pkg_rpc\.lib

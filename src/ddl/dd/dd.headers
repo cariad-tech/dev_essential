@@ -1,0 +1,37 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+set(DD_H_DIR ${CMAKE_SOURCE_DIR}/include/ddl/dd)
+
+set(DD_H
+    ${DD_H_DIR}/dd_common_types.h
+    ${DD_H_DIR}/dd_error.h
+    ${DD_H_DIR}/dd_infomodel_type.h
+    ${DD_H_DIR}/dd_typeinfomodel.h
+    ${DD_H_DIR}/dd_validationinfomodel.h
+    ${DD_H_DIR}/dd_struct_access.h
+
+    ${DD_H_DIR}/dd_predefined_datatypes.h
+    ${DD_H_DIR}/dd_predefined_units.h
+
+    ${DD_H_DIR}/dd.h
+    ${DD_H_DIR}/ddunit.h
+    ${DD_H_DIR}/dddatatype.h
+    ${DD_H_DIR}/ddenum.h
+    ${DD_H_DIR}/ddelement.h
+    ${DD_H_DIR}/ddstructure.h
+    ${DD_H_DIR}/ddfile.h
+    ${DD_H_DIR}/ddstring.h
+    ${DD_H_DIR}/ddcompare.h
+)
+
+set(DD_INSTALL ${DD_H})

@@ -1,0 +1,67 @@
+[
+    {
+        "name": "GetInteger",
+        "params": {
+            "nValue": 1
+        },
+        "returns": 1
+    },
+
+    {
+        "name": "Concat",
+        "params": {
+            "strString1": "foo",
+            "strString2": "bar"
+        },
+        "returns": "foobar"
+    },
+
+    {
+        "name": "GetIntegerAsString",
+        "params": {
+            "nValue": "1234"
+        },
+        "returns": "1234"
+    },
+
+    {
+        "name": "GetResult",
+        "returns": {
+            "ErrorCode": 0,
+            "Description": "no error",
+            "Line": 0,
+            "File": "file.cpp",
+            "Function": "foo"
+        }
+    },
+    {
+        "name": "RegisterObject",
+        "returns": {
+            "ErrorCode": 0,
+            "Description": "no error",
+            "Line": 0,
+            "File": "file.cpp",
+            "Function": "foo"
+        }
+    },
+    {
+        "name": "UnregisterObject",
+        "returns": {
+            "ErrorCode": 0,
+            "Description": "no error",
+            "Line": 0,
+            "File": "file.cpp",
+            "Function": "foo"
+        }
+    },
+    {
+        "name": "UnregisterSelf",
+        "returns": {
+            "ErrorCode": 0,
+            "Description": "no error",
+            "Line": 0,
+            "File": "file.cpp",
+            "Function": "foo"
+        }
+    }
+]

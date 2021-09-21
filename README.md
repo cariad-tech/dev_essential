@@ -197,7 +197,7 @@ The changelog can be found [here](doc/extern/changelog.md).
 ## License Information <a name="license-information"></a>
 ### Dev essential libraries - License
 The dev essential libraries are delivered under the
-[MPL - Mozilla Public License - Version 2.0](doc/extern/license/MPL2.0.txt).
+[MPL - Mozilla Public License - Version 2.0](LICENSE).
 
 ### Used software license information
 The dev essential libraries are delivered with the following 3rdparty dependencies:

@@ -12,5 +12,4 @@
 
 ##installation of documentation related files
 install(FILES extern/changelog.md DESTINATION doc)
-install(FILES extern/license/MPL2.0.txt DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(DIRECTORY extern/license DESTINATION doc)
+install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX})

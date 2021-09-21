@@ -163,7 +163,7 @@ The RPC Package depends on the [a_util](a_util.md) library.
 ## License
 
 The package RPC is delivered under the
-[MPL - Mozilla Public License - Version 2.0](doc/extern/license/MPL2.0.txt)
+[MPL - Mozilla Public License - Version 2.0](LICENSE)
 
 The package RPC is delivered with the following 3rdparty dependencies:
 - [cpp-httplib](https://github.com/yhirose/cpp-httplib)

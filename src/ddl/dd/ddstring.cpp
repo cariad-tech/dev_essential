@@ -56,7 +56,7 @@ dd::DataDefinition DDString::fromXMLString(const std::string& xml_string,
         std::make_shared<dd::datamodel::DataDefinition>(std::move(created_datamodel)));
     // setModel validates
     // we throw if invalid
-    if (!created_dd.isValid(dd::ValidationInfo::ValidationLevel::good_enough)) {
+    if (!created_dd.isValid(dd::ValidationLevel::good_enough)) {
         throw dd::Error("DDString::fromXMLString",
                         {"xml_string"},
                         "is not valid. See validation protocol!",

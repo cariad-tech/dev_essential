@@ -15,6 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
+#include <a_util/base/types.h> // a_util::maybe_unused
 #include <a_util/strings/strings_functions.h>
 #include <a_util/variant/variant.h>
 
@@ -57,16 +58,64 @@ public:
         checkEqualToReference(variant_copy_assigned);
     }
 
-    void checkMoveSemantics()
+    void checkMoveSemantics() const
     {
-        // move construction
-        Variant variant_move_constructed(std::move(variant_under_test));
-        checkEqualToReference(variant_move_constructed);
-        ASSERT_EQ(Variant(), variant_under_test);
-        // move assignment
-        variant_under_test = std::move(variant_move_constructed);
-        EXPECT_EQ(Variant(), variant_move_constructed);
-        checkEqualToReference(variant_under_test);
+        // move construction leaves the moved-from object in empty state
+        {
+            Variant moved_from_variant = variant_under_test;
+            EXPECT_FALSE(moved_from_variant.isEmpty());
+            Variant moved_to_variant(std::move(moved_from_variant));
+            EXPECT_TRUE(moved_from_variant.isEmpty());
+        }
+
+        // a moved instance must be destroyable, re-initializeable with assignment operator=
+        // move construction - check destroyable
+        {
+            Variant moved_from_variant = variant_under_test;
+            Variant moved_to_variant(std::move(moved_from_variant));
+            checkEqualToReference(moved_to_variant);
+            // destroyable
+            moved_from_variant.~Variant();
+        }
+
+        // move construction - check re-initializeable with copy
+        {
+            Variant moved_from_variant = variant_under_test;
+            Variant moved_to_variant(std::move(moved_from_variant));
+            checkEqualToReference(moved_to_variant);
+            moved_from_variant = variant_under_test;
+            checkEqualToReference(moved_from_variant);
+        }
+
+        // move construction - check re-initializeable with move
+        {
+            Variant moved_from_variant = variant_under_test;
+            Variant moved_to_variant(std::move(moved_from_variant));
+            a_util::maybe_unused(moved_to_variant);
+            Variant moved_from_variant2 = variant_under_test;
+            moved_from_variant = std::move(moved_from_variant2);
+            checkEqualToReference(moved_from_variant);
+        }
+
+        // move construction - check re-initializable via reset()
+        {
+            Variant moved_from_variant = variant_under_test;
+            Variant moved_to_variant(std::move(moved_from_variant));
+            a_util::maybe_unused(moved_to_variant);
+            moved_from_variant.reset(T{});
+            EXPECT_EQ(moved_from_variant, Variant(T{}));
+        }
+
+        // move construction - check re-initializable via array reset()
+        {
+            Variant moved_from_variant = variant_under_test;
+            Variant moved_to_variant(std::move(moved_from_variant));
+            a_util::maybe_unused(moved_to_variant);
+
+            const T val{};
+            moved_from_variant.reset(&val, 1);
+            EXPECT_EQ(moved_from_variant.getArraySize(), 1);
+        }
     }
 
 private:
@@ -174,6 +223,63 @@ TEST(variant_test, CopyAndMoveSemantics)
         VariantTester variant_tester(&Variant::getFloat64, "getFloat64");
         variant_tester.checkCopySemantics();
         variant_tester.checkMoveSemantics();
+    }
+}
+
+/**
+ * Test whether copy and move semantics work correctly for VTString variant objects
+ * @req_id ODAUTIL-122
+ */
+TEST(variant_test, CopyAndMoveSemanticsVTString)
+{
+    constexpr const char test_string[] = "Hello World, I'm a VTString Variant";
+    const Variant variant_under_test(test_string);
+    ASSERT_STREQ(test_string, variant_under_test.getString());
+
+    { // copy semantics
+        const Variant variant_copy_constructed(variant_under_test);
+        EXPECT_NE(variant_copy_constructed.getString(), variant_under_test.getString());
+        EXPECT_STREQ(variant_copy_constructed.getString(), variant_under_test.getString());
+        // copy assignment
+        Variant variant_copy_assigned;
+        variant_copy_assigned = variant_under_test;
+        EXPECT_NE(variant_copy_assigned.getString(), variant_under_test.getString());
+        EXPECT_STREQ(variant_copy_assigned.getString(), variant_under_test.getString());
+    }
+
+    // a moved instance must be destroyable, re-initializeable with assignment operator=
+    { // move construction - check for same ptr address after move
+        Variant moved_from_variant = variant_under_test;
+        const char* const string_address = moved_from_variant.getString();
+        Variant moved_to_variant(std::move(moved_from_variant));
+
+        EXPECT_EQ(string_address, moved_to_variant.getString());
+        EXPECT_STREQ(moved_to_variant.getString(), variant_under_test.getString());
+    }
+
+    { // move construction - check re-initializeable with copy
+        Variant moved_from_variant = variant_under_test;
+        Variant moved_to_variant(std::move(moved_from_variant));
+        moved_from_variant = variant_under_test;
+        EXPECT_STREQ(moved_from_variant.getString(), variant_under_test.getString());
+    }
+
+    { // move construction - check re-initializeable with move
+        Variant moved_from_variant = variant_under_test;
+        Variant moved_from_variant2 = variant_under_test;
+        Variant moved_to_variant(std::move(moved_from_variant));
+        a_util::maybe_unused(moved_to_variant);
+        moved_from_variant = std::move(moved_from_variant2);
+        EXPECT_STREQ(moved_from_variant.getString(), variant_under_test.getString());
+    }
+
+    // move construction - check re-initializable via reset(const char*)
+    {
+        Variant moved_from_variant = variant_under_test;
+        Variant moved_to_variant(std::move(moved_from_variant));
+        a_util::maybe_unused(moved_to_variant);
+        moved_from_variant.reset("Hello World, I'm reborn");
+        EXPECT_STREQ("Hello World, I'm reborn", moved_from_variant.getString());
     }
 }
 

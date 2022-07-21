@@ -20,6 +20,8 @@
 #include <ddl/dd/dd_predefined_datatypes.h>
 #include <ddl/dd/dd_typeinfomodel.h>
 
+#include <iterator>
+
 namespace ddl {
 namespace dd {
 
@@ -126,11 +128,12 @@ void createOrUpdateElementInfo(
     }
     elem_info->update(element_type, previous_element, struct_ddl_version, parent_dd);
 }
+
 } // namespace
 
 void TypeInfo::update(datamodel::StructType& struct_type,
                       datamodel::DataDefinition& parent_dd,
-                      bool recalculate_all)
+                      UpdateType update_type)
 {
     if (_already_discovering) {
         _is_valid = false;
@@ -138,18 +141,33 @@ void TypeInfo::update(datamodel::StructType& struct_type,
     }
     _already_discovering = true;
 
-    _is_valid = true;
-    _is_dynamic = false; // this will be reset within the element loop
-
     // this is a special case, we need to access the element and create elements info, it cant be
     // const then
     bool updated_previous_element = false;
     std::shared_ptr<datamodel::StructType::Element> previous_element = {};
     size_t discovered_type_bit_size = 0;
     size_t discovered_last_static_byte_offset = 0;
-    for (auto& current_element: struct_type.getElements()) {
+
+    // prepare loop for all or only the last
+    auto& elements = struct_type.getElements();
+    auto current_it = elements.begin();
+    if (update_type == UpdateType::only_last) {
+        if (elements.getSize() > 2) {
+            std::advance(current_it, elements.getSize() - 2);
+            previous_element = *current_it;
+            std::advance(current_it, 1);
+        }
+    }
+    else {
+        updated_previous_element = (update_type == UpdateType::force_all);
+        _is_valid = true;
+        _is_dynamic = false; // this will be reset within the element loop
+    }
+
+    for (; current_it != elements.end(); ++current_it) {
+        auto current_element = *current_it;
         auto current_elem_info = current_element->getInfo<ElementTypeInfo>();
-        if (current_elem_info != nullptr && !recalculate_all && !updated_previous_element) {
+        if (current_elem_info != nullptr && !updated_previous_element) {
             // go ahead to the next
         }
         else {
@@ -159,8 +177,8 @@ void TypeInfo::update(datamodel::StructType& struct_type,
                 *current_element, previous_element, struct_type.getLanguageVersion(), parent_dd);
             current_elem_info = current_element->getInfo<ElementTypeInfo>();
         }
-        if (current_elem_info->isDynamic()) // means it has a dynamic type OR is an dynamic array
-        {
+        if (current_elem_info->isDynamic()) {
+            // means it has a dynamic type OR is an dynamic array
             _is_dynamic = true;
         }
         else {
@@ -171,8 +189,8 @@ void TypeInfo::update(datamodel::StructType& struct_type,
                     *(current_elem_info->getDeserializedByteSize());
             }
         }
-        if (!current_elem_info->isValid()) // means it has a dynamic type OR is an dynamic array
-        {
+        if (!current_elem_info->isValid()) {
+            // means it has a dynamic type OR is an dynamic array
             _is_valid = false;
         }
         size_t current_serialized_highest_bit = getSerializedHighestBit(*current_element);
@@ -191,7 +209,7 @@ void TypeInfo::update(datamodel::StructType& struct_type,
     }
     else {
         if (previous_element) {
-            // the last element has the size (bytpos + its size)
+            // the last element has the size (bytepos + its size)
             _type_byte_size = discovered_last_static_byte_offset;
             _type_aligned_byte_size = calculateAlignedSize(_type_byte_size, _type_alignment);
             Version relevant_version = struct_type.getLanguageVersion();

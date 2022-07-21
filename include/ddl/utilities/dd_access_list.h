@@ -27,6 +27,12 @@ You may add additional accurate notices of copyright ownership.
 
 #include <algorithm>
 #include <memory>
+#include <unordered_map>
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+#include <string_view>
+#elif defined(_MSC_VER) && (_MSC_VER >= 1920)
+#include <string_view>
+#endif
 
 namespace ddl {
 namespace dd {
@@ -45,7 +51,11 @@ enum TypeAccessListEventCode {
     list_item_renamed,
     list_subitem_added,
     list_subitem_removed,
-    list_subitem_changed
+    list_subitem_changed,
+    list_item_popped,
+    list_subitem_popped,
+    list_item_inserted,
+    list_subitem_inserted
 };
 
 /**
@@ -81,6 +91,14 @@ public:
     typedef std::shared_ptr<DDL_TYPE_TO_ACCESS> value_type;
     /// local definition of the container type
     typedef std::vector<value_type> container_type;
+    /// local definition of the container type
+#if defined(__GNUC__) && (__GNUC__ > 7)
+    typedef std::unordered_map<std::string_view, value_type> container_named_type;
+#elif defined(_MSC_VER) && (_MSC_VER >= 1920)
+    typedef std::unordered_map<std::string_view, value_type> container_named_type;
+#else
+    typedef std::unordered_map<std::string, value_type> container_named_type;
+#endif
     /// local definition of the container iterator
     typedef typename container_type::iterator iterator;
     /// local definition of the container const_iterator
@@ -198,13 +216,21 @@ public:
      */
     std::shared_ptr<const DDL_TYPE_TO_ACCESS> get(const std::string& type_name) const
     {
-        for (auto& current: _types) {
-            if (current->getName() == type_name) {
-                std::shared_ptr<const DDL_TYPE_TO_ACCESS> const_return = current;
-                return const_return;
+        if (_validator) {
+            const container_named_type* named_items = _validator->getNamedItemList();
+            const auto found = named_items->find(type_name);
+            if (found != named_items->end()) {
+                return found->second;
             }
         }
-
+        else {
+            for (auto& current: _types) {
+                if (current->getName() == type_name) {
+                    std::shared_ptr<const DDL_TYPE_TO_ACCESS> const_return = current;
+                    return const_return;
+                }
+            }
+        }
         return {};
     }
 
@@ -237,9 +263,18 @@ public:
      */
     bool contains(const std::string& type_name) const
     {
-        for (auto& current: _types) {
-            if (current->getName() == type_name) {
+        if (_validator) {
+            const container_named_type* named_items = _validator->getNamedItemList();
+            const auto found = named_items->find(type_name);
+            if (found != named_items->end()) {
                 return true;
+            }
+        }
+        else {
+            for (auto& current: _types) {
+                if (current->getName() == type_name) {
+                    return true;
+                }
             }
         }
         return false;
@@ -254,7 +289,7 @@ public:
      */
     bool contains(const DDL_TYPE_TO_ACCESS& type_to_find) const
     {
-        auto value_found = get(type_to_find.getName());
+        const auto value_found = get(type_to_find.getName());
         if (value_found) {
             return type_to_find == *value_found;
         }
@@ -286,33 +321,21 @@ public:
      */
     void add(const DDL_TYPE_TO_ACCESS& type_to_add)
     {
-        const auto type_found = get(type_to_add.getName());
-        // have a look if the type already exists here
-        if (type_found) {
-            // check if they are equal
-            if (*type_found != type_to_add) {
-                throw ddl::dd::Error(_validation_info + "::add",
-                                     {type_to_add.getName()},
-                                     "value with the given name already exists");
-            }
+        if (checkExistenceAndEquality(type_to_add)) {
+            // this will immediatelly return if the type exists and is equal
+            // otherwise the check will throw!
+            return;
         }
-        else {
-            // has already another type
-            bool already_exists = contains(type_to_add.getName());
-            if (_validator && !already_exists) {
-                already_exists = _validator->validateContains(type_to_add);
-            }
-            if (already_exists) {
-                throw ddl::dd::Error(_validation_info + "::add",
-                                     {type_to_add.getName()},
-                                     "value with the given name already exists");
-            }
-        }
+
         auto new_type_value = std::make_shared<DDL_TYPE_TO_ACCESS>(type_to_add);
         // i want to observe this
         (static_cast<map_subject_type*>(new_type_value.get()))
             ->attachObserver(static_cast<observer_type*>(this));
         _types.push_back(new_type_value);
+        if (_validator) {
+            container_named_type* named_items = _validator->getNamedItemList();
+            (*named_items)[new_type_value->getName()] = new_type_value;
+        }
         if (_validator) {
             _validator->notifyChangedListContent(
                 TypeAccessListEventCode::list_item_added, *new_type_value, type_to_add.getName());
@@ -337,27 +360,10 @@ public:
             add(type_to_add);
         }
         else {
-            auto type_found = get(type_to_add.getName());
-            // have a look if the type already exists here
-            if (type_found) {
-                // check if they are equal
-                if (*type_found != type_to_add) {
-                    throw ddl::dd::Error(_validation_info + "::insert",
-                                         {type_to_add.getName()},
-                                         "value with the given name already exists");
-                }
-            }
-            else {
-                // has already another type
-                bool already_exists = contains(type_to_add.getName());
-                if (_validator && !already_exists) {
-                    already_exists = _validator->validateContains(type_to_add);
-                }
-                if (already_exists) {
-                    throw ddl::dd::Error(_validation_info + "::insert",
-                                         {type_to_add.getName()},
-                                         "value with the given name already exists");
-                }
+            if (checkExistenceAndEquality(type_to_add)) {
+                // this will immediatelly return if the type exists and is equal
+                // otherwise the check will throw!
+                return;
             }
             auto new_type_value = std::make_shared<DDL_TYPE_TO_ACCESS>(type_to_add);
             // i want to observe this
@@ -368,7 +374,11 @@ public:
             std::advance(cit, pos_idx);
             _types.insert(cit, new_type_value);
             if (_validator) {
-                _validator->notifyChangedListContent(TypeAccessListEventCode::list_item_added,
+                container_named_type* named_items = _validator->getNamedItemList();
+                (*named_items)[new_type_value->getName()] = new_type_value;
+            }
+            if (_validator) {
+                _validator->notifyChangedListContent(TypeAccessListEventCode::list_item_inserted,
                                                      *new_type_value,
                                                      type_to_add.getName());
             }
@@ -383,33 +393,20 @@ public:
      */
     void emplace(DDL_TYPE_TO_ACCESS&& type_to_add)
     {
-        const auto type_found = get(type_to_add.getName());
-        // have a look if the type already exists here
-        if (type_found) {
-            // check if they are equal
-            if (*type_found != type_to_add) {
-                throw ddl::dd::Error(_validation_info + "::add",
-                                     {type_to_add.getName()},
-                                     "value with the given name already exists");
-            }
-        }
-        else {
-            // has already another type
-            bool already_exists = contains(type_to_add.getName());
-            if (_validator && !already_exists) {
-                already_exists = _validator->validateContains(type_to_add);
-            }
-            if (already_exists) {
-                throw ddl::dd::Error(_validation_info + "::add",
-                                     {type_to_add.getName()},
-                                     "value with the given name already exists");
-            }
+        if (checkExistenceAndEquality(type_to_add)) {
+            // this will immediatelly return if the type exists and is equal
+            // otherwise the check will throw!
+            return;
         }
         auto new_type_value = std::make_shared<DDL_TYPE_TO_ACCESS>(std::move(type_to_add));
         // i want to observe this
         (static_cast<map_subject_type*>(new_type_value.get()))
             ->attachObserver(static_cast<observer_type*>(this));
         _types.push_back(new_type_value);
+        if (_validator) {
+            container_named_type* named_items = _validator->getNamedItemList();
+            (*named_items)[new_type_value->getName()] = new_type_value;
+        }
         if (_validator) {
             _validator->notifyChangedListContent(TypeAccessListEventCode::list_item_added,
                                                  *new_type_value,
@@ -434,6 +431,10 @@ public:
         }
         if (removed_value) {
             _types.erase(current_it);
+            if (_validator) {
+                container_named_type* named_items = _validator->getNamedItemList();
+                named_items->erase(type_name);
+            }
             (static_cast<subject_type*>(removed_value.get()))
                 ->detachObserver(static_cast<observer_type*>(this));
             if (_validator) {
@@ -454,9 +455,18 @@ public:
      */
     std::shared_ptr<DDL_TYPE_TO_ACCESS> access(const std::string& type_name)
     {
-        for (const auto& current: _types) {
-            if (current->getName() == type_name) {
-                return current;
+        if (_validator) {
+            container_named_type* named_items = _validator->getNamedItemList();
+            auto value_found = named_items->find(type_name);
+            if (value_found != named_items->end()) {
+                return value_found->second;
+            }
+        }
+        else {
+            for (const auto& current: _types) {
+                if (current->getName() == type_name) {
+                    return current;
+                }
             }
         }
         return {};
@@ -567,14 +577,16 @@ public:
      */
     void clear()
     {
-        auto it = begin();
-        while (it != end()) {
+        for (auto& current: _types) {
             // unregister me as observer
-            (static_cast<subject_type*>(it->get()))
+            (static_cast<subject_type*>(current.get()))
                 ->detachObserver(static_cast<observer_type*>(this));
-            _types.erase(it);
-            it = begin();
         }
+        if (_validator) {
+            container_named_type* named_items = _validator->getNamedItemList();
+            named_items->clear();
+        }
+        _types.clear();
     }
 
     /**
@@ -589,9 +601,13 @@ public:
             (static_cast<subject_type*>(last_element.get()))
                 ->detachObserver(static_cast<observer_type*>(this));
             // pop last element
+            if (_validator) {
+                container_named_type* named_items = _validator->getNamedItemList();
+                named_items->erase(last_element->getName());
+            }
             _types.pop_back();
             if (_validator) {
-                _validator->notifyChangedListContent(TypeAccessListEventCode::list_item_removed,
+                _validator->notifyChangedListContent(TypeAccessListEventCode::list_item_popped,
                                                      *last_element,
                                                      last_element->getName());
             }
@@ -614,19 +630,33 @@ public:
                       const std::string& additional_info)
     {
         if (event_code == list_item_renamed) {
-            // has already another type
-            // we need to count here because the name is already set to the new one
-            // only if > 1 then it will exist 2 times!
-            const bool already_exists = countContains(subject_changed.getName()) > 1;
-            if (_validator && !already_exists) {
-                // this can not be checked from outside here, because the new name was already set
-                // already_exists = _validator->validateContains(subject_changed);
+            bool already_exists = false;
+            if (_validator) {
+                already_exists = _validator->validateContains(subject_changed);
+            }
+            else {
+                already_exists = countContains(subject_changed.getName()) > 1;
             }
             if (already_exists) {
                 throw ddl::dd::Error(
                     _validation_info + "::modelChanged",
                     {subject_changed.getName()},
                     "Renaming not possible. Value with the given name already exists");
+            }
+            else {
+                if (_validator) {
+                    container_named_type* named_items = _validator->getNamedItemList();
+                    typename container_named_type::iterator found_in_names = named_items->begin();
+                    for (; found_in_names != named_items->end(); ++found_in_names) {
+                        // we need to search it to reset the stringview
+                        if (found_in_names->second->getName() == subject_changed.getName()) {
+                            auto old_value = found_in_names->second;
+                            named_items->erase(found_in_names);
+                            (*named_items)[old_value->getName()] = old_value;
+                            break;
+                        }
+                    }
+                }
             }
         }
         if (_validator) {
@@ -647,9 +677,8 @@ private:
     void deepCopy(TypeAccessList& destination, TYPE_VALIDATOR_CLASS* validator) const
     {
         destination = *this;
-        destination._validator = validator;
+        destination.setValidator(validator);
     }
-
     /**
      * @brief determines the count of the type name exists in this list
      *
@@ -664,8 +693,53 @@ private:
         });
     }
 
+    bool checkExistenceAndEquality(const DDL_TYPE_TO_ACCESS& type_to_add)
+    {
+        // has already another type
+        bool already_exists = false;
+        if (_validator) {
+            already_exists = _validator->validateContains(type_to_add);
+        }
+        else {
+            already_exists = contains(type_to_add.getName());
+        }
+        if (already_exists) {
+            // have a look if the type does exist in this list
+            const auto type_found = get(type_to_add.getName());
+            // have a look if the type already exists here
+            if (type_found) {
+                // check if they are equal
+                if (*type_found == type_to_add) {
+                    // its okay ... its the same type/content
+                    return true;
+                }
+                throw ddl::dd::Error(_validation_info + "::add",
+                                     {type_to_add.getName()},
+                                     "value with the given name already exists");
+            }
+            else {
+                throw ddl::dd::Error(_validation_info + "::add",
+                                     {type_to_add.getName()},
+                                     "value with the given name already exists");
+            }
+        }
+        return false;
+    }
+
+    void setValidator(TYPE_VALIDATOR_CLASS* validator)
+    {
+        _validator = validator;
+        if (_validator) {
+            container_named_type* named_items = _validator->getNamedItemList();
+            named_items->clear();
+            for (auto& value: _types) {
+                (*named_items)[value->getName()] = value;
+            }
+        }
+    }
+
     container_type _types;
-    TYPE_VALIDATOR_CLASS* _validator;
+    TYPE_VALIDATOR_CLASS* _validator = {};
     std::string _validation_info;
 };
 

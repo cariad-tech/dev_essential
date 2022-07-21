@@ -56,7 +56,7 @@ dd::DataDefinition DDFile::fromXMLFile(const std::string& xml_filepath, bool str
     // this will validate
     created_dd.setModel(
         std::make_shared<dd::datamodel::DataDefinition>(std::move(created_datamodel)));
-    if (!created_dd.isValid(dd::DataDefinition::ValidationLevel::good_enough)) {
+    if (!created_dd.isValid(dd::ValidationLevel::good_enough)) {
         throw dd::Error("DDFile::fromXMLFile",
                         {xml_filepath},
                         "is not valid. See validation protocol!",

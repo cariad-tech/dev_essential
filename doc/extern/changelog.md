@@ -21,6 +21,15 @@ The format is based on [Keep a Changelog][] and this project adheres to [Semanti
 
 ## Version history
 ### [Dev essentials libraries](#dev_essential_libraries)
+* [1.1.4](#dev_essential_1_1_4) \| Changes \|
+  [Fixes](#dev_essential_1_1_4_fixes) \| [Known issues](#dev_essential_1_1_4_known_issues) \|
+  Release date: 2022/05/20
+* [1.1.3](#dev_essential_1_1_3) \| Changes \|
+  [Fixes](#dev_essential_1_1_3_fixes) \| [Known issues](#dev_essential_1_1_3_known_issues) \|
+  Release date: 2022/05/13
+* [1.1.2](#dev_essential_1_1_2) \| Changes \|
+  [Fixes](#dev_essential_1_1_2_fixes) \| [Known issues](#dev_essential_1_1_2_known_issues) \|
+  Release date: 2022/03/04
 * [1.1.1](#dev_essential_1_1_1) \| [Changes](#dev_essential_1_1_1_changes) \|
   [Fixes](#dev_essential_1_1_1_fixes) \| [Known issues](#dev_essential_1_1_1_known_issues) \|
   Release date: 2022/01/21
@@ -77,6 +86,32 @@ The format is based on [Keep a Changelog][] and this project adheres to [Semanti
 
 <a name="dev_essential_libraries"></a>
 ## Dev essential libraries
+<a name="dev_essential_1_1_4"></a>
+### [dev_essential 1.1.4][] - 2022/05/20
+
+<a name="dev_essential_1_1_4_fixes"></a>
+#### Fixes
+_**Fixed**_
+- [ODAUTIL-568][] - [ddl] TypeAccessList within 1.1.3 is not compatible with 1.1.2 
+
+
+<a name="dev_essential_1_1_3"></a>
+### [dev_essential 1.1.3][] - 2022/05/13
+
+<a name="dev_essential_1_1_3_fixes"></a>
+#### Fixes
+_**Fixed**_
+- [ODAUTIL-539][] - [ddl] ElementTypeInfo will not be updated if add is used and has performance problem 
+- [ODAUTIL-545][] - [Variant] Move construction and move assignment very slow 
+- [ODAUTIL-550][] - [ddl] If a predefined type is used in enum the ValidationInfo will not be created
+
+<a name="dev_essential_1_1_2"></a>
+### [dev_essential 1.1.2][] - 2022/03/04
+
+<a name="dev_essential_1_1_2_fixes"></a>
+#### Fixes
+_**Fixed**_
+- [ODAUTIL-540][] - [ddl] Performance collapse due to DDFromXMLFactory::isInteger change 
 
 <a name="dev_essential_1_1_1"></a>
 ### [dev_essential 1.1.1][] - 2022/01/21

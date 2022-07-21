@@ -1,4 +1,4 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2022 VW Group. All rights reserved.
 #
 #     This Source Code Form is subject to the terms of the Mozilla
 #     Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -10,15 +10,10 @@
 #
 # You may add additional accurate notices of copyright ownership.
 
-set(DD_UTILITIES_DIR ${dev_essential_SOURCE_DIR}/include/ddl/utilities)
+set(DD_UTILITIES_SRC utilities)
 
-set(DD_UTILITIES_H
-    ${DD_UTILITIES_DIR}/dd_access_observer.h
-    ${DD_UTILITIES_DIR}/dd_access_list.h
-    ${DD_UTILITIES_DIR}/dd_access_map.h
-    ${DD_UTILITIES_DIR}/dd_access_optional.h
-    ${DD_UTILITIES_DIR}/std_to_string.h
-    ${DD_UTILITIES_DIR}/string_check.h
+set(DD_UTILITIES_CPP
+    ${DD_UTILITIES_SRC}/string_check.cpp
 )
 
-set(DD_UTILITIES_INSTALL ${DD_UTILITIES_H})
+source_group(utilities FILES ${DD_UTILITIES_H} ${DD_UTILITIES_CPP})

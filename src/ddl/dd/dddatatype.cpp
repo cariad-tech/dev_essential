@@ -18,6 +18,9 @@
 #include <a_util/strings.h>
 #include <ddl/dd/dddatatype.h>
 
+#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+#include <ddl/dd/dd_validationinfomodel.h>
+
 namespace ddl {
 
 DDDataType::DDDataType(const DDDataType& other) : _dd(other._dd)
@@ -61,7 +64,7 @@ DDDataType::DDDataType(const std::string& name,
                                             maximum_value,
                                             default_type_alignment));
     _dd.validate();
-    if (!_dd.isValid(dd::ValidationInfo::good_enough)) {
+    if (!_dd.isValid(dd::ValidationLevel::good_enough)) {
         throw dd::Error(
             "DDDataType::DDDataType",
             {name},
@@ -90,7 +93,7 @@ DDDataType::DDDataType(const std::string& name,
                                             maximum_value,
                                             default_type_alignment));
     _dd.validate();
-    if (!_dd.isValid(dd::ValidationInfo::good_enough)) {
+    if (!_dd.isValid(dd::ValidationLevel::good_enough)) {
         throw dd::Error(
             "DDDataType::DDDataType",
             {name},
@@ -118,7 +121,7 @@ DDDataType::DDDataType(const std::string& name,
                                             maximum_value,
                                             default_type_alignment));
     _dd.validate();
-    if (!_dd.isValid(dd::ValidationInfo::good_enough)) {
+    if (!_dd.isValid(dd::ValidationLevel::good_enough)) {
         throw dd::Error(
             "DDDataType::DDDataType",
             {name},

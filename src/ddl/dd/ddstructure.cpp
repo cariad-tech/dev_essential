@@ -65,8 +65,7 @@ DDStructure::DDStructure(const std::string& name,
     _dd.setVersion(ddl_version);
     _dd.getStructTypes().emplace(
         dd::StructType(name, std::to_string(struct_version), alignment, comment, ddl_version));
-    _dd.validate();
-    if (!_dd.isValid(dd::ValidationInfo::good_enough)) {
+    if (!_dd.isValid(dd::ValidationLevel::good_enough)) {
         throw dd::Error(
             "DDStructure::DDStructure",
             {name},
@@ -303,9 +302,9 @@ DDStructure& DDStructure::addElement(const DDElement& element)
 {
     _dd.add(element.getDD());
     _struct_type->getElements().add(element.getElement());
-    auto elem_name = element.getElement().getName();
-    _dd.validate(true);
-    if (!_dd.isValid(dd::ValidationInfo::good_enough)) {
+
+    if (!_dd.isValid(dd::ValidationLevel::good_enough)) {
+        auto elem_name = element.getElement().getName();
         auto error_msg =
             a_util::strings::join(dd::transformProblemList(_dd.getValidationProtocol()), "\n");
         _struct_type->getElements().remove(elem_name);

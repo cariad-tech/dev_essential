@@ -26,6 +26,20 @@ You may add additional accurate notices of copyright ownership.
 
 #include <string>
 
+/**
+ * @def DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API
+ * @brief defines deprecated warnings on ddl::dd::TypeInfo, it will be removed from
+ * public API!
+ * @remark disable by defining DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+ */
+
+#ifndef DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+#define DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API                                                      \
+    [[deprecated("Use the ddl::dd::StructTypeAccess and ddl::dd::StructElementAccess instead")]]
+#else
+#define DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API /**/
+#endif
+
 namespace ddl {
 
 namespace dd {
@@ -46,6 +60,7 @@ public:
      * @brief default CTOR
      *
      */
+    DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API
     TypeInfo() = default;
     /**
      * @brief CTOR to create a Type Info that is initial updated with data_type information.
@@ -53,6 +68,7 @@ public:
      * @param data_type the data type to initialize the info for
      * @param parent_dd the parent DD to retrieve dependencies from
      */
+    DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API
     TypeInfo(const datamodel::DataType& data_type, datamodel::DataDefinition& parent_dd);
     /**
      * @brief CTOR to create a Type Info that is initial updated with enum_type information.
@@ -60,6 +76,7 @@ public:
      * @param enum_type the data type to initialize the info for
      * @param parent_dd the parent DD to retrieve dependencies from
      */
+    DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API
     TypeInfo(const datamodel::EnumType& enum_type, datamodel::DataDefinition& parent_dd);
 
     /**
@@ -125,19 +142,27 @@ public:
      * @param parent_dd the parent DD
      */
     void update(const datamodel::EnumType& enum_type, datamodel::DataDefinition& parent_dd);
+
+    /**
+     * @brief Update type for the struct update.
+     */
+    enum class UpdateType {
+        only_changed = 0, //!< update only changed elements
+        force_all = 1,    //!< force recaculation of all elements
+        only_last = 2     //!< update the last element only
+    };
     /**
      * @brief Updates the content for a struct_type. It will also create or update the @ref
-     * ElementTypeInfo for all contained elements (if necessary). To force a whole recalculation of
-     * all elements and its there TypeInfo set \p recalculate_all to true. This function will detect
-     * recursions!
+     * ElementTypeInfo for all contained elements (if necessary).
      *
      * @param struct_type the struct_type
      * @param parent_dd the parent DD
-     * @param recalculate_all force recalulation of all elements and their depending TypeInfo.
+     * @param update_type update type to determine to validate only the last, the changed or all
+     * elements.
      */
     void update(datamodel::StructType& struct_type,
                 datamodel::DataDefinition& parent_dd,
-                bool recalculate_all = false);
+                UpdateType update_type = UpdateType::only_changed);
 
 private:
     size_t _type_bit_size = 0;
@@ -162,6 +187,12 @@ public:
      *
      */
     static constexpr const uint8_t INFO_TYPE_ID = dd::InfoType::element_type_info;
+
+    /**
+     * default CTOR
+     */
+    DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API
+    ElementTypeInfo() = default;
 
     /**
      * @brief Get the Deserialized Byte Pos

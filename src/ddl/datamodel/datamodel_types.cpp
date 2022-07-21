@@ -15,9 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/datamodel/datamodel_types.h"
-
-#include "ddl/utilities/std_to_string.h"
+#include <ddl/datamodel/datamodel_types.h>
+#include <ddl/utilities/std_to_string.h>
 
 #include <exception>
 #include <utility>

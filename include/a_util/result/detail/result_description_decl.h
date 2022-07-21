@@ -22,8 +22,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_DECL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_DECL_HEADER_INCLUDED
 
-#include "a_util/result/detail/reference_counted_object_intf.h"
-#include "a_util/result/result_info_decl.h"
+#include <a_util/result/detail/reference_counted_object_intf.h>
+#include <a_util/result/result_info_decl.h>
 
 #include <cstdint>
 
@@ -196,7 +196,7 @@ bool operator!=(const ResultDescription<T>& lhs, const ResultDescription<T>& rhs
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/result/detail/result_description_impl.h"
+#include <a_util/result/detail/result_description_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_DECL_HEADER_INCLUDED

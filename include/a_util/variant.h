@@ -31,6 +31,6 @@ namespace variant {
 }
 } // namespace a_util
 
-#include "a_util/variant/variant.h"
+#include <a_util/variant/variant.h>
 
 #endif //_A_UTILS_UTIL_VARIANT_HEADER_INCLUDED_

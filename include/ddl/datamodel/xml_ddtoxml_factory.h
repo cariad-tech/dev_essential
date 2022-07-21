@@ -21,10 +21,10 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DD_TO_XML_FACTORY_H_INCLUDED
 #define DD_DD_TO_XML_FACTORY_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_datadefinition.h"
-#include "ddl/dd/dd_error.h"
-#include "ddl/utilities/dd_access_optional.h"
-#include "ddl/utilities/std_to_string.h"
+#include <ddl/datamodel/datamodel_datadefinition.h>
+#include <ddl/dd/dd_error.h>
+#include <ddl/utilities/dd_access_optional.h>
+#include <ddl/utilities/std_to_string.h>
 
 #include <stdexcept>
 #include <string>

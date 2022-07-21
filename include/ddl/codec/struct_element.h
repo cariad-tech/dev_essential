@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_STRUCT_ELEMENT_CLASS_HEADER
 #define DDL_STRUCT_ELEMENT_CLASS_HEADER
 
-#include "a_util/result.h"
-#include "a_util/variant.h"
-#include "ddl/dd/dd_common_types.h"
+#include <a_util/result.h>
+#include <a_util/variant.h>
+#include <ddl/dd/dd_common_types.h>
 
 #include <map>
 #include <string>

@@ -15,8 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/result/result_type.h" // for Result
-#include "a_util/result/result_util.h" // for toString
+#include <a_util/result/result_type.h> // for Result
+#include <a_util/result/result_util.h> // for toString
 
 #include <gtest/gtest.h> // IWYU pragma: keep
 

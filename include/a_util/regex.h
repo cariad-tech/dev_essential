@@ -27,6 +27,6 @@ namespace regex {
 }
 } // namespace a_util
 
-#include "a_util/regex/regularexpression.h"
+#include <a_util/regex/regularexpression.h>
 
 #endif // A_UTIL_REGEX_HEADER_INCLUDED_

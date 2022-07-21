@@ -20,13 +20,13 @@ You may add additional accurate notices of copyright ownership.
 #ifndef HEADER_MAP_CONFIGURATION_H
 #define HEADER_MAP_CONFIGURATION_H
 
-#include "ddl/dd/dd.h"
-#include "ddl/mapping/configuration/map_assignment.h"
-#include "ddl/mapping/configuration/map_header.h"
-#include "ddl/mapping/configuration/map_source.h"
-#include "ddl/mapping/configuration/map_target.h"
-#include "ddl/mapping/configuration/map_transformation.h"
-#include "ddl/mapping/configuration/map_trigger.h"
+#include <ddl/dd/dd.h>
+#include <ddl/mapping/configuration/map_assignment.h>
+#include <ddl/mapping/configuration/map_header.h>
+#include <ddl/mapping/configuration/map_source.h>
+#include <ddl/mapping/configuration/map_target.h>
+#include <ddl/mapping/configuration/map_transformation.h>
+#include <ddl/mapping/configuration/map_trigger.h>
 
 #include <vector>
 

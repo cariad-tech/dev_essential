@@ -17,10 +17,11 @@
  */
 
 #include "./../../_common/test_oo_ddl.h"
-#include "ddl/datamodel/xml_datamodel.h"
-#include "ddl/dd/dd.h"
-#include "ddl/dd/ddfile.h"
-#include "ddl/dd/ddstructure.h"
+
+#include <ddl/datamodel/xml_datamodel.h>
+#include <ddl/dd/dd.h>
+#include <ddl/dd/ddfile.h>
+#include <ddl/dd/ddstructure.h>
 
 #include <gtest/gtest.h>
 

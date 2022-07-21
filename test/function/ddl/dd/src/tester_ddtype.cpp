@@ -17,11 +17,15 @@
  */
 
 #include "./../../_common/test_oo_ddl.h"
-#include "ddl/codec/pkg_codec.h"
-#include "ddl/dd/ddcompare.h"
-#include "ddl/dd/ddstructure.h"
+
+#include <ddl/codec/pkg_codec.h>
+#include <ddl/dd/ddcompare.h>
+#include <ddl/dd/ddstring.h>
+#include <ddl/dd/ddstructure.h>
 
 #include <gtest/gtest.h>
+
+#include <algorithm>
 #include <stdint.h>
 
 struct sub_struct {
@@ -91,6 +95,19 @@ struct test_mixed {
     test_enum_pack1 enumeration;
     bool bool_value;
 };
+
+void checkElementDeserializedBytePosAndAlignmentSet(const ddl::DDStructure& structure,
+                                                    const std::string& element_name,
+                                                    size_t expected_byte_pos,
+                                                    size_t expected_alignment)
+{
+    auto struct_access = structure.getDD().getStructTypeAccess(structure.getStructName());
+    auto element = struct_access.getElementByPath(element_name);
+
+    ASSERT_EQ(element.getDeserializedBytePos(), expected_byte_pos);
+    ASSERT_EQ(element.getElement().getAlignment(), expected_alignment)
+        << "Alignment of element mismatch - " << element_name;
+}
 
 /**
  * @detail The building up of a DataDefinition object representation.
@@ -162,8 +179,32 @@ TEST(TesterDDLTypeReflection, createTypeFromStructDefaultAlignment)
                               .addElement("value2", &sub_struct::value2)
                               .addElement("value3", &sub_struct::value3);
 
+    checkElementDeserializedBytePosAndAlignmentSet(
+        sub_definition,
+        "value1",
+        detail::memberPointerToOffset<sub_struct>(&sub_struct::value1),
+        std::min(alignof(decltype(sub_struct::value1)), alignof(sub_struct)));
+
+    checkElementDeserializedBytePosAndAlignmentSet(
+        sub_definition,
+        "value2",
+        detail::memberPointerToOffset<sub_struct>(&sub_struct::value2),
+        std::min(alignof(decltype(sub_struct::value2)), alignof(sub_struct)));
+
+    checkElementDeserializedBytePosAndAlignmentSet(
+        sub_definition,
+        "value3",
+        detail::memberPointerToOffset<sub_struct>(&sub_struct::value3),
+        std::min(alignof(decltype(sub_struct::value3)), alignof(sub_struct)));
+
     auto array_definition = DDStructureGenerator<array_struct>("array_struct")
                                 .addElement("values", &array_struct::values);
+
+    checkElementDeserializedBytePosAndAlignmentSet(
+        array_definition,
+        "values",
+        detail::memberPointerToOffset<array_struct>(&array_struct::values),
+        std::min(alignof(decltype(array_struct::values)), alignof(array_struct)));
 
     auto enum_definition = DDEnumGenerator<test_enum>("test_enum")
                                .addElement("a", a)
@@ -212,9 +253,9 @@ TEST(TesterDDLTypeReflection, createTypeFromStructPack1Alignment)
                                 .addElement("values", &array_struct_pack1::values);
 
     auto enum_definition = DDEnumGenerator<test_enum_pack1>("test_enum")
-                               .addElement("a", a)
-                               .addElement("b", b)
-                               .addElement("c", c);
+                               .addElement("a", a_pack1)
+                               .addElement("b", b_pack1)
+                               .addElement("c", c_pack1);
 
     {
         // this is to check the second CTOR possibility
@@ -366,24 +407,493 @@ struct parent {
     child2 c2;
 };
 
-TEST(TesterDDLTypeReflection, detectMissingElements)
+/**
+ * Detection of missing elements at the end is switched off for padding (by default)
+ * and it uses padding to set the positions.
+ * The structure is always valid!
+ */
+TEST(TesterDDLTypeReflection, addWithPaddingByDefault)
 {
     using namespace ddl;
-    auto child1_definition = DDStructureGenerator<child1>("child1")
+    auto child1_definition = DDStructureGenerator<child1>("child1", 1)
+                                 .addElement("a", &child1::a)
+                                 .addElement("b", &child1::b);
+
+    ASSERT_EQ(child1_definition.getSize(), sizeof(child1));
+
+    auto child2_definition = DDStructureGenerator<child2>("child2").addElement("a", &child2::a);
+
+    ASSERT_EQ(child2_definition.getSize(), sizeof(child2));
+
+    auto parent_definition = DDStructureGenerator<parent>("parent");
+    // this will now validate while adding the DDStructure
+    ASSERT_NO_THROW(parent_definition.addElement("child1", &parent::c1, child1_definition));
+    ASSERT_NO_THROW(parent_definition.addElement("child2", &parent::c2, child2_definition));
+
+    ASSERT_EQ(parent_definition.getSize(), sizeof(parent));
+}
+
+/**
+ * Detection of missing elements in the middle is switched off for padding (by default)
+ * and it uses padding to set the positions.
+ *
+ */
+TEST(TesterDDLTypeReflection, missingWithPaddingInTheMiddle)
+{
+    using namespace ddl;
+    auto child1_definition = DDStructureGenerator<child1>("child1", 1).addElement("b", &child1::b);
+
+    // with padding the definition is always valid and filled with padding
+    ASSERT_EQ(child1_definition.getSize(), sizeof(child1));
+
+    auto child2_definition = DDStructureGenerator<child2>("child2").addElement("a", &child2::a);
+    ASSERT_EQ(child2_definition.getSize(), sizeof(child2));
+
+    auto parent_definition = DDStructureGenerator<parent>("parent", 1);
+    // this will now validate while adding the DDStructure
+    ASSERT_NO_THROW(parent_definition.addElement("child1", &parent::c1, child1_definition));
+
+    // we do not add "child2" but we add padding automatically
+    ASSERT_EQ(parent_definition.getSize(), sizeof(parent));
+}
+
+/**
+ * Detection of misordered elements are detected also if padding is switched on.
+ */
+TEST(TesterDDLTypeReflection, withPaddingStillThrowsIfUnordered)
+{
+    using namespace ddl;
+    auto child1_definition = DDStructureGenerator<child1>("child1", 1).addElement("b", &child1::b);
+    ASSERT_ANY_THROW(child1_definition.addElement("a", &child1::a););
+}
+
+/**
+ * Detection of missing or misordered elements with no padding.
+ */
+TEST(TesterDDLTypeReflection, detectMissingElementsNoPadding)
+{
+    using namespace ddl;
+    auto child1_definition = DDStructureGenerator<child1, false>("child1")
                                  .addElement("a", &child1::a)
                                  .addElement("b", &child1::b);
     // we deliberately omit the last member
     //        .Add("c", &child1::c);
-
-    auto child2_definition = DDStructureGenerator<child2>("child2").addElement("a", &child2::a);
-
-    auto parent_definition = DDStructureGenerator<parent>("parent")
-                                 .addElement("child1", &parent::c1, child1_definition)
-                                 .addElement("child2", &parent::c2, child2_definition);
-
-    ddl::CodecFactory codec(parent_definition);
-    EXPECT_NE(codec.getStaticBufferSize(), sizeof(parent));
-
+    ASSERT_NE(child1_definition.getSize(), sizeof(child1));
     // this must throw
-    ASSERT_ANY_THROW(parent_definition.getStructDescription());
+    ASSERT_ANY_THROW(child1_definition.getStructType());
+    ASSERT_ANY_THROW(child1_definition.getDD());
+    ASSERT_ANY_THROW(child1_definition.getStructDescription());
+
+    // this will throw because the definition is not valid while calling getStructType()
+    ASSERT_ANY_THROW(ddl::CodecFactory codec(child1_definition));
+
+    auto child1_definition_missorderd = DDStructureGenerator<child1, false>("child1");
+
+    // we try to add one before the other
+    ASSERT_ANY_THROW(child1_definition_missorderd.addElement("b", &child1::b););
+
+    child1_definition_missorderd.addElement("a", &child1::a);
+
+    // detection of a element gap when not finding a valid alignment
+    ASSERT_ANY_THROW(child1_definition_missorderd.addElement("c", &child1::c););
+
+    ASSERT_NE(child1_definition_missorderd.getSize(), sizeof(child1));
+
+    // we added the elements in the wrong order, it is detected
+    ASSERT_ANY_THROW(child1_definition_missorderd.getStructDescription());
+
+    auto child2_definition =
+        DDStructureGenerator<child2, false>("child2").addElement("a", &child2::a);
+
+    auto parent_definition = DDStructureGenerator<parent, false>("parent");
+
+    ASSERT_ANY_THROW(parent_definition.addElement("child1", &parent::c1, child1_definition));
+    ASSERT_ANY_THROW(parent_definition.addElement("child2", &parent::c2, child2_definition));
+}
+
+enum class test_enum_class : uint64_t { a, b, c };
+enum class test_enum_class_no_typedefined { a, b, c };
+
+/**
+ * Test the enumeration generation with a underlying type and class
+ */
+TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeCTOR)
+{
+    using namespace ddl;
+    // type but with class and concreate type
+    auto enum_class_definition = DDEnumGenerator<test_enum_class>(
+        "test_enum_class",
+        {{"a", test_enum_class::a}, {"b", test_enum_class::b}, {"c", test_enum_class::c}});
+
+    ASSERT_EQ(enum_class_definition.getEnumType().getElements().getSize(), 3);
+
+    // class but no type
+    auto enum_no_type_class_definition =
+        DDEnumGenerator<test_enum_class_no_typedefined>("test_enum_class_no_typedefined",
+                                                        {{"a", test_enum_class_no_typedefined::a},
+                                                         {"b", test_enum_class_no_typedefined::b},
+                                                         {"c", test_enum_class_no_typedefined::c}});
+    ASSERT_EQ(enum_no_type_class_definition.getEnumType().getElements().getSize(), 3);
+}
+
+/**
+ * Test the enumeration generation with a underlying type and class
+ */
+TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeAddElement)
+{
+    using namespace ddl;
+    // type but with class and concreate type
+    auto enum_class_definition = DDEnumGenerator<test_enum_class>("test_enum_class")
+                                     .addElement("a", test_enum_class::a)
+                                     .addElement("b", test_enum_class::b)
+                                     .addElement("c", test_enum_class::c);
+
+    ASSERT_EQ(enum_class_definition.getEnumType().getElements().getSize(), 3);
+
+    // class but no type
+    auto enum_no_type_class_definition =
+        DDEnumGenerator<test_enum_class_no_typedefined>("test_enum_class_no_typedefined")
+            .addElement("a", test_enum_class_no_typedefined::a)
+            .addElement("b", test_enum_class_no_typedefined::b)
+            .addElement("c", test_enum_class_no_typedefined::c);
+    ASSERT_EQ(enum_no_type_class_definition.getEnumType().getElements().getSize(), 3);
+}
+
+// we need to disable the "C4324" : structure was padded due to alignment specifier
+#ifdef WIN32
+#pragma warning(push)
+#pragma warning(disable : 4324)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+#endif
+#pragma pack(push, 1)
+// expected to mis-compile, and result in something non-portable
+// alignment of pack_alignas_conflict_struct is undefined
+struct pack_alignas_conflict_struct_pack1_aligned4 {
+    uint8_t a;
+    uint8_t alignas(4) b;
+    // alignment of member c is packed to 1
+    uint64_t c;
+    uint8_t alignas(2) d;
+    // alignment of member e is packed to 1
+    uint64_t e;
+};
+#pragma pack(pop)
+#ifdef WIN32
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
+
+/**
+ * Using a mismatched packed1/aligned4 structure and add all elements.
+ * Expecting the right positions!
+ */
+TEST(TesterDDLTypeReflection, packAlignasConflictPacked1Aligned4)
+{
+    using namespace ddl;
+    // but with padding we can resolve it
+    // the alignment of the struct is considered and raised to 4
+    // (the alignment of a struct is always the maximum alignment of its members)
+    auto aligned_definition = DDStructureGenerator<pack_alignas_conflict_struct_pack1_aligned4>(
+                                  "pack_alignas_conflict_struct_pack1_aligned4")
+                                  .addElement("a", &pack_alignas_conflict_struct_pack1_aligned4::a)
+                                  .addElement("b", &pack_alignas_conflict_struct_pack1_aligned4::b);
+
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("c", &pack_alignas_conflict_struct_pack1_aligned4::c););
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("d", &pack_alignas_conflict_struct_pack1_aligned4::d););
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("e", &pack_alignas_conflict_struct_pack1_aligned4::e););
+
+    ASSERT_EQ(aligned_definition.getSize(), sizeof(pack_alignas_conflict_struct_pack1_aligned4));
+    ASSERT_EQ(aligned_definition.getAlignment(),
+              alignof(pack_alignas_conflict_struct_pack1_aligned4));
+
+    ASSERT_NO_THROW(std::cout << ddl::DDString::toXMLString(aligned_definition.getDD()););
+
+    size_t expected_alignment_platform_dependent_4u =
+        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+    size_t expected_alignment_platform_dependent_2u =
+        2u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+    if (aligned_definition.getAlignment() == 1) {
+        expected_alignment_platform_dependent_4u = 1u;
+        expected_alignment_platform_dependent_2u = 1u;
+        // in linux gcc the alignas(4) for b is ignored and it will use the pack alignment
+    }
+
+    // in MSVC this is pos 0 / alignment 1
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "a",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::a),
+        1u);
+
+    // in MSVC this is pos 4 / alignment 4
+    // in GCC this is pos 4 / alignment 1
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "b",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::b),
+        expected_alignment_platform_dependent_4u);
+
+    // in MSVC this is pos 5 / alignment 1
+    // in GCC this is pos 5 / alignment 1
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "c",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::c),
+        1u);
+
+    // in MSVC this is pos 14 / alignment 2
+    // in GCC this is pos 14 / alignment 1
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "d",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::d),
+        expected_alignment_platform_dependent_2u);
+
+    // in MSVC and GCC this is pos 15 / alignment 1
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "e",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::e),
+        1u);
+}
+
+/**
+ * Using a mismatched packed1/aligned4 structure and do not add some elements at beginning
+ * and the middle.
+ *
+ * Expecting padding elements and the right positions!
+ */
+TEST(TesterDDLTypeReflection, packAlignasConflictPacked1Aligned4WithPadding)
+{
+    using namespace ddl;
+    // but with padding we can resolve it
+    // the alignment of the struct is considered and raised to 4
+    // (the alignment of a struct is always the maximum alignment of its members)
+    auto aligned_definition = DDStructureGenerator<pack_alignas_conflict_struct_pack1_aligned4>(
+                                  "pack_alignas_conflict_struct_pack1_aligned4")
+                                  .addElement("b", &pack_alignas_conflict_struct_pack1_aligned4::b);
+
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("c", &pack_alignas_conflict_struct_pack1_aligned4::c););
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("e", &pack_alignas_conflict_struct_pack1_aligned4::e););
+
+    ASSERT_EQ(aligned_definition.getSize(), sizeof(pack_alignas_conflict_struct_pack1_aligned4));
+    ASSERT_EQ(aligned_definition.getAlignment(),
+              alignof(pack_alignas_conflict_struct_pack1_aligned4));
+
+    ASSERT_NO_THROW(std::cout << ddl::DDString::toXMLString(aligned_definition.getDD()););
+
+    // in MSVC and GCC this is pos 4 / alignment 1 because of padding
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "b",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::b),
+        1u);
+
+    // in MSVC and GCC this is pos 5 / alignment 1
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "c",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::c),
+        1u);
+
+    // in MSVC and GCC this is pos 15 / alignment 4 because of padding
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "e",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_pack1_aligned4>(
+            &pack_alignas_conflict_struct_pack1_aligned4::e),
+        1u);
+}
+
+// we need to disable the "C4324" : structure was padded due to alignment specifier
+#ifdef WIN32
+#pragma warning(push)
+#pragma warning(disable : 4324)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wattributes"
+#endif
+#pragma pack(push, 2)
+// expected to mis-compile, and result in something non-portable
+// alignment of pack_alignas_conflict_struct is undefined
+struct pack_alignas_conflict_struct_packed2_aligned4 {
+    uint8_t a;
+    uint8_t alignas(4) b;
+    // alignment of member c is packed to 1
+    uint64_t c;
+    uint8_t alignas(2) d;
+    // alignment of member e is packed to 1
+    uint64_t e;
+};
+#pragma pack(pop)
+#ifdef WIN32
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
+
+/**
+ * Using a mismatched packed2/aligned4 structure and add all elements.
+ * Expecting the right positions!
+ */
+TEST(TesterDDLTypeReflection, packAlignasConflictPacked2Aligned4)
+{
+    using namespace ddl;
+    // the alignment of the struct is considered and raised to 4
+    // (the alignment of a struct is always the maximum alignment of its members)
+    auto aligned_definition =
+        DDStructureGenerator<pack_alignas_conflict_struct_packed2_aligned4>(
+            "pack_alignas_conflict_struct_pack2_aligned4")
+            .addElement("a", &pack_alignas_conflict_struct_packed2_aligned4::a)
+            .addElement("b", &pack_alignas_conflict_struct_packed2_aligned4::b);
+
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("c", &pack_alignas_conflict_struct_packed2_aligned4::c););
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("d", &pack_alignas_conflict_struct_packed2_aligned4::d););
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("e", &pack_alignas_conflict_struct_packed2_aligned4::e););
+
+    ASSERT_EQ(aligned_definition.getSize(), sizeof(pack_alignas_conflict_struct_packed2_aligned4));
+    ASSERT_EQ(aligned_definition.getAlignment(),
+              alignof(pack_alignas_conflict_struct_packed2_aligned4));
+
+    ASSERT_NO_THROW(std::cout << ddl::DDString::toXMLString(aligned_definition.getDD()););
+
+    auto struct_access =
+        aligned_definition.getDD().getStructTypeAccess(aligned_definition.getStructName());
+
+    size_t expected_alignment_platform_dependent_4u =
+        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+    size_t expected_alignment_platform_dependent_4u_for_b =
+        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+    if (aligned_definition.getAlignment() == 2) {
+        expected_alignment_platform_dependent_4u = 2u;
+        expected_alignment_platform_dependent_4u_for_b = 1u;
+        // in linux gcc the alignas(4) for b is ignored for the structure so the structure alignment
+        // is 2, the padding is different
+    }
+
+    // in MSVC this is pos 0 / align 1u
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "a",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::a),
+        1u);
+
+    // in MSVC this is pos 4 / alignment 4
+    // in GCC this is pos 4 / alignment 1 ... should be 2 but we can not detect that, 1 also fits
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "b",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::b),
+        expected_alignment_platform_dependent_4u_for_b);
+
+    // in MSVC and GCC this is pos 6 / alignment 2
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "c",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::c),
+        2u);
+
+    // in MSVC and GCC this is pos 14 / alignment should be 2 (but we can not detect this)
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "d",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::d),
+        // should be 2u, but is 1u it fits!
+        1u);
+
+    // in MSVC this is pos 16 / alignment 4
+    // in GCC this is pos 16 / alignment 2
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "e",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::e),
+        expected_alignment_platform_dependent_4u);
+}
+
+/**
+ * Using a mismatched packed2/aligned4 structure and do not add some elements at beginning
+ * and the middle.
+ *
+ * Expecting padding elements and the right positions!
+ */
+TEST(TesterDDLTypeReflection, packAlignasConflictPacked2Aligned4WithPadding)
+{
+    using namespace ddl;
+    // the alignment of the struct is considered and raised to 4
+    // (the alignment of a struct is always the maximum alignment of its members)
+    auto aligned_definition =
+        DDStructureGenerator<pack_alignas_conflict_struct_packed2_aligned4>(
+            "pack_alignas_conflict_struct_pack2_aligned4")
+            .addElement("b", &pack_alignas_conflict_struct_packed2_aligned4::b);
+
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("c", &pack_alignas_conflict_struct_packed2_aligned4::c););
+
+    ASSERT_NO_THROW(
+        aligned_definition.addElement("e", &pack_alignas_conflict_struct_packed2_aligned4::e););
+
+    ASSERT_EQ(aligned_definition.getSize(), sizeof(pack_alignas_conflict_struct_packed2_aligned4));
+    ASSERT_EQ(aligned_definition.getAlignment(),
+              alignof(pack_alignas_conflict_struct_packed2_aligned4));
+
+    ASSERT_NO_THROW(std::cout << ddl::DDString::toXMLString(aligned_definition.getDD()););
+
+    auto struct_access =
+        aligned_definition.getDD().getStructTypeAccess(aligned_definition.getStructName());
+
+    // in MSVC and GCC this is pos 4 / alignment 1 because of padding
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "b",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::b),
+        1u);
+
+    // in MSVC and GCC this is pos 6 / alignment 2
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "c",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::c),
+        2u);
+
+    // in MSVC this is pos 16 / alignment 4 we should use a padding element here, but it fits also
+    // with alignment
+    // in GCC this is pos 16 / alignment 1 because of padding
+    size_t expected_alignment_platform_dependent =
+        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+    if (aligned_definition.getAlignment() == 2) {
+        expected_alignment_platform_dependent = 1u;
+        // in linux gcc the alignas(4) for b is ignored for the structure so padding is added!! and
+        // we expect 1u after padding
+    }
+    checkElementDeserializedBytePosAndAlignmentSet(
+        aligned_definition,
+        "e",
+        detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
+            &pack_alignas_conflict_struct_packed2_aligned4::e),
+        expected_alignment_platform_dependent);
 }

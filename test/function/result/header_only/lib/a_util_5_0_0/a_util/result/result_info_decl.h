@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_RESULT_INFO_DECL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_RESULT_INFO_DECL_HEADER_INCLUDED
 
-#include "a_util/base/std/types.h"
+#include <a_util/base/std/types.h>
 
 /**
  * Create a result type and a constant instance of this type in an unnamed namespace

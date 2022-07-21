@@ -21,11 +21,11 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_CODEC_FACTORY_CLASS_HEADER
 #define DDL_CODEC_FACTORY_CLASS_HEADER
 
-#include "ddl/codec/codec.h"
-#include "ddl/codec/static_codec.h"
-#include "ddl/codec/struct_element.h"
-#include "ddl/dd/dd.h"
-#include "ddl/dd/ddstructure.h"
+#include <ddl/codec/codec.h>
+#include <ddl/codec/static_codec.h>
+#include <ddl/codec/struct_element.h>
+#include <ddl/dd/dd.h>
+#include <ddl/dd/ddstructure.h>
 
 namespace ddl {
 /**

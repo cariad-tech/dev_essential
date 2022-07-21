@@ -1,6 +1,6 @@
 /**
  * @file
- * A_UTIL_DLL_EXPORT macro test
+ * A_UTIL_DLL_EXPORT macro test for dll_export
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
@@ -15,8 +15,12 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/preprocessor/dll_export.h"
-#include "a_util/preprocessor/to_string.h"
+#ifndef A_UTIL_DO_EXPORT
+#define A_UTIL_DO_EXPORT
+#endif // !A_UTIL_DO_EXPORT
+
+#include <a_util/preprocessor/dll_export.h>
+#include <a_util/preprocessor/to_string.h>
 
 #include <gtest/gtest.h>
 
@@ -30,6 +34,6 @@ TEST(DLLExportMacro, exportsCorrectSymbolVisibility)
 #if defined(_WIN32)
     EXPECT_STREQ(declspec, "__declspec(dllexport)");
 #else
-    EXPECT_STREQ(declspec, "");
+    EXPECT_STREQ(declspec, "__attribute__((visibility(\"default\")))");
 #endif // defined(_WIN32)
 }

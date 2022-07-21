@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef PKG_RPC_JSON_RPC_H_INCLUDED
 #define PKG_RPC_JSON_RPC_H_INCLUDED
 
-#include "rpc/rpc_server.h"
+#include <rpc/rpc_server.h>
 
 #include <jsonrpccpp/client/iclientconnector.h>
 #include <jsonrpccpp/server/abstractserverconnector.h>
@@ -186,4 +186,4 @@ public:
 
 #endif // PKG_RPC_HTTP_RPC_PROTOCOL_H_INCLUDED
 
-#include "rpc/detail/json_rpc_impl.h"
+#include <rpc/detail/json_rpc_impl.h>

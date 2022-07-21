@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/ddunit.h"
+#include <ddl/dd/ddunit.h>
 
 namespace ddl {
 
@@ -36,6 +36,29 @@ const dd::Unit::RefUnit& DDRefUnit::getRefUnit() const
 const dd::DataDefinition& DDRefUnit::getDD() const
 {
     return _dd;
+}
+
+DDUnit::DDUnit(const DDUnit& other) : _dd(other._dd)
+{
+    _unit = _dd.getUnits().access(other.getUnit().getName());
+}
+
+DDUnit::DDUnit(DDUnit&& other) : _dd(std::move(other._dd)), _unit(std::move(other._unit))
+{
+}
+
+DDUnit& DDUnit::operator=(const DDUnit& other)
+{
+    _dd = other._dd;
+    _unit = _dd.getUnits().access(other.getUnit().getName());
+    return *this;
+}
+
+DDUnit& DDUnit::operator=(DDUnit&& other)
+{
+    _dd = std::move(other._dd);
+    _unit = std::move(other._unit);
+    return *this;
 }
 
 DDUnit::DDUnit(const std::string& name,

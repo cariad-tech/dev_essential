@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_MEMORY_DETAIL_STACK_PTR_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_MEMORY_DETAIL_STACK_PTR_IMPL_HEADER_INCLUDED
 
-#include "a_util/memory/detail/stack_ptr_decl.h"
+#include <a_util/memory/detail/stack_ptr_decl.h>
 
 #include <algorithm> //std::swap, std::fill_n
 
@@ -56,6 +56,7 @@ template <typename T, std::size_t StackSize, std::size_t Alignment>
 inline StackPtr<T, StackSize, Alignment>::~StackPtr()
 {
     static_assert(StackSize >= sizeof(T), "Array size must be larger");
+    static_assert(alignof(T) <= Alignment, "Alignment must match alignment requirement of T");
     reset();
 }
 

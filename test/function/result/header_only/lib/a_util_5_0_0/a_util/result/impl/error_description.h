@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_IMPL_ERROR_DESCRIPTION_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_IMPL_ERROR_DESCRIPTION_HEADER_INCLUDED
 
-#include "a_util/base/std/types.h"
-#include "a_util/result/detail/error_description_intf.h"
+#include <a_util/base/std/types.h>
+#include <a_util/result/detail/error_description_intf.h>
 
 #include <string>
 

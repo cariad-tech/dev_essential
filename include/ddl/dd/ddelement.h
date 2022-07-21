@@ -21,10 +21,10 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDELEM_H_INCLUDED
 #define DDELEM_H_INCLUDED
 
-#include "ddl/dd/dd.h"
-#include "ddl/dd/dddatatype.h"
-#include "ddl/dd/ddenum.h"
-#include "ddl/dd/ddstructure.h"
+#include <ddl/dd/dd.h>
+#include <ddl/dd/dddatatype.h>
+#include <ddl/dd/ddenum.h>
+#include <ddl/dd/ddstructure.h>
 
 #include <string>
 

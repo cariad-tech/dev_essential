@@ -44,7 +44,6 @@ common:
         - doc/html/doc/extern/license/licenses\.txt
         - doc/html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
         - doc/html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
-        - doc/html/extern/3rdparty/pcre/pcre-8\.39/LICENCE
         - doc/html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
         - doc/html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
         - doc/html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
@@ -64,7 +63,6 @@ common:
         - doc/license/boost_1_64_0/boost/current_function\.hpp
         - doc/license/Clara-1\.1\.2/LICENSE\.txt
         - doc/license/Clara-1\.1\.2/README\.md
-        - doc/license/pcre-8\.39/LICENCE
         - doc/license/pugixml-1\.8/readme\.txt
         - doc/license/utf8_v2_3_4/source/utf8\.h
         - doc/license/uuid-1\.6\.2/license\.txt
@@ -82,8 +80,6 @@ common:
         - include/a_util/concurrency/atomic\.h
         - include/a_util/concurrency/chrono\.h
         - include/a_util/concurrency/condition_variable\.h
-        - include/a_util/concurrency/detail/fast_mutex_decl\.h
-        - include/a_util/concurrency/detail/fast_mutex_impl\.h
         - include/a_util/concurrency/detail/semaphore_decl\.h
         - include/a_util/concurrency/detail/semaphore_impl\.h
         - include/a_util/concurrency/fast_mutex\.h
@@ -178,6 +174,7 @@ common:
         - include/ddl/dd/ddcompare\.h
         - include/ddl/dd/ddelement\.h
         - include/ddl/dd/ddenum\.h
+        - include/ddl/dd/dddefault\.h
         - include/ddl/dd/ddfile\.h
         - include/ddl/dd/ddstring\.h
         - include/ddl/dd/ddstructure\.h
@@ -216,6 +213,7 @@ common:
         - include/ddl/utilities/dd_access_observer\.h
         - include/ddl/utilities/dd_access_optional\.h
         - include/ddl/utilities/std_to_string\.h
+        - include/ddl_capi/ddl_capi\.h
         - include/json/allocator\.h
         - include/json/assertions\.h
         - include/json/autolink\.h
@@ -266,6 +264,7 @@ common:
         - lib/cmake/dev_essential/dev_essential-config-version\.cmake
         - lib/cmake/dev_essential/dev_essential-config\.cmake
         - lib/cmake/dev_essential/dev_essential_targets\.cmake
+        - scripts/debugging/result\.natvis
         - MPL2\.0\.txt
         - README\.md
 
@@ -323,6 +322,7 @@ linux_and_qnx_debug:
         - lib/liba_util_xmld\.a
         - lib/libddld\.a
         - lib/libpkg_rpcd\.a
+        - lib/libddl_capid\.so
 
 linux_and_qnx_release:
     conditions:
@@ -354,13 +354,13 @@ linux_and_qnx_release:
         - lib/liba_util_xml\.a
         - lib/libddl\.a
         - lib/libpkg_rpc\.a
+        - lib/libddl_capi\.so
 
 windows:
     conditions:
         lagd:
             os: Windows
     files:
-        - scripts/debugging/result\.natvis
         - bin/jsonrpcstub\.exe
 
 windows_debug:
@@ -384,6 +384,8 @@ windows_debug:
         - lib/a_util_xmld\.lib
         - lib/ddld\.lib
         - lib/pkg_rpcd\.lib
+        - lib/ddl_capid\.lib
+        - bin/ddl_capid\.dll
 
 windows_release:
     conditions:
@@ -409,3 +411,5 @@ windows_release:
         - lib/a_util_xml\.lib
         - lib/ddl\.lib
         - lib/pkg_rpc\.lib
+        - lib/ddl_capi\.lib
+        - bin/ddl_capi\.dll

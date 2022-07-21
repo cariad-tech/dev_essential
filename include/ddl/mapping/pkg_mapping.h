@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef MAPPING_MAPPING_HEADER_INCLUDED
 #define MAPPING_MAPPING_HEADER_INCLUDED
 
-#include "ddl/mapping/configuration/map_configuration.h"
-#include "ddl/mapping/engine/mapping_engine.h"
+#include <ddl/mapping/configuration/map_configuration.h>
+#include <ddl/mapping/engine/mapping_engine.h>
 
 #endif // MAPPING_MAPPING_HEADER_INCLUDED

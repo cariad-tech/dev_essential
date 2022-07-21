@@ -17,8 +17,9 @@
  */
 
 #include "./../../_common/test_oo_ddl.h"
-#include "ddl/dd/ddstring.h"
 #include "ddl_definitions.h"
+
+#include <ddl/dd/ddstring.h>
 
 #include <gtest/gtest.h>
 

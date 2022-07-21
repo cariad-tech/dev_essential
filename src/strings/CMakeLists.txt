@@ -34,11 +34,17 @@ add_library(strings STATIC
             strings_numeric_traits.cpp
             unicode.cpp
             )
+if(MSVC)
+    set(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+        $<$<COMPILE_FEATURES:cxx_std_17>:_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING>)
+    set_source_files_properties(unicode.cpp PROPERTIES COMPILE_DEFINITIONS
+                                ${_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING})
+endif()
 target_include_directories(strings
                            PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extern>) # 3rdparty/
 target_link_libraries(strings PUBLIC base)
 set_target_properties(strings PROPERTIES FOLDER a_util
                                          OUTPUT_NAME a_util_strings)
 install(TARGETS strings)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/strings DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/strings.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/strings DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/strings.h DESTINATION include/a_util)

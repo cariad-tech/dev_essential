@@ -15,10 +15,10 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/dd_typeinfomodel.h"
-
 #include "dd_offset_calculation.h"
-#include "ddl/dd/dd_predefined_datatypes.h"
+
+#include <ddl/dd/dd_predefined_datatypes.h>
+#include <ddl/dd/dd_typeinfomodel.h>
 
 namespace ddl {
 namespace dd {

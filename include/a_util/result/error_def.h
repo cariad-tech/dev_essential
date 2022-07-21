@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_ERROR_DEF_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_ERROR_DEF_HEADER_INCLUDED
 
-#include "a_util/preprocessor/current_function.h" // A_UTIL_CURRENT_FUNCTION
-#include "a_util/result/result_type.h"            // a_util::result::Result
-#include "a_util/strings/strings_format.h"        // a_util::strings:format
+#include <a_util/preprocessor/current_function.h> // A_UTIL_CURRENT_FUNCTION
+#include <a_util/result/result_type.h>            // a_util::result::Result
+#include <a_util/strings/strings_format.h>        // a_util::strings:format
 
 /**
  * Return an a_util::result::Result object with detailed error information

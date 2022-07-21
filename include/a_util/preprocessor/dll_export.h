@@ -26,14 +26,26 @@ You may add additional accurate notices of copyright ownership.
  * Defines standard exporting rules for symbol visibility.
  * @ingroup a_util_preprocessor
  */
-#if !defined(A_UTIL_DLL_EXPORT)
+#ifdef _WIN32
 
-#if defined(_WIN32)
+#ifdef A_UTIL_DO_EXPORT
+/// Macro for switching between export / import
 #define A_UTIL_DLL_EXPORT __declspec(dllexport)
-#else
-#define A_UTIL_DLL_EXPORT
-#endif // defined(_WIN32)
+#else // A_UTIL_DO_EXPORT
+/// Macro for switching between export / import
+#define A_UTIL_DLL_EXPORT __declspec(dllimport)
+#endif // A_UTIL_DO_EXPORT
 
-#endif // !defined(A_UTIL_DLL_EXPORT)
+#else // _WIN32
+
+#ifdef A_UTIL_DO_EXPORT
+/// Macro for switching between export / import
+#define A_UTIL_DLL_EXPORT __attribute__((visibility("default")))
+#else // A_UTIL_DO_EXPORT
+/// Macro for switching between export / import
+#define A_UTIL_DLL_EXPORT
+#endif // A_UTIL_DO_EXPORT
+
+#endif // _WIN32
 
 #endif // A_UTIL_UTIL_PREPROCESSOR_DLL_EXPORT_HEADER_INCLUDED

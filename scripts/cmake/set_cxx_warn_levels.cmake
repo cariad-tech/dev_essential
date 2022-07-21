@@ -13,5 +13,5 @@
 if(MSVC)
     set(dev_essential_cmake_cxx_warn_flags "/WX;/W4;/permissive-")
 else()
-        set(dev_essential_cmake_cxx_warn_flags "-Werror;-Wall;-Wno-unknown-pragmas;-Wno-reorder;-Wextra;-pedantic")
+    set(dev_essential_cmake_cxx_warn_flags "-Werror;-Wall;-Wno-unknown-pragmas;-Wextra;-pedantic;$<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>")
 endif()

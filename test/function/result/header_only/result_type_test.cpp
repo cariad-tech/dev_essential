@@ -15,16 +15,17 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/preprocessor/current_function.h" // for A_UTIL_CURRENT_F...
-#include "a_util/result/result_info.h"            // for ResultInfo, is_...
-#include "a_util/result/result_type.h"            // for Result, isOk
+#include <a_util/preprocessor/current_function.h> // for A_UTIL_CURRENT_F...
+#include <a_util/result/result_info.h>            // for ResultInfo, is_...
+#include <a_util/result/result_type.h>            // for Result, isOk
 
-#include <cstdlib>                 // for rand, srand
-#include <ctime>                   // for time
 #include <gtest/gtest-message.h>   // for Message
 #include <gtest/gtest-test-part.h> // for TestPartResult
 #include <gtest/gtest.h>           // IWYU pragma: keep
-#include <string>                  // for string
+
+#include <cstdlib> // for rand, srand
+#include <ctime>   // for time
+#include <string>  // for string
 
 /// Create the default success code which must be equal to global a_util::result::SUCCESS
 _MAKE_RESULT(0, SUCCESS);

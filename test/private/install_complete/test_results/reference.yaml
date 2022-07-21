@@ -23,6 +23,7 @@ debug:
         - test/results/function/result_datetime_tests_Debug\.xml
         - test/results/function/result_delegate_tests_Debug\.xml
         - test/results/function/result_dll_export_tests_Debug\.xml
+        - test/results/function/result_dll_import_tests_Debug\.xml
         - test/results/function/result_error_def_test_Debug\.xml
         - test/results/function/result_filesystem_tests_Debug\.xml
         - test/results/function/result_logging_tests_Debug\.xml
@@ -47,7 +48,6 @@ debug:
         - test/results/function/result_strings_numeric_traits_tests_Debug\.xml
         - test/results/function/result_strings_tests_Debug\.xml
         - test/results/function/result_system_tests_Debug\.xml
-        - test/results/function/result_tester_self_contained_header_files_Debug\.xml
         - test/results/function/result_thread_tests_Debug\.xml
         - test/results/function/result_timer_tests_Debug\.xml
         - test/results/function/result_to_string_tests_Debug\.xml
@@ -62,6 +62,8 @@ debug:
         - test/results/function/result_ddl_mapping_tests_Debug\.xml
         - test/results/function/result_ddl_mediacoder_regression_tests_Debug\.xml
         - test/results/function/result_ddl_dd_datastructures_tests_Debug\.xml
+        - test/results/function/result_ddl_capi_basic_tests_Debug\.xml
+        - test/results/function/result_ddl_capi_negative_tests_Debug\.xml
 
 release:
     conditions:
@@ -76,6 +78,7 @@ release:
         - test/results/function/result_datetime_tests_Release\.xml
         - test/results/function/result_delegate_tests_Release\.xml
         - test/results/function/result_dll_export_tests_Release\.xml
+        - test/results/function/result_dll_import_tests_Release\.xml
         - test/results/function/result_error_def_test_Release\.xml
         - test/results/function/result_filesystem_tests_Release\.xml
         - test/results/function/result_logging_tests_Release\.xml
@@ -100,7 +103,6 @@ release:
         - test/results/function/result_strings_numeric_traits_tests_Release\.xml
         - test/results/function/result_strings_tests_Release\.xml
         - test/results/function/result_system_tests_Release\.xml
-        - test/results/function/result_tester_self_contained_header_files_Release\.xml
         - test/results/function/result_thread_tests_Release\.xml
         - test/results/function/result_timer_tests_Release\.xml
         - test/results/function/result_to_string_tests_Release\.xml
@@ -115,6 +117,8 @@ release:
         - test/results/function/result_ddl_mapping_tests_Release\.xml
         - test/results/function/result_ddl_mediacoder_regression_tests_Release\.xml
         - test/results/function/result_ddl_dd_datastructures_tests_Release\.xml
+        - test/results/function/result_ddl_capi_basic_tests_Release\.xml
+        - test/results/function/result_ddl_capi_negative_tests_Release\.xml
 
 relwithdebinfo:
     conditions:
@@ -129,6 +133,7 @@ relwithdebinfo:
         - test/results/function/result_datetime_tests_RelWithDebInfo\.xml
         - test/results/function/result_delegate_tests_RelWithDebInfo\.xml
         - test/results/function/result_dll_export_tests_RelWithDebInfo\.xml
+        - test/results/function/result_dll_import_tests_RelWithDebInfo\.xml
         - test/results/function/result_error_def_test_RelWithDebInfo\.xml
         - test/results/function/result_filesystem_tests_RelWithDebInfo\.xml
         - test/results/function/result_logging_tests_RelWithDebInfo\.xml
@@ -153,7 +158,6 @@ relwithdebinfo:
         - test/results/function/result_strings_numeric_traits_tests_RelWithDebInfo\.xml
         - test/results/function/result_strings_tests_RelWithDebInfo\.xml
         - test/results/function/result_system_tests_RelWithDebInfo\.xml
-        - test/results/function/result_tester_self_contained_header_files_RelWithDebInfo\.xml
         - test/results/function/result_thread_tests_RelWithDebInfo\.xml
         - test/results/function/result_timer_tests_RelWithDebInfo\.xml
         - test/results/function/result_to_string_tests_RelWithDebInfo\.xml
@@ -168,3 +172,5 @@ relwithdebinfo:
         - test/results/function/result_ddl_mapping_tests_RelWithDebInfo\.xml
         - test/results/function/result_ddl_mediacoder_regression_tests_RelWithDebInfo\.xml
         - test/results/function/result_ddl_dd_datastructures_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_capi_basic_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_capi_negative_tests_RelWithDebInfo\.xml

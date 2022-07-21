@@ -20,7 +20,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef MAPPINGENVIRONMENT_HEADER
 #define MAPPINGENVIRONMENT_HEADER
 
-#include "a_util/result.h"
+#include <a_util/result.h>
 
 namespace ddl {
 namespace mapping {

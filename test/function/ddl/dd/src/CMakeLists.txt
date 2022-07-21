@@ -19,6 +19,7 @@ add_executable(ddl_${TEST_NAME}_tests
     tester_ddstring.cpp
     tester_ddcompare.cpp
     tester_ddtype.cpp
+    tester_dddefault.cpp
     )
 
 set_target_properties(ddl_${TEST_NAME}_tests PROPERTIES FOLDER test/function/ddl)

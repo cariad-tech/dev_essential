@@ -18,8 +18,9 @@
 #ifndef A_UTIL_UTIL_DETAIL_STRINGS_FORMAT_DETAIL_HEADER_INCLUDED
 #define A_UTIL_UTIL_DETAIL_STRINGS_FORMAT_DETAIL_HEADER_INCLUDED
 
-#include "a_util/strings/strings_format.h"
 #include "strings_default_conversion.h"
+
+#include <a_util/strings/strings_format.h>
 
 #include <limits>
 

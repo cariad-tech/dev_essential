@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/preprocessor/dll_export.h" // A_UTIL_DLL_EXPORT in a_util_result_legacy.h
+#include <a_util/preprocessor/dll_export.h> // A_UTIL_DLL_EXPORT in a_util_result_legacy.h
 
 // include guard for result_type_impl.h so we skip it and only use the declaration
 #define A_UTIL_UTIL_RESULT_DETAIL_RESULT_TYPE_IMPL_HEADER_INCLUDED
@@ -25,6 +25,7 @@
 #undef A_UTIL_UTIL_RESULT_DETAIL_RESULT_TYPE_IMPL_HEADER_INCLUDED
 
 #include <gtest/gtest.h>
+
 #include <memory>
 
 namespace {
@@ -112,7 +113,7 @@ TEST(ResultABI, isBackwardCompatible)
                                                        "result_type_compat_test.cpp",
                                                        "createWithDetailedERR_FAILED");
         EXPECT_EQ(result.getErrorCode(), ERR_FAILED.getCode());
-        EXPECT_EQ(result.getLine(), 111);
+        EXPECT_EQ(result.getLine(), 112);
         EXPECT_STREQ(result.getErrorLabel(), ERR_FAILED.getLabel());
         EXPECT_STREQ(result.getDescription(), "Error failed");
         EXPECT_STREQ(result.getFile(), "result_type_compat_test.cpp");
@@ -146,7 +147,7 @@ TEST(ResultABI, isForwardCompatible)
                                                   ERR_FAILED.getCode(),
                                                   ERR_FAILED.getLabel(),
                                                   "Error failed",
-                                                  142,
+                                                  143,
                                                   "result_type_compat_test.cpp",
                                                   "createWithDetailedERR_FAILED");
         // result was moved and destroyed in library code
@@ -165,13 +166,13 @@ TEST(ResultABI, isForwardCompatible)
                                                   ERR_FAILED.getCode(),
                                                   ERR_FAILED.getLabel(),
                                                   "Error failed",
-                                                  161,
+                                                  162,
                                                   "result_type_compat_test.cpp",
                                                   "createWithDetailedERR_FAILED");
         // result was copied, so still exists
         EXPECT_NE(result, CurrentResult());
         EXPECT_EQ(ERR_FAILED.getCode(), result.getErrorCode());
-        EXPECT_EQ(161, result.getLine());
+        EXPECT_EQ(162, result.getLine());
         EXPECT_STREQ(ERR_FAILED.getLabel(), result.getErrorLabel());
         EXPECT_STREQ("Error failed", result.getDescription());
         EXPECT_STREQ("result_type_compat_test.cpp", result.getFile());

@@ -20,8 +20,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef HEADER_MAP_TRIGGER_H
 #define HEADER_MAP_TRIGGER_H
 
-#include "a_util/result.h"
-#include "a_util/xml.h"
+#include <a_util/result.h>
+#include <a_util/xml.h>
 
 #include <string>
 #include <vector>

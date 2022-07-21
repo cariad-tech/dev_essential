@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DATA_MODEL_BASE_H_INCLUDED
 #define DD_DATA_MODEL_BASE_H_INCLUDED
 
-#include "ddl/dd/dd_error.h"
-#include "ddl/utilities/dd_access_observer.h"
+#include <ddl/dd/dd_error.h>
+#include <ddl/utilities/dd_access_observer.h>
 
 #include <string>
 #include <unordered_map>

@@ -17,7 +17,7 @@
 
 #ifndef HAVE_SHARED_MUTEX
 
-#include "a_util/concurrency.h"
+#include <a_util/concurrency.h>
 
 #include <cstddef>
 

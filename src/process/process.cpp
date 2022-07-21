@@ -15,9 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/process.h"
-
-#include "a_util/filesystem.h"
+#include <a_util/filesystem.h>
+#include <a_util/process.h>
 
 #include <string>
 
@@ -50,7 +49,7 @@ std::string getEnvVar(const std::string& environment_variable_name,
         std::string ret_val = getEnvVar(environment_variable_name);
         return ret_val;
     }
-    catch (std::exception exception_catched) {
+    catch (const std::exception&) {
         return default_value;
     }
 }

@@ -18,7 +18,7 @@
 #ifndef OO_OFFSET_CALCULATION_H_INCLUDED
 #define OO_OFFSET_CALCULATION_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_datadefinition.h"
+#include <ddl/datamodel/datamodel_datadefinition.h>
 
 namespace ddl {
 

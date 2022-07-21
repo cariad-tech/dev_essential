@@ -14,9 +14,9 @@
 
 #include "tester_default_serialization.h"
 
-#include "ddl/codec/codec_factory.h"
-#include "ddl/dd/dd.h"
-#include "ddl/dd/ddfile.h"
+#include <ddl/codec/codec_factory.h>
+#include <ddl/dd/dd.h>
+#include <ddl/dd/ddfile.h>
 
 #include <gtest/gtest.h>
 

@@ -36,8 +36,8 @@ namespace memory {
  *                   type @c T.
  * @tparam Alignment Alignment of the storage
  */
-template <typename T, std::size_t StackSize, std::size_t Alignment = 4>
-class StackPtr {
+template <typename T, std::size_t StackSize, std::size_t Alignment = alignof(std::size_t)>
+class alignas(Alignment) StackPtr {
 public:
     /// Initializes the storage and constructs object ot type @c T by calling its default ctor
     StackPtr();
@@ -115,14 +115,16 @@ public:
     void swap(StackPtr& other);
 
 private: // types and constants
-    /// Calculate the entire size of the _storage - adds needed padding bytes to fulfill the
-    /// alignment
+    /// Calculate entire size of the _storage - adds padding bytes to comply to the alignment
     enum StackPtrIntrospection {
-        /// Entire size of the _storage
-        StorageSize =
-            StackSize + (0 != (StackSize % Alignment) ? (StackSize % Alignment) : Alignment),
-        OverheadSize = StorageSize - StackSize, //!< Size of the overhead containing the flags
-        FirstFlagPosition = StackSize           //!< first byte of the StackPtr flag area
+        /// Number of bytes required to store control flags
+        NumFlagBytes = 1,
+        /// Size of the overhead containing the flags (complying to alignment)
+        OverheadSize = (Alignment - (StackSize % Alignment)),
+        /// Entire size of the _storage, including aligned overhead for necessary flags
+        StorageSize = StackSize + OverheadSize,
+        /// First byte of the StackPtr flag area
+        FirstFlagPosition = StackSize
     };
 
     /// Absolute bit positions of the flags inside the overhead area of the storage
@@ -209,7 +211,7 @@ bool operator!=(const StackPtr<T, StackSize, Alignment>& lhs,
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/memory/detail/stack_ptr_impl.h"
+#include <a_util/memory/detail/stack_ptr_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_MEMORY_DETAIL_STACK_PTR_DECL_HEADER_INCLUDED

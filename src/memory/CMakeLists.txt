@@ -27,5 +27,5 @@ target_link_libraries(memory PUBLIC base
 set_target_properties(memory PROPERTIES FOLDER a_util
                                         OUTPUT_NAME a_util_memory)
 install(TARGETS memory)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/memory DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/memory.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/memory DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/memory.h DESTINATION include/a_util)

@@ -47,6 +47,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC result
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER rpc/pkg_rpc
                                                  OUTPUT_NAME pkg_rpc)
 install(TARGETS ${PROJECT_NAME})
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/rpc DESTINATION include)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/rpc DESTINATION include)
 
 add_subdirectory(stubgenerator)

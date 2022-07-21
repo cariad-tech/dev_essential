@@ -53,6 +53,15 @@ DerivePointerAlignment: false
 DisableFormat:   false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^".*'
+    Priority: 1
+  - Regex: '^<(a_util|rpc|ddl|ddl_capi)/'
+    Priority: 2
+  - Regex: '^<(3rdparty|gtest|pugixml.*|httplib|helper|jsonrpccpp|client|server)/'
+    Priority: 3
+  - Regex: '^<.*'
+    Priority: 4
 IndentCaseLabels: false # conforming to CppCoreGuidelines examples
 IndentGotoLabels: true
 IndentPPDirectives: None

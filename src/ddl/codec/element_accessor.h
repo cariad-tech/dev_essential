@@ -18,8 +18,9 @@
 #ifndef DDL_STRUCT_ELEMENT_ACCESS_PRIVATE_CLASS_HEADER
 #define DDL_STRUCT_ELEMENT_ACCESS_PRIVATE_CLASS_HEADER
 
-#include "a_util/result.h"
 #include "struct_layout.h"
+
+#include <a_util/result.h>
 
 namespace ddl {
 class ElementAccessor {

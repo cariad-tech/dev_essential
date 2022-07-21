@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_PREDEFINED_UNITS_H_INCLUDED
 #define DD_PREDEFINED_UNITS_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_units.h"
+#include <ddl/datamodel/datamodel_units.h>
 
 #include <memory>
 #include <string>
@@ -76,7 +76,7 @@ namespace unit_prefix {
  * @param _baseunitdescription_ the description for the base unit
  * @see ddl::PredefinedUnits.
  */
-#define DDL_BASE_UNIT_DEFINTION(                                                                   \
+#define DDL_BASE_UNIT_DEFINITION(                                                                  \
     _classname_, _baseunitname_, _baseunitsymbol_, _baseunitdescription_)                          \
     namespace unit {                                                                               \
     struct _classname_ {                                                                           \
@@ -95,7 +95,7 @@ namespace unit_prefix {
  * @param _unitprefixpower_ the power for the unit prefix
  * @see ddl::PredefinedUnits
  */
-#define DDL_UNIT_PREFIX_DEFINTION(                                                                 \
+#define DDL_UNIT_PREFIX_DEFINITION(                                                                \
     _classname_, _unitprefixname_, _unitprefixsymbol_, _unitprefixpower_)                          \
     namespace unit_prefix {                                                                        \
     struct _classname_ {                                                                           \
@@ -108,38 +108,38 @@ namespace unit_prefix {
 
 namespace ddl {
 /// @cond nodoc
-DDL_BASE_UNIT_DEFINTION(Metre, "Metre", "m", "Fundamental unit for length");
-DDL_BASE_UNIT_DEFINTION(Kilogram, "Kilogram", "kg", "Fundamental unit for mass");
-DDL_BASE_UNIT_DEFINTION(Second, "Second", "s", "Fundamental unit for time");
-DDL_BASE_UNIT_DEFINTION(Ampere, "Ampere", "A", "Fundamental unit for electric current");
-DDL_BASE_UNIT_DEFINTION(Kelvin, "Kelvin", "K", "Fundamental unit for temperature");
-DDL_BASE_UNIT_DEFINTION(Mole, "Mole", "mol", "Fundamental unit for amount of substance");
-DDL_BASE_UNIT_DEFINTION(Candela, "Candela", "cd", "Fundamental unit for luminous intensity");
-DDL_BASE_UNIT_DEFINTION(Degree, "Degree", "deg", "Non-SI standard unit for angle");
-DDL_BASE_UNIT_DEFINTION(Radiant, "Radiant", "rad", "Non-SI standard unit for angle");
-DDL_BASE_UNIT_DEFINTION(Unitless, "Unitless", "", "No SI, but needed for own unit definitions");
-DDL_BASE_UNIT_DEFINTION(Nou, "nou", "", "No SI, but needed for no unit definitions");
+DDL_BASE_UNIT_DEFINITION(Metre, "Metre", "m", "Fundamental unit for length");
+DDL_BASE_UNIT_DEFINITION(Kilogram, "Kilogram", "kg", "Fundamental unit for mass");
+DDL_BASE_UNIT_DEFINITION(Second, "Second", "s", "Fundamental unit for time");
+DDL_BASE_UNIT_DEFINITION(Ampere, "Ampere", "A", "Fundamental unit for electric current");
+DDL_BASE_UNIT_DEFINITION(Kelvin, "Kelvin", "K", "Fundamental unit for temperature");
+DDL_BASE_UNIT_DEFINITION(Mole, "Mole", "mol", "Fundamental unit for amount of substance");
+DDL_BASE_UNIT_DEFINITION(Candela, "Candela", "cd", "Fundamental unit for luminous intensity");
+DDL_BASE_UNIT_DEFINITION(Degree, "Degree", "deg", "Non-SI standard unit for angle");
+DDL_BASE_UNIT_DEFINITION(Radiant, "Radiant", "rad", "Non-SI standard unit for angle");
+DDL_BASE_UNIT_DEFINITION(Unitless, "Unitless", "", "No SI, but needed for own unit definitions");
+DDL_BASE_UNIT_DEFINITION(Nou, "nou", "", "No SI, but needed for no unit definitions");
 
-DDL_UNIT_PREFIX_DEFINTION(yotta, "yotta", "Y", 24);
-DDL_UNIT_PREFIX_DEFINTION(zetta, "zetta", "Z", 21);
-DDL_UNIT_PREFIX_DEFINTION(exa, "exa", "E", 18);
-DDL_UNIT_PREFIX_DEFINTION(peta, "peta", "P", 15);
-DDL_UNIT_PREFIX_DEFINTION(tera, "tera", "T", 12);
-DDL_UNIT_PREFIX_DEFINTION(giga, "giga", "G", 9);
-DDL_UNIT_PREFIX_DEFINTION(mega, "mega", "M", 6);
-DDL_UNIT_PREFIX_DEFINTION(kilo, "kilo", "k", 3);
-DDL_UNIT_PREFIX_DEFINTION(hecto, "hecto", "h", 2);
-DDL_UNIT_PREFIX_DEFINTION(deca, "deca", "da", 1);
-DDL_UNIT_PREFIX_DEFINTION(deci, "deci", "d", -1);
-DDL_UNIT_PREFIX_DEFINTION(centi, "centi", "c", -2);
-DDL_UNIT_PREFIX_DEFINTION(milli, "mili", "m", -3);
-DDL_UNIT_PREFIX_DEFINTION(micro, "micro", "u", -6);
-DDL_UNIT_PREFIX_DEFINTION(nano, "nano", "n", -9);
-DDL_UNIT_PREFIX_DEFINTION(pico, "pico", "p", -12);
-DDL_UNIT_PREFIX_DEFINTION(femto, "femto", "f", -15);
-DDL_UNIT_PREFIX_DEFINTION(atto, "atto", "a", -18);
-DDL_UNIT_PREFIX_DEFINTION(zepto, "zepto", "z", -21);
-DDL_UNIT_PREFIX_DEFINTION(yocto, "yocto", "y", -24);
+DDL_UNIT_PREFIX_DEFINITION(yotta, "yotta", "Y", 24);
+DDL_UNIT_PREFIX_DEFINITION(zetta, "zetta", "Z", 21);
+DDL_UNIT_PREFIX_DEFINITION(exa, "exa", "E", 18);
+DDL_UNIT_PREFIX_DEFINITION(peta, "peta", "P", 15);
+DDL_UNIT_PREFIX_DEFINITION(tera, "tera", "T", 12);
+DDL_UNIT_PREFIX_DEFINITION(giga, "giga", "G", 9);
+DDL_UNIT_PREFIX_DEFINITION(mega, "mega", "M", 6);
+DDL_UNIT_PREFIX_DEFINITION(kilo, "kilo", "k", 3);
+DDL_UNIT_PREFIX_DEFINITION(hecto, "hecto", "h", 2);
+DDL_UNIT_PREFIX_DEFINITION(deca, "deca", "da", 1);
+DDL_UNIT_PREFIX_DEFINITION(deci, "deci", "d", -1);
+DDL_UNIT_PREFIX_DEFINITION(centi, "centi", "c", -2);
+DDL_UNIT_PREFIX_DEFINITION(milli, "mili", "m", -3);
+DDL_UNIT_PREFIX_DEFINITION(micro, "micro", "u", -6);
+DDL_UNIT_PREFIX_DEFINITION(nano, "nano", "n", -9);
+DDL_UNIT_PREFIX_DEFINITION(pico, "pico", "p", -12);
+DDL_UNIT_PREFIX_DEFINITION(femto, "femto", "f", -15);
+DDL_UNIT_PREFIX_DEFINITION(atto, "atto", "a", -18);
+DDL_UNIT_PREFIX_DEFINITION(zepto, "zepto", "z", -21);
+DDL_UNIT_PREFIX_DEFINITION(yocto, "yocto", "y", -24);
 /// @endcond nodoc
 
 /**
@@ -189,61 +189,12 @@ private:
      * @brief Construct a new Predefined Units object
      *
      */
-    PredefinedUnits()
-    {
-        _defined_base_units[unit::Metre::_name] = std::make_shared<BaseUnit<unit::Metre>>();
-        _defined_base_units[unit::Kilogram::_name] = std::make_shared<BaseUnit<unit::Kilogram>>();
-        _defined_base_units[unit::Second::_name] = std::make_shared<BaseUnit<unit::Second>>();
-        _defined_base_units[unit::Ampere::_name] = std::make_shared<BaseUnit<unit::Ampere>>();
-        _defined_base_units[unit::Kelvin::_name] = std::make_shared<BaseUnit<unit::Kelvin>>();
-        _defined_base_units[unit::Mole::_name] = std::make_shared<BaseUnit<unit::Mole>>();
-        _defined_base_units[unit::Candela::_name] = std::make_shared<BaseUnit<unit::Candela>>();
-        _defined_base_units[unit::Degree::_name] = std::make_shared<BaseUnit<unit::Degree>>();
-        _defined_base_units[unit::Radiant::_name] = std::make_shared<BaseUnit<unit::Radiant>>();
-        _defined_base_units[unit::Unitless::_name] = std::make_shared<BaseUnit<unit::Unitless>>();
-        _defined_base_units[unit::Nou::_name] = std::make_shared<BaseUnit<unit::Nou>>();
-
-        _defined_unit_prefixes[unit_prefix::yotta::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::yotta>>();
-        _defined_unit_prefixes[unit_prefix::zetta::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::zetta>>();
-        _defined_unit_prefixes[unit_prefix::exa::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::exa>>();
-        _defined_unit_prefixes[unit_prefix::peta::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::peta>>();
-        _defined_unit_prefixes[unit_prefix::tera::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::tera>>();
-        _defined_unit_prefixes[unit_prefix::giga::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::giga>>();
-        _defined_unit_prefixes[unit_prefix::mega::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::mega>>();
-        _defined_unit_prefixes[unit_prefix::kilo::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::kilo>>();
-        _defined_unit_prefixes[unit_prefix::hecto::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::hecto>>();
-        _defined_unit_prefixes[unit_prefix::deca::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::deca>>();
-        _defined_unit_prefixes[unit_prefix::deci::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::deci>>();
-        _defined_unit_prefixes[unit_prefix::centi::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::centi>>();
-        _defined_unit_prefixes[unit_prefix::milli::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::milli>>();
-        _defined_unit_prefixes[unit_prefix::micro::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::micro>>();
-        _defined_unit_prefixes[unit_prefix::nano::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::nano>>();
-        _defined_unit_prefixes[unit_prefix::pico::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::pico>>();
-        _defined_unit_prefixes[unit_prefix::femto::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::femto>>();
-        _defined_unit_prefixes[unit_prefix::atto::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::atto>>();
-        _defined_unit_prefixes[unit_prefix::zepto::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::zepto>>();
-        _defined_unit_prefixes[unit_prefix::yocto::_name] =
-            std::make_shared<UnitPrefix<unit_prefix::yocto>>();
-    }
+    PredefinedUnits();
+    /**
+     * @brief Destructor
+     *
+     */
+    ~PredefinedUnits();
 
 public:
     /**
@@ -251,43 +202,40 @@ public:
      *
      * @return PredefinedUnits&
      */
-    static PredefinedUnits& getInstance()
-    {
-        static PredefinedUnits units;
-        return units;
-    }
+    static const PredefinedUnits& getInstance();
     /**
      * @brief Get the Predefined Base Unit by name
      *
      * @param name the name of the predefined base unit.
      * @return std::shared_ptr<dd::datamodel::BaseUnit>
      */
-    std::shared_ptr<dd::datamodel::BaseUnit> getPredefinedBaseUnit(const std::string& name)
-    {
-        auto found = _defined_base_units.find(name);
-        if (found != _defined_base_units.end()) {
-            return found->second;
-        }
-        return {};
-    }
+    std::shared_ptr<dd::datamodel::BaseUnit> getPredefinedBaseUnit(const std::string& name) const;
     /**
      * @brief Get the Predefined Unit Prefix by name
      *
      * @param name the name of the unit prefix
      * @return std::shared_ptr<dd::datamodel::UnitPrefix>
      */
-    std::shared_ptr<dd::datamodel::UnitPrefix> getPredefinedUnitPrefix(const std::string& name)
-    {
-        auto found = _defined_unit_prefixes.find(name);
-        if (found != _defined_unit_prefixes.end()) {
-            return found->second;
-        }
-        return {};
-    }
+    std::shared_ptr<dd::datamodel::UnitPrefix> getPredefinedUnitPrefix(
+        const std::string& name) const;
+
+    /**
+     * @brief Gets a vector of all the predefined base units.
+     *
+     * @return std::vector<std::shared_ptr<dd::datamodel::BaseUnit>> The predefined base units.
+     */
+    std::vector<std::shared_ptr<dd::datamodel::BaseUnit>> getPredefinedBaseUnits() const;
+    /**
+     * @brief Gets a vector of all the predefined unit prefixes types.
+     *
+     * @return std::vector<std::shared_ptr<dd::datamodel::UnitPrefix>> The predefined unit prefixes.
+     */
+    std::vector<std::shared_ptr<dd::datamodel::UnitPrefix>> getPredefinedUnitPrefixes() const;
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<dd::datamodel::BaseUnit>> _defined_base_units;
-    std::unordered_map<std::string, std::shared_ptr<dd::datamodel::UnitPrefix>>
+    const std::unordered_map<std::string, std::shared_ptr<dd::datamodel::BaseUnit>>
+        _defined_base_units;
+    const std::unordered_map<std::string, std::shared_ptr<dd::datamodel::UnitPrefix>>
         _defined_unit_prefixes;
 };
 

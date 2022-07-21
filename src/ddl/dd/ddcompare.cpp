@@ -14,12 +14,12 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/ddcompare.h"
-
 #include "../codec/struct_layout.h"
-#include "a_util/strings.h"
-#include "ddl/dd/dd_predefined_datatypes.h"
-#include "ddl/dd/ddstring.h"
+
+#include <a_util/strings.h>
+#include <ddl/dd/dd_predefined_datatypes.h>
+#include <ddl/dd/ddcompare.h>
+#include <ddl/dd/ddstring.h>
 
 #include <algorithm>
 

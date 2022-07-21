@@ -15,11 +15,11 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/ddfile.h"
-
-#include "a_util/strings.h"
 #include "dd_fromxmlelement.h"
-#include "ddl/datamodel/xml_datamodel.h"
+
+#include <a_util/strings.h>
+#include <ddl/datamodel/xml_datamodel.h>
+#include <ddl/dd/ddfile.h>
 
 namespace ddl {
 
@@ -63,7 +63,7 @@ dd::DataDefinition DDFile::fromXMLFile(const std::string& xml_filepath, bool str
                         created_dd.getValidationProtocol());
     }
 
-    return std::move(created_dd);
+    return created_dd;
 }
 
 void DDFile::toXMLFile(const dd::DataDefinition& ddl_to_write, const std::string& xml_filepath)

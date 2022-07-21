@@ -18,8 +18,8 @@
 #ifndef DDLFROMXMLELEMENT_H_INCLUDED
 #define DDLFROMXMLELEMENT_H_INCLUDED
 
-#include "a_util/xml.h"
-#include "ddl/datamodel/xml_datamodel.h"
+#include <a_util/xml.h>
+#include <ddl/datamodel/xml_datamodel.h>
 
 #include <string>
 #include <vector>

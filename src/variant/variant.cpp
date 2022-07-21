@@ -15,12 +15,11 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/variant/variant.h"
-
-#include "a_util/memory.h"
-#include "a_util/strings/strings_convert.h"
-#include "a_util/strings/strings_format.h"
-#include "a_util/strings/strings_functions.h"
+#include <a_util/memory.h>
+#include <a_util/strings/strings_convert.h>
+#include <a_util/strings/strings_format.h>
+#include <a_util/strings/strings_functions.h>
+#include <a_util/variant/variant.h>
 
 #include <stdexcept>
 #include <vector>

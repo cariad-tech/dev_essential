@@ -41,7 +41,6 @@ common:
         - html/doc/extern/license/licenses\.txt
         - html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
         - html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
-        - html/extern/3rdparty/pcre/pcre-8\.39/LICENCE
         - html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
         - html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
         - html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt

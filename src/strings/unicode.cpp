@@ -15,9 +15,9 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/strings/unicode.h"
+#include <a_util/strings/unicode.h>
 
-#include "3rdparty/utfcpp/utf8_v2_3_4/source/utf8.h"
+#include <3rdparty/utfcpp/utf8_v2_3_4/source/utf8.h>
 
 #include <stdexcept>
 

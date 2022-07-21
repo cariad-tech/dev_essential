@@ -15,9 +15,9 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/concurrency/semaphore.h"
-#include "a_util/concurrency/thread.h"
-#include "a_util/system.h"
+#include <a_util/concurrency/semaphore.h>
+#include <a_util/concurrency/thread.h>
+#include <a_util/system.h>
 
 #include <gtest/gtest.h>
 using namespace a_util;

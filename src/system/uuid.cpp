@@ -15,9 +15,11 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/concurrency.h"
-#include "a_util/system.h"
 #include "uuid++.hh"
+
+#include <a_util/concurrency/fast_mutex.h>
+#include <a_util/concurrency/mutex.h>
+#include <a_util/system.h>
 
 namespace a_util {
 namespace system {

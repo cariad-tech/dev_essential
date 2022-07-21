@@ -1,20 +1,20 @@
 <!---
 Copyright @ 2021 VW Group. All rights reserved.
- 
+
      This Source Code Form is subject to the terms of the Mozilla
      Public License, v. 2.0. If a copy of the MPL was not distributed
      with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
 If it is not possible or desirable to put the notice in a particular file, then
 You may include the notice in a location (such as a LICENSE file in a
 relevant directory) where a recipient would be likely to look for such a notice.
- 
+
 You may add additional accurate notices of copyright ownership.
 -->
 
 # DDL Definition File Format
 
-With ADTF a default DDL Definition File 'adtf.description' is provided. The
+With ADTF a default DDL Definition File _adtf.description_ is provided. The
 format of this file is XML and it contains all common datatypes and structs
 which are used within ADTF.
 
@@ -83,11 +83,11 @@ The header section contains meta information about the document and version
 information. Example:
 ````xml
 <header>
-     <language_version>2.0</language_version>
-     <author>dev_essential team</author>
-     <date_creation>20100407</date_creation>
-     <date_change />
-     <description>ADTF Common Description File</description>
+    <language_version>2.0</language_version>
+    <author>dev_essential team</author>
+    <date_creation>20100407</date_creation>
+    <date_change />
+    <description>ADTF Common Description File</description>
 </header>
 ````
 
@@ -109,8 +109,8 @@ Example:
 
 ````xml
 <header>
-     ...
-     <ext_declaration key="AnyKey" value="Any value for this key"/>
+    ...
+    <ext_declaration key="AnyKey" value="Any value for this key"/>
 </header>
 ````
 
@@ -142,38 +142,38 @@ Units are defined within the tags `<units>` and `</units>`.
 Example:
 ````xml
 <units>
-       <baseunit description="Fundamental unit for electric current" name="Ampere" symbol="A" />
-       <baseunit description="Fundamental unit for luminous intensity" name="Candela" symbol="cd" />
-       <baseunit description="Non-SI standard unit for angle" name="Degree" symbol="deg" />
-       <baseunit description="Fundamental unit for thermodynamic temperature" name="Kelvin" symbol="K" />
-       <baseunit description="Fundamental unit for mass" name="Kilogram" symbol="kg" />
-       <baseunit description="Fundamental unit for length" name="Metre" symbol="m" />
-       <baseunit description="Fundamental unit for amount of substance" name="Mole" symbol="mol" />
-       <baseunit description="Non-SI standard unit for angle" name="Radiant" symbol="rad" />
-       <baseunit description="Fundamental unit for time" name="Second" symbol="s" />
-       <baseunit description="No SI, but needed for own unit definitions" name="Unitless" symbol="" />
+    <baseunit description="Fundamental unit for electric current" name="Ampere" symbol="A" />
+    <baseunit description="Fundamental unit for luminous intensity" name="Candela" symbol="cd" />
+    <baseunit description="Non-SI standard unit for angle" name="Degree" symbol="deg" />
+    <baseunit description="Fundamental unit for thermodynamic temperature" name="Kelvin" symbol="K" />
+    <baseunit description="Fundamental unit for mass" name="Kilogram" symbol="kg" />
+    <baseunit description="Fundamental unit for length" name="Metre" symbol="m" />
+    <baseunit description="Fundamental unit for amount of substance" name="Mole" symbol="mol" />
+    <baseunit description="Non-SI standard unit for angle" name="Radiant" symbol="rad" />
+    <baseunit description="Fundamental unit for time" name="Second" symbol="s" />
+    <baseunit description="No SI, but needed for own unit definitions" name="Unitless" symbol="" />
 
-       <prefixes name="atto" power="-18" symbol="a" />
-       <prefixes name="centi" power="-2" symbol="c" />
-       <prefixes name="deca" power="1" symbol="da" />
-       <prefixes name="deci" power="-1" symbol="d" />
-       <prefixes name="exa" power="18" symbol="E" />
-       <prefixes name="femto" power="-15" symbol="f" />
-       <prefixes name="giga" power="9" symbol="G" />
-       <prefixes name="hecto" power="2" symbol="h" />
-       <prefixes name="kilo" power="3" symbol="k" />
-       <prefixes name="mega" power="6" symbol="M" />
-       <prefixes name="micro" power="-6" symbol="u" />
-       <prefixes name="milli" power="-3" symbol="m" />
-       <prefixes name="nano" power="-9" symbol="n" />
-       <prefixes name="peta" power="15" symbol="P" />
-       <prefixes name="pico" power="-12" symbol="p" />
-       <prefixes name="tera" power="12" symbol="T" />
-       <prefixes name="yocto" power="-24" symbol="y" />
-       <prefixes name="yotta" power="24" symbol="Y" />
-       <prefixes name="zepto" power="-21" symbol="z" />
-       <prefixes name="zetta" power="21" symbol="Z" />
-   </units>
+    <prefixes name="atto" power="-18" symbol="a" />
+    <prefixes name="centi" power="-2" symbol="c" />
+    <prefixes name="deca" power="1" symbol="da" />
+    <prefixes name="deci" power="-1" symbol="d" />
+    <prefixes name="exa" power="18" symbol="E" />
+    <prefixes name="femto" power="-15" symbol="f" />
+    <prefixes name="giga" power="9" symbol="G" />
+    <prefixes name="hecto" power="2" symbol="h" />
+    <prefixes name="kilo" power="3" symbol="k" />
+    <prefixes name="mega" power="6" symbol="M" />
+    <prefixes name="micro" power="-6" symbol="u" />
+    <prefixes name="milli" power="-3" symbol="m" />
+    <prefixes name="nano" power="-9" symbol="n" />
+    <prefixes name="peta" power="15" symbol="P" />
+    <prefixes name="pico" power="-12" symbol="p" />
+    <prefixes name="tera" power="12" symbol="T" />
+    <prefixes name="yocto" power="-24" symbol="y" />
+    <prefixes name="yotta" power="24" symbol="Y" />
+    <prefixes name="zepto" power="-21" symbol="z" />
+    <prefixes name="zetta" power="21" symbol="Z" />
+</units>
 ````
 
 
@@ -246,11 +246,11 @@ struct elements. Example:
 
 ````xml
 <datatypes>
-     <datatype description="predefined ADTF tBool datatype"  size="8" name="tBool" />
-     <datatype description="predefined ADTF tChar datatype"  size="8" name="tChar" />
-     <datatype description="predefined ADTF tUInt8 datatype" size="8" name="tUInt8" />
-     <datatype description="predefined ADTF tInt8 datatype"  size="8" name="tInt8" />
-     ...
+    <datatype description="predefined ADTF tBool datatype"  size="8" name="tBool" />
+    <datatype description="predefined ADTF tChar datatype"  size="8" name="tChar" />
+    <datatype description="predefined ADTF tUInt8 datatype" size="8" name="tUInt8" />
+    <datatype description="predefined ADTF tInt8 datatype"  size="8" name="tInt8" />
+    ...
 </datatypes>
 ````
 
@@ -258,8 +258,8 @@ struct elements. Example:
 
 | Name | Type | Required | Description | changes between 2.0 and 3.0 | changes between 1.0+ and 1.0 |
 | ---- | ---- | -------- | ----------- | --------------------------- | ---------------------------- |
-|name|String|mandatory|Name of the primitive data type|attribute name changed to "name" from "type"|
-|size|UInt|mandatory|Number of bits  (relevant for serialization)| | |
+|name|String|mandatory|Name of the primitive data type|attribute name changed to "name" from "type"| |
+|size|UInt|mandatory|Number of bits (relevant for serialization)| | |
 |description|String|optional|Description of the primitive data type| | |
 |arraysize|UInt|optional|= 1 -> primitive presentation> 1 -> array with number of elements. This feature is not supported within DDL.| | |
 |unit|Class|optional|Unit of the data type| | |
@@ -267,7 +267,7 @@ struct elements. Example:
 |max|String|optional|Maximum value of the data type|introduced in DDL 3.0| |
 
 
-The following predefined data types are provided with @c adtf.description:
+The following predefined data types are provided with _adtf.description_:
 
 | Type | Description | Number of bits |
 | ---- | ----------- | -------------- |
@@ -292,12 +292,12 @@ elements. Example:
 
 ````xml
 <enums>
-     <enum name="tValueDefinitions" type="tUInt32">
+    <enum name="tValueDefinitions" type="tUInt32">
         <element name="ELEMENT_ONE" value="10"/>
         <element name="ELEMENT_TWO" value="20"/>
         <element name="ELEMENT_THREE" value="5"/>
     </enum>
-     ...
+    ...
 </enums>
 <struct alignment="1" name="tEnumData" version="1">
     <element alignment="1" arraysize="1" byteorder="LE" bytepos="0" name="enumData" type="tValueDefinitions" />
@@ -332,11 +332,11 @@ This section describes constants which are implemented using the enum type. Exam
 
 ````xml
 <enums>
-     <enum name="tConstants" type="tUInt32">
+    <enum name="tConstants" type="tUInt32">
         <element name="CONSTANT_ONE" value="42"/>
         <element name="CONSTANT_TWO" value="10"/>
     </enum>
-     ...
+    ...
 </enums>
 <struct alignment="1" name="tEnumData" version="1">
     <element alignment="1" arraysize="1" byteorder="LE" bytepos="0" name="enumData" type="tConstants" value="CONSTANT_ONE" />
@@ -394,7 +394,7 @@ The tag `<element>` uses the following attributes:
 |bitpos|UInt|deprecated|Bit position of the data in the serialized representation of the containing struct. This is NOT relevant for the struct layout in memory (deserialized)!default = 0(in the range of 0 to 7) (relevant for serialization)|From version 4.0 on this information is specified within the `<serialized>` tag.| | | |default value changes from 1 to 0 in DDL1.0+|
 |numbits|UInt|deprecated|Specifies the amount of bits used in the serialized representation, if not set the size of the type will be used. e.g. tInt8 with numbits of 7 (numbits can only be used to non-arrays)This is NOT relevant for the struct layout in memory (deserialized)!|From version 4.0 on this information is specified within the `<serialized>` tag.| | | | |
 |byteorder|Enum of LE/BE/Motorola/Intel|deprecated|Defines the byte order in the serialized representation.|From version 4.0 on this information is specified within the `<serialized>` tag.| | | | |
-|alignment|Enum of 0/1/2/4/8/16/32/64|deprecated|Defines the alignment of the element in the deserialized representation.|From version 4.0 on this information is specified within the `<deserialized>` tag.|From version 3.0 on, the alignment influences the size of the element. The size will always be a the lowest common multiple of the alignment and the size of the type of the element.| | | |
+|alignment|Enum of 0/1/2/4/8/16/32/64|deprecated|Defines the alignment of the element in the deserialized representation.|From version 4.0 on this information is specified within the `<deserialized>` tag.| | | | |
 |description|String|optional|Description of the created data type| | | | | |
 |unit|Class|optional|Unit of the element|Changed to optional| | | | |
 |comment|Text|optional|Additional comments| | | | | |
@@ -419,15 +419,15 @@ The tag `<serialized>` uses the following attributes:
 
 The tag `<deserialized>` uses the following attributes:
 
-| Name | Type | Required | Description | changes between 2.0 and 3.0 |
-| ---- | ---- | -------- | ----------- | --------------------------- |
-|alignment|Enum of 0/1/2/4/8/16/32/64|deprecated|Defines the alignment of the element in the deserialized representation.|From version 3.0 on, the alignment influences the size of the element. The size will always be a the lowest common multiple of the alignment and the size of the type of the element.|
+| Name | Type | Required | Description |
+| ---- | ---- | -------- | ----------- |
+|alignment|Enum of 0/1/2/4/8/16/32/64|mandatory|Defines the alignment of the element in the deserialized representation.|
 
 **Remarks:**
 - The number of structs defined in a DDL description file is not limited.
 - If the name of another struct is used as type for an element, a hierarchical structure is created.
 - The maximum depth of such hierarchical structures is limited by the value of the define `ADTF_DDL_MAX_DESC_HIERARCHY`.
-- If the alignment is set to "0", the alignment will be set to the size of the elements type!
+- If the alignment is set to "0", the alignment will be set to the alignment of the elements type (the struct alignment in case of struct or the datatype size in case of datatype or enum) !
 
 ## Alignment of structs and in structs
 
@@ -580,14 +580,14 @@ compared to static arrays.
 It is therefore recommended to use static arrays whenever possible.
 
 To minimize the performance impact of dynamic arrays the user should adhere
-to the following guidelines:<br>
+to the following guidelines:
 - Always place dynamic data the end of a structure or structure hirarchy so
 all static data precede the dynamic data.
 - Use the struct element directly preceding the dynamic array for array size.
 - Use dynamic arrays of primitive data types instead of complex data types.
 - Prefer flat data over deeply structured data.
 - Do not use nested dynamic arrays!
-- Use alignment=1 for all elements.
+- Use `alignment="1"` for all elements.
 - Use default values bitpos.
 - Use a bytepos that matches the position in memory when alignment=1.
 
@@ -766,7 +766,3 @@ The following enums are provided as default:
 | --------- | ---- |
 |tMediaTypeMajor|tUInt32|
 |tPixelFormat|tInt16|
-
-
-
-

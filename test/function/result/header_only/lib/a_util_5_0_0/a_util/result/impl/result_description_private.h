@@ -21,10 +21,10 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_IMPL_DESCRIPTION_PRIVATE_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_IMPL_DESCRIPTION_PRIVATE_HEADER_INCLUDED
 
-#include "a_util/base/config.h"
-#include "a_util/base/variadic.h"
-#include "a_util/result/detail/result_description_decl.h"
-#include "a_util/result/impl/reference_counted_object.h"
+#include <a_util/base/config.h>
+#include <a_util/base/variadic.h>
+#include <a_util/result/detail/result_description_decl.h>
+#include <a_util/result/impl/reference_counted_object.h>
 
 #include <new>
 

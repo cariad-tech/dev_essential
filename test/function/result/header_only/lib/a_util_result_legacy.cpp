@@ -19,7 +19,7 @@
 #include "a_util_result_legacy.h"
 
 // this is a_util result 5.0.0 include!
-#include "a_util/result/detail/result_type_impl.h"
+#include <a_util/result/detail/result_type_impl.h>
 
 #include <gtest/gtest.h>
 

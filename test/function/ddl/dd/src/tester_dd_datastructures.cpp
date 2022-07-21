@@ -17,9 +17,11 @@
  */
 
 #include "./../../_common/test_oo_ddl.h"
-#include "ddl/dd/dd.h"
+
+#include <ddl/dd/dd.h>
 
 #include <gtest/gtest.h>
+
 #include <stdint.h>
 
 using namespace ddl::dd;

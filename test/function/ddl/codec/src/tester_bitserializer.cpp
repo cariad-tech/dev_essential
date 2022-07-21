@@ -16,7 +16,8 @@
  */
 
 #include "../../_common/adtf_compat.h"
-#include "ddl/codec/bitserializer.h"
+
+#include <ddl/codec/bitserializer.h>
 
 #include <gtest/gtest.h>
 

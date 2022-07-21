@@ -22,7 +22,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_DELEGATE_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_DELEGATE_IMPL_HEADER_INCLUDED
 
-#include "a_util/base/detail/delegate_decl.h"
+#include <a_util/base/detail/delegate_decl.h>
 
 #include <stdexcept>
 

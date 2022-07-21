@@ -26,7 +26,8 @@ add_library(system STATIC
             )
 target_include_directories(system PRIVATE $<BUILD_INTERFACE:${UUID_DIR}>)
 target_link_libraries(system PUBLIC base
-                             PRIVATE filesystem)
+                             PRIVATE filesystem
+                                     concurrency)
 
 if(UNIX AND NOT QNXNTO)
     target_link_libraries(system PUBLIC rt)
@@ -39,5 +40,5 @@ set_target_properties(system PROPERTIES FOLDER a_util
                                         OUTPUT_NAME a_util_system)
 
 install(TARGETS system)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/system DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/system.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/system DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/system.h DESTINATION include/a_util)

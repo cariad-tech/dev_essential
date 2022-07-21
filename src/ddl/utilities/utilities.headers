@@ -10,7 +10,7 @@
 #
 # You may add additional accurate notices of copyright ownership.
 
-set(DD_UTILITIES_DIR ${CMAKE_SOURCE_DIR}/include/ddl/utilities)
+set(DD_UTILITIES_DIR ${dev_essential_SOURCE_DIR}/include/ddl/utilities)
 
 set(DD_UTILITIES_H
     ${DD_UTILITIES_DIR}/dd_access_observer.h

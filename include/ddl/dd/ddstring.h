@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDLSTRING_H_INCLUDED
 #define DDLSTRING_H_INCLUDED
 
-#include "ddl/datamodel/xml_datamodel.h"
-#include "ddl/dd/dd.h"
+#include <ddl/datamodel/xml_datamodel.h>
+#include <ddl/dd/dd.h>
 
 #include <string>
 #include <vector>

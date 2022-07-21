@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_PREPROCESSOR_CURRENT_FUNCTION_HEADER_INCLUDED
 #define A_UTIL_UTIL_PREPROCESSOR_CURRENT_FUNCTION_HEADER_INCLUDED
 
-#include "3rdparty/boost/boost_1_64_0/boost/current_function.hpp"
+#include <3rdparty/boost/boost_1_64_0/boost/current_function.hpp>
 
 /**
  * @def A_UTIL_CURRENT_FUNCTION

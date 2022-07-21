@@ -20,9 +20,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef ELEMENT_HEADER
 #define ELEMENT_HEADER
 
-#include "a_util/result.h"
-#include "ddl/dd/dd.h"
-#include "ddl/mapping/configuration/map_transformation.h"
+#include <a_util/result.h>
+#include <ddl/dd/dd.h>
+#include <ddl/mapping/configuration/map_transformation.h>
 
 #include <map>
 

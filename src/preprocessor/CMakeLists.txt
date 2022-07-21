@@ -18,5 +18,5 @@ target_link_libraries(preprocessor INTERFACE base)
 get_filename_component(_third_party_path "${CMAKE_CURRENT_LIST_DIR}/../../extern" ABSOLUTE)
 target_include_directories(preprocessor
                            INTERFACE $<BUILD_INTERFACE:${_third_party_path}>)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/preprocessor DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/preprocessor.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/preprocessor DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/preprocessor.h DESTINATION include/a_util)

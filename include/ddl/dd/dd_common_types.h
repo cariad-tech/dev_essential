@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_TYPES_H_INCLUDED
 #define DD_TYPES_H_INCLUDED
 
-#include "ddl/utilities/dd_access_optional.h"
+#include <ddl/utilities/dd_access_optional.h>
 
 #include <string>
 

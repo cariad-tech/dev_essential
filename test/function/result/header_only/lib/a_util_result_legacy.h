@@ -15,7 +15,7 @@
 #ifndef A_UTIL_RESULT_LEGACY_LIBRARY
 #define A_UTIL_RESULT_LEGACY_LIBRARY
 
-#include "a_util/result/result_type_decl.h"
+#include <a_util/result/result_type_decl.h>
 
 _MAKE_RESULT(-1, ERR_FAILED);
 

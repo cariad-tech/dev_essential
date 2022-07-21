@@ -15,11 +15,11 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/concurrency/atomic.h"
-#include "a_util/concurrency/condition_variable.h"
-#include "a_util/concurrency/mutex.h"
-#include "a_util/concurrency/thread.h"
-#include "a_util/system/system.h"
+#include <a_util/concurrency/atomic.h>
+#include <a_util/concurrency/condition_variable.h>
+#include <a_util/concurrency/mutex.h>
+#include <a_util/concurrency/thread.h>
+#include <a_util/system/system.h>
 
 #include <gtest/gtest.h>
 using namespace a_util;

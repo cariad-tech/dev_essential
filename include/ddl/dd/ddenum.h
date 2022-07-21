@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDENUM_H_INCLUDED
 #define DDENUM_H_INCLUDED
 
-#include "ddl/dd/dd.h"
-#include "ddl/dd/dddatatype.h"
-#include "ddl/utilities/std_to_string.h"
+#include <ddl/dd/dd.h>
+#include <ddl/dd/dddatatype.h>
+#include <ddl/utilities/std_to_string.h>
 
 namespace ddl {
 
@@ -43,13 +43,13 @@ public:
      * @brief Construct a new DDEnum object
      *
      */
-    DDEnum(DDEnum&&) = default;
+    DDEnum(DDEnum&&);
     /**
      * @brief
      *
      * @return DDEnum&
      */
-    DDEnum& operator=(DDEnum&&) = default;
+    DDEnum& operator=(DDEnum&&);
     /**
      * @brief Construct a new DDEnum object
      *
@@ -123,6 +123,13 @@ public:
      */
     const dd::DataDefinition& getDD() const;
 
+    /**
+     * @brief returns the alignment of the underlying data type.
+     *
+     * @return the alignemnt of the datatype
+     */
+    size_t getAlignment() const;
+
 private:
     /// the data definition
     dd::DataDefinition _dd;
@@ -157,8 +164,27 @@ public:
         : DDEnum(name, DataType<typename std::underlying_type<EnumDataType>::type>())
     {
         for (const auto& elem: elements) {
-            DDEnum::addElement(dd::EnumType::Element(elem.first, std::to_string(elem.second)));
+            DDEnum::addElement(dd::EnumType::Element(
+                elem.first,
+                std::to_string(
+                    static_cast<typename std::underlying_type<EnumDataType>::type>(elem.second))));
         }
+    }
+
+    /**
+     * @brief Adds a element for the enumeration with name and value
+     *
+     * @param name the name of the enumeration value
+     * @param value the value for the name out of given type \p EnumDataType
+     *
+     * @return DDEnumGenerator& a reference of this
+     */
+    DDEnumGenerator& addElement(const std::string& name, EnumDataType value)
+    {
+        DDEnum::addElement(dd::EnumType::Element(
+            name,
+            std::to_string(static_cast<typename std::underlying_type<EnumDataType>::type>(value))));
+        return *this;
     }
 };
 

@@ -17,7 +17,8 @@
  */
 
 #include "./../../_common/test_oo_ddl.h"
-#include "ddl/dd/ddstructure.h"
+
+#include <ddl/dd/ddstructure.h>
 
 #include <gtest/gtest.h>
 

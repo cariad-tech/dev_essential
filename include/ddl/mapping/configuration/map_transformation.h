@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef HEADER_MAP_TRANSFORMATION_H
 #define HEADER_MAP_TRANSFORMATION_H
 
-#include "a_util/result.h"
-#include "a_util/strings.h"
-#include "a_util/xml.h"
+#include <a_util/result.h>
+#include <a_util/strings.h>
+#include <a_util/xml.h>
 
 namespace ddl {
 namespace mapping {

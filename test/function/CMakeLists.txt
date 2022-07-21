@@ -27,6 +27,7 @@ add_subdirectory(process)
 add_subdirectory(preprocessor)
 add_subdirectory(pkg_rpc)
 add_subdirectory(ddl)
+add_subdirectory(ddl_capi)
 
 ##get all tests listed inside ***_test_projects.cmake files (as cmake subdirectories)
 include(../../extern/3rdparty/3rdparty_test_projects.cmake)

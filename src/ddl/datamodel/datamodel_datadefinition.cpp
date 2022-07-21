@@ -15,9 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/datamodel/datamodel_datadefinition.h"
-
-#include "a_util/xml.h"
+#include <a_util/xml.h>
+#include <ddl/datamodel/datamodel_datadefinition.h>
 
 #include <exception>
 #include <utility>

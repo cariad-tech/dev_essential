@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_SERIALIZER_CLASS_HEADER
 #define DDL_SERIALIZER_CLASS_HEADER
 
-#include "a_util/result.h"
-#include "ddl/codec/codec.h"
+#include <a_util/result.h>
+#include <ddl/codec/codec.h>
 
 #include <assert.h>
 

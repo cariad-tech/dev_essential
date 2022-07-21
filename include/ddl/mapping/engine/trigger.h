@@ -20,8 +20,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef TRIGGER_BASE_HEADER
 #define TRIGGER_BASE_HEADER
 
-#include "a_util/result.h"
-#include "ddl/mapping/engine/target.h"
+#include <a_util/result.h>
+#include <ddl/mapping/engine/target.h>
 
 namespace ddl {
 namespace mapping {

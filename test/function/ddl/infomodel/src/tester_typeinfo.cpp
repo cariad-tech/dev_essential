@@ -31,6 +31,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+
 #include <iostream>
 
 void dump_deserialized_positions(const ddl::dd::StructTypeAccess& struct_type)

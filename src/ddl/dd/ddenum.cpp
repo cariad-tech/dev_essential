@@ -19,6 +19,7 @@
 #define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
 #include <ddl/dd/dd_typeinfomodel.h>
 
+
 namespace ddl {
 
 DDEnum::DDEnum(const DDEnum& other) : _dd(other._dd)

@@ -187,6 +187,80 @@ _**Won't Do**_
 _**Cannot Reproduce**_
 - [ODAUTIL-490][] - [ddl] `ddl::dd::StructType::Element::getNumBits()` returns zero for `DataTypes`, also if size is set in ddl file
 
+<a name="dev_essential_1_1_1"></a>
+### [dev_essential 1.1.1][] - 2022/01/21
+
+<a name="dev_essential_1_1_1_changes"></a>
+#### Changes
+_**Won't Do**_
+- [ODAUTIL-203][] - [build] Evaluate dl linker option _--exclude-libs_ to hide symbols of linked static libraries
+  - Fixed with [ODAUTIL-515]
+
+<a name="dev_essential_1_1_1_fixes"></a>
+#### Fixes
+_**Fixed**_
+- [ODAUTIL-312][] - [rpc] httplib crashes when it receives an https request 
+- [ODAUTIL-511][] - [ddl] Loading of description file leads to Segfault error on Linux 
+- [ODAUTIL-515][] - [build] GCC default symbol visibility might lead to multiple defined symbols in shared libraries 
+- [ODAUTIL-517][] - [build] `CMAKE_SOURCE_DIR` points to wrong folder when integrating dev_essential into ConanWorkspace build 
+- [ODAUTIL-522][] - [ddl] static constexpr variables might violate the ODR if linked by C++17 built downstream project 
+- [ODAUTIL-523][] - [ddl] DDL documentation defective 
+- [ODAUTIL-530][] - [rpc] httpclient does not read full response body 
+- [ODAUTIL-532][] - [ddl] Static Singleton factory in header leads to problem in gcc 7 
+
+<a name="dev_essential_1_1_0"></a>
+### [dev_essential 1.1.0][] - 2021/10/14
+
+<a name="dev_essential_1_1_0_changes"></a>
+#### Changes
+_**Done**_
+- [ODAUTIL-460][] - [ddl_capi] Move DDL C-API to fep dev_essential
+  - See [ODAUTIL-476][]
+- [ODAUTIL-465][] - [build] Comply to C\+\+ Core Guidelines [SF.12][] rule 
+- [ODAUTIL-474][] - [ddl] DDL TypeReflection - Extend detection of missing elements by adding padding bytes automatically 
+- [ODAUTIL-476][] - [ddl_capi] Integrate ddl-c-api into top level directory of a_util 
+- [ODAUTIL-481][] - [build] Provide conditional clang-format SCA tester in CI 
+- [ODAUTIL-483][] - [build] Add baseline check to Jenkinsfile 
+- [ODAUTIL-485][] - [memory] Support alignment specification for `a_util::memory::StackPtr` 
+- [ODAUTIL-488][] - [ddl] Possibility to create a description only with pre-defined data types 
+- [ODAUTIL-489][] - [build] Provide single source of truth for product version 
+- [ODAUTIL-491][] - [ddl] DDL Mapping Engine does not forward the correct time while using "data" or "signal" as trigger type 
+- [ODAUTIL-492][] - [regex] Use `std::regex` for implementation of `a_util::regex` functionality 
+- [ODAUTIL-498][] - [ddl] DDL TypeReflection - Add a dedicated validate function to the `DDStructureGenerator` 
+
+_**Won't Do**_
+- [ODAUTIL-380][] - [ddl] Remove DDLCompareFunctor and use lambdas where necessary
+  - File deleted in [2d5bd295a87][] in issue [ODAUTIL-431][]
+- [ODAUTIL-382][] - [ddl] Add missing documentation to header file
+  - DDLImporter has been deleted with commit [2d5bd295a87][] in [ODAUTIL-431][]
+- [ODAUTIL-401][] - [ddl] Cleanup copy and move semantics
+  - Superseded by issue [ODAUTIL-431][] which removed almost all classes in question
+- [ODAUTIL-403][] - [header2ddl] Use abstract syntax tree to generate description file
+  - Superseded by [DDLUTILITY-101][]
+
+_**Duplicate**_
+- [ODAUTIL-429][] - [build] Extend Conan Pkg Info in ddl
+  - DDL integrated into dev_essential, so it will be done together with [ODAUTIL-190][]
+
+<a name="dev_essential_1_1_0_fixes"></a>
+#### Fixes
+_**Fixed**_
+- [ODAUTIL-453][] - [concurrency] _a\_util/concurency.h_ brings windows includes in scope and destroys APIs 
+- [ODAUTIL-458][] - [system] Leftover ADTF include emits compiler error under `__APPLE__` 
+- [ODAUTIL-480][] - [build] Self-contained header tester takes a long time to complete 
+- [ODAUTIL-486][] - [ddl] Typo in _dd_predefined_datatypes.h_ prevents creating DataType int8_t 
+- [ODAUTIL-487][] - [result] nativs file only installed for MSVC 
+- [ODAUTIL-496][] - [xml] pugixml in a_util_xml causes linker problems when using a pugixml in a derivated work 
+- [ODAUTIL-497][] - [ddl] The CTOR with elements of `DDEnumGenerator<T>` has a problem if type is not arithmetic 
+- [ODAUTIL-500][] - [build] Compiler error when building with gcc >= 8.x 
+
+_**Won't Do**_
+- [ODAUTIL-343][] - [ddlinspector] Duplicated types if renamed and merged
+  - Fixed with redesign of OO DDL in issue [ODAUTIL-431][]
+
+_**Cannot Reproduce**_
+- [ODAUTIL-490][] - [ddl] `ddl::dd::StructType::Element::getNumBits()` returns zero for `DataTypes`, also if size is set in ddl file
+
 <a name="dev_essential_1_0_0"></a>
 ### [dev_essential 1.0.0][] - 2021/08/04
 > _**This release is the successor of a_util, ddl library and pkg_rpc, merging all three libraries

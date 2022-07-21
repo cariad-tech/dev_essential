@@ -617,6 +617,30 @@ public:
         }
     }
 
+    /**
+     * @brief removes the last element if exists.
+     * @throw ddl::dd::Error if it is empty.
+     */
+    void popBack()
+    {
+        if (!_types.empty()) {
+            auto last_element = _types[_types.size() - 1];
+            // unregister me as observer
+            (static_cast<subject_type*>(last_element.get()))
+                ->detachObserver(static_cast<observer_type*>(this));
+            // pop last element
+            _types.pop_back();
+            if (_validator) {
+                _validator->notifyChangedListContent(TypeAccessListEventCode::list_item_removed,
+                                                     *last_element,
+                                                     last_element->getName());
+            }
+        }
+        else {
+            throw ddl::dd::Error(_validation_info + "::popBack", {}, "list is empty");
+        }
+    }
+
 public:
     /**
      * @brief overrides the observers utility function.

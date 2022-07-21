@@ -19,7 +19,6 @@
 
 #include <ddl/dd/dd_predefined_datatypes.h>
 #include <ddl/dd/dd_typeinfomodel.h>
-
 #include <iterator>
 
 namespace ddl {

@@ -24,6 +24,7 @@
 
 #include <algorithm>
 
+
 namespace ddl {
 
 namespace dd {
@@ -866,6 +867,7 @@ void ValidationInfo::update(datamodel::Unit& unit, datamodel::DataDefinition& pa
                     {ValidationServiceInfo::unit_to_base_unit, unit.getName(), base_unit_name},
                     parent_dd);
                 auto base_unit = getOrCreateBaseUnit(base_unit_name, parent_dd);
+
                 // this will invalidate the whole dd ! If a unit is defined it must be valid!
                 if (!base_unit) {
                     addProblem(generateProblemMessage("Unit::RefUnit",

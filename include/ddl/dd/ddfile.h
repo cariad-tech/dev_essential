@@ -21,6 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDFILE_H_INCLUDED
 #define DDFILE_H_INCLUDED
 
+#include <a_util/base/enums.h> // a_util::SortingOrder
 #include <ddl/dd/dd.h>
 
 #include <string>
@@ -64,6 +65,15 @@ public:
      * @throws ddl::dd::Error File could not be written.
      */
     static void toXMLFile(const dd::DataDefinition& ddl_to_write, const std::string& xml_filepath);
+
+    /**
+     * @brief Writes sorted DataDefinition to a file containing a data definiton in XML.
+     * @copydetails toXMLFile(const dd::DataDefinition&, const std::string&)
+     * @param[in] order Sort elements in description file in either ascending or descending order
+     */
+    static void toXMLFile(const dd::DataDefinition& ddl_to_write,
+                          const std::string& xml_filepath,
+                          a_util::SortingOrder order);
 };
 
 } // namespace ddl

@@ -15,9 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include <ddl/dd/ddenum.h>
-#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
 #include <ddl/dd/dd_typeinfomodel.h>
+#include <ddl/dd/ddenum.h>
 
 namespace ddl {
 

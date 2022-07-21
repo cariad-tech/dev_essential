@@ -17,7 +17,6 @@
 
 #include <ddl/dd/dd.h>
 #include <ddl/dd/dd_predefined_datatypes.h>
-#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
 #include <ddl/dd/dd_typeinfomodel.h>
 #include <ddl/dd/dd_validationinfomodel.h>
 

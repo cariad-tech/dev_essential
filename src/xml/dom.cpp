@@ -15,11 +15,13 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
+#include <a_util/strings.h>
 #include <a_util/xml.h>
 
 #include <pugixml-1.8/src/pugixml.hpp>
 
 #include <algorithm> //std::equal
+#include <functional>
 
 namespace a_util {
 namespace xml {
@@ -224,6 +226,88 @@ bool DOMElement::findNodes(const std::string& query, DOMElementList& elements) c
     }
 
     return true;
+}
+
+bool DOMElement::sortNodes(const std::string& query, const SortingOrder order)
+{
+    DOMElementList elements;
+    if (findNodes(query, elements)) {
+        // sort list of nodes by node name
+        elements.sort([](const auto& element_a, const auto& element_b) {
+            return element_a.getName() < element_b.getName();
+        });
+
+        // get parent node for reordering
+        xml_node parent = elements.front()._impl->_node.parent();
+
+        // append_move: move each node of list to end
+        // prepend_move: move each node of list to begin
+        const auto move_node = order == SortingOrder::ascending ?
+                                   std::mem_fn(&xml_node::append_move) :
+                                   std::mem_fn(&xml_node::prepend_move);
+        // reorder nodes in xml parent node
+        std::for_each(
+            elements.cbegin(), elements.cend(), [&move_node, &parent](const auto& element) {
+                move_node(parent, element._impl->_node);
+            });
+    }
+    return !elements.empty();
+}
+
+bool DOMElement::sortNodes(const std::string& query,
+                           const SortingOrder order,
+                           const std::size_t number_of_nodes)
+{
+    return sortNodes(query, std::string(), order, number_of_nodes);
+}
+
+std::size_t DOMElement::sortNodes(const std::string& query,
+                                  const std::string& attribute,
+                                  const SortingOrder order)
+{
+    DOMElementList elements;
+    if (findNodes(query, elements)) {
+        // sort list of nodes by attribute name
+        elements.sort([&attribute](const auto& element_a, const auto& element_b) {
+            return element_a.getAttribute(attribute) < element_b.getAttribute(attribute);
+        });
+
+        // get anchor and parent node for reordering
+        xml_node anchor = elements.front()._impl->_node;
+        xml_node parent = anchor.parent();
+
+        // insert_move_after: move each node of list behind the last moved node
+        // insert_move_before: move each node of list before the last moved node
+        const auto move_node = order == SortingOrder::ascending ?
+                                   std::mem_fn(&xml_node::insert_move_after) :
+                                   std::mem_fn(&xml_node::insert_move_before);
+        // reorder nodes in xml parent node
+        std::for_each(std::next(elements.cbegin()),
+                      elements.cend(),
+                      [&move_node, &anchor, &parent](const auto& element) {
+                          anchor = move_node(parent, element._impl->_node, anchor);
+                      });
+    }
+    return elements.size();
+}
+
+bool DOMElement::sortNodes(const std::string& query,
+                           const std::string& attribute,
+                           const SortingOrder order,
+                           const std::size_t number_of_nodes)
+{
+    bool result = true;
+    for (std::size_t i = 1; i <= number_of_nodes; ++i) {
+        // replace [*] in query by a concrete number
+        const auto sub_query = strings::replace(query, "[*]", "[" + strings::toString(i) + "]");
+        if (attribute.empty()) {
+            result &= sortNodes(sub_query, order);
+        }
+        else {
+            result &= sortNodes(sub_query, attribute, order) > 0;
+        }
+    }
+    return result;
 }
 
 DOMElement DOMElement::createChild(const std::string& name)

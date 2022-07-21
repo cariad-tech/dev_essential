@@ -397,7 +397,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_array_index(const DDL_CAPI_Codec_Ha
  * Gets the \p size of the specified \p array
  * @param[in]  codec       a handle of type DDL_CAPI_Codec_Handle
  * @param[in]  array       path to the array relative to the \p codec
- * @param[out] data_size   the number of elements in the array
+ * @param[out] data_size   the byte size of the given array
  * @return     0 on success.
  */
 A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_array_size(const DDL_CAPI_Codec_Handle_T codec,

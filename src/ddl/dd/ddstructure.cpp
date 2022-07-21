@@ -115,6 +115,109 @@ size_t DDStructure::getAlignment() const
     return _struct_type->getAlignment();
 }
 
+void DDStructure::setStructInfo(const std::string& comment)
+{
+    _struct_type->setComment(comment);
+}
+
+void DDStructure::setElementInfo(const std::string& element_name,
+                                 const std::string& description,
+                                 const std::string& comment,
+                                 const std::string& value,
+                                 const std::string& minimum_value,
+                                 const std::string& maximum_value,
+                                 const std::string& default_value,
+                                 const std::string& scale,
+                                 const std::string& offset)
+{
+    auto element = _struct_type->getElements().access(element_name);
+    if (element) {
+        // we need to check this first, this may throw!
+        if (!value.empty()) {
+            const auto old_value = element->getValue();
+            element->setValue(value);
+            _dd.validate(true);
+            if (!_dd.isValid()) {
+                const auto problems = a_util::strings::join(
+                    dd::transformProblemList(_dd.getValidationProtocol()), "\n");
+                // reset to old state
+                element->setValue(old_value);
+                _dd.validate(true);
+                throw dd::Error("DDStructure::setElementInfo",
+                                {element_name,
+                                 description,
+                                 comment,
+                                 value,
+                                 minimum_value,
+                                 maximum_value,
+                                 default_value,
+                                 scale,
+                                 offset},
+                                problems);
+            }
+        }
+        if (!description.empty()) {
+            element->setDescription(description);
+        }
+        if (!comment.empty()) {
+            element->setComment(comment);
+        }
+        if (!minimum_value.empty()) {
+            element->setMin(minimum_value);
+        }
+        if (!maximum_value.empty()) {
+            element->setMax(maximum_value);
+        }
+        if (!default_value.empty()) {
+            element->setDefault(default_value);
+        }
+        if (!scale.empty()) {
+            element->setScale(scale);
+        }
+        if (!offset.empty()) {
+            element->setOffset(offset);
+        }
+        return;
+    }
+    throw dd::Error("DDStructure::setElementInfo",
+                    {element_name,
+                     description,
+                     comment,
+                     value,
+                     minimum_value,
+                     maximum_value,
+                     default_value,
+                     scale,
+                     offset},
+                    "Element with the name " + element_name + " not found");
+}
+
+void DDStructure::setElementUnit(const std::string& element_name, const DDUnit& unit)
+{
+    auto element = _struct_type->getElements().access(element_name);
+    if (element) {
+        _dd.add(unit.getUnit(), unit.getDD());
+        element->setUnitName(unit.getUnit().getName());
+        return;
+    }
+    throw dd::Error("DDStructure::setElementInfo",
+                    {element_name, unit.getUnit().getName()},
+                    "Element with the name " + element_name + " not found");
+}
+
+void DDStructure::setElementUnit(const std::string& element_name, const dd::BaseUnit& base_unit)
+{
+    auto element = _struct_type->getElements().access(element_name);
+    if (element) {
+        _dd.getBaseUnits().add(base_unit);
+        element->setUnitName(base_unit.getName());
+        return;
+    }
+    throw dd::Error("DDStructure::setElementInfo",
+                    {element_name, base_unit.getName()},
+                    "Element with the name " + element_name + " not found");
+}
+
 namespace {
 
 void addElementBaseType(dd::StructType& struct_type,

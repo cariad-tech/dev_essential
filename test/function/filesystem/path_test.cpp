@@ -67,7 +67,7 @@ TEST(path_test, TestPathStringConversion)
     EXPECT_EQ(path.toString(Path::PS_BackwardSlash), "\\a\\b\\c");
     EXPECT_EQ(path2.toString(Path::PS_ForwardSlash), "C:/a/b/c");
 
-#if WIN32
+#if _WIN32
     EXPECT_EQ(path.toString(Path::PS_Native), "\\a\\b\\c");
     EXPECT_EQ((std::string)path2, "C:\\a\\b\\c");
 #else
@@ -152,18 +152,44 @@ TEST(path_test, TestPathSetPath)
     EXPECT_EQ(path.toString(Path::PS_ForwardSlash), "C:");
 }
 
-TEST(path_test, TestPathGetRoot)
+TEST(path_test, TestPathGetRootName)
 {
     // getRoot
     Path path("C:\\subdir\\..\\anotherone\\test.txt");
     Path path2("/usr/./bin/subdir");
     Path path3("//ci-aev/envinstall/blubb.txt");
-    EXPECT_EQ(Path().getRoot().toString(Path::PS_ForwardSlash), "");
-    EXPECT_EQ(path.getRoot().toString(Path::PS_ForwardSlash), "C:");
-    EXPECT_EQ(path2.getRoot().toString(Path::PS_ForwardSlash), "/");
-    EXPECT_EQ(path3.getRoot().toString(Path::PS_ForwardSlash), "//ci-aev");
-    EXPECT_EQ(Path("test").getRoot().toString(Path::PS_ForwardSlash), "");
-    EXPECT_EQ(Path("test/test.txt").getRoot().toString(Path::PS_ForwardSlash), "");
+    EXPECT_EQ(Path().getRootName().toString(Path::PS_ForwardSlash), "");
+    EXPECT_EQ(path.getRootName().toString(Path::PS_ForwardSlash), "C:");
+    EXPECT_EQ(path2.getRootName().toString(Path::PS_ForwardSlash), "/");
+    EXPECT_EQ(path3.getRootName().toString(Path::PS_ForwardSlash), "//ci-aev");
+    EXPECT_EQ(Path("test").getRootName().toString(Path::PS_ForwardSlash), "");
+    EXPECT_EQ(Path("test/test.txt").getRootName().toString(Path::PS_ForwardSlash), "");
+}
+
+TEST(path_test, TestPathGetRootPath)
+{
+    // getRoot
+    Path path("C:\\subdir\\..\\anotherone\\test.txt");
+    Path path2("/usr/./bin/subdir");
+    Path path3("//ci-aev/envinstall/blubb.txt");
+    EXPECT_EQ(Path().getRootPath().toString(), "");
+    EXPECT_EQ(Path().getRootPath().toString(Path::PS_ForwardSlash), "");
+    EXPECT_EQ(path.getRootPath().toString(Path::PS_ForwardSlash), "C:/");
+    EXPECT_EQ(path2.getRootPath().toString(Path::PS_ForwardSlash), "/");
+    EXPECT_EQ(path3.getRootPath().toString(Path::PS_ForwardSlash), "//ci-aev/");
+    EXPECT_EQ(Path("test").getRootPath().toString(), "");
+    EXPECT_EQ(Path("test").getRootPath().toString(Path::PS_ForwardSlash), "");
+    EXPECT_EQ(Path("test/test.txt").getRootPath().toString(), "");
+    EXPECT_EQ(Path("test/test.txt").getRootPath().toString(Path::PS_ForwardSlash), "");
+#if _WIN32
+    EXPECT_EQ(path.getRootPath().toString(), "C:\\");
+    EXPECT_EQ(path2.getRootPath().toString(), "\\");
+    EXPECT_EQ(path3.getRootPath().toString(), "\\\\ci-aev\\");
+#else
+    EXPECT_EQ(path.getRootPath().toString(), "C:/");
+    EXPECT_EQ(path2.getRootPath().toString(), "/");
+    EXPECT_EQ(path3.getRootPath().toString(), "//ci-aev/");
+#endif
 }
 
 TEST(path_test, TestPathGetParent)

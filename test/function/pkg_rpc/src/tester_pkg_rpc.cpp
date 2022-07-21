@@ -21,17 +21,21 @@
 #include <testclientstub.h>
 #include <testserverstub.h>
 
-#ifdef WIN32
+#ifdef _WIN32
+#ifndef __MINGW32__
 #define NOMINMAX
+#endif // __MINGW32__
 #include <winsock2.h>
 #else
 #include <netinet/in.h>
 #include <sys/socket.h>
-#endif
+#endif // _WIN32
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cstdint>
+#include <future>
 #include <limits>
 
 typedef rpc::
@@ -181,7 +185,7 @@ TEST(HttpServer, TestPortBindingReuse)
     // Make 'reuse address' option available
     int reuse = 1;
     setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse));
-#ifdef WIN32
+#ifdef _WIN32
     reuse ^= 1;
     setsockopt(sock_fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&reuse, sizeof(reuse));
 #endif
@@ -196,7 +200,7 @@ TEST(HttpServer, TestPortBindingReuse)
     ASSERT_EQ(bind(sock_fd, (struct sockaddr*)&address, sizeof(address)), 0);
     ASSERT_EQ(listen(sock_fd, 1), 0);
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     shutdown(sock_fd, SD_BOTH);
 #else
     shutdown(sock_fd, SHUT_RDWR);
@@ -206,9 +210,97 @@ TEST(HttpServer, TestPortBindingReuse)
     ASSERT_TRUE(isOk(rpc_server.StartListening("http://0.0.0.0:9090")));
     ASSERT_TRUE(isOk(rpc_server.StopListening()));
 
-#ifdef _MSC_VER
+#ifdef _WIN32
     closesocket(sock_fd);
 #else
     close(sock_fd);
 #endif
+}
+
+class cTestServerWithDelay : public cTestServer {
+public:
+    cTestServerWithDelay(rpc::http::cJSONRPCServer& oServer, bool& function_returned)
+        : cTestServer(oServer), _function_returned(function_returned)
+    {
+    }
+
+    int GetInteger(int nValue) override
+    {
+        // inform that rpc callback is executed
+        _rpc_called.set_value();
+
+        // wait until the other thread will call the destructor
+        _destructor_called.wait();
+
+        _function_returned = true;
+        return nValue;
+    }
+    std::promise<void> _rpc_called;
+    std::shared_future<void> _destructor_called;
+    bool& _function_returned;
+    const size_t server_size = 10;
+};
+
+/*
+ * Constructs 10 RPC servers, each one having service id from test0 to test9
+ * StopListening of threaded_rpc_server should first wait all detached threads to finish
+ */
+TEST(HttpServer, WaitDetachedThreads)
+{
+    std::unique_ptr<rpc::http::cJSONRPCServer> rpc_server =
+        std::make_unique<rpc::http::cJSONRPCServer>();
+    constexpr size_t server_size = 10;
+
+    std::array<bool, server_size> _function_returned{false};
+    std::array<std::unique_ptr<cTestServerWithDelay>, server_size> _server_array;
+    std::array<std::unique_ptr<cTestClient>, server_size> _client_array;
+    std::promise<void> _destructor_called;
+    std::shared_future<void> _destructor_called_future = _destructor_called.get_future();
+    std::array<std::future<void>, server_size> _rpc_called;
+
+    for (size_t i = 0; i < server_size; ++i) {
+        _server_array[i] =
+            std::make_unique<cTestServerWithDelay>(*rpc_server, _function_returned[i]);
+        const std::string service_name = "test" + a_util::strings::toString(i);
+
+        _server_array[i]->_destructor_called = _destructor_called_future;
+        _rpc_called[i] = _server_array[i]->_rpc_called.get_future();
+
+        ASSERT_TRUE(a_util::result::isOk(
+            rpc_server->RegisterRPCObject(service_name.c_str(), _server_array[i].get())));
+
+        const std::string client_url = "http://127.0.0.1:1234/" + service_name;
+        _client_array[i] = std::make_unique<cTestClient>(client_url.c_str());
+    }
+
+    ASSERT_TRUE(a_util::result::isOk(rpc_server->StartListening("http://127.0.0.1:1234")));
+
+    std::array<std::thread, server_size> _thread_array;
+
+    // launch threads each calling a separate client
+    for (size_t i = 0; i < server_size; ++i) {
+        _thread_array[i] = std::thread([&, i]() { _client_array[i]->GetInteger(1234); });
+    }
+
+    // wait that all clients are inside the callback function
+    for (size_t i = 0; i < server_size; ++i) {
+        _rpc_called[i].wait();
+    }
+    // inform clients to unblock the callback
+    _destructor_called.set_value();
+
+    for (size_t i = 0; i < server_size; ++i) {
+        const std::string service_name = "test" + a_util::strings::toString(i);
+        rpc_server->UnregisterRPCObject(service_name.c_str());
+    }
+
+    rpc_server.reset();
+    // all client callback funtions should return (not really return but continue)
+    for (size_t i = 0; i < server_size; ++i) {
+        ASSERT_TRUE(_function_returned[i]);
+    }
+
+    for (size_t i = 0; i < server_size; ++i) {
+        _thread_array[i].join();
+    }
 }

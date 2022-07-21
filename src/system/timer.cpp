@@ -17,8 +17,12 @@
 
 #include <a_util/system.h>
 
-#ifdef WIN32
+#ifdef _WIN32
+
+#ifndef __MINGW32__
 #define NOMINMAX
+#endif // __MINGW32__
+
 #include <Windows.h> // timeSetEvent, timeKillEvent
 #elif defined(__QNX__)
 #if !defined(_QNX_SOURCE)
@@ -50,7 +54,7 @@ struct Timer::Implementation {
     mutable std::recursive_mutex mutex_timer;
     std::recursive_mutex mutex_callback;
 
-#ifdef WIN32
+#ifdef _WIN32
     MMRESULT native_timer;
 
     Implementation()
@@ -138,7 +142,7 @@ struct Timer::Implementation {
           native_timer(-1)
     {
     }
-#endif
+#endif // __QNX__
 
     void ThreadFunc()
     {
@@ -151,14 +155,14 @@ struct Timer::Implementation {
 #else
             std::int64_t expirations = 0;
             while (!stop_flag && read(native_timer, &expirations, sizeof(expirations)) < 0) {
-#endif
+#endif // __QNX__
                 continue;
             }
 #ifdef __QNX__
             if (!stop_flag && pulse.code == CODE_ITIMER) {
 #else
             if (!stop_flag) {
-#endif
+#endif // __QNX__
                 callback();
             }
 
@@ -168,7 +172,7 @@ struct Timer::Implementation {
             }
         }
     }
-#endif
+#endif // _WIN32
     // do not check for nullptr before every call to callback. use this dummy instead
     inline static void doNothing()
     {
@@ -242,7 +246,7 @@ bool Timer::start()
         return false;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     DWORD_PTR user = (DWORD_PTR)this;
     UINT period = static_cast<UINT>(_impl->timer_period_us / 1000);
     _impl->native_timer =
@@ -257,7 +261,7 @@ bool Timer::start()
         _impl->native_timer = 0;
 #else
     _impl->native_timer = timerfd_create(CLOCK_MONOTONIC, 0);
-#endif
+#endif // __QNX__
     _impl->is_running = _impl->native_timer >= 0;
 
     if (_impl->is_running) {
@@ -280,10 +284,10 @@ bool Timer::start()
         timer_settime(_impl->native_timer, 0, &timespec, nullptr);
 #else
         timerfd_settime(_impl->native_timer, 0, &timespec, nullptr);
-#endif
+#endif // __QNX__
         _impl->thread.reset(new std::thread(&Implementation::ThreadFunc, _impl));
     }
-#endif
+#endif // _WIN32
 
     return _impl->is_running;
 }
@@ -295,7 +299,7 @@ bool Timer::stop()
         return false;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     timeKillEvent(_impl->native_timer);
     _impl->native_timer = TIMERR_NOERROR;
     _impl->is_running = false;
@@ -313,7 +317,7 @@ bool Timer::stop()
 #else
     close(_impl->native_timer);
     _impl->native_timer = -1;
-#endif
+#endif // __QNX__
     _impl->is_running = false;
 
     // only wait for exit if we're not stopped from within the thread itself
@@ -327,7 +331,7 @@ bool Timer::stop()
         _impl->thread->detach();
         _impl->thread.reset();
     }
-#endif
+#endif // _WIN32
 
     return true;
 }

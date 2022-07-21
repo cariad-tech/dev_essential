@@ -45,10 +45,8 @@ class DataType : public dd::datamodel::DataType {
 public:
     /**
      * @brief CTOR. creates the datatype with a different name then defined by default.
-     *
-     * @param name the name to use for the datatype.
      */
-    DataType(const std::string& name)
+    DataType(const std::string&)
     {
         static_assert(std::is_arithmetic<T>::value,
                       "To use this type, only primitive types are allowed");

@@ -18,6 +18,8 @@
 
 #include "./../../_common/test_oo_ddl.h"
 
+#include <ddl/dd/ddcompare.h>
+#include <ddl/dd/ddstring.h>
 #include <ddl/dd/ddstructure.h>
 
 #include <gtest/gtest.h>
@@ -386,4 +388,121 @@ TEST(cTesterDDLStructure, addAlreadyExisting)
     my_A_again_struct_other_element.addElement<uint16_t>("value");
     definition = my_struct.getDD();
     EXPECT_ANY_THROW(definition.add(my_A_again_struct_other_element.getDD()));
+}
+
+static constexpr const char* const expected_dd_with_info = R"(<?xml version="1.0"?>
+<ddl:ddl xmlns:ddl="ddl">
+    <header>
+        <language_version>4.01</language_version>
+        <author></author>
+        <date_creation></date_creation>
+        <date_change></date_change>
+        <description></description>
+    </header>
+    <units>
+        <baseunit name="Ampere" symbol="A" description="Fundamental unit for electric current" />
+        <baseunit name="Metre" symbol="m" description="Fundamental unit for length" />
+        <baseunit name="Mole" symbol="mol" description="Fundamental unit for amount of substance" />
+        <prefixes name="kilo" power="3" symbol="k" />
+        <prefixes name="hecto" power="2" symbol="h" />
+        <unit name="unit_to_set">
+            <numerator>1</numerator>
+            <denominator>2</denominator>
+            <offset>3</offset>
+            <refUnit name="Metre" power="1" prefix="kilo" />
+            <refUnit name="Mole" power="32" prefix="hecto" />
+        </unit>
+    </units>
+    <datatypes>
+        <datatype name="tUInt64" size="64" description="Predefined DataType for tUInt64" arraysize="1" min="0" max="18446744073709551615" />
+        <datatype name="tUInt8" size="8" description="Predefined DataType for tUInt8" arraysize="1" min="0" max="255" />
+    </datatypes>
+    <enums />
+    <structs>
+        <struct name="StructWithInfos" version="1" alignment="8" ddlversion="4.01">
+            <element name="sub_struct" type="SubStructWithInfo" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="value" type="tUInt64" description="test_description" unit="unit_to_set" comment="test_comment" arraysize="1" min="-12" max="42" default="3" scale="0.5" offset="10">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="SubStructWithInfo" version="1" alignment="8" comment="this is another comment" ddlversion="4.01">
+            <element name="value_1" type="tUInt8" description="test_description" unit="Ampere" comment="test_comment" arraysize="1" min="-12" max="42" default="3" scale="0.5" offset="10">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="value_2" type="tUInt64" description="test_description" unit="unit_to_set" comment="test_comment" arraysize="1" min="-12" max="42" default="3" scale="0.5" offset="10">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+    </structs>
+    <streammetatypes />
+    <streams />
+</ddl:ddl>)";
+
+/**
+ * @detail Check the resulting DataDefinition by setting additional info on struct and elements.
+ */
+TEST(cTesterDDLStructure, addAdditionalInfo)
+{
+    using namespace ddl;
+    DDStructure my_sub_struct("SubStructWithInfo");
+    my_sub_struct.setStructInfo("this is a comment");
+
+    my_sub_struct.addElement<uint8_t>("value_1");
+    my_sub_struct.setElementInfo(
+        "value_1", "test_description", "test_comment", {}, "-12", "42", "3", "0.5", "10");
+    my_sub_struct.setElementUnit("value_1", BaseUnit<unit::Ampere>());
+
+    my_sub_struct.addElement<uint64_t>("value_2");
+    my_sub_struct.setElementInfo(
+        "value_2", "test_description", "test_comment", {}, "-12", "42", "3", "0.5", "10");
+
+    DDUnit unit("unit_to_set",
+                "1",
+                "2",
+                "3",
+                {DDRefUnit(BaseUnit<unit::Metre>(), 1, UnitPrefix<unit_prefix::kilo>()),
+                 DDRefUnit(BaseUnit<unit::Mole>(), 32, UnitPrefix<unit_prefix::hecto>())});
+    my_sub_struct.setElementUnit("value_2", unit);
+
+    DDStructure my_struct("StructWithInfos");
+    my_sub_struct.setStructInfo("this is another comment");
+    my_struct.addElement("sub_struct", my_sub_struct);
+
+    my_struct.addElement<uint64_t>("value");
+    my_struct.setElementInfo(
+        "value", "test_description", "test_comment", {}, "-12", "42", "3", "0.5", "10");
+
+    my_struct.setElementUnit("value", unit);
+
+    dd::DataDefinition expected_dd = DDString::fromXMLString(expected_dd_with_info);
+    ASSERT_EQ(a_util::result::SUCCESS, DDCompare::isEqual(expected_dd, my_struct.getDD()));
+}
+
+/**
+ * @detail Check if setting additional infos to non existing elements and uninitialized struct
+ * throws.
+ */
+TEST(cTesterDDLStructure, addAdditionalInfoNegative)
+{
+    using namespace ddl;
+    DDUnit unit("unit_to_set",
+                "1",
+                "2",
+                "3",
+                {DDRefUnit(BaseUnit<unit::Metre>(), 1, UnitPrefix<unit_prefix::kilo>()),
+                 DDRefUnit(BaseUnit<unit::Mole>(), 32, UnitPrefix<unit_prefix::hecto>())});
+
+    DDStructure my_sub_struct = DDStructure("test");
+    ASSERT_THROW(
+        my_sub_struct.setElementInfo(
+            "value_1", "test_description", "test_comment", {}, "-12", "42", "3", "0.5", "10"),
+        dd::Error);
+    ASSERT_THROW(my_sub_struct.setElementUnit("value_1", BaseUnit<unit::Ampere>()), dd::Error);
+    ASSERT_THROW(my_sub_struct.setElementUnit("value_1", unit), dd::Error);
 }

@@ -25,24 +25,27 @@
 #define _QNX_SOURCE
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 // needed before including "a_util/filesystem.h"
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
-#ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
+
+#ifndef __MINGW32__
 #define NOMINMAX
+#endif // __MINGW3__
+
 #include <windows.h>
+
 #else
 
 #include <dirent.h>
+#ifndef __MINGW32__
 #include <fnmatch.h>
+#endif // __MINGW32__
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#endif // WIN32
+#endif // _WIN32
 
 #include <cstdio> // rename
 #include <fstream>
@@ -65,7 +68,7 @@ namespace {
 
 /// Enumeration of file attributes
 enum FileAttributeFlag : std::int32_t {
-#ifdef WIN32
+#ifdef _WIN32
     // map to Win32 definitions
     ATTRIBUTE_READONLY = 0x00000001,
     ATTRIBUTE_FOLDER = 0x00000010,
@@ -84,7 +87,7 @@ enum FileAttributeFlag : std::int32_t {
     ATTRIBUTE_COMPRESSED = 32,
     ATTRIBUTE_ENCRYPTED = 64,
     ATTRIBUTE_OFFLINE = 128,
-#endif
+#endif // _WIN32
     ATTRIBUTE_SYMLINK = 256,
     ATTRIBUTE_PIPE = 512,
     ATTRIBUTE_BLOCKDEVICE = 1024,
@@ -101,8 +104,8 @@ int32_t GetFSAttributes(const Path& path)
 {
     std::string file_path = path.toString();
 
-#ifdef WIN32
-    int32_t file_attribs = ::GetFileAttributesW(strings::unicode::utf8ToUtf16(path).c_str());
+#ifdef _WIN32
+    auto file_attribs = ::GetFileAttributesW(strings::unicode::utf8ToUtf16(path).c_str());
     if (file_attribs == 0xFFFFFFFF)
         return ATTRIBUTE_INVALID;
 
@@ -153,7 +156,7 @@ int32_t GetFSAttributes(const Path& path)
 
 Path filesystem::getTempDirectory()
 {
-#ifdef WIN32
+#ifdef _WIN32
     TCHAR buffer[MAX_PATH + 1];
     if (!::GetTempPath(sizeof(buffer), buffer)) {
         return Path();
@@ -162,12 +165,12 @@ Path filesystem::getTempDirectory()
     return Path(buffer);
 #else
     return Path("/tmp");
-#endif
+#endif // _WIN32
 }
 
 Path filesystem::getWorkingDirectory()
 {
-#ifdef WIN32
+#ifdef _WIN32
     DWORD required = ::GetCurrentDirectoryW(0, NULL);
     std::wstring buffer(required - 1, 0x0000);
 
@@ -182,13 +185,13 @@ Path filesystem::getWorkingDirectory()
         return Path();
     }
     return Path(buffer);
-#endif
+#endif // _WIN32
 }
 
 Error filesystem::setWorkingDirectory(const Path& path)
 {
     if (isDirectory(path)) {
-#ifdef WIN32
+#ifdef _WIN32
         if (!::SetCurrentDirectoryW(strings::unicode::utf8ToUtf16(path.toString()).c_str())) {
             return GENERAL_FAILURE;
         }
@@ -196,7 +199,7 @@ Error filesystem::setWorkingDirectory(const Path& path)
         if (chdir(path.toString().c_str()) == -1) {
             return GENERAL_FAILURE;
         }
-#endif
+#endif // _WIN32
         return OK;
     }
     else {
@@ -206,7 +209,7 @@ Error filesystem::setWorkingDirectory(const Path& path)
 
 Error filesystem::readTextFile(const Path& file_path, std::string& content)
 {
-#ifdef WIN32
+#ifdef _WIN32
     FILE* file = {};
     {
         const auto result =
@@ -220,7 +223,7 @@ Error filesystem::readTextFile(const Path& file_path, std::string& content)
     if (file == nullptr) {
         return OPEN_FAILED;
     }
-#endif
+#endif // _WIN32
 
     if (fseek(file, 0, SEEK_END) != 0) {
         fclose(file);
@@ -288,7 +291,7 @@ Error filesystem::readTextLines(const Path& file_path, std::vector<std::string>&
 
 Error filesystem::writeTextFile(const Path& file_path, const std::string& content)
 {
-#ifdef WIN32
+#ifdef _WIN32
     FILE* file = {};
     {
         const auto result =
@@ -302,7 +305,7 @@ Error filesystem::writeTextFile(const Path& file_path, const std::string& conten
     if (file == nullptr) {
         return OPEN_FAILED;
     }
-#endif
+#endif // _WIN32
 
     size_t bytes_written = 0;
     while (bytes_written < content.size()) {
@@ -330,7 +333,7 @@ Error filesystem::enumDirectory(const Path& dir_path,
         return INVALID_PATH;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     WIN32_FIND_DATAW find_data;
 
     Path tmp_dir = dir_path + "*";
@@ -397,7 +400,7 @@ Error filesystem::enumDirectory(const Path& dir_path,
         }
         free(name_list);
     }
-#endif
+#endif // _WIN32
 
     return OK;
 }
@@ -423,11 +426,11 @@ bool filesystem::createDirectory(const Path& path)
     }
 
     Path parent = path.getParent();
-    if (parent != path.getRoot() && !isDirectory(parent)) {
+    if (parent != path.getRootName() && !isDirectory(parent)) {
         createDirectory(parent);
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     bool status = ::CreateDirectoryW(strings::unicode::utf8ToUtf16(path.toString()).c_str(),
                                      nullptr) == TRUE ?
                       true :
@@ -435,7 +438,7 @@ bool filesystem::createDirectory(const Path& path)
 #else
     bool status =
         mkdir(path.toString().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0 ? true : false;
-#endif
+#endif // _WIN32
 
     return status;
 }
@@ -465,7 +468,7 @@ bool filesystem::isDirectory(const Path& dir_path)
 bool filesystem::remove(const Path& path)
 {
     if (isFile(path)) {
-#ifdef WIN32
+#ifdef _WIN32
         BOOL status = ::DeleteFileW(strings::unicode::utf8ToUtf16(path.toString()).c_str());
         if (!status) {
             return false;
@@ -475,7 +478,7 @@ bool filesystem::remove(const Path& path)
         if (nStatus == -1) {
             return false;
         }
-#endif
+#endif // _WIN32
     }
     else if (isDirectory(path)) {
         // delete contents first
@@ -486,7 +489,7 @@ bool filesystem::remove(const Path& path)
             remove(*it);
         }
 
-#ifdef WIN32
+#ifdef _WIN32
         BOOL status = ::RemoveDirectoryW(strings::unicode::utf8ToUtf16(path.toString()).c_str());
         if (!status) {
             return false;
@@ -496,7 +499,7 @@ bool filesystem::remove(const Path& path)
         if (result == -1) {
             return false;
         }
-#endif
+#endif // _WIN32
     }
     else {
         return false;
@@ -515,7 +518,7 @@ bool a_util::filesystem::rename(const Path& path, const Path& new_path)
         return true;
     }
 
-#ifdef WIN32
+#ifdef _WIN32
     DWORD move_flags =
         MOVEFILE_COPY_ALLOWED | // Allows Windows to use a Copy+Delete (can be faster)
         MOVEFILE_WRITE_THROUGH; // Ensures that all changes are flushed to disk before returning
@@ -533,7 +536,7 @@ bool a_util::filesystem::rename(const Path& path, const Path& new_path)
     int res = ::rename(path.toString().c_str(), new_path.toString().c_str());
 
     return res == 0;
-#endif
+#endif // _WIN32
 }
 
 std::int64_t a_util::filesystem::compareFiles(const Path& p1, const Path& p2)

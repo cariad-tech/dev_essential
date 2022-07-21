@@ -337,15 +337,29 @@ TEST(string_test, TestIsEmpty)
     EXPECT_FALSE(strings::isNotEmpty(""));
 }
 
-TEST(string_test, TestStringReplace)
+TEST(string_test, TestInplaceStringReplacement)
 {
     std::string str = "aaabacdaab";
     EXPECT_EQ(strings::replace(str, "aa", "x"), "xabacdxb");
+    EXPECT_EQ(str, "xabacdxb");
     EXPECT_EQ(strings::replace(str, "x", "xx"), "xxabacdxxb");
+    EXPECT_EQ(str, "xxabacdxxb");
     EXPECT_EQ(strings::replace(str, "", "z"), "xxabacdxxb");
+    EXPECT_EQ(str, "xxabacdxxb");
     EXPECT_EQ(strings::replace(str, "a", ""), "xxbcdxxb");
+    EXPECT_EQ(str, "xxbcdxxb");
     str = "";
     EXPECT_EQ(strings::replace(str, "a", "b"), "");
+    EXPECT_EQ(str, "");
+}
+
+TEST(string_test, TestConstStringReplacement)
+{
+    const std::string str = "aaabacdaab";
+    EXPECT_EQ(strings::replace(str, "aa", "x"), "xabacdxb");
+    EXPECT_EQ(strings::replace(str, "x", "xx"), "aaabacdaab");
+    EXPECT_EQ(strings::replace(str, "", "z"), "aaabacdaab");
+    EXPECT_EQ(strings::replace(str, "a", ""), "bcdb");
 }
 
 TEST(string_test, TestStringJoin)

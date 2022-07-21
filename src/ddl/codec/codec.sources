@@ -12,20 +12,40 @@
 
 set(CODEC_SRC codec)
 
-set(CODEC_H
+set(CODEC_MAIN_H
     ${CODEC_H_PUBLIC}
-    ${CODEC_SRC}/struct_layout.h
+    ${CODEC_SRC}/codec_elements.h
     ${CODEC_SRC}/element_accessor.h
+    ${CODEC_SRC}/element_setter.h
 )
 
-set(CODEC_CPP
-    ${CODEC_SRC}/struct_layout.cpp
+set(CODEC_LEGACY_CPP
+    ${CODEC_SRC}/legacy/static_codec_legacy.cpp
+    ${CODEC_SRC}/legacy/codec_legacy.cpp
+    ${CODEC_SRC}/legacy/codec_factory_legacy.cpp
+    ${CODEC_SRC}/legacy/codec_access_legacy.h
+)
+
+set(CODEC_MAIN_CPP
     ${CODEC_SRC}/element_accessor.cpp
     ${CODEC_SRC}/static_codec.cpp
     ${CODEC_SRC}/codec.cpp
     ${CODEC_SRC}/codec_factory.cpp
     ${CODEC_SRC}/bitserializer.cpp
+    ${CODEC_SRC}/codec_elements.cpp
+    ${CODEC_SRC}/codec_index.cpp
+    ${CODEC_SRC}/codec_type_info.cpp
+    ${CODEC_SRC}/named_codec_index.cpp
 )
 
-source_group(codec FILES ${CODEC_H} ${CODEC_CPP})
+set(CODEC_H
+    ${CODEC_H_LEGACY_PUBLIC}
+    ${CODEC_MAIN_H}
+)
+set(CODEC_CPP
+    ${CODEC_LEGACY_CPP}
+    ${CODEC_MAIN_CPP}
+)
+source_group(codec FILES ${CODEC_MAIN_H} ${CODEC_MAIN_CPP})
+source_group(codec/legacy FILES ${CODEC_H_LEGACY_PUBLIC} ${CODEC_LEGACY_CPP})
 

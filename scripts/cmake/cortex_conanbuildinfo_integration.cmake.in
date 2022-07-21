@@ -1,0 +1,38 @@
+# Copyright @ 2021 VW Group. All rights reserved.
+#
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
+
+# This file has to be copied to the conan install_folder to work correctly
+
+message(CHECK_START "Checking conan generated files")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
+message(CHECK_START "cmake_paths")
+include("${CMAKE_CURRENT_LIST_DIR}/conan_paths.cmake" OPTIONAL RESULT_VARIABLE output)
+if("${output}" STREQUAL "NOTFOUND")
+    message(CHECK_FAIL "not found")
+else()
+    message(CHECK_PASS "found ['${output}']")
+endif()
+
+message(CHECK_START "cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/conanbuildinfo.cmake" OPTIONAL RESULT_VARIABLE output)
+if("${output}" STREQUAL "NOTFOUND")
+    message(CHECK_FAIL "not found")
+else()
+    message(CHECK_PASS "found ['${output}']")
+    list(POP_BACK CMAKE_MESSAGE_INDENT)
+    # Use only minimal validation functionality to keep the build system as clean as possible
+    conan_check_compiler()
+    conan_set_libcxx()
+    conan_set_vs_runtime()
+endif()
+
+list(POP_BACK CMAKE_MESSAGE_INDENT)

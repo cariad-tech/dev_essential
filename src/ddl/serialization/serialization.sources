@@ -14,6 +14,7 @@ set(SERIALIZATION_SRC serialization)
 
 set(SERIALIZATION_CPP
     ${SERIALIZATION_SRC}/serialization.cpp
+    ${SERIALIZATION_SRC}/serialization_legacy.cpp
 )
 
 source_group(serialization FILES ${SERIALIZATION_H} ${SERIALIZATION_CPP})

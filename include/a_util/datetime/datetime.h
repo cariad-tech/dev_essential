@@ -428,7 +428,7 @@ public:
      * code. In that case, the meaning of the format code is changed as follows.
      * <br>
      */
-#ifdef WIN32
+#ifdef _WIN32
     /**
      * <tt>\%\#a, \%\#A, \%\#b, \%\#B, \%\#p, \%\#X, \%\#z, \%\#Z, \%\#%</tt><br>
      * \c \# flag is ignored.<br>
@@ -448,7 +448,7 @@ public:
      * Characters are converted to uppercase.<br>
      * For example: "TUESDAY", "MARCH".
      */
-#endif // WIN32
+#endif // _WIN32
     /**
      *
      * @param[in] format_str Format-control string.

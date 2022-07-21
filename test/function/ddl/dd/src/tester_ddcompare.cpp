@@ -30,82 +30,89 @@
 /**
  * @detail The building up of a DataDefinition object representation.
  */
-TEST(TesterDDCompare, TestisBinaryEqual)
+TEST(TesterDDCompare, TestIsBinaryEqualPositiveNoSubset)
 {
     using namespace ddl;
-    // isBinaryEqual
-    {
-        ASSERT_EQ(
-            a_util::result::SUCCESS,
-            DDCompare::isBinaryEqual(
-                "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING, true));
-        ASSERT_EQ(
-            a_util::result::SUCCESS,
-            DDCompare::isBinaryEqual(
-                "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING, false));
 
-        ASSERT_NE(
-            a_util::result::SUCCESS,
-            DDCompare::isBinaryEqual(
-                "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING_DIFF, true));
-        ASSERT_NE(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING_DIFF,
-                                           false));
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual(
+                  "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING, false));
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC,
+                                       "adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC,
+                                       false));
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC,
+                                       "adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC_NAME_DIFF,
+                                       false));
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "tTest1", DDL_TEST_STRING_LAYOUT_TEST, "tTest2", DDL_TEST_STRING_LAYOUT_TEST, false));
+}
 
-        ASSERT_EQ(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING_SUBSET,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING,
-                                           true));
-        ASSERT_NE(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING_SUBSET,
-                                           true));
-        ASSERT_NE(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING_SUBSET,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING,
-                                           false));
+/**
+ * @detail The building up of a DataDefinition object representation.
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualNegativeNoSubset)
+{
+    using namespace ddl;
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING_DIFF, false));
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "adtf.type.video", DDL_TEST_STRING_SUBSET, "adtf.type.video", DDL_TEST_STRING, false));
+    ASSERT_NE(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC,
+                                       "adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC_BIN_DIFF,
+                                       false));
+    ASSERT_NE(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC,
+                                       "adtf.type.video",
+                                       DDL_TEST_STRING_DYNAMIC_BIN_DIFF_2,
+                                       false));
+}
 
-        ASSERT_EQ(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC,
-                                           false));
-        ASSERT_EQ(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC_NAME_DIFF,
-                                           false));
-        ASSERT_NE(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC_BIN_DIFF,
-                                           false));
-        ASSERT_NE(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC,
-                                           "adtf.type.video",
-                                           DDL_TEST_STRING_DYNAMIC_BIN_DIFF_2,
-                                           false));
+/**
+ * @detail The building up of a DataDefinition object representation.
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualPositiveSubset)
+{
+    using namespace ddl;
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual(
+                  "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING, true));
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "adtf.type.video", DDL_TEST_STRING_SUBSET, "adtf.type.video", DDL_TEST_STRING, true));
+}
 
-        ASSERT_EQ(a_util::result::SUCCESS,
-                  DDCompare::isBinaryEqual("tTest1",
-                                           DDL_TEST_STRING_LAYOUT_TEST,
-                                           "tTest2",
-                                           DDL_TEST_STRING_LAYOUT_TEST,
-                                           false));
-    }
+/**
+ * @detail The building up of a DataDefinition object representation.
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualNegativeSubset)
+{
+    using namespace ddl;
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING_DIFF, true));
+
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING_SUBSET, true));
 }
 
 /**
@@ -629,6 +636,18 @@ TEST(TesterDDCompare, TestisEqualDescriptions)
                       DDCompare::isEqual(DDL_TEST_STRING_ENUMS,
                                          oDom.toString().c_str(),
                                          DDCompare::dcf_all & ~DDCompare::dcf_enums));
+
+            // this checks the content for enums where the order defined in XML is not decisive
+            ASSERT_EQ(a_util::result::SUCCESS,
+                      DDCompare::isEqual(DDL_TEST_STRING_ENUMS,
+                                         DDL_TEST_STRING_ENUMS_DIFFERENT_ORDER,
+                                         DDCompare::dcf_all));
+
+            // this checks the content for enums where the order defined in XML is not decisive
+            ASSERT_EQ(a_util::result::SUCCESS,
+                      DDCompare::isEqual(DDL_TEST_STRING_ENUMS,
+                                         DDL_TEST_STRING_ENUMS_DIFFERENT_ORDER,
+                                         DDCompare::dcf_enums));
         }
     }
 }

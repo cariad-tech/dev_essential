@@ -14,7 +14,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "../codec/struct_layout.h"
+#include "./../codec/codec_elements.h"
 
 #include <a_util/strings.h>
 #include <ddl/dd/dd_predefined_datatypes.h>
@@ -126,71 +126,6 @@ a_util::result::Result DDCompare::isBinaryEqual(const std::string& type1,
                          is_subset);
 }
 
-static a_util::result::Result CompareStaticElements(
-    const std::vector<StructLayoutElement>& elements1,
-    const std::vector<StructLayoutElement>& elements2)
-{
-    for (size_t n_element = 0; n_element < elements1.size(); ++n_element) {
-        const StructLayoutElement& element1 = elements1[n_element];
-        const StructLayoutElement& element2 = elements2[n_element];
-        if (element1.deserialized.bit_offset != element2.deserialized.bit_offset ||
-            element1.deserialized.bit_size != element2.deserialized.bit_size) {
-            RETURN_ERROR_DESCRIPTION(ERR_FAILED,
-                                     "The elements '%s' and '%s' differ in size or address.",
-                                     element1.name.c_str(),
-                                     element2.name.c_str());
-        }
-        if (element1.type != element2.type) {
-            RETURN_ERROR_DESCRIPTION(ERR_FAILED,
-                                     "The elements '%s' and '%s' have different types.",
-                                     element1.name.c_str(),
-                                     element2.name.c_str());
-        }
-    }
-
-    return a_util::result::SUCCESS;
-}
-
-static a_util::result::Result CompareDynamicElements(
-    const std::vector<DynamicStructLayoutElement>& elements1,
-    const std::vector<DynamicStructLayoutElement>& elements2)
-{
-    for (size_t n_element = 0; n_element < elements1.size(); ++n_element) {
-        const DynamicStructLayoutElement& element1 = elements1[n_element];
-        const DynamicStructLayoutElement& element2 = elements2[n_element];
-
-        if (element1.alignment != element2.alignment) {
-            RETURN_ERROR_DESCRIPTION(ERR_FAILED,
-                                     "The elements '%s' and '%s' have different alignment.",
-                                     element1.name.c_str(),
-                                     element2.name.c_str());
-        }
-
-        if (element1.static_elements.size() != element2.static_elements.size()) {
-            RETURN_ERROR_DESCRIPTION(
-                ERR_FAILED,
-                "The elements '%s' and '%s' have different amounts of child elements.",
-                element1.name.c_str(),
-                element2.name.c_str());
-        }
-
-        RETURN_DDLERROR_IF_FAILED(
-            CompareStaticElements(element1.static_elements, element2.static_elements));
-
-        if (element1.dynamic_elements.size() != element2.dynamic_elements.size()) {
-            RETURN_ERROR_DESCRIPTION(
-                ERR_FAILED,
-                "The elements '%s' and '%s' have different amounts of dynamic elements.",
-                element1.name.c_str(),
-                element2.name.c_str());
-        }
-
-        RETURN_DDLERROR_IF_FAILED(
-            CompareDynamicElements(element1.dynamic_elements, element2.dynamic_elements));
-    }
-    return a_util::result::SUCCESS;
-}
-
 a_util::result::Result DDCompare::isBinaryEqual(const std::string& type1,
                                                 const dd::DataDefinition& desc1,
                                                 const std::string& type2,
@@ -208,48 +143,18 @@ a_util::result::Result DDCompare::isBinaryEqual(const std::string& type1,
                                  ("Unable to find definitions for struct " + type2).c_str());
     }
 
-    StructLayout layout1(struct1_access);
-    StructLayout layout2(struct2_access);
+    const codec::StructAccess layout1(struct1_access, desc1.getVersion());
+    const codec::StructAccess layout2(struct2_access, desc2.getVersion());
 
-    RETURN_DDLERROR_IF_FAILED(layout1.isValid());
-    RETURN_DDLERROR_IF_FAILED(layout2.isValid());
+    RETURN_DDLERROR_IF_FAILED(layout1.getInitResult());
+    RETURN_DDLERROR_IF_FAILED(layout2.getInitResult());
 
     if (is_subset) {
-        if (layout1.getStaticElements().size() > layout2.getStaticElements().size()) {
-            RETURN_ERROR_DESCRIPTION(ERR_FAILED,
-                                     "The struct '%s' has more elements than '%s'.",
-                                     type1.c_str(),
-                                     type2.c_str());
-        }
+        return layout1.isBinarySubset(layout2);
     }
     else {
-        if (layout1.getStaticElements().size() != layout2.getStaticElements().size()) {
-            RETURN_ERROR_DESCRIPTION(
-                ERR_FAILED,
-                "The structs '%s' and '%s' have different amounts of elements.",
-                type1.c_str(),
-                type2.c_str());
-        }
+        return layout1.isBinaryEqual(layout2);
     }
-
-    RETURN_DDLERROR_IF_FAILED(
-        CompareStaticElements(layout1.getStaticElements(), layout2.getStaticElements()));
-
-    // check dynamic stuff
-    if (layout1.getDynamicElements().size() != layout2.getDynamicElements().size()) {
-        RETURN_ERROR_DESCRIPTION(
-            ERR_FAILED,
-            "The structs '%s' and '%s' have different amounts of dynamic elements.",
-            type1.c_str(),
-            type2.c_str());
-    }
-
-    if (layout1.hasDynamicElements()) {
-        RETURN_DDLERROR_IF_FAILED(
-            CompareDynamicElements(layout1.getDynamicElements(), layout2.getDynamicElements()));
-    }
-
-    return a_util::result::SUCCESS;
 }
 
 bool areAliasTypes(const dd::DataType& dt1, const dd::DataType& dt2)

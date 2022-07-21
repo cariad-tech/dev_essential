@@ -25,6 +25,7 @@
 A_UTIL_DISABLE_COMPILER_WARNINGS
 #include <httplib/httplib.h>
 A_UTIL_ENABLE_COMPILER_WARNINGS
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 
@@ -38,21 +39,24 @@ struct AcceptFunc {
 
     void Push(httplib::Server& oServer, socket_t nSocket)
     {
-        m_csQueue.lock();
+        std::unique_lock<std::mutex> lk(m_csQueue);
         m_queueRequest.push_back(std::make_pair(&oServer, nSocket));
-        m_csQueue.unlock();
     }
     std::pair<httplib::Server*, socket_t> Pop()
     {
-        m_csQueue.lock();
+        std::unique_lock<std::mutex> lk(m_csQueue);
         std::pair<httplib::Server*, socket_t> item = m_queueRequest.front();
         m_queueRequest.pop_front();
-        m_csQueue.unlock();
         return item;
     }
     void operator()(httplib::Server& oServer, socket_t nSocket)
     {
         Push(oServer, nSocket);
+        {
+            std::unique_lock<std::mutex> lk(_cv_mutex);
+            ++_counter;
+        }
+        _cv.notify_all();
         std::thread oRequestThread(&AcceptFunc::ProcessRequest, this);
         oRequestThread.detach();
     }
@@ -61,10 +65,26 @@ struct AcceptFunc {
     {
         std::pair<httplib::Server*, socket_t> item = Pop();
         item.first->process_request(item.second);
+        {
+            std::unique_lock<std::mutex> lk(_cv_mutex);
+            --_counter;
+            assert(_counter >= 0);
+        }
+        _cv.notify_all();
     }
+
+    void WaitForDetachedThreads()
+    {
+        std::unique_lock<std::mutex> lk(_cv_mutex);
+        _cv.wait(lk, [&] { return _counter == 0; });
+    }
+    // to synchronize accesses to _counter and  the condition variable _cv
+    std::mutex _cv_mutex;
+    std::condition_variable _cv;
+    int32_t _counter = 0;
 };
 
-class cThreadedHttpServer::cImplementation : private httplib::Server {
+class cThreadedHttpServer::cImplementation final : private httplib::Server {
 public:
     cImplementation(cThreadedHttpServer& oServer) : m_oServer(oServer)
     {
@@ -102,6 +122,7 @@ public:
         if (m_pAcceptThread && m_pAcceptThread->joinable()) {
             stop();
             m_pAcceptThread->join();
+            m_oAcceptFunc.WaitForDetachedThreads();
             m_pAcceptThread.reset();
         }
 
@@ -119,7 +140,6 @@ protected:
     }
 
 protected:
-    // std::thread m_oAcceptThread;
     std::unique_ptr<std::thread> m_pAcceptThread;
     AcceptFunc m_oAcceptFunc;
     cThreadedHttpServer& m_oServer;

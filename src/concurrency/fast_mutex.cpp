@@ -14,7 +14,7 @@
 
 #include <a_util/concurrency/fast_mutex.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
 #ifndef NOMINMAX
 #define UNDEF_NOMINMAX
 #define NOMINMAX

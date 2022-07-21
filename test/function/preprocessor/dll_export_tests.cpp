@@ -31,7 +31,9 @@
 TEST(DLLExportMacro, exportsCorrectSymbolVisibility)
 { // Currently I have no better idea how to test this
     const char declspec[] = "" A_UTIL_TO_STRING(A_UTIL_DLL_EXPORT);
-#if defined(_WIN32)
+#if defined(__MINGW32__)
+    EXPECT_STREQ(declspec, "__attribute__((dllexport))");
+#elif defined(_WIN32)
     EXPECT_STREQ(declspec, "__declspec(dllexport)");
 #else
     EXPECT_STREQ(declspec, "__attribute__((visibility(\"default\")))");

@@ -22,6 +22,15 @@ You may add additional accurate notices of copyright ownership.
 #define A_UTIL_UTIL_RESULT_RESULT_INFO_DECL_HEADER_INCLUDED
 
 #include <cstdint>
+#include <limits>
+
+/** @cond INTERNAL_DOCUMENTATION */
+#ifndef DEV_ESSENTIAL_DISABLE_MAKE_RESULT_CHECK_RESERVED_ZERO
+#define DEV_ESSENTIAL_INTERNAL_MAKE_RESULT_CHECK_NOT_ZERO(_no) _no != 0
+#else
+#define DEV_ESSENTIAL_INTERNAL_MAKE_RESULT_CHECK_NOT_ZERO(...) true
+#endif // DEV_ESSENTIAL_DISABLE_MAKE_RESULT_CHECK_RESERVED_ZERO
+/** @endcond */
 
 /**
  * Create a result type and a constant instance of this type in an unnamed namespace
@@ -33,6 +42,8 @@ You may add additional accurate notices of copyright ownership.
     struct ResultType_##_label : public ::a_util::result::ResultInfo<ResultType_##_label> {        \
         static std::int32_t getCode()                                                              \
         {                                                                                          \
+            static_assert(std::is_same<decltype((_no)), std::int32_t>::value,                      \
+                          #_no " is not in range of std::int32_t.");                               \
             return _no;                                                                            \
         }                                                                                          \
         static const char* getLabel()                                                              \
@@ -42,7 +53,10 @@ You may add additional accurate notices of copyright ownership.
     };                                                                                             \
     const ::a_util::result::ResultInfo<ResultType_##_label> _label = ResultType_##_label();        \
     } /* ns anonymous */                                                                           \
-    static_assert(sizeof(ResultType_##_label) == 1, "Empty base optimization does not kick in?")
+    static_assert(DEV_ESSENTIAL_INTERNAL_MAKE_RESULT_CHECK_NOT_ZERO(_no),                          \
+                  "'0' is not allowed, because it is reserved for results indicating no error. "   \
+                  "Please use a_util::result::SUCCESS instead. To disable this check, define "     \
+                  "'DEV_ESSENTIAL_DISABLE_MAKE_RESULT_CHECK_RESERVED_ZERO'")
 
 namespace a_util {
 namespace result {

@@ -44,9 +44,10 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
         try {
             new_ddl.setHeader(dd::DDFromXMLFactory<DOMElement>::createHeader(header_element));
         }
-        catch (const std::exception& ex) {
+        // we catch only dd errors
+        catch (const dd::Error& dd_error) {
             // we need to break opening at all! Without  aheader we do not know the version i.e.
-            problem_list.push_back({"xml - header", ex.what()});
+            problem_list.push_back({"xml - header", dd_error.what()});
             return false;
         }
         header_was_set = true;
@@ -66,8 +67,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                 new_ddl.getBaseUnits().emplace(
                     ddl::dd::DDFromXMLFactory<DOMElement>::createBaseUnit(current_base_unit_node));
             }
-            catch (const std::exception& ex) {
-                problem_list.push_back({"xml - baseunit", ex.what()});
+            // we catch only dd errors
+            catch (const dd::Error& dd_error) {
+                problem_list.push_back({"xml - baseunit", dd_error.what()});
                 error_while_reading = true;
             }
         }
@@ -80,8 +82,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                 new_ddl.getUnitPrefixes().emplace(
                     dd::DDFromXMLFactory<DOMElement>::createUnitPrefix(current_prefix_node));
             }
-            catch (const std::exception& ex) {
-                problem_list.push_back({"xml - prefix", ex.what()});
+            // we catch only dd errors
+            catch (const dd::Error& dd_error) {
+                problem_list.push_back({"xml - prefix", dd_error.what()});
                 error_while_reading = true;
             }
         }
@@ -94,8 +97,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                 new_ddl.getUnits().emplace(
                     dd::DDFromXMLFactory<DOMElement>::createUnit(current_unit_node));
             }
-            catch (const std::exception& ex) {
-                problem_list.push_back({"xml - unit", ex.what()});
+            // we catch only dd errors
+            catch (const dd::Error& dd_error) {
+                problem_list.push_back({"xml - unit", dd_error.what()});
                 error_while_reading = true;
             }
         }
@@ -108,8 +112,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                 new_ddl.getDataTypes().emplace(dd::DDFromXMLFactory<DOMElement>::createDataType(
                     current_datatype_node, file_version_to_use, strict));
             }
-            catch (const std::exception& ex) {
-                problem_list.push_back({"xml - datatype", ex.what()});
+            // we catch only dd errors
+            catch (const dd::Error& dd_error) {
+                problem_list.push_back({"xml - datatype", dd_error.what()});
                 error_while_reading = true;
             }
         }
@@ -122,8 +127,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                 new_ddl.getEnumTypes().emplace(
                     dd::DDFromXMLFactory<DOMElement>::createEnumType(current_enum_node));
             }
-            catch (const std::exception& ex) {
-                problem_list.push_back({"xml - enum", ex.what()});
+            // we catch only dd errors
+            catch (const dd::Error& dd_error) {
+                problem_list.push_back({"xml - enum", dd_error.what()});
                 error_while_reading = true;
             }
         }
@@ -136,8 +142,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                 new_ddl.getStructTypes().emplace(dd::DDFromXMLFactory<DOMElement>::createStructType(
                     current_struct_node, file_version_to_use, strict));
             }
-            catch (const std::exception& ex) {
-                problem_list.push_back({"xml - struct", ex.what()});
+            // we catch only dd errors
+            catch (const dd::Error& dd_error) {
+                problem_list.push_back({"xml - struct", dd_error.what()});
                 error_while_reading = true;
             }
         }
@@ -148,8 +155,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
             new_ddl.getStructTypes().emplace(dd::DDFromXMLFactory<DOMElement>::createStructType(
                 root_element, file_version_to_use, strict));
         }
-        catch (const std::exception& ex) {
-            problem_list.push_back({"xml - struct", ex.what()});
+        // we catch only dd errors
+        catch (const dd::Error& dd_error) {
+            problem_list.push_back({"xml - struct", dd_error.what()});
             error_while_reading = true;
         }
     }
@@ -163,8 +171,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                     new_ddl.getStreamMetaTypes().emplace(
                         dd::DDFromXMLFactory<DOMElement>::createStreamMetaType(current_smt_node));
                 }
-                catch (const std::exception& ex) {
-                    problem_list.push_back({"xml - streammetatype", ex.what()});
+                // we catch only dd errors
+                catch (const dd::Error& dd_error) {
+                    problem_list.push_back({"xml - streammetatype", dd_error.what()});
                     error_while_reading = true;
                 }
             }
@@ -178,8 +187,9 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
                 new_ddl.getStreams().emplace(
                     dd::DDFromXMLFactory<DOMElement>::createStream(current_stream_node));
             }
-            catch (const std::exception& ex) {
-                problem_list.push_back({"xml - stream", ex.what()});
+            // we catch only dd errors
+            catch (const dd::Error& dd_error) {
+                problem_list.push_back({"xml - stream", dd_error.what()});
                 error_while_reading = true;
             }
         }

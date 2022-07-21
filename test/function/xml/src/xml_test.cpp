@@ -70,15 +70,12 @@ TEST(xml_test, TestDOM)
     EXPECT_FALSE(dom.save(""));
     EXPECT_EQ(dom.getLastError(), "Failed to save dom to file");
     EXPECT_TRUE(dom.fromString(test_xml));
-    EXPECT_TRUE(dom.save("test.xml"));
+    EXPECT_TRUE(dom.save(TEST_FILES_WRITE_DIR "/test.xml"));
     dom.reset();
     EXPECT_FALSE(dom.load(""));
     EXPECT_EQ(dom.getLastError(), "File was not found");
-    EXPECT_TRUE(dom.load("test.xml"));
+    EXPECT_TRUE(dom.load(TEST_FILES_WRITE_DIR "/test.xml"));
     EXPECT_EQ(dom.toString(), test_xml);
-
-    // TODO: Replace with cFileSystem::DeleteFile
-    remove("test.xml");
 }
 
 // Test creation of a DOM using the provided methods
@@ -206,7 +203,7 @@ TEST(xml_test, TestQueries)
     // findNode, findNodes
     {
         DOM dom;
-        EXPECT_TRUE(dom.load("files/test.xml"));
+        EXPECT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
 
         DOMElementList node_list;
         DOMElement element;
@@ -278,7 +275,7 @@ TEST(xml_test, TestQueries)
     {
         DOM dom;
         DOMElementList node_list;
-        EXPECT_TRUE(dom.load("files/test.xml"));
+        EXPECT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
         DOMElement element;
         DOMElement root_element = dom.getRoot();
 
@@ -324,7 +321,7 @@ TEST(xml_test, TestQueries)
     {
         DOM dom;
         DOMElementList node_list;
-        EXPECT_TRUE(dom.load("files/test.xml"));
+        EXPECT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
         DOMElement element;
         DOMElement root_element;
         EXPECT_TRUE(dom.findNode("/root/level_1/level_2[@id='2'][@l1id='2']", root_element));
@@ -376,7 +373,7 @@ TEST(xml_test, TestQueries)
         // recursive tests
         DOM dom;
         DOMElementList node_list;
-        EXPECT_TRUE(dom.load("files/test.xml"));
+        EXPECT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
         DOMElement dom_element;
 
         ASSERT_TRUE(dom.findNode("//level_1", dom_element));
@@ -433,7 +430,7 @@ TEST(xml_test, TestQueries)
         // logical expressions on attributes
         DOM dom;
         DOMElementList node_list;
-        EXPECT_TRUE(dom.load("files/test.xml"));
+        EXPECT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
         DOMElement dom_element;
 
         EXPECT_TRUE(dom.findNode("/root/*/*[@id='2' and @name='epsilon']/unique", dom_element));
@@ -457,7 +454,7 @@ TEST(xml_test, TestQueries)
         // search attribute name
         DOM dom;
         DOMElementList node_list;
-        EXPECT_TRUE(dom.load("files/test.xml"));
+        EXPECT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
         DOMElement dom_element;
 
         EXPECT_TRUE(dom.findNode(".//*[@id and @level and @l1id and @name]", dom_element));
@@ -486,7 +483,7 @@ TEST(xml_test, TestEmptyDOM)
 
     { // not empty after loading from file
         DOM dom;
-        ASSERT_TRUE(dom.load("files/test.xml"));
+        ASSERT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
         EXPECT_FALSE(dom.isNull());
         dom.reset();
         EXPECT_TRUE(dom.isNull());
@@ -518,7 +515,7 @@ TEST(xml_test, TestEmptyDOMElement)
 
     { // not empty if queried from dom
         DOM dom;
-        ASSERT_TRUE(dom.load("files/test.xml"));
+        ASSERT_TRUE(dom.load(TEST_FILES_DIR "/test.xml"));
         DOMElement element = dom.getRoot();
         EXPECT_FALSE(element.isNull());
 

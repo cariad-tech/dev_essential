@@ -22,31 +22,21 @@ common:
         - html/bc_s\.png
         - html/bdwn\.png
         - html/closed\.png
+        - html/doc/extern/license/MPL2\.0\.txt
+        - html/doc/extern/license/licenses\.txt
         - html/doc\.png
         - html/doxygen\.png
+        - html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
+        - html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
+        - html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
+        - html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
+        - html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
         - html/folderclosed\.png
         - html/folderopen\.png
         - html/nav_f\.png
         - html/nav_g\.png
         - html/nav_h\.png
         - html/open\.png
-        - html/splitbar\.png
-        - html/sync_off\.png
-        - html/sync_on\.png
-        - html/tab_a\.png
-        - html/tab_b\.png
-        - html/tab_h\.png
-        - html/tab_s\.png
-        - html/doc/extern/license/MPL2\.0\.txt
-        - html/doc/extern/license/licenses\.txt
-        - html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
-        - html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
-        - html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
-        - html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
-        - html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
-        - html/specification/ddl3.xsd
-        - html/specification/ddl4.xsd
-        - html/specification/mapping_configuration.xsd
         - html/search/.+\.css
         - html/search/.+\.html
         - html/search/.+\.js
@@ -55,3 +45,13 @@ common:
         - html/search/search_l\.png
         - html/search/search_m\.png
         - html/search/search_r\.png
+        - html/specification/ddl3.xsd
+        - html/specification/ddl4.xsd
+        - html/specification/mapping_configuration.xsd
+        - html/splitbar\.png
+        - html/sync_off\.png
+        - html/sync_on\.png
+        - html/tab_a\.png
+        - html/tab_b\.png
+        - html/tab_h\.png
+        - html/tab_s\.png

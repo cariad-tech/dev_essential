@@ -38,7 +38,6 @@ _MAKE_RESULT(-4, ERR_POINTER);
 _MAKE_RESULT(-5, ERR_INVALID_ARG);
 _MAKE_RESULT(-11, ERR_INVALID_FILE);
 _MAKE_RESULT(-20, ERR_NOT_FOUND);
-_MAKE_RESULT(-40, ERR_INVALID_STATE);
 _MAKE_RESULT(-42, ERR_INVALID_TYPE);
 
 ddl::dd::DataDefinition LoadDDL(const std::string& strDDLFile)
@@ -906,9 +905,9 @@ class MappingDriver : private IMappingEnvironment {
     TestDDLManager m_oManager;
     MapConfiguration m_oConfig;
     std::map<std::string, Signal> mapSources;
-    std::map<std::string, std::shared_ptr<ddl::StaticCodec>> mapSourceCoders;
+    std::map<std::string, std::shared_ptr<ddl::codec::StaticCodec>> mapSourceCoders;
     std::map<std::string, Target::MemoryBuffer> mapSourceBuffers;
-    std::map<std::string, std::shared_ptr<ddl::StaticCodec>> mapTargetCoders;
+    std::map<std::string, std::shared_ptr<ddl::codec::StaticCodec>> mapTargetCoders;
     std::map<std::string, Target::MemoryBuffer> mapTargetBuffers;
     std::map<handle_t, std::string> mapHandleTarget;
     tPeriodicWrappers m_mapPeriodicWrappers;
@@ -960,7 +959,7 @@ public:
                 ASSERT_EQ(a_util::result::SUCCESS,
                           m_oManager.ResolveType(pMapSource->getType(), strSourceDesc));
 
-                ddl::CodecFactory oFac(pMapSource->getType().c_str(), strSourceDesc.c_str());
+                ddl::codec::CodecFactory oFac(pMapSource->getType().c_str(), strSourceDesc.c_str());
                 ASSERT_EQ(a_util::result::SUCCESS, oFac.isValid());
 
                 Target::MemoryBuffer& oSourceBuffer = mapSourceBuffers[pMapSource->getName()];
@@ -968,7 +967,7 @@ public:
 
                 mapSourceCoders.insert(std::make_pair(
                     std::string(pMapSource->getName()),
-                    a_util::memory::shared_ptr<ddl::StaticCodec>(new ddl::StaticCodec(
+                    a_util::memory::shared_ptr<ddl::codec::StaticCodec>(new ddl::codec::StaticCodec(
                         oFac.makeStaticCodecFor(&oSourceBuffer[0], oSourceBuffer.size())))));
             }
         }
@@ -978,17 +977,17 @@ public:
         ASSERT_EQ(a_util::result::SUCCESS,
                   m_oManager.ResolveType(pTarget->getType(), strTargetDesc));
 
-        ddl::CodecFactory oFac(pTarget->getType().c_str(), strTargetDesc.c_str());
+        ddl::codec::CodecFactory oFac(pTarget->getType().c_str(), strTargetDesc.c_str());
         ASSERT_EQ(a_util::result::SUCCESS, oFac.isValid());
 
         Target::MemoryBuffer& oTargetBuffer = mapTargetBuffers[strTarget];
         oTargetBuffer.resize(oFac.getStaticBufferSize(), 0);
 
-        mapTargetCoders.insert(
-            std::make_pair(strTarget,
-                           a_util::memory::shared_ptr<ddl::StaticCodec>(new ddl::StaticCodec(
-                               oFac.makeStaticCodecFor(&oTargetBuffer[0], oTargetBuffer.size())))));
-        ddl::StaticCodec& oTargetCoder = *mapTargetCoders[strTarget];
+        mapTargetCoders.insert(std::make_pair(
+            strTarget,
+            a_util::memory::shared_ptr<ddl::codec::StaticCodec>(new ddl::codec::StaticCodec(
+                oFac.makeStaticCodecFor(&oTargetBuffer[0], oTargetBuffer.size())))));
+        ddl::codec::StaticCodec& oTargetCoder = *mapTargetCoders[strTarget];
         ASSERT_TRUE(a_util::result::isOk(oTargetCoder.isValid()));
     }
 
@@ -1017,12 +1016,12 @@ public:
         return m_oEngine.hasTriggers(target_handle);
     }
 
-    ddl::StaticCodec& getTargetCoder(const std::string& strTarget)
+    ddl::codec::StaticCodec& getTargetCoder(const std::string& strTarget)
     {
         return *mapTargetCoders[strTarget];
     }
 
-    ddl::StaticCodec& getSourceCoder(const std::string& strSource)
+    ddl::codec::StaticCodec& getSourceCoder(const std::string& strSource)
     {
         return *mapSourceCoders[strSource];
     }
@@ -1134,7 +1133,7 @@ TEST(cTesterMapping, TestDefaultEngine)
     base_test.addTarget("OutSignal");
     base_test.startEngine();
 
-    ddl::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
+    ddl::codec::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
     // Target in engine_default.map has no triggers
     ASSERT_FALSE(base_test.targetHasTriggers("OutSignal"));
     // copy target buffer initially
@@ -1143,15 +1142,15 @@ TEST(cTesterMapping, TestDefaultEngine)
     a_util::variant::Variant var;
 
     // test ddl defaults
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i8Val").asInt8(), 42);
+    ASSERT_EQ(oTarget.getElement("i8Val").getVariantValue().asInt8(), 42);
 
     // test mapping contants defaults
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i16Val").asInt16(), 3);
+    ASSERT_EQ(oTarget.getElement("i16Val").getVariantValue().asInt16(), 3);
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "enumValDef").asInt16(), 60);
+    ASSERT_EQ(oTarget.getElement("enumValDef").getVariantValue().asInt16(), 60);
 
     // test mapping contants defaults in structure
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "structMinimal.i8Val").asInt8(), 4);
+    ASSERT_EQ(oTarget.getElement("structMinimal.i8Val").getVariantValue().asInt8(), 4);
 }
 
 /**
@@ -1166,12 +1165,12 @@ TEST(cTesterMapping, TestDirectMappingEngine)
     base_test.addTarget("OutSignal2");
     base_test.startEngine();
 
-    ddl::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
-    ddl::StaticCodec& oTarget2 = base_test.getTargetCoder("OutSignal2");
+    ddl::codec::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
+    ddl::codec::StaticCodec& oTarget2 = base_test.getTargetCoder("OutSignal2");
 
-    ddl::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
-    ddl::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
-    ddl::StaticCodec& oSource3 = base_test.getSourceCoder("MinimalSignal2");
+    ddl::codec::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
+    ddl::codec::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
+    ddl::codec::StaticCodec& oSource3 = base_test.getSourceCoder("MinimalSignal2");
 
     // Targets in engine_directmapping.map have no triggers
     ASSERT_FALSE(base_test.targetHasTriggers("OutSignal"));
@@ -1186,87 +1185,84 @@ TEST(cTesterMapping, TestDirectMappingEngine)
 
     // Test mapping input with same type
     i32Val = 42;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i32Val").asInt32(), 42);
+    ASSERT_EQ(oTarget.getElement("i32Val").getVariantValue().asInt32(), 42);
 
     // Test mapping input with different type
     f32Val = 42;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "f32Val", a_util::variant::Variant(f32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("f32Val").setVariantValue(a_util::variant::Variant(f32Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i64Val").asInt64(), 42);
+    ASSERT_EQ(oTarget.getElement("i64Val").getVariantValue().asInt64(), 42);
 
     // Test mapping input array element with same type
     f32Val = 1;
-    ASSERT_EQ(
-        a_util::result::SUCCESS,
-        ddl::access_element::setValue(oSource2, "f32Ary[0]", a_util::variant::Variant(f32Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("f32Ary[0]").setVariantValue(a_util::variant::Variant(f32Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "f32Ary[0]").asFloat(), 1);
+    ASSERT_EQ(oTarget.getElement("f32Ary[0]").getVariantValue().asFloat(), 1);
 
     // Test mapping input array element with different type
     i32Val = 1;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "f32Ary[1]").asFloat(), 1);
+    ASSERT_EQ(oTarget.getElement("f32Ary[1]").getVariantValue().asFloat(), 1);
 
     // Test mapping enum
     i16Val = 3;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "enumVal").asInt16(), 3);
+    ASSERT_EQ(oTarget.getElement("enumVal").getVariantValue().asInt16(), 3);
 
     // Test mapping input structure element with same type
     i16Val = 5;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i16Val", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i16Val").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "structMinimal.i16Val").asInt16(), 5);
+    ASSERT_EQ(oTarget.getElement("structMinimal.i16Val").getVariantValue().asInt16(), 5);
 
     // Test mapping input structure element with same type
     i32Val = 5;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(
-                  oSource2, "structMinimal.i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(oSource2.getElement("structMinimal.i32Val")
+                        .setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "structMinimal.i32Val").asInt32(), 5);
+    ASSERT_EQ(oTarget.getElement("structMinimal.i32Val").getVariantValue().asInt32(), 5);
 
     // Test mapping input structure element with different type
     ui32Val = 5;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(
-                  oSource2, "structMinimal.ui32Val", a_util::variant::Variant(ui32Val)));
+    ASSERT_NO_THROW(oSource2.getElement("structMinimal.ui32Val")
+                        .setVariantValue(a_util::variant::Variant(ui32Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "structMinimal.i64Val").asInt64(), 5);
+    ASSERT_EQ(oTarget.getElement("structMinimal.i64Val").getVariantValue().asInt64(), 5);
 
     // Test mapping input structure with same type
     i16Val = 15;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i16Val", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i16Val").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "structMinimalAry[0].i16Val").asInt16(), 15);
+    ASSERT_EQ(oTarget.getElement("structMinimalAry[0].i16Val").getVariantValue().asInt16(), 15);
 
     /**
      * Test second Target
@@ -1274,19 +1270,19 @@ TEST(cTesterMapping, TestDirectMappingEngine)
     base_test.receiveTargetBuffer("OutSignal2");
 
     // test ddl defaults
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "i8Val").asInt8(), 42);
+    ASSERT_EQ(oTarget2.getElement("i8Val").getVariantValue().asInt8(), 42);
 
     // test mapping contants defaults
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "i16Val").asInt16(), 3);
+    ASSERT_EQ(oTarget2.getElement("i16Val").getVariantValue().asInt16(), 3);
 
     // Test mapping input structure with same type
     i16Val = 15;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource3, "i16Val", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource3.getElement("i16Val").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("MinimalSignal2");
     base_test.receiveTargetBuffer("OutSignal2");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "structMinimalAry[0].i16Val").asInt16(), 15);
+    ASSERT_EQ(oTarget2.getElement("structMinimalAry[0].i16Val").getVariantValue().asInt16(), 15);
 }
 
 /**
@@ -1301,11 +1297,11 @@ TEST(cTesterMapping, TestTransformationsEngine)
     base_test.addTarget("OutSignal2");
     base_test.startEngine();
 
-    ddl::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
-    ddl::StaticCodec& oTarget2 = base_test.getTargetCoder("OutSignal2");
+    ddl::codec::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
+    ddl::codec::StaticCodec& oTarget2 = base_test.getTargetCoder("OutSignal2");
 
-    ddl::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
-    ddl::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
+    ddl::codec::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
+    ddl::codec::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
 
     // Targets in engine_transformations.map have no triggers
     ASSERT_FALSE(base_test.targetHasTriggers("OutSignal"));
@@ -1323,33 +1319,33 @@ TEST(cTesterMapping, TestTransformationsEngine)
 
     // Test mapping input with same type and transformation
     ui8Val = 4;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "ui8Val", a_util::variant::Variant(ui8Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("ui8Val").setVariantValue(a_util::variant::Variant(ui8Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "ui8Val").asUInt8(), 6);
+    ASSERT_EQ(oTarget.getElement("ui8Val").getVariantValue().asUInt8(), 6);
 
     // Test mapping input with different type and transformation
     f32Val = 4;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "f32Val", a_util::variant::Variant(f32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("f32Val").setVariantValue(a_util::variant::Variant(f32Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "ui16Val").asUInt16(), 6);
+    ASSERT_EQ(oTarget.getElement("ui16Val").getVariantValue().asUInt16(), 6);
 
     // Test mapping input array with same type with transformation
     i8Val = 4;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "i8Ary[0]", a_util::variant::Variant(i8Val)));
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "i8Ary[9]", a_util::variant::Variant(i8Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("i8Ary[0]").setVariantValue(a_util::variant::Variant(i8Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("i8Ary[9]").setVariantValue(a_util::variant::Variant(i8Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i8Ary[0]").asInt8(), 6);
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i8Ary[9]").asInt8(), 6);
+    ASSERT_EQ(oTarget.getElement("i8Ary[0]").getVariantValue().asInt8(), 6);
+    ASSERT_EQ(oTarget.getElement("i8Ary[9]").getVariantValue().asInt8(), 6);
 
     /**
      * Test second Target
@@ -1357,100 +1353,98 @@ TEST(cTesterMapping, TestTransformationsEngine)
     base_test.receiveTargetBuffer("OutSignal2");
     // Test mapping input with different type and transformation
     f32Val = 4;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "f32Val", a_util::variant::Variant(f32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("f32Val").setVariantValue(a_util::variant::Variant(f32Val)));
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal2");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "ui16Val").asUInt16(), 6);
+    ASSERT_EQ(oTarget.getElement("ui16Val").getVariantValue().asUInt16(), 6);
 
     // Test mapping input array with different type with transformation
     f32Val = 4;
-    ASSERT_EQ(
-        a_util::result::SUCCESS,
-        ddl::access_element::setValue(oSource2, "f32Ary[0]", a_util::variant::Variant(f32Val)));
-    ASSERT_EQ(
-        a_util::result::SUCCESS,
-        ddl::access_element::setValue(oSource2, "f32Ary[9]", a_util::variant::Variant(f32Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("f32Ary[0]").setVariantValue(a_util::variant::Variant(f32Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("f32Ary[9]").setVariantValue(a_util::variant::Variant(f32Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
 
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i8Ary[0]").asInt8(), 6);
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "i8Ary[9]").asInt8(), 6);
+    ASSERT_EQ(oTarget.getElement("i8Ary[0]").getVariantValue().asInt8(), 6);
+    ASSERT_EQ(oTarget.getElement("i8Ary[9]").getVariantValue().asInt8(), 6);
 
     // Test enum to enum transformation with same enum type
     // Test conversion
     i16Val = 20;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal").asInt16(), 10);
+    ASSERT_EQ(oTarget2.getElement("enumVal").getVariantValue().asInt16(), 10);
 
     i16Val = 40;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal").asInt16(), 40);
+    ASSERT_EQ(oTarget2.getElement("enumVal").getVariantValue().asInt16(), 40);
 
     i16Val = 50;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal").asInt16(), 40);
+    ASSERT_EQ(oTarget2.getElement("enumVal").getVariantValue().asInt16(), 40);
 
     i16Val = 10;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal").asInt16(), 10);
+    ASSERT_EQ(oTarget2.getElement("enumVal").getVariantValue().asInt16(), 10);
 
     i16Val = 29;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal").asInt16(), 34);
+    ASSERT_EQ(oTarget2.getElement("enumVal").getVariantValue().asInt16(), 34);
 
     i16Val = 52;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal").asInt16(), 35);
+    ASSERT_EQ(oTarget2.getElement("enumVal").getVariantValue().asInt16(), 35);
 
     // Test Default
     i16Val = 60;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal").asInt16(), 0);
+    ASSERT_EQ(oTarget2.getElement("enumVal").getVariantValue().asInt16(), 0);
 
     // Test enum to enum transformation with different enum types
     i16Val = 20;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal2").asInt32(), 1);
+    ASSERT_EQ(oTarget2.getElement("enumVal2").getVariantValue().asInt32(), 1);
 
     i16Val = 40;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal2").asInt32(), 2);
+    ASSERT_EQ(oTarget2.getElement("enumVal2").getVariantValue().asInt32(), 2);
 
     i16Val = 60;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource2, "enumVal", a_util::variant::Variant(i16Val)));
+    ASSERT_NO_THROW(
+        oSource2.getElement("enumVal").setVariantValue(a_util::variant::Variant(i16Val)));
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal2");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget2, "enumVal2").asInt32(), 3);
+    ASSERT_EQ(oTarget2.getElement("enumVal2").getVariantValue().asInt32(), 3);
 }
 
 /**
@@ -1464,11 +1458,11 @@ TEST(cTesterMapping, TestMacrosEngine)
     base_test.addTarget("OutSignal");
     base_test.startEngine();
 
-    ddl::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
+    ddl::codec::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
 
-    ddl::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
+    ddl::codec::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
     ASSERT_TRUE(a_util::result::isOk(oSource1.isValid()));
-    ddl::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
+    ddl::codec::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
     ASSERT_TRUE(a_util::result::isOk(oSource2.isValid()));
 
     // Target in engine_macros.map has triggers
@@ -1478,7 +1472,7 @@ TEST(cTesterMapping, TestMacrosEngine)
     for (int i = 0; i < 10; ++i) {
         timestamp_t tmTime = a_util::system::getCurrentMicroseconds();
         base_test.receiveTargetBuffer("OutSignal");
-        ASSERT_GE(ddl::access_element::getValue(oTarget, "ui64Val").asUInt64(), (uint64_t)tmTime);
+        ASSERT_GE(oTarget.getElement("ui64Val").getVariantValue().asUInt64(), (uint64_t)tmTime);
     }
 
     // Test mapping with trigger_counter
@@ -1487,7 +1481,7 @@ TEST(cTesterMapping, TestMacrosEngine)
     base_test.sendSourceBuffer("InSignal");
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "ui32Val").asUInt32(), (uint32_t)3);
+    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)3);
 
     /**
      * Test Reset Engine
@@ -1498,17 +1492,17 @@ TEST(cTesterMapping, TestMacrosEngine)
 
     // Test mapping with trigger_counter
     base_test.receiveTargetBuffer("OutSignal");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "ui32Val").asUInt32(), (uint32_t)0);
+    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)0);
 
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget, "ui32Val").asUInt32(), (uint32_t)1);
+    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)1);
 
     // Test received Boolean
-    ASSERT_FALSE(ddl::access_element::getValue(oTarget, "bVal").asBool());
+    ASSERT_FALSE(oTarget.getElement("bVal").getVariantValue().asBool());
     base_test.sendSourceBuffer("MinimalSignal");
     base_test.receiveTargetBuffer("OutSignal");
-    ASSERT_TRUE(ddl::access_element::getValue(oTarget, "bVal").asBool());
+    ASSERT_TRUE(oTarget.getElement("bVal").getVariantValue().asBool());
 }
 
 /**
@@ -1522,60 +1516,60 @@ TEST(cTesterMapping, TestTriggersEngine)
     base_test.addTarget("OutSignal3");
     base_test.startEngine();
 
-    ddl::StaticCodec& oTarget3 = base_test.getTargetCoder("OutSignal3");
+    ddl::codec::StaticCodec& oTarget3 = base_test.getTargetCoder("OutSignal3");
 
-    ddl::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
-    ddl::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
+    ddl::codec::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
+    ddl::codec::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
     ASSERT_TRUE(a_util::result::isOk(oSource2.isValid()));
 
     // You can guess if engine_triggers.map contains triggers
     ASSERT_TRUE(base_test.targetHasTriggers("OutSignal3"));
 
     base_test.receiveTargetBuffer("OutSignal3");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)0 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)0 % 5);
 
     // Test signal Trigger
     base_test.sendSourceBuffer("InSignal");
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)1 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)1 % 5);
 
     // Test data Trigger
     int32_t i32Val = -42;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires not_equal, less_than and less_than_equal
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)4 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)4 % 5);
 
     i32Val = -1;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer(
         "MinimalSignal"); // fires equal, not_equal, less_than and less_than_equal
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)8 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)8 % 5);
 
     i32Val = 42;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer(
         "MinimalSignal"); // fires not_equal, greater_than and greater_than_equal
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)11 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)11 % 5);
 
     i32Val = 3;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires not_equal and less_than_equal
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)13 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)13 % 5);
 
     i32Val = 4;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires not_equal and greater_than_equal
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)15 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)15 % 5);
 
     i32Val = 2;
-    ASSERT_EQ(a_util::result::SUCCESS,
-              ddl::access_element::setValue(oSource1, "i32Val", a_util::variant::Variant(i32Val)));
+    ASSERT_NO_THROW(
+        oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires less_than and less_than_equal
-    ASSERT_EQ(ddl::access_element::getValue(oTarget3, "ui32Val").asUInt32(), (uint32_t)17 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)17 % 5);
 }
 
 /// derived test class that drives the mapping engine in a standalone fashion

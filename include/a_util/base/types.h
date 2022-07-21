@@ -21,8 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_BASE_TYPES_H
 #define A_UTIL_UTIL_BASE_TYPES_H
 
+#include <a_util/base/enums.h>
+
 #include <atomic>
-#include <cstdint>
 
 /**
  * @addtogroup a_util_core

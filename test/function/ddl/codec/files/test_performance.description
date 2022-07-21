@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adtf:ddl xmlns:adtf="adtf">
+    <header>
+        <language_version>3.0</language_version>
+        <author>Tester</author>
+        <date_creation></date_creation>
+        <date_change></date_change>
+        <description></description>
+    </header>
+    <datatypes>
+		<datatype description="predefined ADTF tBool" name="tBool" size="8"/>
+		<datatype description="predefined ADTF tChar" name="tChar" size="8"/>
+		<datatype description="predefined ADTF tUInt32" name="tUInt32" size="32"/>
+		<datatype description="predefined ADTF tUInt16" name="tUInt16" size="16"/>
+		<datatype description="predefined ADTF tInt8" name="tInt8" size="8"/>
+		<datatype description="predefined ADTF tFloat32" name="tFloat32" size="32"/>
+		<datatype description="predefined ADTF tUInt64" name="tUInt64" size="64"/>
+		<datatype description="predefined ADTF tInt32" name="tInt32" size="32"/>
+		<datatype description="predefined ADTF tInt16" name="tInt16" size="16"/>
+		<datatype description="predefined ADTF tFloat64" name="tFloat64" size="64"/>
+		<datatype description="predefined ADTF tInt64" name="tInt64" size="64"/>
+		<datatype description="predefined ADTF tUInt8" name="tUInt8" size="8"/>
+    </datatypes>
+    <enums>
+    </enums>
+    <structs>
+        <struct alignment="1" name="FloatValue1" version="1">
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="0" name="elem1" type="tFloat32"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="4" name="elem2" type="tFloat32"/>
+        </struct>
+        <struct alignment="1" name="StructTypeUsed1" version="1">
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="0" name="elem1" type="FloatValue1"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="8" name="elem2" type="FloatValue1"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="16" name="elem3" type="FloatValue1"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="24" name="elem4" type="FloatValue1"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="32" name="elem5" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="33" name="elem6" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="34" name="elem7" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="35" name="elem8" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="36" name="elem9" type="tUInt32"/>
+        </struct>
+        <struct alignment="1" name="StructTypeUsed2" version="1">
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="0" name="elem1" type="tInt32"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="4" name="elem2" type="tUInt16"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="6" name="elem3" type="tUInt16"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="8" name="elem4" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="9" name="elem5" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="10" name="elem6" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="11" name="elem7" type="tUInt8"/>
+        </struct>
+        <struct alignment="1" name="BigDataType" version="1">
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="0" name="elem1" type="tUInt16"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="2" name="elem2" type="tUInt8"/>
+            <element alignment="1" arraysize="1" byteorder="LE" bytepos="3" name="elem3" type="tUInt8"/>
+            <element alignment="1" arraysize="50" byteorder="LE" bytepos="4" name="used2" type="StructTypeUsed2"/>
+            <element alignment="1" arraysize="5000" byteorder="LE" bytepos="604" name="used1" type="StructTypeUsed1"/>
+        </struct>
+    </structs>
+</adtf:ddl>

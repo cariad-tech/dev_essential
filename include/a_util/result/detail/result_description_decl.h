@@ -35,13 +35,24 @@ namespace detail {
  * @tparam DescriptionIntf The interface used to retrieve the error information
  */
 template <typename DescriptionIntf /*e.g. a_util::result::detail::IErrorDescription*/>
-struct ResultDescriptionTraits {
+struct ResultDescriptionTraits final {
     /// Reference counted error description type
     typedef ReferenceCountedObjectInterface<DescriptionIntf> ReferenceCountedDescriptionType;
     /// The error code bit indicating whether only the error code (1) was set or not (0)
     static const std::uint64_t error_code_bit = (std::uint64_t)1 << 63;
     /// The error code bitmask to mask out the error code bit
     static const std::uint64_t error_code_bitmask = ~error_code_bit;
+    /// The bitmask to serialize the error code to its internal representation
+    static const std::uint64_t error_code_serialize_bitmask = 0x00000000FFFFFFFF;
+    /// The bitmask to deserialize the internal error representation to its original value
+    static const std::uint64_t error_code_deserialize_bitmask = 0xFFFFFFFF00000000;
+
+    /// Must not be constructed/copied/moved
+    ResultDescriptionTraits() = delete;
+    ResultDescriptionTraits(const ResultDescriptionTraits&) = delete;
+    ResultDescriptionTraits& operator=(const ResultDescriptionTraits&) = delete;
+    ResultDescriptionTraits(ResultDescriptionTraits&&) = delete;
+    ResultDescriptionTraits& operator=(ResultDescriptionTraits&&) = delete;
 
     /**
      * Check whether the detailed description was allocated
@@ -49,7 +60,7 @@ struct ResultDescriptionTraits {
      * @return @c true if detailed description was allocated (the error code bit is not set),
      *         @c false otherwise
      */
-    static bool isDetailedDescriptionSet(const std::uint64_t value);
+    static bool isDetailedDescriptionSet(std::uint64_t value);
 
     /**
      * Check whether only the error code was set
@@ -57,12 +68,34 @@ struct ResultDescriptionTraits {
      * @return @c true if only the error code was set (the error code bit is set),
                @c false otherwise
      */
-    static bool isErrorCodeSet(const std::uint64_t value);
+    static bool isErrorCodeSet(std::uint64_t value);
+
+    /**
+     * Get the internal error code representation from the external error code
+     * @param[in] error_code The external error code
+     * @return Internal error code representation of @c error_code
+     */
+    constexpr static std::uint64_t toInternalErrorCode(std::int32_t error_code) noexcept;
+
+    /**
+     * Get the external error code from the internal error code representation
+     * @param[in] error_code The internal error code representation.
+     * @return External error code
+     */
+    constexpr static std::int32_t toExternalErrorCode(std::uint64_t error_code) noexcept;
+
+    /**
+     * Get the internal error pointer representation from the internal error code representation
+     * @param[in] error_code The internal error code representation
+     * @return Pointer to the internal error description interface
+     */
+    constexpr static const ReferenceCountedDescriptionType* toInternalErrorPointer(
+        std::uint64_t error_code) noexcept;
 
 private:
-    /// Must not be constructed
-    ResultDescriptionTraits(); // =delete;
-};                             // struct ResultDescriptionTraits
+    /// To implement various static checks
+    ~ResultDescriptionTraits();
+}; // struct ResultDescriptionTraits
 
 /// Wrapper for either a pointer to a detailed description object or simply a numeric error code.
 /**
@@ -96,11 +129,24 @@ public:
      */
     ResultDescription(const ResultDescription& other);
     /**
-     * Assignment operator
+     * Copy assignment operator
      * @param[in] other Other object to copy from
      * @return @c *this
      */
     ResultDescription& operator=(const ResultDescription& other);
+    /**
+     * Move CTOR
+     * @param[in,out] other Move-from object *this is created from
+     * @pre @c other is left in default-initialized state
+     */
+    ResultDescription(ResultDescription&& other);
+    /**
+     * Move assignment operator
+     * @param[in,out] other Move-from object *this is assigned from
+     * @pre @c other is left in default-initialized state
+     */
+    ResultDescription& operator=(ResultDescription&& other);
+
     /// DTOR
     ~ResultDescription();
 
@@ -168,7 +214,19 @@ private:
     // size of pointer part is system dependent, lower bits
     std::uint64_t _pointer_to_result_or_error_code;
 
-    ResultDescription(std::uint64_t error_code);
+    /**
+     * Construct with simple error code, no memory is allocated.
+     * @param[in] error_code The error code
+     */
+    constexpr ResultDescription(std::int32_t error_code) noexcept;
+
+    /**
+     * Construct with detailed error description
+     * @param[in] error_object Reference to error object getting cast to internal error variable
+     * @post @c error_object reference counter is incremented
+     */
+    constexpr ResultDescription(
+        const ReferenceCountedObjectInterface<DescriptionIntf>& error_object) noexcept;
 }; // struct ResultDescription
 
 /**

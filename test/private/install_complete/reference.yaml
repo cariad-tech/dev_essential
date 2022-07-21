@@ -12,10 +12,12 @@
 
 common:
     files:
+        - MPL2\.0\.txt
+        - README\.md
         - cmake/modules/FindJsonStubGenerator\.cmake
         - cmake/stub_generation\.cmake
-        - doc/dev_essential\.html
         - doc/changelog\.md
+        - doc/dev_essential\.html
         - doc/html/.+\.css
         - doc/html/.+\.html
         - doc/html/.+\.js
@@ -25,28 +27,21 @@ common:
         - doc/html/bc_s\.png
         - doc/html/bdwn\.png
         - doc/html/closed\.png
+        - doc/html/doc/extern/license/MPL2\.0\.txt
+        - doc/html/doc/extern/license/licenses\.txt
         - doc/html/doc\.png
         - doc/html/doxygen\.png
+        - doc/html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
+        - doc/html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
+        - doc/html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
+        - doc/html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
+        - doc/html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
         - doc/html/folderclosed\.png
         - doc/html/folderopen\.png
         - doc/html/nav_f\.png
         - doc/html/nav_g\.png
         - doc/html/nav_h\.png
         - doc/html/open\.png
-        - doc/html/splitbar\.png
-        - doc/html/sync_off\.png
-        - doc/html/sync_on\.png
-        - doc/html/tab_a\.png
-        - doc/html/tab_b\.png
-        - doc/html/tab_h\.png
-        - doc/html/tab_s\.png
-        - doc/html/doc/extern/license/MPL2\.0\.txt
-        - doc/html/doc/extern/license/licenses\.txt
-        - doc/html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
-        - doc/html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
-        - doc/html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
-        - doc/html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
-        - doc/html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
         - doc/html/search/.+\.css
         - doc/html/search/.+\.html
         - doc/html/search/.+\.js
@@ -58,11 +53,18 @@ common:
         - doc/html/specification/ddl3.xsd
         - doc/html/specification/ddl4.xsd
         - doc/html/specification/mapping_configuration.xsd
-        - doc/license/MPL2\.0\.txt
-        - doc/license/licenses\.txt
-        - doc/license/boost_1_64_0/boost/current_function\.hpp
+        - doc/html/splitbar\.png
+        - doc/html/sync_off\.png
+        - doc/html/sync_on\.png
+        - doc/html/tab_a\.png
+        - doc/html/tab_b\.png
+        - doc/html/tab_h\.png
+        - doc/html/tab_s\.png
         - doc/license/Clara-1\.1\.2/LICENSE\.txt
         - doc/license/Clara-1\.1\.2/README\.md
+        - doc/license/MPL2\.0\.txt
+        - doc/license/boost_1_64_0/boost/current_function\.hpp
+        - doc/license/licenses\.txt
         - doc/license/pugixml-1\.8/readme\.txt
         - doc/license/utf8_v2_3_4/source/utf8\.h
         - doc/license/uuid-1\.6\.2/license\.txt
@@ -71,12 +73,16 @@ common:
         - doc/specification/mapping_configuration\.xsd
         - include/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
         - include/3rdparty/clara/Clara-1\.1\.2/single_include/clara\.hpp
-        - include/a_util/base\.h
         - include/a_util/base/delegate\.h
         - include/a_util/base/detail/delegate_decl\.h
         - include/a_util/base/detail/delegate_impl\.h
+        - include/a_util/base/detail/error\.inc
+        - include/a_util/base/enums\.h
+        - include/a_util/base/error\.h
+        - include/a_util/base/scopeguard\.h
+        - include/a_util/base/type_traits\.h
         - include/a_util/base/types\.h
-        - include/a_util/concurrency\.h
+        - include/a_util/base\.h
         - include/a_util/concurrency/atomic\.h
         - include/a_util/concurrency/chrono\.h
         - include/a_util/concurrency/condition_variable\.h
@@ -87,14 +93,14 @@ common:
         - include/a_util/concurrency/semaphore\.h
         - include/a_util/concurrency/shared_mutex\.h
         - include/a_util/concurrency/thread\.h
-        - include/a_util/datetime\.h
+        - include/a_util/concurrency\.h
         - include/a_util/datetime/datetime\.h
-        - include/a_util/filesystem\.h
+        - include/a_util/datetime\.h
         - include/a_util/filesystem/filesystem\.h
         - include/a_util/filesystem/path\.h
-        - include/a_util/logging\.h
+        - include/a_util/filesystem\.h
         - include/a_util/logging/log\.h
-        - include/a_util/memory\.h
+        - include/a_util/logging\.h
         - include/a_util/memory/detail/stack_ptr_decl\.h
         - include/a_util/memory/detail/stack_ptr_impl\.h
         - include/a_util/memory/memory\.h
@@ -102,19 +108,19 @@ common:
         - include/a_util/memory/shared_ptr\.h
         - include/a_util/memory/stack_ptr\.h
         - include/a_util/memory/unique_ptr\.h
-        - include/a_util/parser\.h
+        - include/a_util/memory\.h
         - include/a_util/parser/csv_reader\.h
-        - include/a_util/preprocessor\.h
+        - include/a_util/parser\.h
         - include/a_util/preprocessor/current_function\.h
         - include/a_util/preprocessor/detail/disable_warnings\.h
         - include/a_util/preprocessor/dll_export\.h
         - include/a_util/preprocessor/to_string\.h
-        - include/a_util/process\.h
+        - include/a_util/preprocessor\.h
         - include/a_util/process/detail/process_impl\.h
         - include/a_util/process/process\.h
-        - include/a_util/regex\.h
+        - include/a_util/process\.h
         - include/a_util/regex/regularexpression\.h
-        - include/a_util/result\.h
+        - include/a_util/regex\.h
         - include/a_util/result/detail/error_description\.h
         - include/a_util/result/detail/error_description_impl\.h
         - include/a_util/result/detail/error_description_intf\.h
@@ -131,7 +137,7 @@ common:
         - include/a_util/result/result_type\.h
         - include/a_util/result/result_type_decl\.h
         - include/a_util/result/result_util\.h
-        - include/a_util/strings\.h
+        - include/a_util/result\.h
         - include/a_util/strings/detail/strings_convert_impl\.h
         - include/a_util/strings/detail/strings_numeric_traits_impl\.h
         - include/a_util/strings/strings_convert\.h
@@ -141,25 +147,36 @@ common:
         - include/a_util/strings/strings_numeric_traits\.h
         - include/a_util/strings/strings_numeric_traits_decl\.h
         - include/a_util/strings/unicode\.h
-        - include/a_util/system\.h
+        - include/a_util/strings\.h
         - include/a_util/system/detail/timer_impl\.h
         - include/a_util/system/system\.h
         - include/a_util/system/timer\.h
         - include/a_util/system/timer_decl\.h
         - include/a_util/system/uuid\.h
-        - include/a_util/variant\.h
+        - include/a_util/system\.h
         - include/a_util/variant/variant\.h
-        - include/a_util/xml\.h
+        - include/a_util/variant\.h
         - include/a_util/xml/dom\.h
-        - include/ddl/ddl\.h
-        - include/ddl/legacy_error_macros\.h
+        - include/a_util/xml\.h
         - include/ddl/codec/access_element\.h
         - include/ddl/codec/bitserializer\.h
         - include/ddl/codec/codec\.h
         - include/ddl/codec/codec_factory\.h
+        - include/ddl/codec/codec_index\.h
+        - include/ddl/codec/codec_iterator\.h
+        - include/ddl/codec/codec_type_info\.h
+        - include/ddl/codec/data_representation\.h
+        - include/ddl/codec/leaf_value_access\.h
+        - include/ddl/codec/legacy/access_element\.h
+        - include/ddl/codec/legacy/access_element_legacy\.h
+        - include/ddl/codec/legacy/codec_factory_legacy\.h
+        - include/ddl/codec/legacy/codec_legacy\.h
+        - include/ddl/codec/legacy/static_codec_legacy\.h
+        - include/ddl/codec/legacy/struct_element\.h
         - include/ddl/codec/pkg_codec\.h
         - include/ddl/codec/static_codec\.h
         - include/ddl/codec/struct_element\.h
+        - include/ddl/codec/value_access\.h
         - include/ddl/datamodel/datamodel_base\.h
         - include/ddl/datamodel/datamodel_datadefinition\.h
         - include/ddl/datamodel/datamodel_header\.h
@@ -171,15 +188,6 @@ common:
         - include/ddl/datamodel/xml_datamodel\.h
         - include/ddl/datamodel/xml_ddfromxml_factory\.h
         - include/ddl/datamodel/xml_ddtoxml_factory\.h
-        - include/ddl/dd/ddcompare\.h
-        - include/ddl/dd/ddelement\.h
-        - include/ddl/dd/ddenum\.h
-        - include/ddl/dd/dddefault\.h
-        - include/ddl/dd/ddfile\.h
-        - include/ddl/dd/ddstring\.h
-        - include/ddl/dd/ddstructure\.h
-        - include/ddl/dd/dddatatype\.h
-        - include/ddl/dd/ddunit\.h
         - include/ddl/dd/dd\.h
         - include/ddl/dd/dd_common_types\.h
         - include/ddl/dd/dd_error\.h
@@ -189,7 +197,17 @@ common:
         - include/ddl/dd/dd_struct_access\.h
         - include/ddl/dd/dd_typeinfomodel\.h
         - include/ddl/dd/dd_validationinfomodel\.h
-        - include/ddl/mapping/pkg_mapping\.h
+        - include/ddl/dd/ddcompare\.h
+        - include/ddl/dd/dddatatype\.h
+        - include/ddl/dd/dddefault\.h
+        - include/ddl/dd/ddelement\.h
+        - include/ddl/dd/ddenum\.h
+        - include/ddl/dd/ddfile\.h
+        - include/ddl/dd/ddstring\.h
+        - include/ddl/dd/ddstructure\.h
+        - include/ddl/dd/ddunit\.h
+        - include/ddl/ddl\.h
+        - include/ddl/legacy_error_macros\.h
         - include/ddl/mapping/configuration/map_assignment\.h
         - include/ddl/mapping/configuration/map_configuration\.h
         - include/ddl/mapping/configuration/map_header\.h
@@ -206,8 +224,10 @@ common:
         - include/ddl/mapping/engine/source\.h
         - include/ddl/mapping/engine/target\.h
         - include/ddl/mapping/engine/trigger\.h
+        - include/ddl/mapping/pkg_mapping\.h
         - include/ddl/serialization/pkg_serialization\.h
         - include/ddl/serialization/serialization\.h
+        - include/ddl/serialization/serialization_legacy\.h
         - include/ddl/utilities/dd_access_list\.h
         - include/ddl/utilities/dd_access_map\.h
         - include/ddl/utilities/dd_access_observer\.h
@@ -226,12 +246,12 @@ common:
         - include/json/value\.h
         - include/json/version\.h
         - include/json/writer\.h
-        - include/jsonrpccpp/client\.h
         - include/jsonrpccpp/client/batchcall\.h
         - include/jsonrpccpp/client/batchresponse\.h
         - include/jsonrpccpp/client/client\.h
         - include/jsonrpccpp/client/iclientconnector\.h
         - include/jsonrpccpp/client/rpcprotocolclient\.h
+        - include/jsonrpccpp/client\.h
         - include/jsonrpccpp/common/errors\.h
         - include/jsonrpccpp/common/exception\.h
         - include/jsonrpccpp/common/jsonparser\.h
@@ -240,7 +260,6 @@ common:
         - include/jsonrpccpp/common/specificationparser\.h
         - include/jsonrpccpp/common/specificationwriter\.h
         - include/jsonrpccpp/common/version\.h
-        - include/jsonrpccpp/server\.h
         - include/jsonrpccpp/server/abstractprotocolhandler\.h
         - include/jsonrpccpp/server/abstractserver\.h
         - include/jsonrpccpp/server/abstractserverconnector\.h
@@ -252,6 +271,7 @@ common:
         - include/jsonrpccpp/server/rpcprotocolserverv1\.h
         - include/jsonrpccpp/server/rpcprotocolserverv2\.h
         - include/jsonrpccpp/server/threadpool\.h
+        - include/jsonrpccpp/server\.h
         - include/rpc/detail/json_rpc_impl\.h
         - include/rpc/http/http_rpc_server\.h
         - include/rpc/http/json_http_rpc\.h
@@ -266,8 +286,6 @@ common:
         - lib/cmake/dev_essential/dev_essential-config\.cmake
         - lib/cmake/dev_essential/dev_essential_targets\.cmake
         - scripts/debugging/result\.natvis
-        - MPL2\.0\.txt
-        - README\.md
 
 debug:
     conditions:
@@ -321,9 +339,9 @@ linux_and_qnx_debug:
         - lib/liba_util_systemd\.a
         - lib/liba_util_variantd\.a
         - lib/liba_util_xmld\.a
+        - lib/libddl_capid\.so
         - lib/libddld\.a
         - lib/libpkg_rpcd\.a
-        - lib/libddl_capid\.so
 
 linux_and_qnx_release:
     conditions:
@@ -354,8 +372,8 @@ linux_and_qnx_release:
         - lib/liba_util_variant\.a
         - lib/liba_util_xml\.a
         - lib/libddl\.a
-        - lib/libpkg_rpc\.a
         - lib/libddl_capi\.so
+        - lib/libpkg_rpc\.a
 
 windows:
     conditions:
@@ -370,6 +388,7 @@ windows_debug:
             os: Windows
             build_type: Debug
     files:
+        - bin/ddl_capid\.dll
         - lib/a_util_concurrencyd\.lib
         - lib/a_util_csv_readerd\.lib
         - lib/a_util_datetimed\.lib
@@ -383,10 +402,9 @@ windows_debug:
         - lib/a_util_systemd\.lib
         - lib/a_util_variantd\.lib
         - lib/a_util_xmld\.lib
+        - lib/ddl_capid\.lib
         - lib/ddld\.lib
         - lib/pkg_rpcd\.lib
-        - lib/ddl_capid\.lib
-        - bin/ddl_capid\.dll
 
 windows_release:
     conditions:
@@ -397,6 +415,7 @@ windows_release:
             os: Windows
             build_type: RelWithDebInfo
     files:
+        - bin/ddl_capi\.dll
         - lib/a_util_concurrency\.lib
         - lib/a_util_csv_reader\.lib
         - lib/a_util_datetime\.lib
@@ -411,6 +430,5 @@ windows_release:
         - lib/a_util_variant\.lib
         - lib/a_util_xml\.lib
         - lib/ddl\.lib
-        - lib/pkg_rpc\.lib
         - lib/ddl_capi\.lib
-        - bin/ddl_capi\.dll
+        - lib/pkg_rpc\.lib

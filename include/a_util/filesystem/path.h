@@ -126,7 +126,28 @@ public:
      *          e.g.: "/dir/subdir/file.txt" returns "/", "C:/dir" returns "C:"
      * @return A path instance pointing to the root directory
      */
-    Path getRoot() const;
+    [[deprecated("Use Path::getRootName() instead.")]] Path getRoot()
+        const; // expected-note {{'getRoot' has been explicitly marked deprecated here}}
+
+    /**
+     * Get the root name of the directory/file
+     * @note: For network paths, the host name is returned (e.g. "\\netdrive\test" returns
+     * "\\netdrive")
+     * @details Usually "C:" or "D:" on Windows, on Unix-like systems usually "/".
+     *          e.g.: "/dir/subdir/file.txt" returns "/", "C:/dir" returns "C:"
+     * @return A path name instance pointing to the root directory
+     */
+    Path getRootName() const;
+
+    /**
+     * Get the root path of the directory/file
+     * @note: For network paths, the host path is returned (e.g. "\\netdrive\test" returns
+     * "\\netdrive\")
+     * @details Usually "C:\" or "D:\" on Windows, on Unix-like systems usually "/".
+     *          e.g.: "/dir/subdir/file.txt" returns "/", "C:/dir" returns "C:/"
+     * @return A path instance pointing to the root directory
+     */
+    Path getRootPath() const;
 
     /**
      * Get the parent path of the directory or file

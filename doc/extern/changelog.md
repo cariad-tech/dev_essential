@@ -21,6 +21,9 @@ The format is based on [Keep a Changelog][] and this project adheres to [Semanti
 
 ## Version history
 ### [Dev essentials libraries](#dev_essential_libraries)
+* [1.2.0](#dev_essential_1_2_0) \| [Changes](#dev_essential_1_2_0_changes) \|
+  [Fixes](#dev_essential_1_2_0_fixes) \| [Known issues](#dev_essential_1_2_0_known_issues) \|
+  Release date: 2022/07/15
 * [1.1.4](#dev_essential_1_1_4) \| Changes \|
   [Fixes](#dev_essential_1_1_4_fixes) \| [Known issues](#dev_essential_1_1_4_known_issues) \|
   Release date: 2022/05/20
@@ -86,6 +89,89 @@ The format is based on [Keep a Changelog][] and this project adheres to [Semanti
 
 <a name="dev_essential_libraries"></a>
 ## Dev essential libraries
+
+<a name="dev_essential_1_2_0"></a>
+### [dev_essential 1.2.0][] - 2022/07/15
+
+<a name="dev_essential_1_2_0_changes"></a>
+#### Changes
+_**Done**_
+- [ODAUTIL-214][] - Use clang-tidy as static code analyzer 
+- [ODAUTIL-217][] - Add `a_util::ScopeGuard` class 
+  - Adds scope guards based on Andrei Alexandrescu's talk &quot;Declarative Control Flow&quot;
+- [ODAUTIL-306][] - Enable TCP_NODELAY in httplib for faster RPC 
+- [ODAUTIL-420][] - [ddl] Merge StructLayout (of Codec API) and StructTypeAccess 
+- [ODAUTIL-430][] - [Tests] Create automated memory leak tests 
+- [ODAUTIL-456][] - [filesystem] Refactor `a_util::filesystem::Path::getRoot()` to be consistent with std naming 
+  - Deprecates `a_util::filesystem::Path::getRoot()` and adds
+    - `a_util::filesystem::Path::getRootName()` and
+    - `a_util::filesystem::Path::getRootPath()`
+- [ODAUTIL-484][] - [build] Decouple conan and CMake 
+- [ODAUTIL-493][] - Provide common error codes and types 
+  - Introduces `enum a_util::errc`
+- [ODAUTIL-541][] - [ddl] Extend type reflection API to support all optional DDL struct and element information 
+  - Extends `ddl::DDStructure` with methods
+    - `ddl::DDStructure::setStructInfo()`
+    - `ddl::DDStructure::setElementInfo()`
+    - `ddl::DDStructure::setElementUnit()`
+- [ODAUTIL-543][] - [memory] Add `a_util::memory::makeStackPtr()` function equivalent to `std::make_unique` 
+- [ODAUTIL-548][] - [ddl] Description files saved by the xml writer always follow the same pattern 
+- [ODAUTIL-554][] - [xml] Add possibility to sort xml nodes 
+  - Adds function overload `a_util::strings::replace()` and new methods
+    `a_util::xml::DOMElement::sortNodes()`
+- [ODAUTIL-577][] - Add a small LeafCodecIndex to raise performance for default decoding 
+  - Introduces `ddl::codec::LeafCodecIndex` class for high performant ddl coder/decoder access
+  - Introduces type traits file with the following function/types:
+    - `std::is_enum_v` and `std::void_t` as std backports only for non C++17 compliant compilers
+    - `a_util::underlying_type_or_type` and `a_util::underlying_type_or_type_t`
+    - `a_util::is_explicitly_convertible_to` and `a_util::is_explicitly_convertible_to_v`
+
+_**Won't Do**_
+- [ODAUTIL-5][] - Add Solution for old cFile \(AUL-70\)
+- [ODAUTIL-85][] - [concurrency] Implement method `semaphore::wait_until`
+- [ODAUTIL-107][] - Add child process control functions
+- [ODAUTIL-117][] - Provide solution for further requirements regarding `a_util::process`
+- [ODAUTIL-118][] - Array Support for As*-Methods of Variant
+- [ODAUTIL-128][] - Use `_nullptr` instead of `nullptr` in public headers
+- [ODAUTIL-134][] - Cleanup usage of defines and preprocessor macros
+- [ODAUTIL-146][] - [process] Create possibility to interact with child process \(stdIn\)
+- [ODAUTIL-264][] - [DOC] Methods, Variables, Classes need documentation
+- [ODAUTIL-387][] - [ddl] Add Functionality to define 'aliases' to predefined data types in \<datatypes/\> section
+  - Superseded by [ODAUTIL-426][]
+- [ODAUTIL-505][] - Try sending RPC with SendRPCMessage in a predefined IP first
+- [ODAUTIL-506][] - Add a thread safe queue
+
+_**Duplicate**_
+- [ODAUTIL-173][] - [process] Add functionality to resolve environment variables
+  - Duplicated by [ODAUTIL-108][]
+- [ODAUTIL-249][] - Change to new coding style and use clang tidy to convert user code
+  - Duplicates by [ODAUTIL-214][]
+- [ODAUTIL-475][] - Redesign of the `ddl::access_element` API and CodecFactory internal data to increase creation performance
+  - Duplicated by [ODAUTIL-420][]
+- [ODAUTIL-502][] - Predefined error codes for cross-project use
+  - Duplicated by [ODAUTIL-493][]
+- [ODAUTIL-551][] - [ddl2header] Preserve ddl struct namespaces
+  - Duplicated by [DDLUTILITY-111][]
+
+<a name="dev_essential_1_2_0_fixes"></a>
+#### Fixes
+_**Fixed**_
+- [ODAUTIL-135][] - [Result] Construction with 'ResultInfo<void>' doesn't call desired constructor 
+  - **Please note:** This change might lead to compile time errors when using `_MAKE_RESULT()`
+    with a value of `0` in customer code. For hints how to fix/deactivate this behavior, consult
+    the resulting compiler message.
+- [ODAUTIL-381][] - `ddl::getType()` does not return a meaningful error message 
+- [ODAUTIL-509][] - dev_essential cannot be built with clang 10.0.0 and mingw32 frontend 
+- [ODAUTIL-512][] - [ddl] compare for enums does not check for equivalence 
+- [ODAUTIL-571][] - [build] No SCA stage for develop branch executed 
+- [ODAUTIL-575][] - threaded_http_server doesn't wait for detached threads on call to StopListening 
+
+_**Won't Do**_
+- [ODAUTIL-233][] - [HTTP Parser] The used http parser is too minimal
+  - Fixed with [ODAUTIL-250][]
+- [ODAUTIL-565][] - [ddl] TesterOODDL::checkTypeCalculationPerformance test fails for gcc5 and gcc7
+  - Fixed with [ODAUTIL-420][]
+
 <a name="dev_essential_1_1_4"></a>
 ### [dev_essential 1.1.4][] - 2022/05/20
 

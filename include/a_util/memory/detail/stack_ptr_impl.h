@@ -23,14 +23,6 @@ You may add additional accurate notices of copyright ownership.
 
 #include <a_util/memory/detail/stack_ptr_decl.h>
 
-#include <algorithm> //std::swap, std::fill_n
-
-#ifdef _MSC_VER
-#include <iterator> //stdext::checked_array_iterator<>
-// disable >>new behavior: elements of array '_storage' will be default initialized<<
-#pragma warning(disable : 4351)
-#endif //_MSC_VER
-
 namespace a_util {
 namespace memory {
 
@@ -50,6 +42,12 @@ template <typename T, std::size_t StackSize, std::size_t Alignment>
 inline StackPtr<T, StackSize, Alignment>::StackPtr(const T& data) : _storage()
 {
     reset(data);
+}
+
+template <typename T, std::size_t StackSize, std::size_t Alignment>
+inline StackPtr<T, StackSize, Alignment>::StackPtr(T&& data) : _storage()
+{
+    reset(std::move(data));
 }
 
 template <typename T, std::size_t StackSize, std::size_t Alignment>
@@ -77,6 +75,14 @@ inline StackPtr<T, StackSize, Alignment>& StackPtr<T, StackSize, Alignment>::ope
 }
 
 template <typename T, std::size_t StackSize, std::size_t Alignment>
+inline StackPtr<T, StackSize, Alignment>::StackPtr(StackPtr&& other) : _storage()
+{
+    if (other.isConstructed()) {
+        this->reset(std::move(*other));
+    }
+}
+
+template <typename T, std::size_t StackSize, std::size_t Alignment>
 inline T* StackPtr<T, StackSize, Alignment>::operator->()
 {
     return static_cast<T*>(address());
@@ -101,6 +107,12 @@ inline const T& StackPtr<T, StackSize, Alignment>::operator*() const
 }
 
 template <typename T, std::size_t StackSize, std::size_t Alignment>
+inline StackPtr<T, StackSize, Alignment>::operator bool() const noexcept
+{
+    return isConstructed();
+}
+
+template <typename T, std::size_t StackSize, std::size_t Alignment>
 inline void StackPtr<T, StackSize, Alignment>::reset()
 {
     if (isConstructed()) {
@@ -110,10 +122,11 @@ inline void StackPtr<T, StackSize, Alignment>::reset()
 }
 
 template <typename T, std::size_t StackSize, std::size_t Alignment>
-inline void StackPtr<T, StackSize, Alignment>::reset(const T& data)
+template <typename... Args>
+inline void StackPtr<T, StackSize, Alignment>::reset(Args&&... args)
 {
     reset();
-    new (address()) T(data);
+    new (address()) T(std::forward<Args>(args)...);
     setFlag(InitializeStatus, StackPtrFlags::IsConstructed);
 }
 
@@ -148,9 +161,7 @@ inline void StackPtr<T, StackSize, Alignment>::swap(StackPtr& other)
     }
 
     if (reset_after_swap) {
-        // don't use memory::zero to avoid link dependency to memory component
         reset_after_swap->reset();
-        std::fill_n(reset_after_swap->_storage, StackSize, char{});
     }
 }
 
@@ -174,7 +185,7 @@ inline void StackPtr<T, StackSize, Alignment>::setFlag(StackPtrFlagPositions pos
 }
 
 template <typename T, std::size_t StackSize, std::size_t Alignment>
-inline bool StackPtr<T, StackSize, Alignment>::isConstructed() const
+inline bool StackPtr<T, StackSize, Alignment>::isConstructed() const noexcept
 {
     return _storage[InitializeStatus] ==
            static_cast<typename std::underlying_type<StackPtrFlags>::type>(
@@ -220,11 +231,13 @@ inline bool operator!=(const StackPtr<T, StackSize, Alignment>& lhs,
     return !(lhs == rhs);
 }
 
+template <typename T, std::size_t StackSize, std::size_t Alignment, typename... Args>
+constexpr inline auto makeStackPtr(Args&&... args) -> StackPtr<T, StackSize, Alignment>
+{
+    return StackPtr<T, StackSize, Alignment>(T(std::forward<Args>(args)...));
+}
+
 } // namespace memory
 } // namespace a_util
-
-#ifdef _MSC_VER
-#pragma warning(default : 4351)
-#endif //_MSC_VER
 
 #endif // A_UTIL_UTIL_MEMORY_DETAIL_STACK_PTR_IMPLL_HEADER_INCLUDED

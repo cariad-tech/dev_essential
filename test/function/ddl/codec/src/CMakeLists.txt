@@ -11,13 +11,15 @@
 # You may add additional accurate notices of copyright ownership.
 
 set(TEST_NAME codec)
-add_executable(ddl_${TEST_NAME}_tests tester_${TEST_NAME}.cpp
-                                      tester_bitserializer.cpp
-                                      tester_default_serialization.cpp
-                                      tester_default_serialization.h)
+add_executable(ddl_${TEST_NAME}_tests tester_${TEST_NAME}.cpp)
 
 set_target_properties(ddl_${TEST_NAME}_tests PROPERTIES FOLDER test/function/ddl)
 set_target_properties(ddl_${TEST_NAME}_tests  PROPERTIES TIMEOUT 300)
+
+target_compile_definitions(ddl_${TEST_NAME}_tests
+                           PRIVATE TEST_FILES_DIR="${CMAKE_CURRENT_LIST_DIR}/../files"
+                                   $<$<CONFIG:Debug>:BUILD_TYPE="DEBUG">
+                                   $<$<NOT:$<CONFIG:Debug>>:BUILD_TYPE="RELEASE">)
 
 target_link_libraries(ddl_${TEST_NAME}_tests PRIVATE
     dev_essential::ddl
@@ -25,8 +27,6 @@ target_link_libraries(ddl_${TEST_NAME}_tests PRIVATE
     $<$<PLATFORM_ID:Linux>:Threads::Threads>
 )
 add_test(ddl_${TEST_NAME}_tests ddl_${TEST_NAME}_tests)
-target_compile_definitions(ddl_${TEST_NAME}_tests PRIVATE "TEST_FILES_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../files\"")
-
 
 
 set(TEST_NAME mediacoder_regression)
@@ -36,8 +36,9 @@ add_test(NAME ddl_${TEST_NAME}_tests
          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../"
          )
 
-target_compile_definitions(ddl_${TEST_NAME}_tests PRIVATE "TEST_FILES_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../files\"")
-target_compile_definitions(ddl_${TEST_NAME}_tests PRIVATE "TEST_FILES_WRITE_DIR=\"${CMAKE_CURRENT_BINARY_DIR}/\"")
+target_compile_definitions(ddl_${TEST_NAME}_tests
+                           PRIVATE TEST_FILES_DIR="${CMAKE_CURRENT_LIST_DIR}/../files"
+                                   TEST_FILES_WRITE_DIR="${CMAKE_CURRENT_BINARY_DIR}/")
 
 set_target_properties(ddl_${TEST_NAME}_tests PROPERTIES FOLDER test/function/ddl)
 set_target_properties(ddl_${TEST_NAME}_tests PROPERTIES TIMEOUT 300)

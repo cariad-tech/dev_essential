@@ -12,22 +12,28 @@
 
 common:
   files:
+  - MPL2\.0\.txt
+  - README\.md
   - doc/changelog\.md
+  - doc/license/MPL2\.0\.txt
   - doc/license/boost_1_64_0/boost/current_function\.hpp
   - doc/license/licenses\.txt
-  - doc/license/MPL2\.0\.txt
   - include/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
-  - include/a_util/base\.h
   - include/a_util/base/delegate\.h
-  - include/a_util/base/types\.h
   - include/a_util/base/detail/delegate_decl\.h
   - include/a_util/base/detail/delegate_impl\.h
-  - include/a_util/preprocessor\.h
+  - include/a_util/base/detail/error\.inc
+  - include/a_util/base/enums\.h
+  - include/a_util/base/error\.h
+  - include/a_util/base/scopeguard\.h
+  - include/a_util/base/type_traits\.h
+  - include/a_util/base/types\.h
+  - include/a_util/base\.h
   - include/a_util/preprocessor/current_function\.h
   - include/a_util/preprocessor/detail/disable_warnings\.h
   - include/a_util/preprocessor/dll_export\.h
   - include/a_util/preprocessor/to_string\.h
-  - include/a_util/result\.h
+  - include/a_util/preprocessor\.h
   - include/a_util/result/detail/error_description\.h
   - include/a_util/result/detail/error_description_impl\.h
   - include/a_util/result/detail/error_description_intf\.h
@@ -44,9 +50,8 @@ common:
   - include/a_util/result/result_type\.h
   - include/a_util/result/result_type_decl\.h
   - include/a_util/result/result_util\.h
+  - include/a_util/result\.h
   - lib/cmake/dev_essential/dev_essential-config-version\.cmake
   - lib/cmake/dev_essential/dev_essential-config\.cmake
   - lib/cmake/dev_essential/dev_essential_targets\.cmake
   - scripts/debugging/result\.natvis
-  - MPL2\.0\.txt
-  - README\.md

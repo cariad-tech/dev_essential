@@ -59,13 +59,18 @@ add_library(libjson-rpc-cpp OBJECT ${jsonrpccpp_SRC})
 # dynamic_cast in jsonrpccpp/server/abstractserver.h
 target_compile_options(libjson-rpc-cpp PRIVATE $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<COMPILE_LANGUAGE:CXX>>:-frtti -Wno-deprecated-declarations>
                                                $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>:/GR>)
-target_include_directories(libjson-rpc-cpp
+target_include_directories(libjson-rpc-cpp SYSTEM
                            PRIVATE $<BUILD_INTERFACE:${jsonrpccpp_DIR}/src>
                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/configured/>
                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/configured/jsonrpccpp/common>
                                    ${JSONCPP_INCLUDE_DIRECTORIES})
 if(MSVC)
     target_include_directories(libjson-rpc-cpp PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/compat/msvc>)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+        # See: https://github.com/msys2/MINGW-packages/issues/5786
+        target_compile_options(libjson-rpc-cpp PRIVATE -femulated-tls)
+    endif()
 endif()
 target_compile_features(libjson-rpc-cpp PRIVATE cxx_std_11) # C++11 for self
 set_target_properties(libjson-rpc-cpp PROPERTIES FOLDER 3rdparty/object_libraries)

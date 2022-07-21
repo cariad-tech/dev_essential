@@ -43,6 +43,17 @@ public:
         return *this;
     }
 
+    TestClass(TestClass&& other) noexcept : _count_as_string(std::move(other._count_as_string))
+    {
+        ++TestClass::instances();
+    }
+
+    TestClass& operator=(TestClass&& other) noexcept
+    {
+        _count_as_string = std::move(other._count_as_string);
+        return *this;
+    }
+
     ~TestClass()
     {
         --instances();
@@ -62,9 +73,45 @@ public:
         return _count_as_string;
     }
 
+    const std::string& getCurrentString() const noexcept
+    {
+        return _count_as_string;
+    }
+
 private:
     // non pod type
     mutable std::string _count_as_string;
+};
+
+// Test class to check whether the stack ptr can be used with a noncopyable type
+class TestClassNonCopyable {
+public:
+    TestClassNonCopyable(const TestClassNonCopyable&) = delete;
+    TestClassNonCopyable& operator=(const TestClassNonCopyable&) = delete;
+    TestClassNonCopyable(TestClassNonCopyable&&) = default;
+    TestClassNonCopyable& operator=(TestClassNonCopyable&&) = default;
+
+    TestClassNonCopyable() = default;
+    ~TestClassNonCopyable() = default;
+
+    TestClassNonCopyable(std::int32_t val1, const std::string& val2)
+        : _val_int{val1}, _val_string{val2}
+    {
+    }
+
+    std::int32_t getInt() const noexcept
+    {
+        return _val_int;
+    }
+
+    const std::string& getString() const noexcept
+    {
+        return _val_string;
+    }
+
+private:
+    std::string _val_string;
+    std::int32_t _val_int;
 };
 
 inline bool operator==(const TestClass& lhs, const TestClass& rhs)
@@ -76,6 +123,7 @@ TEST(memory_test, TestStackPtrConstructor)
 {
     {
         a_util::memory::StackPtr<TestClass, sizeof(TestClass)> test_object;
+        EXPECT_TRUE(test_object);
         EXPECT_EQ(1, TestClass::instances());
         EXPECT_EQ("1", test_object->instanceAsString());
     }
@@ -85,6 +133,7 @@ TEST(memory_test, TestStackPtrConstructor)
 TEST(memory_test, TestStackPtrNullptrConstructor)
 {
     a_util::memory::StackPtr<TestClass, sizeof(TestClass)> test_object(nullptr);
+    EXPECT_FALSE(test_object);
     EXPECT_EQ(0, TestClass::instances());
     EXPECT_TRUE(a_util::memory::isZero(&test_object, sizeof(test_object)));
 }
@@ -152,15 +201,15 @@ TEST(memory_test, TestStackPtrSwapOneEmpty)
 
         a_util::memory::swap(test_object1, test_object2);
         EXPECT_EQ(1, TestClass::instances());
-        EXPECT_EQ(reference_object, test_object2);
+        EXPECT_TRUE(test_object1);
+        EXPECT_FALSE(test_object2);
         EXPECT_EQ("1", test_object1->instanceAsString());
-        EXPECT_TRUE(a_util::memory::isZero(&test_object2, sizeof(test_object2)));
 
         test_object2.swap(test_object1);
         EXPECT_EQ(1, TestClass::instances());
-        EXPECT_EQ(reference_object, test_object1);
+        EXPECT_FALSE(test_object1);
+        EXPECT_TRUE(test_object2);
         EXPECT_EQ("1", test_object2->instanceAsString());
-        EXPECT_TRUE(a_util::memory::isZero(&test_object1, sizeof(test_object1)));
     }
     EXPECT_EQ(0, TestClass::instances());
 }
@@ -201,7 +250,7 @@ TEST(memory_test, TestStackPtrCopyConstructor)
     EXPECT_EQ(0, TestClass::instances());
 }
 
-TEST(memory_test, TestStackPtrAssignmentOperator)
+TEST(memory_test, TestStackPtrCopyAssignmentOperator)
 {
     {
         a_util::memory::StackPtr<TestClass, sizeof(TestClass)> test_object1(nullptr);
@@ -214,15 +263,67 @@ TEST(memory_test, TestStackPtrAssignmentOperator)
         EXPECT_EQ(1, TestClass::instances());
         EXPECT_EQ("1", test_object1->instanceAsString());
 
-        // test assignment with self
-        test_object1 = test_object1;
-        EXPECT_EQ(1, TestClass::instances());
-        EXPECT_EQ("1", test_object1->instanceAsString());
-
         test_object2 = test_object1;
         EXPECT_EQ(2, TestClass::instances());
         EXPECT_EQ("1", test_object2->instanceAsString()); // copied from test_object1
         EXPECT_EQ(test_object1, test_object2);
+    }
+    EXPECT_EQ(0, TestClass::instances());
+}
+
+TEST(memory_test, TestStackPtrMoveConstructor)
+{
+    using TestStackPtr = a_util::memory::StackPtr<TestClass, sizeof(TestClass)>;
+    TestStackPtr test_object1(nullptr);
+    TestStackPtr test_object2(std::move(test_object1));
+    EXPECT_EQ(0, TestClass::instances());
+
+    {
+        TestStackPtr test_object3;
+        EXPECT_EQ(1, TestClass::instances());
+        EXPECT_EQ("1", test_object3->instanceAsString());
+
+        // Moving an object does not destroy it! So we have two instances afterwards
+        TestStackPtr test_object4(std::move(test_object3));
+        EXPECT_EQ(2, TestClass::instances());
+        EXPECT_EQ("1", test_object4->instanceAsString());
+        // moved from object in valid but unspecified state
+        EXPECT_TRUE(test_object3);
+        EXPECT_TRUE(test_object3->getCurrentString().empty());
+    }
+    EXPECT_EQ(0, TestClass::instances());
+}
+
+TEST(memory_test, TestStackPtrMoveAssignmentOperator)
+{
+    using TestStackPtr = a_util::memory::StackPtr<TestClass, sizeof(TestClass)>;
+    {
+        TestStackPtr test_object1(nullptr);
+        EXPECT_EQ(0, TestClass::instances());
+
+        TestStackPtr test_object2 = std::move(test_object1);
+        EXPECT_EQ(0, TestClass::instances());
+        EXPECT_FALSE(test_object1);
+        EXPECT_FALSE(test_object2);
+
+        test_object1 = TestStackPtr();
+        EXPECT_EQ(1, TestClass::instances());
+        EXPECT_EQ("1", test_object1->instanceAsString());
+        EXPECT_TRUE(test_object1);
+
+        // Moved-from object has no managed object, so no instances left after moving
+        test_object1 = TestStackPtr(nullptr);
+        EXPECT_EQ(0, TestClass::instances());
+        EXPECT_EQ("0", test_object1->instanceAsString());
+        EXPECT_FALSE(test_object1);
+
+        test_object1 = TestStackPtr();
+        test_object2 = std::move(test_object1);
+        EXPECT_EQ(2, TestClass::instances());
+        EXPECT_EQ("2", test_object2->instanceAsString()); // moved from test_object1
+        // Moved from object in valid but unspecified state
+        EXPECT_TRUE(test_object1);
+        EXPECT_TRUE(test_object1->getCurrentString().empty());
     }
     EXPECT_EQ(0, TestClass::instances());
 }
@@ -296,4 +397,25 @@ TEST(memory_test, TestStackPtrAlignment)
     EXPECT_GT(offsetof(TestStruct2, obj), 0);
     EXPECT_GT(offsetof(TestStruct3, obj), 0);
     EXPECT_GT(offsetof(TestStruct4, obj), 0);
+}
+
+/**
+ * Checks whether a_util::memory::makeStackPtr works correctly
+ */
+TEST(memory_test, makeStackPtrWorks)
+{
+    using a_util::memory::StackPtr;
+    { // move construction
+        StackPtr<TestClassNonCopyable> stack_ptr(
+            a_util::memory::makeStackPtr<TestClassNonCopyable>(42, "Hello World"));
+        EXPECT_EQ(stack_ptr->getInt(), 42);
+        EXPECT_EQ(stack_ptr->getString(), "Hello World");
+    }
+
+    { // move assignment
+        StackPtr<TestClassNonCopyable> stack_ptr =
+            a_util::memory::makeStackPtr<TestClassNonCopyable>(42, "Hello World");
+        EXPECT_EQ(stack_ptr->getInt(), 42);
+        EXPECT_EQ(stack_ptr->getString(), "Hello World");
+    }
 }

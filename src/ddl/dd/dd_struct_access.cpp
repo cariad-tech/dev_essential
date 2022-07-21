@@ -362,6 +362,11 @@ size_t StructTypeAccess::getStaticUnalignedStructSize() const
     }
 }
 
+bool StructTypeAccess::isDynamic() const
+{
+    return *this ? _type_info->isDynamic() : false;
+}
+
 const dd::datamodel::StructType& StructTypeAccess::getStructType() const
 {
     return *_struct_type;

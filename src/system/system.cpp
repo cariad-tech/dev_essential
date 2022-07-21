@@ -18,14 +18,18 @@
 #include <a_util/result/result_info.h>
 #include <a_util/system.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 
+#ifndef __MINGW32__
 #define NOMINMAX
+#endif // __MINGW32__
+
 #include <Windows.h> // Sleep, GetUserName, timeBeginPeriod, timeEndPeriod, GetLastError, FormatMessage
 // must be after Windows.h
 #include <Lmcons.h> // UNLEN
 #else
 #if defined(__QNX__) && !defined(_QNX_SOURCE)
+
 #define _QNX_SOURCE
 #endif
 
@@ -50,8 +54,8 @@ std::string& currentUserName()
 
 std::string getCurrentUserName()
 {
-#ifdef WIN32
-#ifdef _MSC_VER
+#ifdef _WIN32
+#if defined(_MSC_VER) || defined(__MINGW32__)
     char array[UNLEN];
 #else
     char array[256];
@@ -76,19 +80,19 @@ std::string getCurrentUserName()
         return currentUserName();
     }
     return std::string();
-#else  // WIN32
+#else  // _WIN32
     passwd* passwd = getpwuid(getuid());
     if (passwd) {
         return passwd->pw_name;
     }
     return std::string();
-#endif // WIN32
+#endif // _WIN32
 }
 
 std::string getHostname()
 {
-#ifdef WIN32
-#ifdef _MSC_VER
+#ifdef _WIN32
+#if defined(_MSC_VER) || defined(__MINGW32__)
     char array[MAX_COMPUTERNAME_LENGTH + 1];
 #else
     char array[256];
@@ -109,12 +113,12 @@ std::string getHostname()
     }
 
     return array;
-#endif
+#endif // _WIN32
 }
 
 a_util::filesystem::Path getExecutablePath()
 {
-#if (defined(_MSC_VER))
+#if defined(_MSC_VER) || (defined(_WIN32) && defined(__MINGW32__))
     // Get path of current running exec
     char curPath[MAX_PATH]{};
     GetModuleFileName(NULL, curPath, sizeof(curPath));
@@ -129,7 +133,7 @@ a_util::filesystem::Path getExecutablePath()
 
 int getLastSystemError()
 {
-#ifdef WIN32
+#ifdef _WIN32
     return static_cast<int>(::GetLastError());
 #else
     return errno;
@@ -138,16 +142,16 @@ int getLastSystemError()
 
 void resetLastSystemError()
 {
-#ifdef WIN32
+#ifdef _WIN32
     ::SetLastError(static_cast<DWORD>(a_util::result::SUCCESS.getCode()));
 #else
     errno = a_util::result::SUCCESS.getCode();
-#endif
+#endif // _WIN32
 }
 
 std::string formatSystemError(int system_error_code)
 {
-#ifdef WIN32
+#ifdef _WIN32
     void* dest_buffer = nullptr;
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
                       FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -169,7 +173,7 @@ std::string formatSystemError(int system_error_code)
     return error_desc;
 #else
     return std::string(strerror(system_error_code));
-#endif
+#endif // _WIN32
 }
 
 void sleepMilliseconds(std::uint32_t ms)
@@ -179,7 +183,7 @@ void sleepMilliseconds(std::uint32_t ms)
 
 void sleepMicroseconds(std::uint64_t us)
 {
-#ifdef WIN32
+#ifdef _WIN32
     ::Sleep(DWORD((us + 999) / 1000));
 #else
     struct timespec time_out, remains;
@@ -189,12 +193,12 @@ void sleepMicroseconds(std::uint64_t us)
     while (EINTR == clock_nanosleep(CLOCK_MONOTONIC, 0, &time_out, &remains)) {
         time_out = remains;
     }
-#endif
+#endif // _WIN32
 }
 
 timestamp_t getCurrentMilliseconds()
 {
-#ifdef WIN32
+#ifdef _WIN32
     return ((timestamp_t)::GetTickCount());
 #else
     struct timespec time;
@@ -207,14 +211,14 @@ timestamp_t getCurrentMilliseconds()
         return 0;
     }
 
-#endif
+#endif // _WIN32
 }
 
 timestamp_t getCurrentMicroseconds()
 {
     static bool initialized = false;
 
-#ifdef WIN32
+#ifdef _WIN32
     static LARGE_INTEGER frequency;
     static LARGE_INTEGER ref_time;
 
@@ -239,7 +243,7 @@ timestamp_t getCurrentMicroseconds()
 
     return (timestamp_t)(((count.QuadPart - ref_time.QuadPart) * 1000) / frequency.QuadPart);
 
-#else // WIN32
+#else // _WIN32
 
     static timestamp_t ref_time;
     const timestamp_t us_per_second = 1000000l;
@@ -265,19 +269,19 @@ timestamp_t getCurrentMicroseconds()
 
     return now - ref_time;
 
-#endif // WIN32
+#endif // _WIN32
 }
 
 HighResSchedulingSupport::HighResSchedulingSupport()
 {
-#ifdef WIN32
+#ifdef _WIN32
     _handle = ::timeBeginPeriod(1);
 #endif
 }
 
 HighResSchedulingSupport::~HighResSchedulingSupport()
 {
-#ifdef WIN32
+#ifdef _WIN32
     if (_handle == 0) {
         ::timeEndPeriod(1);
     }
@@ -286,7 +290,7 @@ HighResSchedulingSupport::~HighResSchedulingSupport()
 
 bool HighResSchedulingSupport::isSupported() const
 {
-#ifdef WIN32
+#ifdef _WIN32
     return _handle == 0;
 #else
     return true;

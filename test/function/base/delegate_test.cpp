@@ -1,6 +1,6 @@
 /**
  * @file
- * static_assert fallback implementation test
+ * delegate implementation test
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *

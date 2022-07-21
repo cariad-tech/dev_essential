@@ -22,7 +22,11 @@ get_target_property(LIBJSON_RPC_CPP_STUBGENERATOR_INCLUDE_DIRECTORIES libjson-rp
                     INCLUDE_DIRECTORIES)
 target_include_directories(jsonrpcstub
                            PRIVATE ${LIBJSON_RPC_CPP_STUBGENERATOR_INCLUDE_DIRECTORIES})
-target_link_libraries(jsonrpcstub PRIVATE dev_essential::strings $<$<PLATFORM_ID:Linux>:pthread>)
+target_link_libraries(jsonrpcstub PRIVATE dev_essential::strings)
+if(NOT MSVC)
+    find_package(Threads REQUIRED)
+    target_link_libraries(jsonrpcstub PRIVATE Threads::Threads)
+endif(NOT MSVC)
 set_target_properties(jsonrpcstub PROPERTIES FOLDER rpc/jsonrpcstub)
 
 install(TARGETS jsonrpcstub

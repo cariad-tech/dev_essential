@@ -1,6 +1,6 @@
 /**
  * @file
- * Implementation of the ADTF default media description.
+ * Implementation of the serialization via ddl.
  * Copyright @ 2021 VW Group. All rights reserved.
  *
  *     This Source Code Form is subject to the terms of the Mozilla
@@ -14,15 +14,16 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
+#include <a_util/memory.h>
 #include <a_util/result/error_def.h>
 #include <ddl/serialization/serialization.h>
 
 namespace ddl {
-namespace serialization {
+namespace codec {
 // define all needed error types and values locally
 _MAKE_RESULT(-12, ERR_MEMORY);
 
-a_util::result::Result transformToBuffer(const Decoder& decoder,
+a_util::result::Result transformToBuffer(const codec::Decoder& decoder,
                                          a_util::memory::MemoryBuffer& buffer,
                                          bool zero)
 {
@@ -38,10 +39,10 @@ a_util::result::Result transformToBuffer(const Decoder& decoder,
     if (zero) {
         a_util::memory::set(buffer.getPtr(), buffer.getSize(), 0, buffer.getSize());
     }
-    Codec codec = decoder.makeCodecFor(buffer.getPtr(), buffer.getSize(), target_rep);
+    codec::Codec codec = decoder.makeCodecFor(buffer.getPtr(), buffer.getSize(), target_rep);
     return transform(decoder, codec);
 }
 
-} // namespace serialization
+} // namespace codec
 
 } // namespace ddl

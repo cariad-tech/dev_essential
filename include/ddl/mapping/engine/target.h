@@ -18,8 +18,8 @@ You may add additional accurate notices of copyright ownership.
  *
  */
 
-#ifndef TARGET_HEADER
-#define TARGET_HEADER
+#ifndef DDL_MAPPING_RT_TARGET_HEADER
+#define DDL_MAPPING_RT_TARGET_HEADER
 
 #include <a_util/concurrency.h>
 #include <a_util/result.h>
@@ -30,6 +30,7 @@ You may add additional accurate notices of copyright ownership.
 #include <ddl/mapping/engine/mapping_environment_intf.h>
 #include <ddl/mapping/engine/source.h>
 
+#include <memory>
 #include <vector>
 
 namespace ddl {
@@ -155,7 +156,7 @@ private:
     TriggerCounters _counter_elements;
     Constants _constant_elements;
     uint64_t _counter;
-    a_util::memory::unique_ptr<ddl::StaticCodec> _codec;
+    std::unique_ptr<ddl::codec::StaticCodec> _codec;
     MemoryBuffer _buffer;
     mutable a_util::concurrency::shared_mutex _buffer_mutex;
     IMappingEnvironment& _env;
@@ -194,4 +195,4 @@ typedef std::set<Target*> TargetSet;
 } // namespace rt
 } // namespace mapping
 } // namespace ddl
-#endif // TARGET_HEADER
+#endif // DDL_MAPPING_RT_TARGET_HEADER

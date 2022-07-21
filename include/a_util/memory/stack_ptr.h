@@ -22,5 +22,6 @@ You may add additional accurate notices of copyright ownership.
 #define A_UTIL_UTIL_MEMORY_STACK_PTR_HEADER_INCLUDED
 
 #include <a_util/memory/detail/stack_ptr_decl.h>
+#include <a_util/memory/detail/stack_ptr_impl.h>
 
 #endif // A_UTIL_UTIL_MEMORY_STACK_PTR_HEADER_INCLUDED

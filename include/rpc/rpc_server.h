@@ -26,7 +26,6 @@ You may add additional accurate notices of copyright ownership.
 namespace rpc {
 
 /** @cond INTERNAL_DOCUMENTATION */
-_MAKE_RESULT(0, NoError);
 _MAKE_RESULT(1, AlreadyRegistered);
 _MAKE_RESULT(2, NotFound);
 _MAKE_RESULT(3, StartupFailed);

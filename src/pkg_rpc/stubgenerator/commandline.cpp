@@ -21,6 +21,7 @@
 
 #include <a_util/xml.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 namespace rpc {

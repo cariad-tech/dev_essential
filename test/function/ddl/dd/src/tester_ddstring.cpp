@@ -23,6 +23,8 @@
 
 #include <gtest/gtest.h>
 
+#include <thread>
+
 /**
  * @detail The building up of a DataDefinition object.
  * Read string and build up the object representation
@@ -162,4 +164,34 @@ TEST(TesterDDLString, checkInvalidWithMissingStructAlignmentIsAccepted)
 
     // usually we accept it withaut a set alignment
     ASSERT_NO_THROW(auto my_dd = DDString::fromXMLString(test_desc););
+}
+
+const char* simple_struct_desc = "<struct alignment=\"4\" name=\"tSimple\" version=\"2\">"
+                                 "<element name=\"fValue\" type=\"tFloat32\" arraysize=\"1\">"
+                                 "<deserialized alignment=\"4\"/>"
+                                 "<serialized byteorder=\"LE\" bytepos=\"0\"/>"
+                                 "</element>"
+                                 "</struct>";
+
+/**
+ * @detail Check if implementation of creation is thread-safe and reentrant.
+ */
+TEST(TesterDDLString, checkConcurrentCreationOfSimpleString)
+{
+    using namespace ddl;
+
+    std::vector<std::thread> threads;
+
+    for (size_t current = 0; current < 2000; current++) {
+        threads.push_back(std::thread([&current] { // create a stream type with media description
+            auto millisec_sleep_time = current % 20;
+            std::this_thread::sleep_for(std::chrono::milliseconds(millisec_sleep_time));
+            // usually we accept it withaut a set alignment
+            ASSERT_NO_THROW(auto my_dd = DDString::fromXMLString("tSimple", simple_struct_desc));
+        }));
+    }
+
+    for (auto& oCurrentThread: threads) {
+        oCurrentThread.join();
+    }
 }

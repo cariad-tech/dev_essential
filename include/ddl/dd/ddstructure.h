@@ -119,9 +119,9 @@ public:
      * @param xml_string the xml string to read
      * @param ddl_xml_file_version_to_parse optional DDL language version of the string.
      * @throw ddl::dd::Error if the xml string is not valid against the xsd definition! (depending
-     * on the DDL Version).
+     *                       on the DDL Version).
      * @throw ddl::dd::Error if the validation level of the created DataDefinition is not at least
-     * "good_enough"!
+     *                       "good_enough"!
      * @throw ddl::dd::Error if the given \p name is not part of this description.
      */
     explicit DDStructure(
@@ -141,7 +141,7 @@ public:
      * @param data_type the data type
      * @param array_size the arrysize of the element (by default 1)
      * @remark all default DataTypes are always part of the DataDefinition if needed. See @ref
-     * ddl::PredefinedDataTypes.
+     *         ddl::PredefinedDataTypes.
      * @throw ddl::dd::Error if the given \p element_name already exists.
      */
     DDStructure& addElement(const std::string& element_name,
@@ -161,7 +161,7 @@ public:
      * @param array_size the arrysize of the element (by default 1)
      * @param alignment alignment of the element
      * @remark all default DataTypes are always part of the DataDefinition if needed. See @ref
-     * ddl::PredefinedDataTypes.
+     *         ddl::PredefinedDataTypes.
      * @throw ddl::dd::Error if the given \p element_name already exists.
      */
     DDStructure& addElement(const std::string& element_name,
@@ -182,7 +182,7 @@ public:
      * @param data_type the data type
      * @param array_size the arrysize of the element (by default 1)
      * @remark all default DataTypes are always part of the DataDefinition if needed. See @ref
-     * ddl::PredefinedDataTypes.
+     *         ddl::PredefinedDataTypes.
      * @throw ddl::dd::Error if the given \p element_name already exists.
      */
     DDStructure& addElement(const std::string& element_name,
@@ -204,7 +204,7 @@ public:
      * @param array_size the arrysize of the element (by default 1)
      * @param alignment alignment of the element
      * @remark all default DataTypes are always part of the DataDefinition if needed. See @ref
-     * ddl::PredefinedDataTypes.
+     *         ddl::PredefinedDataTypes.
      * @throw ddl::dd::Error if the given \p element_name already exists.
      */
     DDStructure& addElement(const std::string& element_name,
@@ -225,9 +225,9 @@ public:
      * @param element_name the name of the element
      * @param array_size the arrysize of the element (by default 1)
      * @param special_type_name this typename is used instead of the typename predefined in @ref
-     * DataType
+     *                          DataType
      * @remark all default DataTypes are always part of the DataDefinition if needed. See @ref
-     * ddl::PredefinedDataTypes.
+     *         ddl::PredefinedDataTypes.
      * @throw ddl::dd::Error if the given \p element_name already exists.
      */
     template <typename PREDEF_DATA_TYPE>
@@ -258,10 +258,10 @@ public:
      * @param element_name the name of the element
      * @param array_size the arrysize of the element (by default 1)
      * @param special_type_name this typename is used instead of the typename predefined in @ref
-     * DataType
+     *                          DataType
      * @param alignment alignment of the element
      * @remark all default DataTypes are always part of the DataDefinition if needed. See @ref
-     * ddl::PredefinedDataTypes.
+     *         ddl::PredefinedDataTypes.
      * @throw ddl::dd::Error if the given \p element_name already exists.
      */
     template <typename PREDEF_DATA_TYPE>
@@ -518,6 +518,63 @@ public:
      */
     size_t getAlignment() const;
 
+    /**
+     * @brief Set additional struct information like comment.
+     *        This is important to create additional info in type reflection for
+     *        DDStructureGenerator.
+     *
+     * @param comment The comment of the struct type.
+     */
+    void setStructInfo(const std::string& comment);
+    /**
+     * @brief Set additional element information to the given @p element_name.
+     * @remark The element with the name @p element_name must have been added before!
+     *         The info will only be set if the string of the parameter is not empty!
+     *
+     * @param element_name The element name to set the additional info to
+     * @param description The description
+     * @param comment The comment
+     * @param value The value
+     * @param minimum_value The minimum value
+     * @param maximum_value The maximum value
+     * @param default_value The default value
+     * @param scale The scale
+     * @param offset The offset
+     *
+     * @throws dd::Error if element with @p element_name does not exist.
+     */
+    void setElementInfo(const std::string& element_name,
+                        const std::string& description = {},
+                        const std::string& comment = {},
+                        const std::string& value = {},
+                        const std::string& minimum_value = {},
+                        const std::string& maximum_value = {},
+                        const std::string& default_value = {},
+                        const std::string& scale = {},
+                        const std::string& offset = {});
+    /**
+     * @brief Sets additional element unit information to the given @p element_name.
+     * *      Any other unit information will be overwritten.
+     * @remark The element with the name @p element_name must have been added before!
+     *
+     * @param element_name The element name
+     * @param unit The unit to set
+     *
+     * @throws dd::Error if element with @p element_name does not exist.
+     */
+    void setElementUnit(const std::string& element_name, const DDUnit& unit);
+    /**
+     * @brief Sets additional element base unit information to the given @p element_name.
+     *        Any other unit information will be overwritten.
+     * @remark The element with the name @p element_name must have been added before!
+     *
+     * @param element_name The element name
+     * @param base_unit The baseunit to set
+     *
+     * @throws dd::Error if element with @p element_name does not exist.
+     */
+    void setElementUnit(const std::string& element_name, const dd::BaseUnit& base_unit);
+
 private:
     template <typename T, bool align_with_padding>
     friend class DDStructureGenerator;
@@ -696,7 +753,7 @@ public:
      *
      * @return const dd::DataDefinition&
      * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
-     * missed elements.
+     *                       missed elements.
      */
     const dd::DataDefinition& getDD() const
     {
@@ -709,7 +766,7 @@ public:
      *
      * @return const dd::StructType&
      * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
-     * missed elements.
+     *                       missed elements.
      */
     const dd::StructType& getStructType() const
     {
@@ -721,7 +778,7 @@ public:
      *
      * @return const DDStructure&
      * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
-     * missed elements.
+     *                       missed elements.
      */
     const DDStructure& getStructure() const
     {
@@ -752,11 +809,71 @@ public:
      *
      * @return const DDStructure&
      * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
-     * missed elements.
+     *                       missed elements.
      */
     operator const DDStructure&() const
     {
         return getStructure();
+    }
+
+    /**
+     * @copydoc DDStructure::setStructInfo
+     */
+    void setStructInfo(const std::string& comment)
+    {
+        _structure.setStructInfo(comment);
+    }
+
+    /**
+     * @copydoc DDStructure::setElementInfo
+     */
+    void setElementInfo(const std::string& element_name,
+                        const std::string& description = {},
+                        const std::string& comment = {},
+                        const std::string& value = {},
+                        const std::string& minimum_value = {},
+                        const std::string& maximum_value = {},
+                        const std::string& default_value = {},
+                        const std::string& scale = {},
+                        const std::string& offset = {})
+    {
+        _structure.setElementInfo(element_name,
+                                  description,
+                                  comment,
+                                  value,
+                                  minimum_value,
+                                  maximum_value,
+                                  default_value,
+                                  scale,
+                                  offset);
+    }
+    /**
+     * @brief Sets additional element unit information to the given @p element_name.
+     *        Any other unit information will be overwritten.
+     * @remark The element with the name @p element_name must have been added before!
+     *
+     * @param element_name The element name
+     * @param unit The unit to set
+     *
+     * @throws dd::Error if element with @p element_name does not exist.
+     */
+    void setElementUnit(const std::string& element_name, const DDUnit& unit)
+    {
+        _structure.setElementUnit(element_name, unit);
+    }
+    /**
+     * @brief Sets additional element base unit information to the given @p element_name.
+     * *      Any other unit information will be overwritten.
+     * @remark The element with the name @p element_name must have been added before!
+     *
+     * @param element_name The element name
+     * @param base_unit The baseunit to set
+     *
+     * @throws dd::Error if element with @p element_name does not exist.
+     */
+    void setElementUnit(const std::string& element_name, const dd::BaseUnit& base_unit)
+    {
+        _structure.setElementUnit(element_name, base_unit);
     }
 
 private:

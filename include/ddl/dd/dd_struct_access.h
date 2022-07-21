@@ -378,11 +378,12 @@ public:
      */
     StructTypeAccess(const std::shared_ptr<const datamodel::StructType>& struct_type);
 
-private:
     /**
      * @brief Construct a empty Struct Type Access.
      */
     StructTypeAccess(std::nullptr_t);
+
+private:
     /**
      * @brief Construct a new Struct Type Access object
      *
@@ -444,6 +445,14 @@ public:
     size_t getStaticSerializedBitSize() const;
 
     /**
+     * @brief retrieves information if it contains dynamic elements and so has dynamic size.
+     *
+     * @retval true has dynamic elements
+     * @retval false has no dynamic elements
+     */
+    bool isDynamic() const;
+
+    /**
      * @brief Get the Struct Type it refers to (for data definition information)
      *
      * @return const dd::datamodel::StructType&
@@ -483,10 +492,10 @@ public:
 private:
     std::shared_ptr<const datamodel::StructType> _struct_type;
     OptionalSize _serialized_struct_as_element_offset =
-        {}; // these value are greter 0 if the struct is used within anaother struct and we
+        {}; // these values are greater 0 if the struct is used within another struct and we
             // calculate that element
     OptionalSize _deserialized_struct_as_element_offset =
-        {}; // these value are greter 0 if the struct is used within anaother struct and we
+        {}; // these values are greater 0 if the struct is used within another struct and we
             // calculate that element
     const TypeInfo* _type_info = nullptr;
 };

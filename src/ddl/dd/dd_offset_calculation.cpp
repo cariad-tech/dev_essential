@@ -16,7 +16,7 @@
  */
 
 #include "dd_offset_calculation.h"
-#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+
 #include <ddl/dd/dd_typeinfomodel.h>
 namespace ddl {
 
@@ -157,11 +157,11 @@ CalculatedSerializedPos calculateSerializedPosSize(
 
     // calculate or get the serialized size
     // find out if this element is dynamic
-    if (current.getArraySize().isDynamicArraySize()) {
+    if (current.getArraySize().isDynamicArraySize() || type_info->isDynamic()) {
         result._is_dynamic = true;
     }
 
-    // the serialized size can only be calculated now if this is not a dynamic array
+    // the serialized size can only be calculated now if this is not a dynamic array or type
     if (!result._is_dynamic) {
         // the serialized bitsize can be always calculated
         result._serialized_bit_size =
@@ -257,9 +257,6 @@ CalculatedDeserializedPos calculateDeserializedPosSize(
         result._valid = false;
         return result;
     }
-    // type size can already set now
-    result._deserialized_type_byte_size = type_info->getTypeByteSize();
-    result._deserialized_type_aligned_byte_size = type_info->getTypeAlignedByteSize();
 
     // align the pos
     // use the elements alignment if set!
@@ -272,10 +269,15 @@ CalculatedDeserializedPos calculateDeserializedPosSize(
         alignment_of_the_element = 1;
 
     // calculate or get the serialized size
-    // find out if this element is dynamic
-    if (current.getArraySize().isDynamicArraySize()) {
+    // find out if this element is dynamic, it is if it has a dynamic content or the type itself is
+    // dynamic
+    if (current.getArraySize().isDynamicArraySize() || type_info->isDynamic()) {
         result._is_dynamic = true;
     }
+
+    // type size can already set now also if it is dyn
+    result._deserialized_type_byte_size = type_info->getTypeByteSize();
+    result._deserialized_type_aligned_byte_size = type_info->getTypeAlignedByteSize();
 
     // get the serialized pos
     // the pos can only be valid if this is not after dynamic

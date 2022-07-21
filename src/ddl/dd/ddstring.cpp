@@ -65,6 +65,13 @@ dd::DataDefinition DDString::fromXMLString(const std::string& xml_string,
     return created_dd;
 }
 
+namespace {
+std::string getGoodErrorMessageName(const std::string& name)
+{
+    return name.empty() ? "<empty>" : name;
+}
+} // namespace
+
 dd::DataDefinition DDString::fromXMLString(const std::string& struct_name,
                                            const std::string& xml_string,
                                            const dd::Version& ddl_language_version,
@@ -77,7 +84,8 @@ dd::DataDefinition DDString::fromXMLString(const std::string& struct_name,
     if (!struct_extracted) {
         throw dd::Error("DDString::DDString",
                         {struct_name, "xml_string"},
-                        "The xml_string does not contain the struct_type '" + struct_name + "'!");
+                        "The xml_string does not contain the struct_type '" +
+                            getGoodErrorMessageName(struct_name) + "'!");
     }
     else {
         // We do not extract, this will slow down performance
@@ -95,8 +103,9 @@ std::string DDString::toXMLString(const std::string& struct_name,
 {
     dd::DataDefinition tmp_dd(dd_to_write.getVersion());
     if (!addTypeByName(struct_name, dd_to_write, tmp_dd)) {
-        throw dd::Error(
-            "toXMLString", {struct_name}, "The struct does not exist in given DataDefinition");
+        throw dd::Error("toXMLString",
+                        {getGoodErrorMessageName(struct_name)},
+                        "The struct does not exist in given DataDefinition");
     }
     else {
         return dd::datamodel::toXMLString(*tmp_dd.getModel());

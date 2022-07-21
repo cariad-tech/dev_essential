@@ -28,7 +28,7 @@ namespace strings {
 const std::string white_space = " \t\r\n";
 const std::string empty_string = "";
 
-#ifndef WIN32
+#ifndef _WIN32
 
 /* ++++++++++++++++++++ SBCS ++++++++++++++++++++ */
 #ifndef __TCHAR_DEFINED
@@ -52,7 +52,7 @@ typedef int _TINT;
 
 #include <tchar.h>
 
-#endif // !WIN32
+#endif // !_WIN32
 
 int compare(const char* left, const char* right)
 {
@@ -426,6 +426,14 @@ std::string& replace(std::string& str, const std::string& subject, const std::st
     }
 
     return str;
+}
+
+std::string replace(const std::string& str,
+                    const std::string& subject,
+                    const std::string& replacement)
+{
+    auto retval = str;
+    return replace(retval, subject, replacement);
 }
 
 std::string join(const std::vector<std::string>& strings, const std::string& delimiter)

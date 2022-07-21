@@ -20,7 +20,7 @@
 #include <a_util/strings/strings_format.h>
 #include <a_util/system/system.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #ifndef NOMINMAX
 #define UNDEF_NOMINMAX
@@ -245,4 +245,4 @@ void setEnvVar(const std::string& environment_variable_name,
 } // namespace process
 } // namespace a_util
 
-#endif
+#endif // _WIN32

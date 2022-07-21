@@ -56,12 +56,14 @@ target_link_libraries(ddl PUBLIC concurrency result memory variant xml
                           PRIVATE logging datetime system)
 target_compile_options(ddl PUBLIC $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<COMPILE_LANGUAGE:CXX>>:-frtti>
                                   $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>:/GR>)
+target_compile_definitions(ddl PRIVATE DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS)
 
 install(TARGETS ddl)
 install(FILES ${DD_UTILITIES_INSTALL} DESTINATION ${DD_UTILITIES_DIR})
 install(FILES ${DD_DATAMODEL_INSTALL} DESTINATION ${DD_DATAMODEL_DIR})
 install(FILES ${DD_INSTALL} DESTINATION ${DD_H_DIR})
 install(FILES ${CODEC_INSTALL} DESTINATION ${CODEC_DIR})
+install(FILES ${CODEC_INSTALL_LEGACY} DESTINATION ${CODEC_DIR}/legacy)
 install(FILES ${SERIALIZATION_INSTALL} DESTINATION ${SERIALIZATION_DIR})
 install(FILES ${MAPPING_CONFIGURATION_INSTALL} DESTINATION ${MAPPING_DIR}/configuration)
 install(FILES ${MAPPING_ENGINE_INSTALL} DESTINATION ${MAPPING_DIR}/engine)

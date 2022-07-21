@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<ddl:ddl xmlns:ddl="ddl">
+    <header>
+        <language_version>4.00</language_version>
+        <author>dev_essential team</author>
+        <date_creation>07.04.2010</date_creation>
+        <date_change>06.05.2014</date_change>
+        <description>ADTF Common Description File</description>
+        <ext_declaration key="b" value="b" />
+        <ext_declaration key="c" value="c" />
+        <ext_declaration key="a" value="a" />
+    </header>
+    <units>
+        <baseunit name="c" symbol="c" description="c" />
+        <baseunit name="b" symbol="b" description="b" />
+        <baseunit name="d" symbol="d" description="d" />
+        <baseunit name="a" symbol="a" description="a" />
+        <prefixes name="c" power="1" symbol="c" />
+        <prefixes name="d" power="1" symbol="d" />
+        <prefixes name="b" power="1" symbol="b" />
+        <prefixes name="a" power="1" symbol="a" />
+        <unit name="unit_b">
+            <numerator>2</numerator>
+            <denominator>2</denominator>
+            <offset>2.000000</offset>
+        </unit>
+        <unit name="unit_a">
+            <numerator>1</numerator>
+            <denominator>1</denominator>
+            <offset>1.000000</offset>
+            <refUnit name="a" power="1" prefix="a" />
+            <refUnit name="c" power="1" prefix="c" />
+            <refUnit name="b" power="1" prefix="b" />
+        </unit>
+    </units>
+    <datatypes>
+        <datatype type="tUInt8" size="8" description="predefined ADTF tUInt8 datatype" />
+        <datatype type="tChar" size="8" description="predefined ADTF tChar datatype" />
+        <datatype type="tBool" size="8" description="predefined ADTF tBool datatype" />
+        <datatype type="tUInt16" size="16" description="predefined ADTF tUInt8 datatype" />
+    </datatypes>
+    <enums>
+        <enum name="enum_b" type="tUInt16">
+            <element name="enum_element_bb" value="2" />
+            <element name="enum_element_ba" value="1" />
+            <element name="enum_element_bc" value="1" />
+        </enum>
+        <enum name="enum_a" type="tUInt8">
+            <element name="enum_element_ab" value="2" />
+            <element name="enum_element_ac" value="1" />
+            <element name="enum_element_aa" value="1" />
+        </enum>
+    </enums>
+    <structs>
+        <struct name="struct_b" version="1" alignment="1">
+            <element name="charValue" type="tChar" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+        </struct>
+        <struct name="struct_a" version="1" alignment="1">
+            <element name="boolValue" type="tBool" bytepos="0" byteorder="LE" alignment="1" arraysize="1" />
+        </struct>
+    </structs>
+    <streammetatypes>
+        <streammetatype name="test_a" version="1" parent="adtf/default"/>
+        <streammetatype name="test_c" version="1">
+            <property name="md_enums" type="string"/>
+            <property name="md_struct" type="string"/>
+            <property name="md_definitions" type="string"/>
+        </streammetatype>
+        <streammetatype name="test_b" version="1" parent="adtf/default">
+            <property name="test_prop" type="tInt32"/>
+        </streammetatype>
+    </streammetatypes>
+    <streams>
+        <stream name="stream_video" type="adtf.type.video" description="video stream" />
+        <stream name="stream_stream" type="adtf.type.audio" description="audio stream" />
+    </streams>
+</ddl:ddl>

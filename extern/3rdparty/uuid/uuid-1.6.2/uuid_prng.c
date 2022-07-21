@@ -52,7 +52,7 @@
 #include "uuid_prng.h"
 #include "uuid_md5.h"
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 typedef int pid_t;
 #endif
 

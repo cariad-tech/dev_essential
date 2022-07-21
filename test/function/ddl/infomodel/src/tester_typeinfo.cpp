@@ -80,11 +80,6 @@ static constexpr const char* const strTestDesc =
         </struct>"
     </structs>)";
 
-const tTest sTestData = {{
-    {0x01, {0x02, 0x03, 0x04}, 0x05},
-    {0x06, {0x07, 0x08, 0x09}, 0x0A},
-}};
-
 } // namespace static_struct
 
 /**
@@ -110,7 +105,7 @@ TEST(TesterOODDL, checkTypeInfoSizesFromString)
 }
 
 namespace all_types {
-#ifdef WIN32
+#ifdef _MSC_VER
 #define ALIGNED_ELEM(__align, __def) __declspec(align(__align)) __def;
 #else
 #define ALIGNED_ELEM(__align, __def) __def __attribute__((aligned(__align)));
@@ -147,8 +142,6 @@ static constexpr const char* const strTestDesc =
             <element alignment="8" arraysize="1" byteorder="BE" bitpos="1" bytepos="35" name="fFloat64" type="tFloat64"/>
             <element alignment="1" arraysize="1" byteorder="BE" bitpos="1" bytepos="43" name="nChar" type="tChar"/>
     </struct>)";
-
-const tMain sTestData = {true, 1, 2, 3, 4, 5, 6, 7, 8, (float)3.1415, 2.7182, 'x'};
 
 } // namespace all_types
 
@@ -232,6 +225,25 @@ static constexpr const char* const strTestDescDyn =
         <element alignment="1" arraysize="nInt64" byteorder="BE" bitpos="1" bytepos="43" name="nCharArray" type="tChar"/>
    </struct>)";
 
+static constexpr const char* const strTestDescDynWithDyn =
+    R"(<structs>
+    <struct alignment="8" name="dyn_type" version="2">
+        <element alignment="1" arraysize="1" byteorder="BE" bitpos="1" bytepos="0" name="bBool" type="tBool"/>
+        <element alignment="8" arraysize="1" byteorder="BE" bitpos="1" bytepos="23" name="nUInt64" type="tUInt64"/>
+        <element alignment="4" arraysize="1" byteorder="BE" bitpos="1" bytepos="31" name="fFloat32" type="tFloat32"/>
+        <element alignment="8" arraysize="1" byteorder="BE" bitpos="1" bytepos="35" name="fFloat64" type="tFloat64"/>
+        <element alignment="1" arraysize="nUInt64" byteorder="BE" bitpos="1" bytepos="43" name="nCharArray" type="tChar"/>
+    </struct>
+    <struct alignment="8" name="dyn_type_with_dyn_type" version="2">
+        <element alignment="1" arraysize="1" byteorder="BE" bitpos="1" bytepos="0" name="bBool" type="tBool"/>
+        <element alignment="1" arraysize="1" byteorder="BE" bitpos="1" bytepos="0" name="dyn_type_value" type="dyn_type"/>
+    </struct>
+    <struct alignment="8" name="main" version="2">
+        <element alignment="1" arraysize="1" byteorder="BE" bitpos="1" bytepos="0" name="bBool" type="tBool"/>
+        <element alignment="1" arraysize="1" byteorder="BE" bitpos="1" bytepos="0" name="dyn_type_with_dyn_type_value" type="dyn_type_with_dyn_type"/>
+    </struct>
+    </structs>)";
+
 /**
  * @detail We build a struct_type within the ddl by using DDString.
  * After creating, struct with dynamic content are marked as that.
@@ -239,32 +251,49 @@ static constexpr const char* const strTestDescDyn =
 TEST(TesterOODDL, checkDynamicDetection)
 {
     using namespace ddl;
-    auto dyn_dd = DDString::fromXMLString(strTestDescDyn);
-    bool detect_dynamic = false;
-    for (auto struct_type: dyn_dd.getStructTypes()) {
-        auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
-        if (type_info) {
-            if (type_info->isDynamic()) {
-                detect_dynamic = true;
-                break;
+    {
+        auto dyn_dd = DDString::fromXMLString(strTestDescDyn);
+        size_t detect_dynamic_count = 0;
+        for (auto struct_type: dyn_dd.getStructTypes()) {
+            auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
+            if (type_info) {
+                if (type_info->isDynamic()) {
+                    detect_dynamic_count++;
+                }
             }
         }
+        ASSERT_EQ(detect_dynamic_count, 1);
     }
-    ASSERT_TRUE(detect_dynamic);
 
     // check for false
-    auto not_dyn_dd = DDString::fromXMLString(all_types::strTestDesc);
-    detect_dynamic = false;
-    for (auto struct_type: not_dyn_dd.getStructTypes()) {
-        auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
-        if (type_info) {
-            if (type_info->isDynamic()) {
-                detect_dynamic = true;
-                break;
+    {
+        auto not_dyn_dd = DDString::fromXMLString(all_types::strTestDesc);
+        size_t detect_dynamic_count = 0;
+        for (auto struct_type: not_dyn_dd.getStructTypes()) {
+            auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
+            if (type_info) {
+                if (type_info->isDynamic()) {
+                    detect_dynamic_count++;
+                }
             }
         }
+        ASSERT_EQ(detect_dynamic_count, 0);
     }
-    ASSERT_FALSE(detect_dynamic);
+
+    // check for all types are dynamic also the types using other dynamic types
+    {
+        auto dyn_dd = DDString::fromXMLString(strTestDescDynWithDyn);
+        size_t detect_dynamic_count = 0;
+        for (auto struct_type: dyn_dd.getStructTypes()) {
+            auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
+            if (type_info) {
+                if (type_info->isDynamic()) {
+                    detect_dynamic_count++;
+                }
+            }
+        }
+        ASSERT_EQ(detect_dynamic_count, 3);
+    }
 }
 
 /**
@@ -384,7 +413,7 @@ TEST(TesterOODDL, checkTypeCalculationPerformance)
     struct_types.add(dd::StructType("test_type"));
     auto test_type = struct_types.access("test_type");
     auto& test_elements = test_type->getElements();
-    std::vector<std::chrono::microseconds> measured_durations;
+    std::vector<std::chrono::nanoseconds> measured_durations;
     size_t test_count = 50000;
     for (size_t elem_count = 0; elem_count < test_count; ++elem_count) {
         auto begin_of_measurement = std::chrono::high_resolution_clock::now();
@@ -393,13 +422,13 @@ TEST(TesterOODDL, checkTypeCalculationPerformance)
         auto duration_of_measurement =
             std::chrono::high_resolution_clock::now() - begin_of_measurement;
         measured_durations.push_back(
-            std::chrono::duration_cast<std::chrono::microseconds>(duration_of_measurement));
+            std::chrono::duration_cast<std::chrono::nanoseconds>(duration_of_measurement));
     }
 
     // detect complexity
     // should be O(1) not above !
     // its only a guess: the max duration should not be greater than 3 times of min duration
-    dd::utility::Optional<std::chrono::microseconds> min_duration;
+    dd::utility::Optional<std::chrono::nanoseconds> min_duration;
     dd::utility::Optional<int64_t> average_duration;
     for (auto current_duration: measured_durations) {
         if (min_duration) {
@@ -435,7 +464,7 @@ TEST(TesterOODDL, checkTypeCalculationPerformanceWithStructure)
 {
     using namespace ddl;
     ddl::DDStructure my_structure("test_type");
-    std::vector<std::chrono::microseconds> measured_durations;
+    std::vector<std::chrono::nanoseconds> measured_durations;
     size_t test_count = 10000;
     for (size_t elem_count = 0; elem_count < test_count; ++elem_count) {
         auto begin_of_measurement = std::chrono::high_resolution_clock::now();
@@ -444,13 +473,13 @@ TEST(TesterOODDL, checkTypeCalculationPerformanceWithStructure)
         auto duration_of_measurement =
             std::chrono::high_resolution_clock::now() - begin_of_measurement;
         measured_durations.push_back(
-            std::chrono::duration_cast<std::chrono::microseconds>(duration_of_measurement));
+            std::chrono::duration_cast<std::chrono::nanoseconds>(duration_of_measurement));
     }
 
     // detect complexity
     // should be O(1) not above !
     // its only a guess: the max duration should not be greater than 3 times of min duration
-    dd::utility::Optional<std::chrono::microseconds> min_duration;
+    dd::utility::Optional<std::chrono::nanoseconds> min_duration;
     dd::utility::Optional<int64_t> average_duration;
     for (auto current_duration: measured_durations) {
         if (min_duration) {

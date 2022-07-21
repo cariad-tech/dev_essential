@@ -236,7 +236,7 @@ TEST(datetime_test, TestFunction)
             DateTime date_time(2009, 03, 04, 06, 01, 60, 999);
             std::string test = date_time.format(
                 "%#a %#A %#b %#B %#d %#H %#I %#j %#m %#M %#S %#U %#w %#W %#x %#X %#y %#Y");
-#ifdef WIN32
+#ifdef _WIN32
             ASSERT_EQ(test,
                       "Wed Wednesday Mar March 4 6 6 63 3 2 0 9 3 9 Wednesday, March 04, 2009 "
                       "06:02:00 9 2009");
@@ -245,7 +245,7 @@ TEST(datetime_test, TestFunction)
             ASSERT_EQ(
                 test,
                 "WED WEDNESDAY MAR MARCH 04 06 06 063 03 02 00 09 3 09 03/04/09 06:02:00 09 2009");
-#endif // WIN32
+#endif // _WIN32
         }
 #endif // __STRICT_ANSI__
     }

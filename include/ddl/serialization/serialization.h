@@ -1,6 +1,6 @@
 /**
  * @file
- * Implementation of the ADTF default media description.
+ * Implementation of ddl base serialization.
  *
  * @copyright
  * @verbatim
@@ -27,7 +27,12 @@ You may add additional accurate notices of copyright ownership.
 #include <assert.h>
 
 namespace ddl {
-namespace serialization {
+namespace codec {
+
+/**
+ * @brief Creates an a_util error ERR_AUTIL_UNEXPECTED
+ */
+_MAKE_RESULT(-3, ERR_AUTIL_UNEXPECTED);
 /**
  * Copies all elements from a decoder to a codec
  * @param[in] decoder The source decoder.
@@ -37,22 +42,18 @@ namespace serialization {
 template <typename DECODER, typename ENCODER>
 a_util::result::Result transform(const DECODER& decoder, ENCODER& encoder)
 {
-    size_t element_count = decoder.getElementCount();
-    assert(element_count == encoder.getElementCount());
-    for (size_t element = 0; element < element_count; ++element) {
-        uint64_t buffer = 0;
-        a_util::result::Result result = decoder.getElementValue(element, &buffer);
-        if (a_util::result::isFailed(result)) {
-            return result;
-        }
-
-        result = encoder.setElementValue(element, &buffer);
-        if (a_util::result::isFailed(result)) {
-            return result;
-        }
+    try {
+        forEachLeafElement(decoder.getElements(), [&encoder](const auto& element) {
+            uint64_t value_pointer; // this is the max possible size of a data type at the moment!
+                                    // Usertypes are not allowed to be greater!
+            element.getRawValue(&value_pointer, sizeof(value_pointer));
+            encoder.setElementRawValue(element.getIndex(), &value_pointer, sizeof(value_pointer));
+        });
     }
-
-    return a_util::result::SUCCESS;
+    catch (const std::exception&) {
+        return ERR_AUTIL_UNEXPECTED;
+    }
+    return {};
 }
 
 /**
@@ -63,12 +64,13 @@ a_util::result::Result transform(const DECODER& decoder, ENCODER& encoder)
  * @param[in] zero Whether or not to memzero the buffer before writing the elements to it.
  * @return Standard result.
  */
-a_util::result::Result transformToBuffer(const Decoder& decoder,
+a_util::result::Result transformToBuffer(const codec::Decoder& decoder,
                                          a_util::memory::MemoryBuffer& buffer,
                                          bool zero = false);
 
-} // namespace serialization
-
+} // namespace codec
 } // namespace ddl
 
-#endif
+#include <ddl/serialization/serialization_legacy.h>
+
+#endif // DDL_SERIALIZER_CLASS_HEADER

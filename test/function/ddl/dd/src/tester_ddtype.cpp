@@ -151,7 +151,7 @@ TEST(TesterDDLTypeReflection, createTypeManual)
                                .addElement("enumeration", enum_definition)
                                .addElement<bool>("bool_value");
 
-    CodecFactory decoder_check(test_definition);
+    codec::CodecFactory decoder_check(test_definition);
     EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test))
         << "The created DDStructure does not have the expected size";
@@ -169,6 +169,16 @@ TEST(TesterDDLTypeReflection, createTypeManual)
     EXPECT_EQ(*struct_access.getStructType().getAlignment(), alignof(test));
 
     // std::cout << test_definition.getStructDescription();
+}
+
+_MAKE_RESULT(-19, ERR_NOT_SUPPORTED);
+TEST(TesterDDLTypeReflection, createUnknownType)
+{
+    // user defined types are supported!
+    using namespace ddl;
+    auto test_definition = DDStructure("test").addElement<uint32_t>("value1", 1, "unknown");
+    codec::CodecFactory decoder_check(test_definition);
+    EXPECT_EQ(a_util::result::SUCCESS, decoder_check.isValid());
 }
 
 TEST(TesterDDLTypeReflection, createTypeFromStructDefaultAlignment)
@@ -226,7 +236,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructDefaultAlignment)
                                .addElement("enumeration", &test::enumeration, enum_definition)
                                .addElement("bool_value", &test::bool_value);
 
-    CodecFactory decoder_check(test_definition);
+    codec::CodecFactory decoder_check(test_definition);
     EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test))
         << "The created DDStructure does not have the expected size";
@@ -272,7 +282,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructPack1Alignment)
                                .addElement("enumeration", &test_pack1::enumeration, enum_definition)
                                .addElement("bool_value", &test_pack1::bool_value);
 
-    CodecFactory decoder_check(test_definition);
+    codec::CodecFactory decoder_check(test_definition);
     EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test_pack1))
         << "The created DDStructure does not have the expected size";
@@ -283,7 +293,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructPack1Alignment)
         << "The created DDStructure does not have the expected size";
 
     EXPECT_EQ(*struct_access.getStructType().getAlignment(), alignof(test_pack1));
-    for (auto elem: struct_access) {
+    for (auto& elem: struct_access) {
         EXPECT_EQ(elem.getElement().getAlignment(), 1);
     }
 
@@ -328,7 +338,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructMixedAlignment)
                                .addElement("enumeration", &test_mixed::enumeration, enum_definition)
                                .addElement("bool_value", &test_mixed::bool_value);
 
-    CodecFactory decoder_check(test_definition);
+    codec::CodecFactory decoder_check(test_definition);
     EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test_mixed))
         << "The created DDStructure does not have the expected size";
@@ -485,7 +495,7 @@ TEST(TesterDDLTypeReflection, detectMissingElementsNoPadding)
     ASSERT_ANY_THROW(child1_definition.getStructDescription());
 
     // this will throw because the definition is not valid while calling getStructType()
-    ASSERT_ANY_THROW(ddl::CodecFactory codec(child1_definition));
+    ASSERT_ANY_THROW(ddl::codec::CodecFactory codec_factory(child1_definition));
 
     auto child1_definition_missorderd = DDStructureGenerator<child1, false>("child1");
 
@@ -560,7 +570,7 @@ TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeAddElement)
 }
 
 // we need to disable the "C4324" : structure was padded due to alignment specifier
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4324)
 #else
@@ -572,18 +582,16 @@ TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeAddElement)
 // alignment of pack_alignas_conflict_struct is undefined
 struct pack_alignas_conflict_struct_pack1_aligned4 {
     uint8_t a;
-    uint8_t alignas(4) b;
-    // alignment of member c is packed to 1
-    uint64_t c;
-    uint8_t alignas(2) d;
-    // alignment of member e is packed to 1
-    uint64_t e;
+    alignas(4) uint8_t b;
+    uint64_t c; // alignment of member c is packed to 1 in msvc
+    alignas(2) uint8_t d;
+    uint64_t e; // alignment of member e is packed to 1 in msvc
 };
 #pragma pack(pop)
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(pop)
 #else
-#pragma GCC diagnostic pop
+//#pragma GCC diagnostic pop
 #endif
 
 /**
@@ -615,9 +623,12 @@ TEST(TesterDDLTypeReflection, packAlignasConflictPacked1Aligned4)
     ASSERT_NO_THROW(std::cout << ddl::DDString::toXMLString(aligned_definition.getDD()););
 
     size_t expected_alignment_platform_dependent_4u =
-        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for
+            // b!!)
     size_t expected_alignment_platform_dependent_2u =
-        2u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+        2u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for
+            // b!!)
+    // this is for gcc and clang where the pack has a higher "weight" and alignas is ignored!
     if (aligned_definition.getAlignment() == 1) {
         expected_alignment_platform_dependent_4u = 1u;
         expected_alignment_platform_dependent_2u = 1u;
@@ -721,7 +732,7 @@ TEST(TesterDDLTypeReflection, packAlignasConflictPacked1Aligned4WithPadding)
 }
 
 // we need to disable the "C4324" : structure was padded due to alignment specifier
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4324)
 #else
@@ -733,15 +744,13 @@ TEST(TesterDDLTypeReflection, packAlignasConflictPacked1Aligned4WithPadding)
 // alignment of pack_alignas_conflict_struct is undefined
 struct pack_alignas_conflict_struct_packed2_aligned4 {
     uint8_t a;
-    uint8_t alignas(4) b;
-    // alignment of member c is packed to 1
+    alignas(4) uint8_t b; // alignment of member c is packed to 2 in msvc
     uint64_t c;
-    uint8_t alignas(2) d;
-    // alignment of member e is packed to 1
-    uint64_t e;
+    alignas(2) uint8_t d;
+    uint64_t e; // alignment of member e is packed to 2 in msvc
 };
 #pragma pack(pop)
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(pop)
 #else
 #pragma GCC diagnostic pop
@@ -754,6 +763,38 @@ struct pack_alignas_conflict_struct_packed2_aligned4 {
 TEST(TesterDDLTypeReflection, packAlignasConflictPacked2Aligned4)
 {
     using namespace ddl;
+    pack_alignas_conflict_struct_packed2_aligned4 layout_struct = {1, 2, 3, 4, 5};
+    a_util::maybe_unused(layout_struct);
+
+    size_t size_of_struct = sizeof(layout_struct);
+    size_t aligned_value_struct = alignof(pack_alignas_conflict_struct_packed2_aligned4);
+    size_t aligned_value_a = (uint8_t*)&layout_struct.a - (uint8_t*)&layout_struct;
+    size_t aligned_value_b = (uint8_t*)&layout_struct.b - (uint8_t*)&layout_struct;
+    size_t aligned_value_c = (uint8_t*)&layout_struct.c - (uint8_t*)&layout_struct;
+    size_t aligned_value_d = (uint8_t*)&layout_struct.d - (uint8_t*)&layout_struct;
+    size_t aligned_value_e = (uint8_t*)&layout_struct.e - (uint8_t*)&layout_struct;
+
+    std::cout << "size_of_struct " << size_of_struct << std::endl;
+    a_util::maybe_unused(size_of_struct);
+
+    std::cout << "aligned_value_struct " << aligned_value_struct << std::endl;
+    a_util::maybe_unused(aligned_value_struct);
+
+    std::cout << "aligned_value_a " << aligned_value_a << std::endl;
+    a_util::maybe_unused(aligned_value_a);
+
+    std::cout << "aligned_value_b " << aligned_value_b << std::endl;
+    a_util::maybe_unused(aligned_value_b);
+
+    std::cout << "aligned_value_c " << aligned_value_c << std::endl;
+    a_util::maybe_unused(aligned_value_c);
+
+    std::cout << "aligned_value_d " << aligned_value_d << std::endl;
+    a_util::maybe_unused(aligned_value_d);
+
+    std::cout << "aligned_value_e " << aligned_value_e << std::endl;
+    a_util::maybe_unused(aligned_value_e);
+
     // the alignment of the struct is considered and raised to 4
     // (the alignment of a struct is always the maximum alignment of its members)
     auto aligned_definition =
@@ -779,14 +820,14 @@ TEST(TesterDDLTypeReflection, packAlignasConflictPacked2Aligned4)
         aligned_definition.getDD().getStructTypeAccess(aligned_definition.getStructName());
 
     size_t expected_alignment_platform_dependent_4u =
-        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
-    size_t expected_alignment_platform_dependent_4u_for_b =
-        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for
+            // b!!)
+
+    // this is for gcc and clang where the pack has a higher "weight" and alignas is ignored!
     if (aligned_definition.getAlignment() == 2) {
         expected_alignment_platform_dependent_4u = 2u;
-        expected_alignment_platform_dependent_4u_for_b = 1u;
-        // in linux gcc the alignas(4) for b is ignored for the structure so the structure alignment
-        // is 2, the padding is different
+        // in linux gcc the alignas(4) for b is ignored for the structure so the structure
+        // alignment is 2, the padding is different
     }
 
     // in MSVC this is pos 0 / align 1u
@@ -798,13 +839,14 @@ TEST(TesterDDLTypeReflection, packAlignasConflictPacked2Aligned4)
         1u);
 
     // in MSVC this is pos 4 / alignment 4
-    // in GCC this is pos 4 / alignment 1 ... should be 2 but we can not detect that, 1 also fits
+    // in GCC this is pos 4 / alignment 1 ... should be 2 but we can not detect that, 1 also
+    // fits
     checkElementDeserializedBytePosAndAlignmentSet(
         aligned_definition,
         "b",
         detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
             &pack_alignas_conflict_struct_packed2_aligned4::b),
-        expected_alignment_platform_dependent_4u_for_b);
+        expected_alignment_platform_dependent_4u);
 
     // in MSVC and GCC this is pos 6 / alignment 2
     checkElementDeserializedBytePosAndAlignmentSet(
@@ -880,15 +922,16 @@ TEST(TesterDDLTypeReflection, packAlignasConflictPacked2Aligned4WithPadding)
             &pack_alignas_conflict_struct_packed2_aligned4::c),
         2u);
 
-    // in MSVC this is pos 16 / alignment 4 we should use a padding element here, but it fits also
-    // with alignment
-    // in GCC this is pos 16 / alignment 1 because of padding
+    // in MSVC this is pos 16 / alignment 4 we should use a padding element here, but it fits
+    // also with alignment in GCC this is pos 16 / alignment 1 because of padding
     size_t expected_alignment_platform_dependent =
-        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for b!!)
+        4u; // in windows the alignof(T) is 4 (raised to 4 because of the member alignas(4) for
+            // b!!)
+    // this is for gcc and clang where the pack has a higher "weight" and alignas is ignored!
     if (aligned_definition.getAlignment() == 2) {
         expected_alignment_platform_dependent = 1u;
-        // in linux gcc the alignas(4) for b is ignored for the structure so padding is added!! and
-        // we expect 1u after padding
+        // in linux gcc the alignas(4) for b is ignored for the structure so padding is added!!
+        // and we expect 1u after padding
     }
     checkElementDeserializedBytePosAndAlignmentSet(
         aligned_definition,
@@ -896,4 +939,160 @@ TEST(TesterDDLTypeReflection, packAlignasConflictPacked2Aligned4WithPadding)
         detail::memberPointerToOffset<pack_alignas_conflict_struct_packed2_aligned4>(
             &pack_alignas_conflict_struct_packed2_aligned4::e),
         expected_alignment_platform_dependent);
+}
+
+enum class EnumForValue : uint8_t { one = 1, two = 2, three = 3 };
+
+struct SubStructWithInfo {
+    EnumForValue value_1;
+    uint64_t value_2;
+};
+
+struct StructWithInfos {
+    SubStructWithInfo sub_struct;
+    uint64_t value;
+};
+
+static constexpr const char* const expected_dd_generator_with_info = R"(<?xml version="1.0"?>
+<ddl:ddl xmlns:ddl="ddl">
+    <header>
+        <language_version>4.01</language_version>
+        <author></author>
+        <date_creation></date_creation>
+        <date_change></date_change>
+        <description></description>
+    </header>
+    <units>
+        <baseunit name="Ampere" symbol="A" description="Fundamental unit for electric current" />
+        <baseunit name="Metre" symbol="m" description="Fundamental unit for length" />
+        <baseunit name="Mole" symbol="mol" description="Fundamental unit for amount of substance" />
+        <prefixes name="kilo" power="3" symbol="k" />
+        <prefixes name="hecto" power="2" symbol="h" />
+        <unit name="unit_to_set">
+            <numerator>1</numerator>
+            <denominator>2</denominator>
+            <offset>3</offset>
+            <refUnit name="Metre" power="1" prefix="kilo" />
+            <refUnit name="Mole" power="32" prefix="hecto" />
+        </unit>
+    </units>
+    <datatypes>
+        <datatype name="tUInt64" size="64" description="Predefined DataType for tUInt64" arraysize="1" min="0" max="18446744073709551615" />
+        <datatype name="tUInt8" size="8" description="Predefined DataType for tUInt8" arraysize="1" min="0" max="255" />
+    </datatypes>
+    <enums>
+        <enum name="EnumForValue" type="tUInt8">
+            <element name="one" value="1" />
+            <element name="two" value="2" />
+            <element name="three" value="3" />
+        </enum>
+    </enums>
+    <structs>
+        <struct name="StructWithInfos" version="1" alignment="8" ddlversion="4.01">
+            <element name="sub_struct" type="SubStructWithInfo" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="value" type="tUInt64" description="test_description" unit="unit_to_set" comment="test_comment" arraysize="1" min="-12" max="42" default="3" scale="0.5" offset="10">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="SubStructWithInfo" version="1" alignment="8" comment="this is another comment" ddlversion="4.01">
+            <element name="value_1" type="EnumForValue" description="test_description" unit="Ampere" comment="test_comment" arraysize="1" value="two" min="-12" max="42" default="3" scale="0.5" offset="10">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="value_2" type="tUInt64" description="test_description" unit="unit_to_set" comment="test_comment" arraysize="1" min="-12" max="42" default="3" scale="0.5" offset="10">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+    </structs>
+    <streammetatypes />
+    <streams />
+</ddl:ddl>
+)";
+
+/**
+ * @detail Check the resulting DataDefinition by setting additional info on struct and elements.
+ */
+TEST(TesterDDLTypeReflection, addAdditionalInfo)
+{
+    using namespace ddl;
+
+    DDEnumGenerator<EnumForValue> enum_for_value("EnumForValue");
+    enum_for_value.addElement("one", EnumForValue::one);
+    enum_for_value.addElement("two", EnumForValue::two);
+    enum_for_value.addElement("three", EnumForValue::three);
+
+    DDStructureGenerator<SubStructWithInfo> my_sub_struct("SubStructWithInfo");
+    my_sub_struct.setStructInfo("this is a comment");
+
+    my_sub_struct.addElement("value_1", &SubStructWithInfo::value_1, enum_for_value);
+    my_sub_struct.setElementInfo(
+        "value_1", "test_description", "test_comment", "two", "-12", "42", "3", "0.5", "10");
+    my_sub_struct.setElementUnit("value_1", BaseUnit<unit::Ampere>());
+
+    my_sub_struct.addElement("value_2", &SubStructWithInfo::value_2);
+    my_sub_struct.setElementInfo(
+        "value_2", "test_description", "test_comment", {}, "-12", "42", "3", "0.5", "10");
+
+    DDUnit unit("unit_to_set",
+                "1",
+                "2",
+                "3",
+                {DDRefUnit(BaseUnit<unit::Metre>(), 1, UnitPrefix<unit_prefix::kilo>()),
+                 DDRefUnit(BaseUnit<unit::Mole>(), 32, UnitPrefix<unit_prefix::hecto>())});
+    my_sub_struct.setElementUnit("value_2", unit);
+
+    DDStructureGenerator<StructWithInfos> my_struct("StructWithInfos");
+    my_sub_struct.setStructInfo("this is another comment");
+    my_struct.addElement("sub_struct", &StructWithInfos::sub_struct, my_sub_struct);
+
+    my_struct.addElement("value", &StructWithInfos::value);
+    my_struct.setElementInfo(
+        "value", "test_description", "test_comment", {}, "-12", "42", "3", "0.5", "10");
+
+    my_struct.setElementUnit("value", unit);
+
+    auto result = my_struct.getStructDescription();
+
+    dd::DataDefinition expected_dd = DDString::fromXMLString(expected_dd_generator_with_info);
+    ASSERT_EQ(a_util::result::SUCCESS, DDCompare::isEqual(expected_dd, my_struct.getDD()));
+}
+
+/**
+ * @detail Check if setting additional infos to non existing elements and uninitialized struct
+ * throws.
+ */
+TEST(TesterDDLTypeReflection, addAdditionalInfoNegative)
+{
+    using namespace ddl;
+    DDUnit unit("unit_to_set",
+                "1",
+                "2",
+                "3",
+                {DDRefUnit(BaseUnit<unit::Metre>(), 1, UnitPrefix<unit_prefix::kilo>()),
+                 DDRefUnit(BaseUnit<unit::Mole>(), 32, UnitPrefix<unit_prefix::hecto>())});
+
+    DDStructureGenerator<StructWithInfos> my_sub_struct("test");
+    my_sub_struct.addElement("value_exists", &StructWithInfos::value);
+
+    ASSERT_THROW(my_sub_struct.setElementInfo("value_not_exists",
+                                              "test_description",
+                                              "test_comment",
+                                              "123",
+                                              "-12",
+                                              "42",
+                                              "3",
+                                              "0.5",
+                                              "10"),
+                 dd::Error);
+    ASSERT_THROW(my_sub_struct.setElementUnit("value_not_exists", BaseUnit<unit::Ampere>()),
+                 dd::Error);
+    ASSERT_THROW(my_sub_struct.setElementUnit("value_not_exists", unit), dd::Error);
+
+    // try to set value if the type is not an enum type
+    ASSERT_THROW(my_sub_struct.setElementInfo("value_exists", {}, {}, "123"), dd::Error);
 }

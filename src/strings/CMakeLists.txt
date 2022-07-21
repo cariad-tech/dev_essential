@@ -40,7 +40,7 @@ if(MSVC)
     set_source_files_properties(unicode.cpp PROPERTIES COMPILE_DEFINITIONS
                                 ${_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING})
 endif()
-target_include_directories(strings
+target_include_directories(strings SYSTEM
                            PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extern>) # 3rdparty/
 target_link_libraries(strings PUBLIC base)
 set_target_properties(strings PROPERTIES FOLDER a_util

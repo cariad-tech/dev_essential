@@ -24,6 +24,11 @@ add_library(concurrency STATIC
             shared_mutex.cpp
             )
 target_link_libraries(concurrency PUBLIC base)
+if(NOT MSVC)
+    find_package(Threads REQUIRED)
+    target_link_libraries(concurrency PRIVATE $<BUILD_INTERFACE:Threads::Threads>)
+endif(NOT MSVC)
+
 set_target_properties(concurrency PROPERTIES FOLDER a_util
                                              OUTPUT_NAME a_util_concurrency)
 

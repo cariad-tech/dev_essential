@@ -12,10 +12,16 @@
 
 find_package(dev_essential COMPONENTS xml filesystem REQUIRED)
 
-add_executable(xml_tests src/xml_test.cpp)
+add_executable(xml_tests src/xml_test.cpp
+                         src/xml_test_sort.cpp)
 
 # Link test executable against gtest & gtest_main (also gets their include paths)
-target_link_libraries(xml_tests PRIVATE GTest::gtest_main dev_essential::xml)
+target_link_libraries(xml_tests PRIVATE GTest::gtest_main
+                                        dev_essential::xml
+                                        dev_essential::filesystem)
+
+target_compile_definitions(xml_tests PRIVATE "TEST_FILES_DIR=\"${CMAKE_CURRENT_LIST_DIR}/files\"")
+target_compile_definitions(xml_tests PRIVATE "TEST_FILES_WRITE_DIR=\"${CMAKE_CURRENT_BINARY_DIR}/\"")
 
 add_test(NAME xml_tests COMMAND ${CMAKE_CURRENT_BINARY_DIR}/xml_tests WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 set_target_properties(xml_tests PROPERTIES FOLDER test/function/a_util/xml)

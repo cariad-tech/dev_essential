@@ -17,7 +17,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = dev_essential
-PROJECT_NUMBER         = v1.1.4
+PROJECT_NUMBER         = v1.2.0
 PROJECT_BRIEF          = "Documentation for essential C++ libraries and interfaces"
 OUTPUT_DIRECTORY       =
 STRIP_FROM_PATH        = include/
@@ -48,7 +48,8 @@ WARN_AS_ERROR          = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = include doc/extern README.md a_util.md rpc.md ddl.md ddl_capi.md
+INPUT                  = include doc/extern README.md a_util.md rpc.md ddl.md ddl_capi.md \
+                         include/a_util/base/detail/error.inc
 FILE_PATTERNS          = *.h *.md *.dox
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = *_impl.h
@@ -103,6 +104,7 @@ GENERATE_LATEX         = NO
 #---------------------------------------------------------------------------
 # Configuration options related to the preprocessor
 #---------------------------------------------------------------------------
+MACRO_EXPANSION        = YES
 
 #---------------------------------------------------------------------------
 # Configuration options related to external references

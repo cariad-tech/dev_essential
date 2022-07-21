@@ -22,28 +22,7 @@ set(dev_essential_cmake_enable_integrated_tests 0 CACHE BOOL "" FORCE)
 set(dev_essential_cmake_include_components "." CACHE STRING "List of components to test, separated\
  by whitespace or semicolon (default: '.', meaning all components are tested).")
 
-if(CONAN_COMPILER)
-    message(STATUS "Including Conan build info")
-    if ( EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
-        include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
-    elseif ( EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../conanbuildinfo.cmake)
-        include(${CMAKE_CURRENT_BINARY_DIR}/../conanbuildinfo.cmake)
-    elseif ( EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo_multi.cmake)
-        include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo_multi.cmake)
-    elseif ( EXISTS ${CMAKE_CURRENT_BINARY_DIR}/../conanbuildinfo_multi.cmake)
-        include(${CMAKE_CURRENT_BINARY_DIR}/../conanbuildinfo_multi.cmake)
-    else()
-        message(FATAL_ERROR "Conan build info can't be found.")
-    endif()
-
-    if(CORTEX_WORKSPACE)
-        conan_basic_setup(TARGETS)
-    else()
-        conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
-    endif()
-endif()
-
-find_package(GTest REQUIRED CONFIG)
+find_package(GTest REQUIRED)
 
 ##functional test integration, also includes googletest via redirection
 enable_testing()

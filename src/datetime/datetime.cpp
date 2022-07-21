@@ -22,10 +22,13 @@
 #include <a_util/strings/strings_convert_decl.h>
 #include <a_util/strings/strings_functions.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
+
+#ifndef __MINGW32__
 #define NOMINMAX
+#endif // __MINGW32__
 #include <windows.h>
 
 #else
@@ -74,7 +77,7 @@ static std::string FormatTimeInfo(tm time_info, const std::string& format)
     time_info.tm_mon -= 1;
 
     // paste in additional info, take care of 64 bit compatibility
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     _mktime64(&time_info);
 #else
     mktime(&time_info);
@@ -398,7 +401,7 @@ Date getCurrentLocalDate()
 {
     Date date;
 
-#ifdef WIN32
+#ifdef _WIN32
     SYSTEMTIME system_time;
     ::GetLocalTime(&system_time);
 
@@ -414,7 +417,7 @@ Date getCurrentLocalDate()
     date.setYear(system_time.tm_year + 1900);
     date.setMonth(system_time.tm_mon + 1);
     date.setDay(system_time.tm_mday);
-#endif
+#endif // _WIN32
 
     return date;
 }
@@ -423,7 +426,7 @@ Date getCurrentSystemDate()
 {
     Date date;
 
-#ifdef WIN32
+#ifdef _WIN32
     SYSTEMTIME system_time;
     ::GetSystemTime(&system_time);
 
@@ -439,7 +442,7 @@ Date getCurrentSystemDate()
     date.setYear(system_time.tm_year + 1900);
     date.setMonth(system_time.tm_mon + 1);
     date.setDay(system_time.tm_mday);
-#endif
+#endif // _WIN32
 
     return date;
 }
@@ -586,7 +589,7 @@ Time getCurrentLocalTime()
 {
     Time time;
 
-#ifdef WIN32
+#ifdef _WIN32
     SYSTEMTIME system_time;
     ::GetLocalTime(&system_time);
 
@@ -604,7 +607,7 @@ Time getCurrentLocalTime()
     time.setMinute(system_time.tm_min);
     time.setSecond(system_time.tm_sec);
     time.setMicrosecond(current_time.tv_usec);
-#endif
+#endif // _WIN32
 
     return time;
 }
@@ -613,7 +616,7 @@ Time getCurrentSystemTime()
 {
     Time time;
 
-#ifdef WIN32
+#ifdef _WIN32
     SYSTEMTIME system_time;
     ::GetSystemTime(&system_time);
 
@@ -631,7 +634,7 @@ Time getCurrentSystemTime()
     time.setMinute(system_time.tm_min);
     time.setSecond(system_time.tm_sec);
     time.setMicrosecond(current_time.tv_usec);
-#endif
+#endif // _WIN32
 
     return time;
 }
@@ -771,7 +774,7 @@ DateTime getCurrentLocalDateTime()
 {
     DateTime date_time;
 
-#ifdef WIN32
+#ifdef _WIN32
     SYSTEMTIME system_time;
     ::GetLocalTime(&system_time);
 
@@ -795,7 +798,7 @@ DateTime getCurrentLocalDateTime()
     date_time.setYear(system_time.tm_year + 1900);
     date_time.setMonth(system_time.tm_mon + 1);
     date_time.setDay(system_time.tm_mday);
-#endif
+#endif // _WIN32
 
     return date_time;
 }
@@ -804,7 +807,7 @@ DateTime getCurrentSystemDateTime()
 {
     DateTime date_time;
 
-#ifdef WIN32
+#ifdef _WIN32
     SYSTEMTIME system_time;
     ::GetSystemTime(&system_time);
 
@@ -828,7 +831,7 @@ DateTime getCurrentSystemDateTime()
     date_time.setYear(system_time.tm_year + 1900);
     date_time.setMonth(system_time.tm_mon + 1);
     date_time.setDay(system_time.tm_mday);
-#endif
+#endif // _WIN32
 
     return date_time;
 }

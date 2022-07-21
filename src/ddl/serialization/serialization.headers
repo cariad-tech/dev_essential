@@ -15,6 +15,7 @@ set(SERIALIZATION_DIR ${dev_essential_SOURCE_DIR}/include/ddl/serialization)
 set(SERIALIZATION_H
     ${SERIALIZATION_DIR}/pkg_serialization.h
     ${SERIALIZATION_DIR}/serialization.h
+    ${SERIALIZATION_DIR}/serialization_legacy.h
 )
 
 set(SERIALIZATION_INSTALL ${SERIALIZATION_H})

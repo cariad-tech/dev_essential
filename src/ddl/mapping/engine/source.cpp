@@ -15,7 +15,7 @@
  */
 
 #include <a_util/result/error_def.h>
-#include <ddl/codec/access_element.h>
+#include <ddl/codec/legacy/access_element.h>
 #include <ddl/legacy_error_macros.h>
 #include <ddl/mapping/configuration/map_configuration.h>
 #include <ddl/mapping/engine/data_trigger.h>
@@ -30,6 +30,7 @@ namespace rt {
 // define all needed error types and values locally
 _MAKE_RESULT(-4, ERR_POINTER);
 _MAKE_RESULT(-42, ERR_INVALID_TYPE);
+_MAKE_RESULT(-20, ERR_INVALID_ELEMENT);
 } // namespace rt
 } // namespace mapping
 } // namespace ddl
@@ -67,7 +68,8 @@ a_util::result::Result Source::create(const MapSource& oMapSource,
     _type_name = oMapSource.getType();
     _type_description = strTypeDescription;
 
-    _codec_factory.reset(new ddl::CodecFactory(_type_name.c_str(), _type_description.c_str()));
+    _codec_factory =
+        std::make_unique<ddl::codec::CodecFactory>(_type_name.c_str(), _type_description.c_str());
     if (isOk(_codec_factory->isValid())) {
         return _env.registerSource(_name.c_str(), _type_name.c_str(), this, _handle);
     }
@@ -100,15 +102,18 @@ a_util::result::Result Source::addTrigger(const MapConfiguration& oMapConfig, Tr
             }
 
             // Get ID in DataDefinition
-            ddl::CodecFactory oFac(struct_access);
-            ddl::StaticDecoder oDecoder =
+            ddl::codec::CodecFactory oFac(struct_access);
+            ddl::codec::StaticDecoder oDecoder =
                 _codec_factory->makeStaticDecoderFor(NULL, oFac.getStaticBufferSize());
-            size_t nIdx = 0;
-            RETURN_IF_FAILED(
-                ddl::access_element::findIndex(oDecoder, pDataTrigger->getVariable(), nIdx));
 
-            // Get element pointer offset
-            oStruct.element_ptr_offset = (uintptr_t)oDecoder.getElementAddress(nIdx);
+            try {
+                // Get element pointer offset
+                oStruct.element_ptr_offset = reinterpret_cast<uintptr_t>(
+                    oDecoder.getElement(pDataTrigger->getVariable()).getAddress());
+            }
+            catch (const std::exception& ex) {
+                RETURN_ERROR_DESCRIPTION(ERR_INVALID_ELEMENT, ex.what());
+            }
 
             auto data_type_name = elem_access.getElement().getTypeName();
             // Get Type from TypeMap
@@ -194,8 +199,8 @@ a_util::result::Result Source::addAssignment(const MapConfiguration& oMapConfig,
             }
             else if (type_of_type == ddl::dd::struct_type) {
                 // TODO: check if this struct can be a different one than the one in _codec_factory
-                ddl::CodecFactory oFactory(elem_access.getStructType()->getName().c_str(),
-                                           _type_description.c_str());
+                ddl::codec::CodecFactory oFactory(elem_access.getStructType()->getName().c_str(),
+                                                  _type_description.c_str());
 
                 oStruct.buffer_size = oFactory.getStaticBufferSize();
             }
@@ -219,14 +224,18 @@ a_util::result::Result Source::addAssignment(const MapConfiguration& oMapConfig,
                 strPath.append("[0]");
             }
 
-            ddl::CodecFactory oFac(struct_access);
-            ddl::StaticDecoder oDecoder =
+            ddl::codec::CodecFactory oFac(struct_access);
+            ddl::codec::StaticDecoder oDecoder =
                 _codec_factory->makeStaticDecoderFor(NULL, oFac.getStaticBufferSize());
-            size_t nIdx = 0;
-            RETURN_IF_FAILED(ddl::access_element::findIndex(oDecoder, strPath, nIdx));
 
-            // Get element pointer offset
-            oStruct.element_ptr_offset = (uintptr_t)oDecoder.getElementAddress(nIdx);
+            try {
+                // Get element pointer offset
+                oStruct.element_ptr_offset =
+                    reinterpret_cast<uintptr_t>(oDecoder.getElement(strPath).getAddress());
+            }
+            catch (const std::exception& ex) {
+                RETURN_ERROR_DESCRIPTION(ERR_INVALID_TYPE, ex.what());
+            }
         }
 
         Assignments::iterator itAssigns = _assignments.end();

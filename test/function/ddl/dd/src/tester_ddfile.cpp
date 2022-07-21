@@ -96,7 +96,7 @@ TEST(TesterDDFile, readAndWriteDataTypes)
                                {"tFloat64", "64", "predefined ADTF tFloat64 datatype"});
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -187,7 +187,8 @@ TEST(TesterDDFile, readAndWriteEnumTypes)
     EXPECT_EQ(*dd_test_file.getEnumTypes().get("tPixelFormat"), enum_pixelformat);
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_changed_expected_test.description";
+    const std::string test_file_write =
+        TEST_FILES_WRITE_DIR "/adtf_changed_expected_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -249,7 +250,7 @@ TEST(TesterDDFile, readAndWriteStructTypes)
     }
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -339,7 +340,7 @@ TEST(TesterDDFile, readAndWriteStructTypesV4)
     }
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_v40_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_v40_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -406,7 +407,7 @@ TEST(TesterDDFile, readAndWriteStreamMetaTypes)
     EXPECT_TRUE(dd_test_file.isValid());
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_v40_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_v40_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -447,7 +448,8 @@ TEST(TesterDDFile, readAndWriteBaseUnits)
     EXPECT_TRUE(dd_test_file.isValid());
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_changed_expected_test.description";
+    const std::string test_file_write =
+        TEST_FILES_WRITE_DIR "/adtf_changed_expected_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -486,7 +488,7 @@ TEST(TesterDDFile, readAndWriteUnitPrefixes)
     EXPECT_TRUE(dd_test_file.isValid());
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write =
+    const std::string test_file_write =
         TEST_FILES_WRITE_DIR "/adtf_changed_expected_test_unit.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
@@ -528,7 +530,7 @@ TEST(TesterDDFile, readAndWriteUnits)
     EXPECT_TRUE(dd_test_file.isValid());
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write =
+    const std::string test_file_write =
         TEST_FILES_WRITE_DIR "/adtf_changed_expected_test_unit_again.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
@@ -568,7 +570,7 @@ TEST(TesterDDFile, readAndWriteStreams)
     ASSERT_EQ(*dd_test_file.getStreams().get("video_stream"), video_stream);
 
     // write the file with this header to the disk and check if it is written completly!
-    std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_1_0p_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_1_0p_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -594,8 +596,8 @@ TEST(TesterDDFile, testCompatibility)
 
     dd::DataDefinition dd_read;
 
-    std::string read_file = TEST_FILES_DIR "/adtf_1_0p.description";
-    std::string write_file = TEST_FILES_WRITE_DIR "/adtf_1_0p_out.xml";
+    const std::string read_file = TEST_FILES_DIR "/adtf_1_0p.description";
+    const std::string write_file = TEST_FILES_WRITE_DIR "/adtf_1_0p_out.xml";
     // test import
     EXPECT_NO_THROW(dd_read = DDFile::fromXMLFile(read_file);) << "Import of DDL1.0+ failed.";
 
@@ -617,8 +619,8 @@ TEST(TesterDDFile, testCompatibilityForInvalidFiles)
 
     dd::DataDefinition dd_read;
 
-    std::string read_invalid_file_1 = TEST_FILES_DIR "/invalid_but_legacy_test.description";
-    std::string read_invalid_file_2 = TEST_FILES_DIR "/invalid_but_legacy_test_2.description";
+    const std::string read_invalid_file_1 = TEST_FILES_DIR "/invalid_but_legacy_test.description";
+    const std::string read_invalid_file_2 = TEST_FILES_DIR "/invalid_but_legacy_test_2.description";
 
     // test import
     EXPECT_NO_THROW(dd_read = DDFile::fromXMLFile(read_invalid_file_1);)
@@ -633,4 +635,84 @@ TEST(TesterDDFile, testCompatibilityForInvalidFiles)
 
     EXPECT_ANY_THROW(dd_read = DDFile::fromXMLFile(read_invalid_file_2, true);)
         << "Import of DDL 1.02 should fail, because it is strict, but did not!";
+}
+
+/**
+ * Test whether description files of all versions can be written with sorted elements
+ * @details Read a full description file for each version and write it sorted twice, one ascending
+ *          and one descending.
+ */
+TEST(TesterDDFile, writeSorted)
+{
+    const std::string description_v3_sorted_ascending_expected =
+        TEST_FILES_DIR "/sorting/sorted_ascending_v3.description";
+    const std::string description_v3_sorted_descending_expected =
+        TEST_FILES_DIR "/sorting/sorted_descending_v3.description";
+
+    const std::string description_v4_sorted_ascending_expected =
+        TEST_FILES_DIR "/sorting/sorted_ascending_v4.description";
+    const std::string description_v4_sorted_descending_expected =
+        TEST_FILES_DIR "/sorting/sorted_descending_v4.description";
+
+    const std::string description_v3_sorted_ascending =
+        TEST_FILES_WRITE_DIR "/sorted_ascending_v3.description";
+    const std::string description_v3_sorted_descending =
+        TEST_FILES_WRITE_DIR "/sorted_descending_v3.description";
+
+    const std::string description_v4_sorted_ascending =
+        TEST_FILES_WRITE_DIR "/sorted_ascending_v4.description";
+    const std::string description_v4_sorted_descending =
+        TEST_FILES_WRITE_DIR "/sorted_descending_v4.description";
+
+    // sorted writing v3
+    {
+        const std::string description_v3 = TEST_FILES_DIR "/sorting/unsorted_v3.description";
+        ddl::dd::DataDefinition dd_read;
+
+        ASSERT_NO_THROW(dd_read = ddl::DDFile::fromXMLFile(description_v3))
+            << "Import of " << description_v3 << " failed.";
+
+        // write sorted ascending
+        ASSERT_NO_THROW(ddl::DDFile::toXMLFile(
+            dd_read, description_v3_sorted_ascending, a_util::SortingOrder::ascending))
+            << "File " << description_v3_sorted_ascending << " could not be written.";
+
+        // write sorted descending
+        ASSERT_NO_THROW(ddl::DDFile::toXMLFile(
+            dd_read, description_v3_sorted_descending, a_util::SortingOrder::descending))
+            << "File " << description_v3_sorted_descending << " could not be written.";
+    }
+
+    // sorted writing v4
+    {
+        const std::string description_v4 = TEST_FILES_DIR "/sorting/unsorted_v4.description";
+        ddl::dd::DataDefinition dd_read;
+
+        ASSERT_NO_THROW(dd_read = ddl::DDFile::fromXMLFile(description_v4))
+            << "Import of " << description_v4 << " failed.";
+
+        // write sorted ascending
+        ASSERT_NO_THROW(ddl::DDFile::toXMLFile(
+            dd_read, description_v4_sorted_ascending, a_util::SortingOrder::ascending))
+            << "File " << description_v4_sorted_ascending << " could not be written.";
+
+        // write sorted descending
+        ASSERT_NO_THROW(ddl::DDFile::toXMLFile(
+            dd_read, description_v4_sorted_descending, a_util::SortingOrder::descending))
+            << "File " << description_v4_sorted_descending << " could not be written.";
+    }
+
+    using a_util::filesystem::compareFiles;
+
+    // compare written files with expected files
+    EXPECT_EQ(
+        0, compareFiles(description_v3_sorted_ascending, description_v3_sorted_ascending_expected));
+    EXPECT_EQ(
+        0,
+        compareFiles(description_v3_sorted_descending, description_v3_sorted_descending_expected));
+    EXPECT_EQ(
+        0, compareFiles(description_v4_sorted_ascending, description_v4_sorted_ascending_expected));
+    EXPECT_EQ(
+        0,
+        compareFiles(description_v4_sorted_descending, description_v4_sorted_descending_expected));
 }

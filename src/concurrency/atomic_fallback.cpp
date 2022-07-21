@@ -30,7 +30,7 @@ void memoryBarrier()
     ::_ReadWriteBarrier();
 }
 
-#else // gcc
+#else // !_MSC_VER
 
 namespace a_util {
 namespace concurrency {
@@ -39,7 +39,7 @@ void memoryBarrier()
     __sync_synchronize();
 }
 
-#endif //_MSC_VER
+#endif // _MSC_VER
 
 } // ns concurrency
 } // ns a_util

@@ -27,7 +27,7 @@ static const char BACKWARD_SLASH = '\\';
 static const char FORWARD_SLASH = '/';
 
 // native slash definition
-#ifdef WIN32
+#ifdef _WIN32
 static const char NATIVE_SLASH = BACKWARD_SLASH;
 static const char* NATIVE_DOUBLE_SLASHES = "\\\\";
 static const Path::PathSeparator NATIVE_SEPARATOR = Path::PS_BackwardSlash;
@@ -35,11 +35,18 @@ static const Path::PathSeparator NATIVE_SEPARATOR = Path::PS_BackwardSlash;
 static const char NATIVE_SLASH = FORWARD_SLASH;
 static const char* NATIVE_DOUBLE_SLASHES = "//";
 static const Path::PathSeparator NATIVE_SEPARATOR = Path::PS_ForwardSlash;
-#endif
+#endif // _WIN32
 
 // static helper functions
 static bool SlashPredicate(char left, char right);
 static void NormalizePath(std::string& path);
+
+namespace {
+enum class KeepTrailingSlash {
+    no = 0,
+    yes = 1,
+};
+} // namespace
 
 // PathException implementation
 PathException::PathException(const std::string& message) : std::runtime_error(message.c_str())
@@ -57,6 +64,48 @@ public:
 
     Implementation(Path* self_) : self(self_)
     {
+    }
+
+    static Path getRootNode(const Path& complete_path, KeepTrailingSlash keep_trailing_slash)
+    {
+        const auto addTrailingSlash = [](Path root_path) -> Path {
+            // slash must be added to Implementation::path string, because the Path ctor erases it
+            root_path._impl->path += NATIVE_SLASH;
+            return root_path;
+        };
+
+        const std::string& path = complete_path._impl->path;
+        if (!path.empty()) {
+            std::string::size_type pos = path.find(':');
+            if (pos != std::string::npos) {
+                if (keep_trailing_slash == KeepTrailingSlash::yes) {
+                    // slash must be added to the string, because the Path ctor always erases it
+                    return addTrailingSlash(path.substr(0, pos + 2));
+                }
+                else {
+                    return path.substr(0, pos + 1);
+                }
+            }
+
+            pos = path.find(NATIVE_DOUBLE_SLASHES);
+            if (pos == 0) // only at the beginning
+            {
+                std::string::size_type pos_end = path.find(NATIVE_SLASH, 2);
+                if (pos_end != std::string::npos) {
+                    if (keep_trailing_slash == KeepTrailingSlash::yes) {
+                        return addTrailingSlash(path.substr(0, pos_end + 1));
+                    }
+                    else {
+                        return path.substr(0, pos_end);
+                    }
+                }
+            }
+
+            if (path[0] == NATIVE_SLASH) {
+                return Path("/");
+            }
+        }
+        return Path();
     }
 };
 
@@ -181,26 +230,17 @@ Path& Path::append(const Path& path)
 
 Path Path::getRoot() const
 {
-    if (!_impl->path.empty()) {
-        std::string::size_type pos = _impl->path.find(':');
-        if (pos != std::string::npos) {
-            return _impl->path.substr(0, pos + 1);
-        }
+    return getRootName();
+}
 
-        pos = _impl->path.find(NATIVE_DOUBLE_SLASHES);
-        if (pos == 0) // only at the beginning
-        {
-            std::string::size_type pos_end = _impl->path.find(NATIVE_SLASH, 2);
-            if (pos_end != std::string::npos) {
-                return _impl->path.substr(0, pos_end);
-            }
-        }
+Path Path::getRootName() const
+{
+    return Implementation::getRootNode(*this, KeepTrailingSlash::no);
+}
 
-        if (_impl->path[0] == NATIVE_SLASH) {
-            return Path("/");
-        }
-    }
-    return Path();
+Path Path::getRootPath() const
+{
+    return Implementation::getRootNode(*this, KeepTrailingSlash::yes);
 }
 
 Path Path::getParent() const
@@ -502,7 +542,7 @@ Path& Path::makeRelative(Path ref_path)
     ref_path.makeAbsolute();
     ref_path.makeCanonical();
 
-    if (ref_path.getRoot() != getRoot()) {
+    if (ref_path.getRootName() != getRootName()) {
         throw PathException("Paths have different roots");
     }
 
@@ -533,7 +573,7 @@ bool Path::isRelative() const
     if (isEmpty()) {
         throw PathException("Empty path is neither relative nor absolute");
     }
-    return getRoot().isEmpty();
+    return getRootName().isEmpty();
 }
 
 bool Path::isAbsolute() const
@@ -541,7 +581,7 @@ bool Path::isAbsolute() const
     if (isEmpty()) {
         throw PathException("Empty path is neither relative nor absolute");
     }
-    return !getRoot().isEmpty();
+    return !getRootName().isEmpty();
 }
 
 bool Path::isEmpty() const

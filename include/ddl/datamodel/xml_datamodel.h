@@ -21,6 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DATA_MODEL_XML_H_INCLUDED
 #define DD_DATA_MODEL_XML_H_INCLUDED
 
+#include <a_util/base/enums.h>
 #include <ddl/datamodel/datamodel_datadefinition.h>
 
 #include <string>
@@ -43,6 +44,7 @@ namespace datamodel {
 DataDefinition fromXMLString(const std::string& xml_string,
                              const dd::Version& ddl_language_version = {},
                              bool strict = false);
+
 /**
  * @brief creates a XML from the DD datamodel.
  *
@@ -50,6 +52,7 @@ DataDefinition fromXMLString(const std::string& xml_string,
  * @return std::string the xml string
  */
 std::string toXMLString(const DataDefinition& dd);
+
 /**
  * @brief creates a datamodel from a xml file
  *
@@ -60,14 +63,25 @@ std::string toXMLString(const DataDefinition& dd);
  * @throws throws dd::Error if the XML given is not valid. More information on exception.
  */
 DataDefinition fromXMLFile(const std::string& xml_filepath, bool strict = false);
+
 /**
  * @brief creates a XML file from the given DD datamodel.
  *
- * @param dd the Data Defintion the xml file is to create
+ * @param dd           the Data Defintion the xml file is to create
  * @param xml_filepath a valid file path (if relative the current working directory is base)
- * @return std::string the xml string
  */
 void toXMLFile(const DataDefinition& dd, const std::string& xml_filepath);
+
+/**
+ * @brief creates a XML file from the given DD datamodel.
+ *
+ * @param dd           the Data Defintion the xml file is to create
+ * @param xml_filepath a valid file path (if relative the current working directory is base)
+ * @param order        Sort nodes either in ascending or in descending order
+ */
+void toXMLFile(const DataDefinition& dd,
+               const std::string& xml_filepath,
+               a_util::SortingOrder order);
 
 } // namespace datamodel
 } // namespace dd

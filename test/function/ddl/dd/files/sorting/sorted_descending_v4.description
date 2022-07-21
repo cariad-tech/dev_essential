@@ -1,0 +1,289 @@
+<?xml version="1.0"?>
+<ddl:ddl xmlns:ddl="ddl">
+    <header>
+        <language_version>4.00</language_version>
+        <author>dev_essential team</author>
+        <date_creation>20220418</date_creation>
+        <date_change>20220419</date_change>
+        <description>Unsorted description file for testing purposes</description>
+        <ext_declaration key="e" value="c" />
+        <ext_declaration key="d" value="d" />
+        <ext_declaration key="b" value="a" />
+        <ext_declaration key="a" value="b" />
+    </header>
+    <units>
+        <baseunit name="nou" symbol="" description="No SI, but needed for no unit definitions" />
+        <baseunit name="e" symbol="e" description="e" />
+        <baseunit name="d" symbol="d" description="d" />
+        <baseunit name="b" symbol="b" description="b" />
+        <baseunit name="a" symbol="a" description="a" />
+        <baseunit name="Unitless" symbol="" description="No SI, but needed for own unit definitions" />
+        <baseunit name="Second" symbol="s" description="Fundamental unit for time" />
+        <baseunit name="Radiant" symbol="rad" description="Non-SI standard unit for angle" />
+        <baseunit name="Mole" symbol="mol" description="Fundamental unit for amount of substance" />
+        <baseunit name="Metre" symbol="m" description="Fundamental unit for length" />
+        <baseunit name="Kilogram" symbol="kg" description="Fundamental unit for mass" />
+        <baseunit name="Kelvin" symbol="K" description="Fundamental unit for temperature" />
+        <baseunit name="Degree" symbol="deg" description="Non-SI standard unit for angle" />
+        <baseunit name="Candela" symbol="cd" description="Fundamental unit for luminous intensity" />
+        <baseunit name="Ampere" symbol="A" description="Fundamental unit for electric current" />
+        <prefixes name="zetta" power="21" symbol="Z" />
+        <prefixes name="zepto" power="-21" symbol="z" />
+        <prefixes name="yotta" power="24" symbol="Y" />
+        <prefixes name="yocto" power="-24" symbol="y" />
+        <prefixes name="tera" power="12" symbol="T" />
+        <prefixes name="pico" power="-12" symbol="p" />
+        <prefixes name="peta" power="15" symbol="P" />
+        <prefixes name="nano" power="-9" symbol="n" />
+        <prefixes name="mili" power="-3" symbol="m" />
+        <prefixes name="micro" power="-6" symbol="u" />
+        <prefixes name="mega" power="6" symbol="M" />
+        <prefixes name="kilo" power="3" symbol="k" />
+        <prefixes name="hecto" power="2" symbol="h" />
+        <prefixes name="giga" power="9" symbol="G" />
+        <prefixes name="femto" power="-15" symbol="f" />
+        <prefixes name="exa" power="18" symbol="E" />
+        <prefixes name="deci" power="-1" symbol="d" />
+        <prefixes name="deca" power="1" symbol="da" />
+        <prefixes name="centi" power="-2" symbol="c" />
+        <prefixes name="atto" power="-18" symbol="a" />
+        <unit name="g">
+            <numerator>4</numerator>
+            <denominator>4</denominator>
+            <offset>4.000000</offset>
+        </unit>
+        <unit name="f">
+            <numerator>2</numerator>
+            <denominator>2</denominator>
+            <offset>2.000000</offset>
+        </unit>
+        <unit name="H">
+            <numerator>5</numerator>
+            <denominator>5</denominator>
+            <offset>5.000000</offset>
+        </unit>
+        <unit name="F">
+            <numerator>1</numerator>
+            <denominator>1</denominator>
+            <offset>1.000000</offset>
+            <refUnit name="e" power="1" prefix="nano" />
+            <refUnit name="d" power="1" prefix="micro" />
+            <refUnit name="b" power="1" prefix="giga" />
+            <refUnit name="a" power="1" prefix="kilo" />
+        </unit>
+    </units>
+    <datatypes>
+        <datatype name="uint8_t" size="8" description="Predefined DataType for uint8_t" arraysize="1" min="0" max="255" />
+        <datatype name="uint64_t" size="64" description="Predefined DataType for uint64_t" arraysize="1" min="0" max="18446744073709551615" />
+        <datatype name="uint32_t" size="32" description="Predefined DataType for uint32_t" arraysize="1" min="0" max="4294967295" />
+        <datatype name="uint16_t" size="16" description="Predefined DataType for uint16_t" arraysize="1" min="0" max="65535" />
+        <datatype name="tUInt8" size="8" description="Predefined DataType for tUInt8" arraysize="1" min="0" max="255" />
+        <datatype name="tUInt64" size="64" description="Predefined DataType for tUInt64" arraysize="1" min="0" max="18446744073709551615" />
+        <datatype name="tUInt32" size="32" description="Predefined DataType for tUInt32" arraysize="1" min="0" max="4294967295" />
+        <datatype name="tUInt16" size="16" description="Predefined DataType for tUInt16" arraysize="1" min="0" max="65535" />
+        <datatype name="tInt8" size="8" description="Predefined DataType for tInt8" arraysize="1" min="-128" max="127" />
+        <datatype name="tInt64" size="64" description="Predefined DataType for tInt64" arraysize="1" min="-9223372036854775808" max="9223372036854775807" />
+        <datatype name="tInt32" size="32" description="Predefined DataType for tInt32" arraysize="1" min="-2147483648" max="2147483647" />
+        <datatype name="tInt16" size="16" description="Predefined DataType for tInt16" arraysize="1" min="-32768" max="32767" />
+        <datatype name="tFloat64" size="64" description="Predefined DataType for tFloat64" arraysize="1" />
+        <datatype name="tFloat32" size="32" description="Predefined DataType for tFloat32" arraysize="1" />
+        <datatype name="tChar" size="8" description="Predefined DataType for tChar" arraysize="1" />
+        <datatype name="tBool" size="8" description="Predefined DataType for tBool" arraysize="1" />
+        <datatype name="int8_t" size="8" description="Predefined DataType for int8_t" arraysize="1" min="-128" max="127" />
+        <datatype name="int64_t" size="64" description="Predefined DataType for int64_t" arraysize="1" min="-9223372036854775808" max="9223372036854775807" />
+        <datatype name="int32_t" size="32" description="Predefined DataType for int32_t" arraysize="1" min="-2147483648" max="2147483647" />
+        <datatype name="int16_t" size="16" description="Predefined DataType for int16_t" arraysize="1" min="-32768" max="32767" />
+        <datatype name="float" size="32" description="Predefined DataType for float" arraysize="1" />
+        <datatype name="double" size="64" description="Predefined DataType for double" arraysize="1" />
+        <datatype name="char" size="8" description="Predefined DataType for char" arraysize="1" />
+        <datatype name="bool" size="8" description="Predefined DataType for bool" arraysize="1" />
+    </datatypes>
+    <enums>
+        <enum name="tfep_driver_wiperstate" type="tUInt8">
+            <element name="ws_onstandard" value="3" />
+            <element name="ws_onfast" value="4" />
+            <element name="ws_off" value="0" />
+            <element name="ws_interval" value="2" />
+            <element name="ws_auto" value="1" />
+        </enum>
+        <enum name="tfep_driver_lightstate" type="tUInt8">
+            <element name="ls_parking" value="2" />
+            <element name="ls_onlowbeam" value="3" />
+            <element name="ls_onhighbeam" value="4" />
+            <element name="ls_off" value="0" />
+            <element name="ls_auto" value="1" />
+        </enum>
+        <enum name="tfep_driver_gearselection" type="tUInt8">
+            <element name="gs_r" value="2" />
+            <element name="gs_p" value="0" />
+            <element name="gs_n" value="3" />
+            <element name="gs_d" value="1" />
+            <element name="gs_8" value="11" />
+            <element name="gs_7" value="10" />
+            <element name="gs_6" value="9" />
+            <element name="gs_5" value="8" />
+            <element name="gs_4" value="7" />
+            <element name="gs_3" value="6" />
+            <element name="gs_2" value="5" />
+            <element name="gs_1" value="4" />
+        </enum>
+        <enum name="tfep_driver_aalainterventionpoint" type="tUInt8">
+            <element name="aip_late" value="1" />
+            <element name="aip_early" value="0" />
+        </enum>
+    </enums>
+    <structs>
+        <struct name="tWaveFormat" version="1" alignment="1">
+            <element name="nFormatType" type="tInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nChannels" type="tInt32" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nSamplesPerSec" type="tInt32" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nBitsPerSample" type="tInt32" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nNumSamples" type="tInt32" arraysize="1">
+                <serialized bytepos="16" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nSize" type="tInt32" arraysize="1">
+                <serialized bytepos="20" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tMediaTypeInfo" version="1" alignment="1">
+            <element name="ui32MajorType" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="ui32SubType" type="tUInt32" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="ui32Flags" type="tUInt32" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tCanMessageExt2" version="1" alignment="1">
+            <element name="ui32Id" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="ui8Channel" type="tUInt8" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="ui8Length" type="tUInt8" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="pui8Data" type="tUInt8" arraysize="8">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tCanMessage2" version="1" alignment="1">
+            <element name="ui16Id" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="ui8Channel" type="tUInt8" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="ui8Length" type="tUInt8" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="pui8Data" type="tUInt8" arraysize="8">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tBitmapFormat" version="1" alignment="1">
+            <element name="nWidth" type="tInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nHeight" type="tInt32" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nBitsPerPixel" type="tInt16" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nPixelFormat" type="tInt16" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nBytesPerLine" type="tInt32" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nSize" type="tInt32" arraysize="1">
+                <serialized bytepos="16" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="nPaletteSize" type="tInt32" arraysize="1">
+                <serialized bytepos="20" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="adtf.type.video" version="1">
+            <element name="sMediatype" type="tMediaTypeInfo" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="sBitmapFormat" type="tBitmapFormat" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="adtf.type.audio" version="1">
+            <element name="sMediatype" type="tMediaTypeInfo" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="sWaveFormat" type="tWaveFormat" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="adtf.core.media_type" version="1" alignment="1">
+            <element name="mediatype" type="tMediaTypeInfo" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+    </structs>
+    <streammetatypes>
+        <streammetatype name="test_parent_not_yet_defined" version="1" parent="adtf/default" />
+        <streammetatype name="test" version="1" parent="adtf/default">
+            <property name="test_prop" type="tInt32" />
+        </streammetatype>
+        <streammetatype name="adtf/default" version="1">
+            <property name="md_struct" type="string" />
+            <property name="md_definitions" type="string" />
+        </streammetatype>
+    </streammetatypes>
+    <streams>
+        <stream name="video_stream" type="adtf.type.video" description="video stream" />
+        <stream name="extended_can_stream2" type="adtf.core.media_type" description="extended can">
+            <struct type="tCanMessageExt2" bytepos="0" />
+        </stream>
+        <stream name="can_stream2" type="adtf.core.media_type" description="can">
+            <struct type="tCanMessage2" bytepos="0" />
+        </stream>
+        <stream name="audio_stream" type="adtf.type.audio" description="video stream" />
+    </streams>
+</ddl:ddl>

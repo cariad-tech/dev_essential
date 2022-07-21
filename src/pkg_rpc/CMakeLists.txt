@@ -37,12 +37,12 @@ get_target_property(LIBJSON_RPC_CPP_INCLUDE_DIRECTORIES libjson-rpc-cpp INCLUDE_
 # dynamic_cast in jsonrpccpp/server/abstractserver.h
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<COMPILE_LANGUAGE:CXX>>:-frtti>
                                                $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>:/GR>)
-target_include_directories(${PROJECT_NAME}
-                           PUBLIC $<BUILD_INTERFACE:${JSONCPP_INCLUDE_DIRECTORIES}>
-                                  $<BUILD_INTERFACE:${LIBJSON_RPC_CPP_INCLUDE_DIRECTORIES}>)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
+                           $<BUILD_INTERFACE:${JSONCPP_INCLUDE_DIRECTORIES}>
+                           $<BUILD_INTERFACE:${LIBJSON_RPC_CPP_INCLUDE_DIRECTORIES}>)
 target_link_libraries(${PROJECT_NAME} PUBLIC result
                                       PRIVATE regex concurrency
-                                              $<$<CXX_COMPILER_ID:MSVC>:ws2_32.lib>
+                                              $<$<PLATFORM_ID:Windows>:ws2_32>
                                               $<BUILD_INTERFACE:httplib>)
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER rpc/pkg_rpc
                                                  OUTPUT_NAME pkg_rpc)

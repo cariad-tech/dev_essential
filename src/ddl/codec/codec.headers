@@ -14,12 +14,28 @@ set(CODEC_DIR ${dev_essential_SOURCE_DIR}/include/ddl/codec)
 
 set(CODEC_H_PUBLIC
     ${CODEC_DIR}/pkg_codec.h
-    ${CODEC_DIR}/struct_element.h
-    ${CODEC_DIR}/access_element.h
+    ${CODEC_DIR}/data_representation.h
     ${CODEC_DIR}/static_codec.h
     ${CODEC_DIR}/codec.h
     ${CODEC_DIR}/codec_factory.h
+    ${CODEC_DIR}/codec_index.h
     ${CODEC_DIR}/bitserializer.h
+    ${CODEC_DIR}/codec_iterator.h
+    ${CODEC_DIR}/codec_type_info.h
+    ${CODEC_DIR}/leaf_value_access.h
+    ${CODEC_DIR}/value_access.h
+
+    #this is also for legacy. remove in further versions
+    ${CODEC_DIR}/access_element.h
+)
+set(CODEC_H_LEGACY_PUBLIC 
+    ${CODEC_DIR}/legacy/struct_element.h
+    ${CODEC_DIR}/legacy/access_element.h
+    ${CODEC_DIR}/legacy/access_element_legacy.h
+    ${CODEC_DIR}/legacy/static_codec_legacy.h
+    ${CODEC_DIR}/legacy/codec_legacy.h
+    ${CODEC_DIR}/legacy/codec_factory_legacy.h
 )
 
 set(CODEC_INSTALL ${CODEC_H_PUBLIC})
+set(CODEC_INSTALL_LEGACY ${CODEC_H_LEGACY_PUBLIC})

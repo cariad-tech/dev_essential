@@ -1,6 +1,6 @@
 /**
  * @file
- * Implementation of the ADTF default media description.
+ * Implementation of the Codec and Decoder.
  *
  * @copyright
  * @verbatim
@@ -25,7 +25,10 @@ You may add additional accurate notices of copyright ownership.
 #include <ddl/codec/static_codec.h>
 
 namespace ddl {
+namespace codec {
+
 class Codec;
+class StructAccess;
 
 /**
  * Decoder for dynamic structures defined by a DataDefinition definition.
@@ -35,17 +38,17 @@ public:
     /**
      * Default constructor.
      */
-    Decoder() = default;
+    Decoder();
 
     /**
      * Move constructor.
      */
-    Decoder(Decoder&&) = default;
+    Decoder(Decoder&&);
 
     /**
      * Move assignment operator.
      */
-    Decoder& operator=(Decoder&&) = default;
+    Decoder& operator=(Decoder&&);
 
     /**
      * No copy constructor.
@@ -60,74 +63,87 @@ public:
     /**
      * @copydoc StaticDecoder::isValid
      */
-    virtual a_util::result::Result isValid() const;
-
+    a_util::result::Result isValid() const override;
     /**
-     * @copydoc StaticDecoder::getElementCount
+     * Decoder element.
      */
-    virtual size_t getElementCount() const;
-
+    typedef DecoderElement<DecoderElementAccess<const Decoder>> Element;
     /**
-     * @param[in] rep The data representation for which the buffer size should be returned.
+     * Retrieves an element instance based on the codec index of that element.
+     * @param[in] codec_index The codec index.
+     * @return The DecoderElement for the given codec index.
+     * @remark The element is only valid as long as the factory exists.
+     * @throw throws std::runtime_error if not found.
+     */
+    Element getElement(const CodecIndex& codec_index) const;
+    /**
+     * Retrieves an element instance based on the full name of the element.
+     * @param[in] full_element_name The full name of the element in point notation (i.e. \p
+     * "element1.child_element[4].element_value").
+     *
+     * By using an empty string the deserialized decoding information within CodecIndex will
+     * retrieve the buffers first address and whole buffersize. By refering an array without
+     * dedicated array index position the deserialized decoding information within CodecIndex will
+     * be set to the arrays first address and the whole array size. By refering an structured value
+     * (not a leaf value) the deserialized decoding information within CodecIndex will be set to the
+     * structs first address and the whole struct size.
+     *
+     * @return The Codec Index of the DecoderElement.
+     * @remark The element is only valid as long as the factory exists.
+     * @throw throws std::runtime_error if not found.
+     */
+    Element getElement(const std::string& full_element_name) const;
+    /**
+     * Iterator container to iterate all elements of the decoder and get values.
+     * @see @ref forEachLeafElement, @ref forEachElement, @ref ddl::codec::ChildElements, @ref
+     * Decoder::Element
+     */
+    typedef ChildElements<DecoderElementAccess<const Decoder>> Elements;
+    /**
+     * Retrieves the elements of the decoder to get element information and get values.
+     * @return Elements The elements iterator container.
+     * @see @ref forEachLeafElement, @ref forEachElement, @ref Decoder::Element, @ref CodecIndex
+     */
+    const Elements& getElements() const;
+    /**
+     * @brief Gets the buffer size in bytes for the main structure.
+     * @retval size_t of the structure depending on the current representation (@ref
+     * getRepresentation)
+     */
+    size_t getBufferSize() const;
+    /**
+     * @brief Gets the buffer size in bytes for the main structure.
+     * @param[in] representation The data representation for which the buffer size should be
+     * returned.
      * @return The size of the structure in the requested data representation.
      */
-    size_t getBufferSize(DataRepresentation rep = deserialized) const;
-
+    size_t getBufferSize(DataRepresentation representation) const;
     /**
      * Create a new codec with the current dynamic structure layout for a new data buffer.
      * @param[in] data The pointer to the new raw data.
      * @param[in] data_size The size of the new raw data.
-     * @param[in] rep The representation that the data should be encoded in.
+     * @param[in] representation The representation that the data should be encoded in.
      * @return A codec.
      */
-    Codec makeCodecFor(void* data, size_t data_size, DataRepresentation rep) const;
+    Codec makeCodecFor(void* data, size_t data_size, DataRepresentation representation) const;
 
 protected:
     friend class CodecFactory;
     /// For internal use only. @internal
-    Decoder(a_util::memory::shared_ptr<const StructLayout> layout,
+    Decoder(std::shared_ptr<const StructAccess> codec_access,
             const void* data,
             size_t data_size,
-            DataRepresentation rep);
+            DataRepresentation representation);
     /// For internal use only. @internal
-    Decoder(const Decoder& decoder, const void* data, size_t data_size, DataRepresentation rep);
+    Decoder(const Decoder& decoder,
+            const void* data,
+            size_t data_size,
+            DataRepresentation representation);
     /// For internal use only. @internal
-    virtual const StructLayoutElement* getLayoutElement(size_t index) const;
+    friend class FactoryElementAccess<const Decoder>;
 
 private:
-    /// For internal use only. @internal
-    a_util::result::Result calculateDynamicElements();
-    /// For internal use only. @internal
-    a_util::result::Result addDynamicElements(const DynamicStructLayoutElement& dynamic_element,
-                                              Offsets& overall_offsets,
-                                              const std::string& prefix);
-    /// For internal use only. @internal
-    a_util::result::Result addDynamicElement(const DynamicStructLayoutElement& dynamic_element,
-                                             const std::string& array_index,
-                                             Offsets& overall_offsets,
-                                             const std::string& prefix);
-    /// For internal use only. @internal
-    a_util::result::Result addStaticStructElements(
-        const DynamicStructLayoutElement& dynamic_element,
-        const std::string& array_index,
-        Offsets& overall_offsets,
-        const std::string& prefix);
-    /// For internal use only. @internal
-    a_util::result::Result addDynamicStructElements(
-        const DynamicStructLayoutElement& dynamic_element,
-        const std::string& array_index,
-        Offsets& overall_offsets,
-        const std::string& prefix);
-    /// For internal use only. @internal
-    a_util::result::Result addDynamicStructElement(const StructLayoutElement& element);
-    /// For internal use only. @internal
-    void moveToAlignment(size_t& bit_offset, size_t alignment);
-
-protected:
-    /// For internal use only. @internal
-    a_util::memory::shared_ptr<std::vector<StructLayoutElement>> _dynamic_elements;
-    /// For internal use only. @internal
-    Offsets _buffer_sizes;
+    Element _first_element;
 };
 
 /**
@@ -140,60 +156,166 @@ public:
     /**
      * Default constructor.
      */
-    Codec() = default;
-
+    Codec();
     /**
      * Move constructor.
      */
-    Codec(Codec&&) = default;
-
+    Codec(Codec&&);
     /**
      * Move assignment operator.
      */
-    Codec& operator=(Codec&&) = default;
+    Codec& operator=(Codec&&);
+    /**
+     * No copy constructor.
+     */
+    Codec(const Codec&) = delete;
+    /**
+     * No copy assignment operator.
+     */
+    Codec& operator=(const Codec&) = delete;
 
+    using Decoder::getElement;
+    using Decoder::getElementAddress;
+    using Decoder::getElements;
+    /**
+     * Codec element.
+     */
+    typedef CodecElement<CodecElementAccess<Codec>> Element;
+    /**
+     * Retrieves an element instance based on the codec index of that element.
+     * @param[in] codec_index The codec index.
+     * @return The Codec Index of the CodecElement.
+     * @remark The element is only valid as long as the codec exists.
+     * @throw throws std::runtime_error if not found.
+     */
+    Element getElement(const CodecIndex& codec_index);
+    /**
+     * Retrieves an element instance based on the full name of the element.
+     * @param[in] full_element_name The full name of the element in point notation (i.e. \p
+     * "element1.child_element[4].element_value").
+     *
+     * By using an empty string the deserialized decoding information within CodecIndex will
+     * retrieve the buffers first address and whole buffersize. By refering an array without
+     * dedicated array index position the deserialized decoding information within CodecIndex will
+     * be set to the arrays first address and the whole array size. By refering an structured value
+     * (not a leaf value) the deserialized decoding information within CodecIndex will be set to the
+     * structs first address and the whole struct size.
+     *
+     * @return The Codec Index of the CodecElement.
+     * @remark The element is only valid as long as the codec exists.
+     * @throw throws std::runtime_error if not found.
+     */
+    Element getElement(const std::string& full_element_name);
+    /**
+     * Iterator container to iterate all elements of the codec.
+     * @see @ref forEachLeafElement, @ref forEachElement
+     * @see @ref ddl::codec::ChildElements, @ref Codec::Element
+     */
+    typedef ChildElements<CodecElementAccess<Codec>> Elements;
+    /**
+     * Retrieves the elements of the codec to get element information.
+     * @return Elements The elements iterator container.
+     * @see @ref forEachLeafElement, @ref forEachElement, @ref Codec::Element, @ref CodecIndex
+     */
+    Elements& getElements();
+    /**
+     * Sets the current value of the given element from given \p value in type T.
+     * This will cast the given value to the elements data type!
+     * @param[in] codec_index The index of the element.
+     * @param[in] value The value to set.
+     * @tparam T Type of the value to set
+     * @throw throws std::runtime_error if not found.
+     */
+    template <typename T>
+    void setElementValue(const CodecIndex& codec_index, const T& value)
+    {
+        ValueSetterSelect<Codec, T>::setValue(*this, codec_index, value);
+    }
+    /**
+     * Sets the current value of the given element from given \p value in type T.
+     * This will cast the given value to the elements data type!
+     * @param[in] leaf_codec_index The leaf codec index of the element.
+     * @param[in] value The value to set.
+     * @tparam T Type of the value to set
+     * @throws std::runtime_error if there is no valid conversion or the given @p leaf_codec_index
+     * is invalid
+     */
+    template <typename T>
+    void setElementValue(const LeafCodecIndex& leaf_codec_index, const T& value)
+    {
+        LeafValueSetter<T>::setValue(getData(), getDataSize(), leaf_codec_index.getLayout(), value);
+    }
+    /**
+     * Sets the current value of the given element from the given variant.
+     * If this element is a enum type the enum types element name can be used in \p value.
+     *     Otherwise the string value is automatically converted to the elments data type, if
+     * possible.
+     * @param[in] codec_index The index of the element.
+     * @param[in] value The value to set.
+     * @throw throws std::runtime_error if not found.
+     */
+    void setElementVariantValue(const CodecIndex& codec_index,
+                                const a_util::variant::Variant& value);
+    /**
+     * Sets the current value of the given element from the given string.
+     * This will cast the given value to the elements data type!
+     * @param[in] codec_index The index of the element.
+     * @param[in] value The value to set.
+     * @throw throws std::runtime_error if not found.
+     */
+    void setElementStringValue(const CodecIndex& codec_index, const std::string& value);
     /**
      * Sets the current value of the given element by copying its data
      * from the passed-in location.
-     * @param[in] index The index of the element.
+     * @param[in] codec_index The codec index of the element.
      * @param[in] value The location where the data should be copied from.
-     * @retval ERR_INVALID_INDEX Invalid element index.
+     * @param[in] value_size The size in bytes of the location (if 0 - unsafe usage!).
+     * @throw throws std::runtime_error if not found or value_size is lower then elements value
+     * memory to copy.
      */
-    a_util::result::Result setElementValue(size_t index, const void* value);
-
+    void setElementRawValue(const CodecIndex& codec_index, const void* value, size_t value_size);
     /**
-     * Sets the current value of the given element to the given value.
-     * @param[in] index The index of the element.
-     * @param[in] value The value.
-     * @retval ERR_INVALID_INDEX Invalid element index.
+     * @param[in] codec_index The index of the element.
+     * @return A pointer to the element for write access.
      */
-    a_util::result::Result setElementValue(size_t index, const a_util::variant::Variant& value);
-
+    void* getElementAddress(const CodecIndex& codec_index);
     /**
-     * @param[in] index The index of the element.
-     * @return A pointer to the element or NULL in case of an error.
+     * Sets all elements to their default values, constant values defined in the data definition or
+     * zero if \p zero_values is set.
+     * @param[in] zero_values set the value to 0 if no constant or default value set in data
+     * definition.
      */
-    void* getElementAddress(size_t index);
-    using StaticDecoder::getElementAddress;
+    void resetValues(bool zero_values = false);
 
+    using Decoder::getData;
     /**
-     * Sets all elements to their constant values defined in the DataDefinition.
-     * @return Standard result.
+     * @brief Get the current set data
+     * @remark For performance issues this will not check any validity!
+     * @return void* The data pointer
      */
-    a_util::result::Result setConstants();
+    void* getData() noexcept;
 
 protected:
     friend class CodecFactory;
     friend class Decoder;
     /// For internal use only. @internal
-    Codec(a_util::memory::shared_ptr<const StructLayout> layout,
+    Codec(std::shared_ptr<const StructAccess> codec_access,
           void* data,
           size_t data_size,
-          DataRepresentation rep);
+          ddl::DataRepresentation rep);
     /// For internal use only. @internal
-    Codec(const Decoder& decoder, void* data, size_t data_size, DataRepresentation rep);
+    Codec(const Decoder& decoder,
+          void* data,
+          size_t data_size,
+          ddl::DataRepresentation representation);
+
+private:
+    Element _first_element;
 };
 
+} // namespace codec
 } // namespace ddl
 
-#endif
+#include <ddl/codec/legacy/codec_legacy.h>
+
+#endif // DDL_CODEC_CLASS_HEADER

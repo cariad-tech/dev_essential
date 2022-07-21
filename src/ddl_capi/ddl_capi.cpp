@@ -23,6 +23,10 @@
 
 namespace {
 
+_MAKE_RESULT(-10, ERR_INVALID_INDEX);
+_MAKE_RESULT(-20, ERR_NOT_FOUND);
+_MAKE_RESULT(-22, ERR_FAILED);
+
 template <typename Object>
 struct Handle {
     Object* ptr = nullptr;
@@ -30,10 +34,10 @@ struct Handle {
 };
 
 typedef ddl::dd::DataDefinition CAPI_DDL;
-class CAPI_DDL_CODEC : public ddl::Codec {
+class CAPI_DDL_CODEC : public ddl::codec::Codec {
 public:
     virtual ~CAPI_DDL_CODEC() = default;
-    CAPI_DDL_CODEC(ddl::Codec&& other) : ddl::Codec(std::move(other))
+    CAPI_DDL_CODEC(ddl::codec::Codec&& other) : ddl::codec::Codec(std::move(other))
     {
     }
 };
@@ -80,6 +84,12 @@ A_UTIL_DLL_EXPORT const char* ddl_capi_last_error(const DDL_CAPI_Handle_T ddl)
             return result.getErrorCode();                                                          \
         }                                                                                          \
     }
+#define CREATE_ERROR(error_code, error_message, last_error_instance)                               \
+    {                                                                                              \
+        auto result =                                                                              \
+            a_util::result::Result(error_code, error_message, __LINE__, __FILE__, __func__);       \
+        last_error_instance->last_error = a_util::result::toString(result);                        \
+    }
 
 A_UTIL_DLL_EXPORT int32_t ddl_capi_load_from_file(const char* const path,
                                                   DDL_CAPI_Handle_T* const ddl)
@@ -92,7 +102,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_load_from_file(const char* const path,
             *dd = ddl::DDFile::fromXMLFile(path);
         }
         catch (const ddl::dd::Error& error) {
-            _ddl->last_error = error.what();
+            CREATE_ERROR(ERR_FAILED, error.what(), _ddl);
             *ddl = _ddl.release();
             return -1;
         }
@@ -116,7 +126,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_load_from_string(const char* const xml,
         auto dd = std::make_unique<CAPI_DDL>();
 
         if (!xml) {
-            _ddl->last_error = "Invalid xml string";
+            CREATE_ERROR(ERR_FAILED, "Invalid xml string", _ddl);
             *ddl = _ddl.release();
             return -1;
         }
@@ -125,7 +135,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_load_from_string(const char* const xml,
             *dd = ddl::DDString::fromXMLString(xml);
         }
         catch (const ddl::dd::Error& error) {
-            _ddl->last_error = error.what();
+            CREATE_ERROR(ERR_FAILED, error.what(), _ddl);
             *ddl = _ddl.release();
             return -1;
         }
@@ -193,7 +203,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_ddl_tofile(const DDL_CAPI_Handle_T ddl, const
         ddl::DDFile::toXMLFile(*_ddl->ptr, path);
     }
     catch (const ddl::dd::Error& error) {
-        _ddl->last_error = error.what();
+        CREATE_ERROR(ERR_FAILED, error.what(), _ddl);
         return -1;
     }
 
@@ -212,7 +222,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_resolve_type(const DDL_CAPI_Handle_T ddl,
     // check for requested type
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!_ddl->ptr->getStructTypes().contains(type)) {
-        _ddl->last_error = "Struct not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Struct not found", _ddl);
         return -1;
     }
 
@@ -254,7 +264,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_stringarray_free(const DDL_CAPI_Handle_T ddl,
 
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!*memory) {
-        _ddl->last_error = "Invalid array location";
+        CREATE_ERROR(ERR_FAILED, "Invalid array location", _ddl);
         return -1;
     }
 
@@ -280,7 +290,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_struct_data(const DDL_CAPI_Handle_T ddl,
     // check for requested struct
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!_ddl->ptr->getStructTypes().contains(name)) {
-        _ddl->last_error = "Struct not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Struct not found", _ddl);
         return -1;
     }
 
@@ -302,7 +312,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_struct_elements(const DDL_CAPI_Handle_T ddl,
     // check for requested struct
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!_ddl->ptr->getStructTypes().contains(name)) {
-        _ddl->last_error = "Struct not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Struct not found", _ddl);
         return -1;
     }
 
@@ -339,14 +349,14 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_element_data(const DDL_CAPI_Handle_T ddl,
     // check for requested struct
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!_ddl->ptr->getStructTypes().contains(struct_name)) {
-        _ddl->last_error = "Struct not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Struct not found", _ddl);
         return -1;
     }
 
     // get access to requested struct element in data definition
     const ddl::dd::StructTypeAccess typeAccess = _ddl->ptr->getStructTypeAccess(struct_name);
     if (!typeAccess.getStructType().getElements().contains(element_name)) {
-        _ddl->last_error = "Element not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Element not found", _ddl);
         return -1;
     }
 
@@ -386,7 +396,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_type_data(const DDL_CAPI_Handle_T ddl,
     // check for requested type
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!_ddl->ptr->getDataTypes().contains(type_name)) {
-        _ddl->last_error = "Type not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Type not found", _ddl);
         return -1;
     }
 
@@ -419,7 +429,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_enum_data(const DDL_CAPI_Handle_T ddl,
     // check for requested enum
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!_ddl->ptr->getEnumTypes().contains(enum_name)) {
-        _ddl->last_error = "Enum not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Enum not found", _ddl);
         return -1;
     }
 
@@ -484,11 +494,11 @@ ddl_capi_struct_buffer_size(const DDL_CAPI_Handle_T ddl,
     // check for requested struct
     auto const _ddl = static_cast<Handle<CAPI_DDL>*>(ddl);
     if (!_ddl->ptr->getStructTypes().contains(struct_name)) {
-        _ddl->last_error = "Struct not found";
+        CREATE_ERROR(ERR_NOT_FOUND, "Struct not found", _ddl);
         return -1;
     }
 
-    const ddl::CodecFactory codec_factory(_ddl->ptr->getStructTypeAccess(struct_name));
+    const ddl::codec::CodecFactory codec_factory(_ddl->ptr->getStructTypeAccess(struct_name));
     RETURN_ON_ERROR_PUBLIC(codec_factory.isValid(), _ddl);
 
     *data_size = codec_factory.getStaticBufferSize(convert_c_datastate_into_ddl(representation));
@@ -515,7 +525,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_create(const DDL_CAPI_Handle_T ddl,
         return -1;
     }
 
-    const ddl::CodecFactory codec_factory(_ddl->ptr->getStructTypeAccess(struct_name));
+    const ddl::codec::CodecFactory codec_factory(_ddl->ptr->getStructTypeAccess(struct_name));
     RETURN_ON_ERROR_PUBLIC(codec_factory.isValid(), _ddl);
 
     auto const _codec = new Handle<CAPI_DDL_CODEC>();
@@ -546,6 +556,26 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_free(DDL_CAPI_Codec_Handle_T* const cod
     return 0;
 }
 
+namespace {
+size_t getIndexForName(ddl::codec::Codec& codec, const char* const name)
+{
+    auto left_name_to_find = std::string(name);
+    size_t found_index = static_cast<size_t>(-1);
+    size_t index_counter = 0;
+    ddl::codec::forEachLeafElement(
+        codec.getElements(),
+        [&index_counter, &found_index, &left_name_to_find](auto& current_element) {
+            auto current_full_name = current_element.getFullName();
+            if (current_full_name.find(left_name_to_find) == 0 &&
+                found_index == static_cast<size_t>(-1)) {
+                found_index = index_counter;
+            }
+            ++index_counter;
+        });
+    return found_index;
+}
+} // namespace
+
 A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_element_index(const DDL_CAPI_Codec_Handle_T codec,
                                                            const char* const element,
                                                            size_t* const index)
@@ -556,9 +586,17 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_element_index(const DDL_CAPI_Codec_
     }
 
     // get index of requested element
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(ddl::access_element::findIndex(*_codec->ptr, element, *index), _codec);
-
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    size_t found_index = getIndexForName(*codec_instance->ptr, element);
+    if (found_index != static_cast<size_t>(-1)) {
+        *index = found_index;
+    }
+    else {
+        CREATE_ERROR(ERR_NOT_FOUND,
+                     std::string("Element not found '" + std::string(element) + "'").c_str(),
+                     codec_instance);
+        return -2;
+    }
     return 0;
 }
 
@@ -572,8 +610,15 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_set_element_byIndex(const DDL_CAPI_Code
     }
 
     // set value of requested element
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(_codec->ptr->setElementValue(index, data), _codec);
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    try {
+        auto resolved_index = codec_instance->ptr->resolve(index);
+        codec_instance->ptr->setElementRawValue(resolved_index, data, 0);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
+        return -2;
+    }
 
     return 0;
 }
@@ -588,9 +633,15 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_set_element_byName(const DDL_CAPI_Codec
     }
 
     // set value of requested element
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(ddl::access_element::setValue(*_codec->ptr, element, data), _codec);
-
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    try {
+        // unsafe call!!
+        codec_instance->ptr->getElement(element).setRawValue(data, 0);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
+        return -2;
+    }
     return 0;
 }
 
@@ -604,9 +655,17 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_substruct_index(const DDL_CAPI_Code
     }
 
     // get index of requested substruct
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(ddl::access_element::findStructIndex(*_codec->ptr, substruct, *index),
-                           _codec);
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    size_t found_index = getIndexForName(*codec_instance->ptr, substruct);
+    if (found_index != static_cast<size_t>(-1)) {
+        *index = found_index;
+    }
+    else {
+        CREATE_ERROR(ERR_NOT_FOUND,
+                     std::string("Element not found '" + std::string(substruct) + "'").c_str(),
+                     codec_instance);
+        return -2;
+    }
 
     return 0;
 }
@@ -622,16 +681,20 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_set_substruct_byIndex(const DDL_CAPI_Co
     }
 
     // check for valid index
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    void* const address = _codec->ptr->getElementAddress(index);
-    if (!address) {
-        _codec->last_error = "Substruct not found";
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    void* address;
+    try {
+        auto resolved_index = codec_instance->ptr->resolve(index);
+        address = codec_instance->ptr->getElementAddress(resolved_index);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
         return -2;
     }
 
     // set values of requested substruct
     if (!a_util::memory::copy(address, data_size, data, data_size)) {
-        _codec->last_error = "Copy substruct failed";
+        CREATE_ERROR(ERR_FAILED, "Copy substruct failed", codec_instance);
         return -2;
     }
 
@@ -664,9 +727,21 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_array_index(const DDL_CAPI_Codec_Ha
     }
 
     // get index of requested array
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(ddl::access_element::findArrayIndex(*_codec->ptr, array, *index),
-                           _codec);
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    std::string array_name(array);
+    if (array_name.back() != ']') {
+        array_name += "[0]";
+    }
+    size_t found_index = getIndexForName(*codec_instance->ptr, array_name.c_str());
+    if (found_index != static_cast<size_t>(-1)) {
+        *index = found_index;
+    }
+    else {
+        CREATE_ERROR(ERR_NOT_FOUND,
+                     std::string("Element not found '" + std::string(array) + "'").c_str(),
+                     codec_instance);
+        return -2;
+    }
 
     return 0;
 }
@@ -681,11 +756,15 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_array_size(const DDL_CAPI_Codec_Han
     }
 
     // get size of requested array
-    const void* start_address;
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(
-        ddl::access_element::getArray(*_codec->ptr, array, start_address, *data_size), _codec);
-
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    try {
+        *data_size =
+            codec_instance->ptr->getElement(array).getIndex().getLayout().deserialized.bit_size / 8;
+    }
+    catch (std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
+        return -2;
+    }
     return 0;
 }
 
@@ -700,16 +779,20 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_set_array_byIndex(const DDL_CAPI_Codec_
     }
 
     // check for valid index
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    void* const address = _codec->ptr->getElementAddress(index);
-    if (!address) {
-        _codec->last_error = "Array not found";
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    void* address;
+    try {
+        auto resolved_index = codec_instance->ptr->resolve(index);
+        address = codec_instance->ptr->getElementAddress(resolved_index);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
         return -2;
     }
 
     // set values of requested array
     if (!a_util::memory::copy(address, data_size, data, data_size)) {
-        _codec->last_error = "Copy array failed";
+        CREATE_ERROR(ERR_FAILED, "Copy array failed", codec_instance);
         return -2;
     }
 
@@ -742,8 +825,15 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_element_byIndex(const DDL_CAPI_Code
     }
 
     // get index of requested element
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(_codec->ptr->getElementValue(index, data), _codec);
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    try {
+        auto resolved_index = codec_instance->ptr->resolve(index);
+        codec_instance->ptr->getElementRawValue(resolved_index, data, 0);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
+        return -2;
+    }
 
     return 0;
 }
@@ -758,10 +848,14 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_element_byName(const DDL_CAPI_Codec
     }
 
     // check for valid name and get values of requested element
-    size_t _index;
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    RETURN_ON_ERROR_PUBLIC(ddl::access_element::findIndex(*_codec->ptr, element, _index), _codec);
-    RETURN_ON_ERROR_PUBLIC(_codec->ptr->getElementValue(_index, data), _codec);
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    try {
+        codec_instance->ptr->getElement(element).getRawValue(data, 0);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
+        return -2;
+    }
 
     return 0;
 }
@@ -777,16 +871,20 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_substruct_byIndex(const DDL_CAPI_Co
     }
 
     // check for valid index
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    const void* address = _codec->ptr->getElementAddress(index);
-    if (!address) {
-        _codec->last_error = "Substruct not found";
-        return -1;
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    const void* address;
+    try {
+        auto resolved_index = codec_instance->ptr->resolve(index);
+        address = codec_instance->ptr->getElementAddress(resolved_index);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
+        return -2;
     }
 
     // get values of requested substruct
     if (!a_util::memory::copy(data, data_size, address, data_size)) {
-        _codec->last_error = "Copy substruct failed";
+        CREATE_ERROR(ERR_FAILED, "Copy substruct failed", codec_instance);
         return -1;
     }
 
@@ -820,16 +918,20 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_get_array_byIndex(const DDL_CAPI_Codec_
     }
 
     // check for valid index
-    auto const _codec = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
-    const void* address = _codec->ptr->getElementAddress(index);
-    if (!address) {
-        _codec->last_error = "Array not found";
-        return -1;
+    auto const codec_instance = static_cast<Handle<CAPI_DDL_CODEC>*>(codec);
+    const void* address;
+    try {
+        auto resolved_index = codec_instance->ptr->resolve(index);
+        address = codec_instance->ptr->getElementAddress(resolved_index);
+    }
+    catch (const std::runtime_error& error) {
+        CREATE_ERROR(ERR_INVALID_INDEX, error.what(), codec_instance);
+        return -2;
     }
 
     // get values of requested array
     if (!a_util::memory::copy(data, size, address, size)) {
-        _codec->last_error = "Copy array failed";
+        CREATE_ERROR(ERR_FAILED, "Copy array failed", codec_instance);
         return -1;
     }
 
@@ -863,7 +965,7 @@ A_UTIL_DLL_EXPORT int32_t ddl_capi_codec_transform(const DDL_CAPI_Codec_Handle_T
     // copy all elements from source to destination.
     auto const _dest = static_cast<Handle<CAPI_DDL_CODEC>*>(dest);
     auto const _source = static_cast<Handle<CAPI_DDL_CODEC>*>(source);
-    RETURN_ON_ERROR_PUBLIC(ddl::serialization::transform(*_source->ptr, *_dest->ptr), _dest);
+    RETURN_ON_ERROR_PUBLIC(ddl::codec::transform(*_source->ptr, *_dest->ptr), _dest);
 
     return 0;
 }

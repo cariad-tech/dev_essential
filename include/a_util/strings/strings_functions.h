@@ -295,13 +295,24 @@ bool isEmpty(const char* str);
 bool isNotEmpty(const char* str);
 
 /**
- * Replaces all occurences of a subject string with a replacement string
- * @param[inout] str The string
+ * In-place replacement of all occurences of @c subject with @c replacement
+ * @param[in, out] str The string
  * @param[in] subject The subject string to search for
  * @param[in] replacement The replacement string to substitute
- * @return Returns reference to str, after replacement
+ * @return Reference to @c str, after replacement
  */
 std::string& replace(std::string& str, const std::string& subject, const std::string& replacement);
+
+/**
+ * Replace all occurences of @c subject with @c replacement
+ * @param[in] str The string
+ * @param[in] subject The subject string to search for
+ * @param[in] replacement The replacement string to substitute
+ * @return New string with all replacements done accordingly
+ */
+std::string replace(const std::string& str,
+                    const std::string& subject,
+                    const std::string& replacement);
 
 /**
  * Joins all strings from the vector into one string, separated by the specified delimiter string

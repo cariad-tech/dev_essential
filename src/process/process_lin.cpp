@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#ifndef WIN32
+#ifndef _WIN32
 
 #if defined(__QNX__) && !defined(_QNX_SOURCE)
 #define _QNX_SOURCE
@@ -209,4 +209,4 @@ void setEnvVar(const std::string& environment_variable_name,
 } // namespace process
 } // namespace a_util
 
-#endif
+#endif // _WIN32

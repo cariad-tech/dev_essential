@@ -18,7 +18,8 @@ add_library(xml STATIC
             dom.cpp
             )
 target_link_libraries(xml PUBLIC base
-                          PRIVATE $<BUILD_INTERFACE:pugixml>)
+                          PRIVATE strings
+                                  $<BUILD_INTERFACE:pugixml>)
 set_target_properties(xml PROPERTIES FOLDER a_util
                                      OUTPUT_NAME a_util_xml)
 install(TARGETS xml)

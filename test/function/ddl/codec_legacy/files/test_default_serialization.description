@@ -1,0 +1,907 @@
+<?xml version="1.0"?>
+<!--
+Copyright @ 2022 VW Group. All rights reserved.
+
+    This Source Code Form is subject to the terms of the Mozilla
+    Public License, v. 2.0. If a copy of the MPL was not distributed
+    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+If it is not possible or desirable to put the notice in a particular file, then
+You may include the notice in a location (such as a LICENSE file in a
+relevant directory) where a recipient would be likely to look for such a notice.
+
+You may add additional accurate notices of copyright ownership.
+-->
+<ddl:ddl xmlns:ddl="ddl">
+    <header>
+        <language_version>4.01</language_version>
+        <author>dev_essential team</author>
+        <date_creation>Wed Jun 9 11:55:44 2021</date_creation>
+        <date_change>Wed Jun 9 11:55:44 2021</date_change>
+        <description></description>
+    </header>
+    <units />
+    <datatypes>
+        <datatype name="tBool" size="8" description="predefined ADTF tBool datatype" min="tFalse" max="tTrue" />
+        <datatype name="tInt16" size="16" description="predefined ADTF tInt16 datatype" min="-32768" max="32767" />
+        <datatype name="tChar" size="8" description="predefined ADTF tChar datatype" min="-128" max="127" />
+        <datatype name="tFloat32" size="32" description="predefined ADTF tFloat32 datatype" min="-3.402823e+38" max="3.402823e+38" />
+        <datatype name="tInt32" size="32" description="predefined ADTF tInt32 datatype" min="-2147483648" max="2147483647" />
+        <datatype name="tFloat64" size="64" description="predefined ADTF tFloat64 datatype" min="-1.797693e+308" max="1.797693e+308" />
+        <datatype name="tInt64" size="64" description="predefined ADTF tInt64 datatype" min="-9223372036854775808" max="9223372036854775807" />
+        <datatype name="tInt8" size="8" description="predefined ADTF tInt8 datatype" min="-128" max="127" />
+        <datatype name="tUInt16" size="16" description="Predefined DataType for tUInt16" arraysize="1" min="0" max="65535" />
+        <datatype name="tUInt32" size="32" description="Predefined DataType for tUInt32" arraysize="1" min="0" max="4294967295" />
+        <datatype name="tUInt64" size="64" description="Predefined DataType for tUInt64" arraysize="1" min="0" max="18446744073709551615" />
+        <datatype name="tUInt8" size="8" description="Predefined DataType for tUInt8" arraysize="1" min="0" max="255" />
+    </datatypes>
+    <enums />
+    <structs>
+        <struct name="pack_1::tExample18" version="1" alignment="1">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample08" version="1" alignment="8">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample10" version="1" alignment="1">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample00" version="1" alignment="8">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample11" version="1" alignment="1">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample01" version="1" alignment="8">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample12" version="1" alignment="1">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample02" version="1" alignment="8">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample13" version="1" alignment="1">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample03" version="1" alignment="8">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample14" version="1" alignment="1">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample04" version="1" alignment="8">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample15" version="1" alignment="1">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample05" version="1" alignment="8">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample16" version="1" alignment="1">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample06" version="1" alignment="8">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample17" version="1" alignment="1">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample07" version="1" alignment="8">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample19" version="1" alignment="1">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample09" version="1" alignment="8">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample00" version="1" alignment="1">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample10" version="1" alignment="8">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample01" version="1" alignment="1">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample11" version="1" alignment="8">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample02" version="1" alignment="1">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample12" version="1" alignment="8">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample03" version="1" alignment="1">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample13" version="1" alignment="8">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="5" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample04" version="1" alignment="1">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample14" version="1" alignment="8">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample05" version="1" alignment="1">
+            <element name="a" type="tUInt8" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="1" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample15" version="1" alignment="8">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample06" version="1" alignment="1">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample16" version="1" alignment="8">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample07" version="1" alignment="1">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="3" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample17" version="1" alignment="8">
+            <element name="a" type="tUInt32" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="b" type="tUInt64" arraysize="1">
+                <serialized bytepos="4" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample08" version="1" alignment="1">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt64" arraysize="1">
+                <serialized bytepos="7" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample18" version="1" alignment="8">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample09" version="1" alignment="1">
+            <element name="a" type="tUInt16" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="2" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt64" arraysize="1">
+                <serialized bytepos="6" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample19" version="1" alignment="8">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="b" type="tUInt8" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="9" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+        </struct>
+        <struct name="tExample20" version="1" alignment="8">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+        </struct>
+        <struct name="tExample21" version="1" alignment="8">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="tExample22" version="1" alignment="8">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+        </struct>
+        <struct name="tExample23" version="1" alignment="8">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="8" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="4" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="2" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample20" version="1" alignment="1">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt32" arraysize="1">
+                <serialized bytepos="11" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample21" version="1" alignment="1">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt16" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt32" arraysize="1">
+                <serialized bytepos="10" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample22" version="1" alignment="1">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt8" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt16" arraysize="1">
+                <serialized bytepos="13" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+        <struct name="pack_1::tExample23" version="1" alignment="1">
+            <element name="a" type="tUInt64" arraysize="1">
+                <serialized bytepos="0" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="b" type="tUInt32" arraysize="1">
+                <serialized bytepos="8" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="c" type="tUInt16" arraysize="1">
+                <serialized bytepos="12" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+            <element name="d" type="tUInt8" arraysize="1">
+                <serialized bytepos="14" byteorder="LE" />
+                <deserialized alignment="1" />
+            </element>
+        </struct>
+    </structs>
+    <streammetatypes />
+    <streams />
+</ddl:ddl>

@@ -62,7 +62,7 @@ else()
             DESTINATION include/a_util/result)
 endif()
 
-target_include_directories(result
+target_include_directories(result SYSTEM
                            INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extern>) # 3rdparty
 target_link_libraries(result INTERFACE base)
 install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/result.h DESTINATION include/a_util)

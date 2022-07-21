@@ -18,14 +18,16 @@ You may add additional accurate notices of copyright ownership.
  *
  */
 
-#ifndef MAPPING_SOURCE_HEADER
-#define MAPPING_SOURCE_HEADER
+#ifndef DDL_MAPPING_RT_SOURCE_HEADER
+#define DDL_MAPPING_RT_SOURCE_HEADER
 
 #include <a_util/result.h>
 #include <ddl/codec/codec_factory.h>
 #include <ddl/mapping/configuration/map_source.h>
 #include <ddl/mapping/engine/element.h>
 #include <ddl/mapping/engine/mapping_environment_intf.h>
+
+#include <memory>
 
 namespace ddl {
 namespace mapping {
@@ -87,6 +89,17 @@ public:
      * @param [in] env The mapping environment
      */
     Source(IMappingEnvironment& env);
+
+    /**
+     * @brief no copy CTOR
+     */
+    Source(const Source&) = delete;
+
+    /**
+     * @brief no copy assignment operator
+     * @return Source&
+     */
+    Source& operator=(const Source&) = delete;
 
     /**
      * DTOR
@@ -157,13 +170,10 @@ private:
     std::string _type_description;
     Assignments _assignments;
     TargetRefList _targets;
-    a_util::memory::unique_ptr<ddl::CodecFactory> _codec_factory;
+    std::unique_ptr<ddl::codec::CodecFactory> _codec_factory;
     TypeMap _type_map;
     TargetElementList _received_elements;
     Triggers _triggers;
-
-    Source(const Source&);            // = delete;
-    Source& operator=(const Source&); // = delete;
 };
 
 /// Public composite types used in the mapping::rt namespace
@@ -173,4 +183,4 @@ typedef std::map<std::string, Source*> SourceMap;
 } // namespace mapping
 } // namespace ddl
 
-#endif // MAPPING_SOURCE_HEADER
+#endif // DDL_MAPPING_RT_SOURCE_HEADER

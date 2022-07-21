@@ -22,6 +22,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTILS_UTIL_XML_DOM_HEADER_INCLUDED_
 #define A_UTILS_UTIL_XML_DOM_HEADER_INCLUDED_
 
+#include <a_util/base/enums.h>
 #include <a_util/memory/stack_ptr.h>
 
 #include <list>
@@ -221,6 +222,52 @@ public:
      * @return @c false if no matching node is found or the query is invalid, @c true otherwise
      */
     bool findNodes(const std::string& query, DOMElementList& elements) const;
+
+    /// Sort the queried nodes by name
+    /// example: @code{.cpp} sortNodes("units/*", SortingOrder::ascending); @endcode
+    /// @param[in] query  Xpath that describes the nodes to sort
+    /// @param[in] order  Sort nodes in ascending or descending order
+    /// @return    false if no matching node is found or the query is invalid, true otherwise
+    bool sortNodes(const std::string& query, SortingOrder order);
+
+    /// Sort all queried nodes by name
+    /// example:
+    /// @code{.cpp} sortNodes("units/unit[*]/*", SortingOrder::ascending, number_of_nodes); @endcode
+    /// '[*]' in query will be replaced successively by numbers in range [1]..[n]
+    /// @param[in] query           Xpath that describes all nodes to sort
+    /// @param[in] order           Sort nodes of queries in ascending/descending order
+    /// @param[in] number_of_nodes Number of nodes to be sorted successively
+    /// @return    false if no matching nodes are found or any query is invalid, true otherwise
+    bool sortNodes(const std::string& query, SortingOrder order, std::size_t number_of_nodes);
+
+    /**
+     * Sort the queried nodes by attribute
+     * example: @code{.cpp} sortNodes("units/unit", "name", SortingOrder::ascending); @endcode
+     * @param[in] query     Xpath that describes the nodes to sort
+     * @param[in] attribute Attribute name of nodes to sort in specified order
+     * @param[in] order     Sort nodes in ascending or descending order
+     * @return    Number of nodes found by the query
+     */
+    std::size_t sortNodes(const std::string& query,
+                          const std::string& attribute,
+                          SortingOrder order);
+
+    /**
+     * Sort all queried nodes by attribute
+     * example: @code{.cpp}
+       sortNodes("units/unit[*]/refUnit", "name", SortingOrder::ascending, number_of_nodes);
+       @endcode
+     * '[*]' in query will be replaced successively by numbers in range [1]..[n]
+     * @param[in] query           Xpath that describes all nodes to sort
+     * @param[in] attribute       Attribute name of nodes to sort in specified order
+     * @param[in] order           Sort nodes of queries in ascending/descending order
+     * @param[in] number_of_nodes Number of nodes to be sorted successively
+     * @return    false if no matching nodes are found or any query is invalid, true otherwise
+     */
+    bool sortNodes(const std::string& query,
+                   const std::string& attribute,
+                   SortingOrder order,
+                   std::size_t number_of_nodes);
 
     /**
      * Creates a new child element

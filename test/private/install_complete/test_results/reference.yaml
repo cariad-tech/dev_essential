@@ -21,14 +21,25 @@ debug:
         - test/results/function/result_csv_reader_test_Debug\.xml
         - test/results/function/result_current_function_tests_Debug\.xml
         - test/results/function/result_datetime_tests_Debug\.xml
+        - test/results/function/result_ddl_capi_basic_tests_Debug\.xml
+        - test/results/function/result_ddl_capi_negative_tests_Debug\.xml
+        - test/results/function/result_ddl_codec_legacy_tests_Debug\.xml
+        - test/results/function/result_ddl_codec_tests_Debug\.xml
+        - test/results/function/result_ddl_dd_create_tests_Debug\.xml
+        - test/results/function/result_ddl_dd_datastructures_tests_Debug\.xml
+        - test/results/function/result_ddl_infomodel_tests_Debug\.xml
+        - test/results/function/result_ddl_mapping_tests_Debug\.xml
+        - test/results/function/result_ddl_mediacoder_regression_legacy_tests_Debug\.xml
+        - test/results/function/result_ddl_mediacoder_regression_tests_Debug\.xml
         - test/results/function/result_delegate_tests_Debug\.xml
         - test/results/function/result_dll_export_tests_Debug\.xml
         - test/results/function/result_dll_import_tests_Debug\.xml
+        - test/results/function/result_errc_tests_Debug\.xml
         - test/results/function/result_error_def_test_Debug\.xml
         - test/results/function/result_filesystem_tests_Debug\.xml
         - test/results/function/result_logging_tests_Debug\.xml
-        - test/results/function/result_maybe_unused_tests_Debug\.xml
         - test/results/function/result_make_unique_tests_Debug\.xml
+        - test/results/function/result_maybe_unused_tests_Debug\.xml
         - test/results/function/result_memory_tests_Debug\.xml
         - test/results/function/result_memorybuffer_tests_Debug\.xml
         - test/results/function/result_mutex_tests_Debug\.xml
@@ -40,6 +51,7 @@ debug:
         - test/results/function/result_result_type_compat_test_Debug\.xml
         - test/results/function/result_result_type_test_Debug\.xml
         - test/results/function/result_result_util_test_Debug\.xml
+        - test/results/function/result_scopeguard_test_Debug\.xml
         - test/results/function/result_semaphore_tests_Debug\.xml
         - test/results/function/result_shared_ptr_tests_Debug\.xml
         - test/results/function/result_stack_ptr_tests_Debug\.xml
@@ -56,14 +68,6 @@ debug:
         - test/results/function/result_uuid_tests_Debug\.xml
         - test/results/function/result_variant_tests_Debug\.xml
         - test/results/function/result_xml_tests_Debug\.xml
-        - test/results/function/result_ddl_codec_tests_Debug\.xml
-        - test/results/function/result_ddl_dd_create_tests_Debug\.xml
-        - test/results/function/result_ddl_infomodel_tests_Debug\.xml
-        - test/results/function/result_ddl_mapping_tests_Debug\.xml
-        - test/results/function/result_ddl_mediacoder_regression_tests_Debug\.xml
-        - test/results/function/result_ddl_dd_datastructures_tests_Debug\.xml
-        - test/results/function/result_ddl_capi_basic_tests_Debug\.xml
-        - test/results/function/result_ddl_capi_negative_tests_Debug\.xml
 
 release:
     conditions:
@@ -76,14 +80,25 @@ release:
         - test/results/function/result_csv_reader_test_Release\.xml
         - test/results/function/result_current_function_tests_Release\.xml
         - test/results/function/result_datetime_tests_Release\.xml
+        - test/results/function/result_ddl_capi_basic_tests_Release\.xml
+        - test/results/function/result_ddl_capi_negative_tests_Release\.xml
+        - test/results/function/result_ddl_codec_legacy_tests_Release\.xml
+        - test/results/function/result_ddl_codec_tests_Release\.xml
+        - test/results/function/result_ddl_dd_create_tests_Release\.xml
+        - test/results/function/result_ddl_dd_datastructures_tests_Release\.xml
+        - test/results/function/result_ddl_infomodel_tests_Release\.xml
+        - test/results/function/result_ddl_mapping_tests_Release\.xml
+        - test/results/function/result_ddl_mediacoder_regression_legacy_tests_Release\.xml
+        - test/results/function/result_ddl_mediacoder_regression_tests_Release\.xml
         - test/results/function/result_delegate_tests_Release\.xml
         - test/results/function/result_dll_export_tests_Release\.xml
         - test/results/function/result_dll_import_tests_Release\.xml
+        - test/results/function/result_errc_tests_Release\.xml
         - test/results/function/result_error_def_test_Release\.xml
         - test/results/function/result_filesystem_tests_Release\.xml
         - test/results/function/result_logging_tests_Release\.xml
-        - test/results/function/result_maybe_unused_tests_Release\.xml
         - test/results/function/result_make_unique_tests_Release\.xml
+        - test/results/function/result_maybe_unused_tests_Release\.xml
         - test/results/function/result_memory_tests_Release\.xml
         - test/results/function/result_memorybuffer_tests_Release\.xml
         - test/results/function/result_mutex_tests_Release\.xml
@@ -95,6 +110,7 @@ release:
         - test/results/function/result_result_type_compat_test_Release\.xml
         - test/results/function/result_result_type_test_Release\.xml
         - test/results/function/result_result_util_test_Release\.xml
+        - test/results/function/result_scopeguard_test_Release\.xml
         - test/results/function/result_semaphore_tests_Release\.xml
         - test/results/function/result_shared_ptr_tests_Release\.xml
         - test/results/function/result_stack_ptr_tests_Release\.xml
@@ -111,14 +127,6 @@ release:
         - test/results/function/result_uuid_tests_Release\.xml
         - test/results/function/result_variant_tests_Release\.xml
         - test/results/function/result_xml_tests_Release\.xml
-        - test/results/function/result_ddl_codec_tests_Release\.xml
-        - test/results/function/result_ddl_dd_create_tests_Release\.xml
-        - test/results/function/result_ddl_infomodel_tests_Release\.xml
-        - test/results/function/result_ddl_mapping_tests_Release\.xml
-        - test/results/function/result_ddl_mediacoder_regression_tests_Release\.xml
-        - test/results/function/result_ddl_dd_datastructures_tests_Release\.xml
-        - test/results/function/result_ddl_capi_basic_tests_Release\.xml
-        - test/results/function/result_ddl_capi_negative_tests_Release\.xml
 
 relwithdebinfo:
     conditions:
@@ -131,9 +139,20 @@ relwithdebinfo:
         - test/results/function/result_csv_reader_test_RelWithDebInfo\.xml
         - test/results/function/result_current_function_tests_RelWithDebInfo\.xml
         - test/results/function/result_datetime_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_capi_basic_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_capi_negative_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_codec_legacy_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_codec_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_dd_create_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_dd_datastructures_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_infomodel_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_mapping_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_mediacoder_regression_legacy_tests_RelWithDebInfo\.xml
+        - test/results/function/result_ddl_mediacoder_regression_tests_RelWithDebInfo\.xml
         - test/results/function/result_delegate_tests_RelWithDebInfo\.xml
         - test/results/function/result_dll_export_tests_RelWithDebInfo\.xml
         - test/results/function/result_dll_import_tests_RelWithDebInfo\.xml
+        - test/results/function/result_errc_tests_RelWithDebInfo\.xml
         - test/results/function/result_error_def_test_RelWithDebInfo\.xml
         - test/results/function/result_filesystem_tests_RelWithDebInfo\.xml
         - test/results/function/result_logging_tests_RelWithDebInfo\.xml
@@ -150,6 +169,7 @@ relwithdebinfo:
         - test/results/function/result_result_type_compat_test_RelWithDebInfo\.xml
         - test/results/function/result_result_type_test_RelWithDebInfo\.xml
         - test/results/function/result_result_util_test_RelWithDebInfo\.xml
+        - test/results/function/result_scopeguard_test_RelWithDebInfo\.xml
         - test/results/function/result_semaphore_tests_RelWithDebInfo\.xml
         - test/results/function/result_shared_ptr_tests_RelWithDebInfo\.xml
         - test/results/function/result_stack_ptr_tests_RelWithDebInfo\.xml
@@ -166,11 +186,4 @@ relwithdebinfo:
         - test/results/function/result_uuid_tests_RelWithDebInfo\.xml
         - test/results/function/result_variant_tests_RelWithDebInfo\.xml
         - test/results/function/result_xml_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_codec_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_dd_create_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_infomodel_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_mapping_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_mediacoder_regression_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_dd_datastructures_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_capi_basic_tests_RelWithDebInfo\.xml
-        - test/results/function/result_ddl_capi_negative_tests_RelWithDebInfo\.xml
+

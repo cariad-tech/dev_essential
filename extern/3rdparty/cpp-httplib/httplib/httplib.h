@@ -24,6 +24,10 @@
 #define S_ISREG(m)  (((m)&S_IFREG)==S_IFREG)
 #define S_ISDIR(m)  (((m)&S_IFDIR)==S_IFDIR)
 
+#endif // _MSC_VER
+
+#ifdef _WIN32
+
 #include <fcntl.h>
 #include <io.h>
 #include <winsock2.h>
@@ -33,18 +37,22 @@
 #undef max
 
 typedef SOCKET socket_t;
+
 #else
+
 #include <pthread.h>
 #include <unistd.h>
 #include <netdb.h>
 #include <cstring>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/select.h> // fd_set
 
 typedef int socket_t;
-#endif
+
+#endif // _WIN32
 
 #include <fstream>
 #include <map>
@@ -272,11 +280,17 @@ inline bool wait_for_socket_readable(socket_t sock, size_t timeout_us)
 
 inline int shutdown_socket(socket_t sock)
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
     return shutdown(sock, SD_BOTH);
 #else
     return shutdown(sock, SHUT_RDWR);
-#endif
+#endif // _WIN32
+}
+
+inline void enable_tcp_no_delay(socket_t sock)
+{
+    int tcp_no_delay = 1;
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&tcp_no_delay, sizeof(tcp_no_delay));
 }
 
 inline socket_t create_socket(const char* host, int port, bool server, int reuse)
@@ -304,9 +318,12 @@ inline socket_t create_socket(const char* host, int port, bool server, int reuse
           continue;
        }
 
+       // we want faster RTTs
+       enable_tcp_no_delay(sock);
+
        // Make 'reuse address' option available
        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse));
-#ifdef WIN32
+#ifdef _WIN32
        reuse ^= 1;
        setsockopt(sock, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*)&reuse, sizeof(reuse));
 #endif
@@ -832,6 +849,8 @@ inline void Server::accept(ProcessFunctor& processor)
                 }
                 break;
             }
+
+            detail::enable_tcp_no_delay(sock);
 
             processor(*this, sock);
         }

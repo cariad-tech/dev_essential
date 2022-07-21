@@ -27,8 +27,6 @@
 #include <ctime>   // for time
 #include <string>  // for string
 
-/// Create the default success code which must be equal to global a_util::result::SUCCESS
-_MAKE_RESULT(0, SUCCESS);
 /// Create error type ERR_INVALID_ARG with numeric representation -5
 _MAKE_RESULT(-5, ERR_INVALID_ARG);
 /// Create error type ERR_INVALID_ADDRESS with numeric representation -7
@@ -56,7 +54,7 @@ TEST(result_type_tester, TestResultIsStandardLayout)
 
 TEST(result_type_tester, TestDefaultSuccessCode)
 {
-    ASSERT_EQ(a_util::result::SUCCESS, ::SUCCESS);
+    ASSERT_EQ(a_util::result::SUCCESS, a_util::result::ResultInfo<void>());
 }
 
 TEST(result_type_tester, TestSwapAndComparison)

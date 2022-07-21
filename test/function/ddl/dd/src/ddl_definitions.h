@@ -508,6 +508,46 @@ static const std::string DDL_TEST_STRING_ENUMS =
   <streams /> \
 </adtf:ddl>";
 
+static const std::string DDL_TEST_STRING_ENUMS_DIFFERENT_ORDER =
+    "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?>\n \
+<adtf:ddl xmlns:adtf=\"adtf\">\n \
+  <header>\n \
+      <language_version>3.0</language_version>\n \
+      <author>dev_essential team</author>\n \
+      <date_creation>20100407</date_creation>\n \
+      <date_change />\n \
+      <description>ADTF Common Description File</description>\n \
+  </header>\n \
+  <datatypes>\n \
+      <datatype description=\"predefined ADTF tBool datatype\"   size=\"8\"   name=\"tBool\" />\n \
+      <datatype description=\"predefined ADTF tChar datatype\"   size=\"8\"   name=\"tChar\" />\n \
+      <datatype description=\"predefined ADTF tUInt8 datatype\"  size=\"8\"   name=\"tUInt8\" />\n \
+      <datatype description=\"predefined ADTF tInt8 datatype\"   size=\"8\"   name=\"tInt8\" />\n \
+      <datatype description=\"predefined ADTF tUInt16 datatype\" size=\"16\"  name=\"tUInt16\" />\n \
+      <datatype description=\"predefined ADTF tInt16 datatype\"  size=\"16\"  name=\"tInt16\" />\n \
+      <datatype description=\"predefined ADTF tUInt32 datatype\" size=\"32\"  name=\"tUInt32\" />\n \
+      <datatype description=\"predefined ADTF tInt32 datatype\"  size=\"32\"  name=\"tInt32\" />\n \
+      <datatype description=\"predefined ADTF tUInt64 datatype\" size=\"64\"  name=\"tUInt64\" />\n \
+      <datatype description=\"predefined ADTF tInt64 datatype\"  size=\"64\"  name=\"tInt64\" />\n \
+      <datatype description=\"predefined ADTF tFloat32 datatype\" size=\"32\" name=\"tFloat32\" />\n \
+      <datatype description=\"predefined ADTF tFloat64 datatype\" size=\"64\" name=\"tFloat64\" />\n \
+  </datatypes>\n \
+  <enums> \
+        <enum name=\"tValueDefinitions\" type=\"tUInt32\"> \
+              <element name=\"ELEMENT_THREE\" value=\"5\"/> \
+              <element name=\"ELEMENT_ONE\" value=\"10\"/> \
+              <element name=\"ELEMENT_TWO\" value=\"20\"/> \
+        </enum> \
+         <enum name=\"tValueDefinitions2\" type=\"tUInt32\"> \
+               <element name=\"ELEMENT_TWO2\" value=\"20\"/> \
+               <element name=\"ELEMENT_ONE2\" value=\"10\"/> \
+               <element name=\"ELEMENT_THREE2\" value=\"5\"/> \
+         </enum> \
+   </enums> \
+  <structs /> \
+  <streams /> \
+</adtf:ddl>";
+
 static const std::string DDL_TEST_STRING_HEADER =
     "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?>\n \
 <adtf:ddl xmlns:adtf=\"adtf\">\n \

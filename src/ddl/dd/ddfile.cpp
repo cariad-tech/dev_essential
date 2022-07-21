@@ -22,6 +22,7 @@
 #include <ddl/dd/ddfile.h>
 
 namespace ddl {
+namespace {
 
 void fromXMLFile(dd::datamodel::DataDefinition& dd, const std::string& xml_filepath, bool strict)
 {
@@ -42,6 +43,8 @@ void fromXMLFile(dd::datamodel::DataDefinition& dd, const std::string& xml_filep
         throw dd::Error("fromXMLFile", {xml_filepath}, ddl_dom_file.getLastError());
     }
 }
+
+} // namespace
 
 /**
  * DataDefinition File.
@@ -69,6 +72,13 @@ dd::DataDefinition DDFile::fromXMLFile(const std::string& xml_filepath, bool str
 void DDFile::toXMLFile(const dd::DataDefinition& ddl_to_write, const std::string& xml_filepath)
 {
     dd::datamodel::toXMLFile(*ddl_to_write.getModel(), xml_filepath);
+}
+
+void DDFile::toXMLFile(const dd::DataDefinition& ddl_to_write,
+                       const std::string& xml_filepath,
+                       const a_util::SortingOrder order)
+{
+    dd::datamodel::toXMLFile(*ddl_to_write.getModel(), xml_filepath, order);
 }
 
 } // namespace ddl

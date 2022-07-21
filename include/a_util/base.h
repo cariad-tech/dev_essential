@@ -34,6 +34,9 @@ namespace experimental {
 } // namespace a_util
 
 #include <a_util/base/delegate.h>
+#include <a_util/base/error.h>
+#include <a_util/base/scopeguard.h>
+#include <a_util/base/type_traits.h>
 #include <a_util/base/types.h>
 
 #endif // A_UTIL_BASE_HEADER_INCLUDED

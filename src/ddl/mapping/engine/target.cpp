@@ -15,7 +15,7 @@
  */
 
 #include <a_util/result/error_def.h>
-#include <ddl/codec/access_element.h>
+#include <ddl/codec/legacy/access_element.h>
 #include <ddl/legacy_error_macros.h>
 #include <ddl/mapping/configuration/map_configuration.h>
 #include <ddl/mapping/engine/target.h>
@@ -29,6 +29,7 @@ namespace rt {
 _MAKE_RESULT(-3, ERR_UNEXPECTED);
 _MAKE_RESULT(-4, ERR_POINTER);
 _MAKE_RESULT(-12, ERR_MEMORY);
+_MAKE_RESULT(-20, ERR_INVALID_ELEMENT);
 } // namespace rt
 } // namespace mapping
 } // namespace ddl
@@ -57,14 +58,15 @@ a_util::result::Result Target::create(const MapConfiguration& oMapConfig,
 {
     _name = oMapTarget.getName();
     _type_name = oMapTarget.getType();
-    ddl::CodecFactory oFactory(_type_name.c_str(), strTargetDescription.c_str());
+    ddl::codec::CodecFactory oFactory(_type_name.c_str(), strTargetDescription.c_str());
     RETURN_IF_FAILED(oFactory.isValid());
 
     // Alloc and zero memory
     _buffer.resize(oFactory.getStaticBufferSize(), 0);
 
     // Begin here, end when target is destroyed or after reset
-    _codec.reset(new ddl::StaticCodec(oFactory.makeStaticCodecFor(&_buffer[0], _buffer.size())));
+    _codec = std::make_unique<ddl::codec::StaticCodec>(
+        oFactory.makeStaticCodecFor(&_buffer[0], _buffer.size()));
 
     // this works only because datamodel was set via dd::DataDefintion which calculated the TypeInfo
     const auto struct_type_access =
@@ -105,12 +107,16 @@ a_util::result::Result Target::create(const MapConfiguration& oMapConfig,
             strPath.append((*struct_type_of_element->getElements().cbegin())->getName());
         }
 
-        size_t nIdx = 0;
-        RETURN_IF_FAILED(ddl::access_element::findIndex(*_codec, strPath, nIdx));
-        void* const pTargetElementPtr = _codec->getElementAddress(nIdx);
+        void* pTargetElementPtr = {};
+        try {
+            pTargetElementPtr = _codec->getElement(strPath).getAddress();
+        }
+        catch (const std::exception& ex) {
+            RETURN_ERROR_DESCRIPTION(ERR_INVALID_ELEMENT, ex.what());
+        }
 
         // Create target element
-        std::unique_ptr<TargetElement> pElement(new TargetElement(this));
+        std::unique_ptr<TargetElement> pElement = std::make_unique<TargetElement>(this);
         RETURN_IF_FAILED(
             pElement->create(pTargetElementPtr, elem_access, szElement, itAssignment->getTo()));
 
@@ -180,85 +186,10 @@ a_util::result::Result Target::reset(const MapConfiguration& oMapConfig)
         return ERR_POINTER;
     }
 
-    // Set default values from DataDefinition in a newly created data sample
-    for (size_t nIdx = 0; nIdx < _codec->getElementCount(); ++nIdx) {
-        const ddl::StructElement* pElement = NULL;
-        if (isFailed(_codec->getElement(nIdx, pElement))) {
-            continue;
-        }
+    // Set default values/constants or zero the content
+    _codec->resetValues(true);
 
-        auto elem_access = struct_type_access.getElementByPath(pElement->name);
-
-        std::string strDefaultValue;
-        if (elem_access) {
-            // Element Description was found ... check for a default value
-            if (!elem_access.getElement().getDefault().empty()) {
-                strDefaultValue = elem_access.getElement().getDefault();
-            }
-        }
-        else {
-            // Set error if no error happend so far
-            if (isOk(nResult)) {
-                nResult = ERR_UNEXPECTED;
-            }
-        }
-
-        if (strDefaultValue.empty()) {
-            // No default detected, just reset this entry
-            ddl::access_element::reset(*_codec, pElement->name);
-        }
-        else {
-            a_util::variant::Variant var;
-            switch (pElement->type) {
-            case a_util::variant::VT_Bool:
-                var.reset(a_util::strings::toBool(strDefaultValue));
-                break;
-            case a_util::variant::VT_Int8:
-                var.reset(a_util::strings::toInt8(strDefaultValue));
-                break;
-            case a_util::variant::VT_UInt8:
-                var.reset(a_util::strings::toUInt8(strDefaultValue));
-                break;
-            case a_util::variant::VT_Int16:
-                var.reset(a_util::strings::toInt16(strDefaultValue));
-                break;
-            case a_util::variant::VT_UInt16:
-                var.reset(a_util::strings::toUInt16(strDefaultValue));
-                break;
-            case a_util::variant::VT_Int32:
-                var.reset(a_util::strings::toInt32(strDefaultValue));
-                break;
-            case a_util::variant::VT_UInt32:
-                var.reset(a_util::strings::toUInt32(strDefaultValue));
-                break;
-            case a_util::variant::VT_Int64:
-                var.reset(a_util::strings::toInt64(strDefaultValue));
-                break;
-            case a_util::variant::VT_UInt64:
-                var.reset(a_util::strings::toUInt64(strDefaultValue));
-                break;
-            case a_util::variant::VT_Float:
-                var.reset(a_util::strings::toFloat(strDefaultValue));
-                break;
-            case a_util::variant::VT_Double:
-                var.reset(a_util::strings::toDouble(strDefaultValue));
-                break;
-            default:
-                ddl::access_element::reset(*_codec, pElement->name);
-                break;
-            }
-
-            if (!var.isEmpty()) {
-                auto nCurrentResult = _codec->setElementValue(nIdx, var);
-                // Set error if no error happend so far
-                if (isOk(nResult)) {
-                    nResult = nCurrentResult;
-                }
-            }
-        }
-    }
-
-    // Set constant elements
+    // Set constant elements from the map configuration
     if (isOk(nResult)) {
         for (Constants::iterator it = _constant_elements.begin(); it != _constant_elements.end();
              it++) {

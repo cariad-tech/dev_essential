@@ -43,3 +43,4 @@ target_link_libraries(self_contained_header_files_test PRIVATE ${_dev_essential_
 set_target_properties(self_contained_header_files_test
                       PROPERTIES STATIC_LIBRARY_OPTIONS $<$<CXX_COMPILER_ID:MSVC>:/ignore:4221>
                                  FOLDER test/sca)
+target_compile_definitions(self_contained_header_files_test PRIVATE DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS)

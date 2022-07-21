@@ -33,7 +33,7 @@ void teardown_test()
 
 a_util::filesystem::Path prepare_test()
 {
-#ifdef WIN32
+#ifdef _WIN32
     teardown_test();
 
     a_util::filesystem::Path dir_bat = a_util::filesystem::getTempDirectory();
@@ -42,12 +42,12 @@ a_util::filesystem::Path prepare_test()
     return dir_bat;
 #else
     return a_util::filesystem::Path("ls");
-#endif // WIN32
+#endif // _WIN32
 }
 
 TEST(process_test, TestExecute_No_Wait)
 {
-#ifdef WIN32
+#ifdef _WIN32
     a_util::filesystem::Path the_call_cmd = "NETSTAT.EXE";
 #else
     a_util::filesystem::Path the_call_cmd = "ls";
@@ -75,7 +75,7 @@ TEST(process_test, TestExecute_No_Wait)
 
 TEST(process_test, TestExecute_And_Wait)
 {
-#ifdef WIN32
+#ifdef _WIN32
     a_util::filesystem::Path the_call_cmd = "NETSTAT.EXE";
 #else
     a_util::filesystem::Path the_call_cmd = "ls";
@@ -137,7 +137,7 @@ TEST(process_test, TestExecute_And_Wait_with_stdout_return_pos)
 
 TEST(process_test, TestExecute_And_Wait_with_stdout_return_neg)
 {
-#ifdef WIN32
+#ifdef _WIN32
     a_util::filesystem::Path the_call_cmd = "NETSTAT.EXE";
 #else
     a_util::filesystem::Path the_call_cmd = "ls";
@@ -208,7 +208,7 @@ TEST(process_test, TestExecute_And_Wait_with_stdout_std_error_return_pos)
 
 TEST(process_test, TestExecute_And_Wait_with_stdout_std_error_return_neg)
 {
-#ifdef WIN32
+#ifdef _WIN32
     a_util::filesystem::Path the_call_cmd = "NETSTAT.EXE";
 #else
     a_util::filesystem::Path the_call_cmd = "ls";

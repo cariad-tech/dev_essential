@@ -29,5 +29,5 @@ endif()
 set_target_properties(process PROPERTIES FOLDER a_util
                                          OUTPUT_NAME a_util_process)
 install(TARGETS process)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/process DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/process.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/process DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/process.h DESTINATION include/a_util)

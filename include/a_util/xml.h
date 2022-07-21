@@ -27,6 +27,6 @@ namespace xml {
 }
 } // namespace a_util
 
-#include "a_util/xml/dom.h"
+#include <a_util/xml/dom.h>
 
 #endif // !A_UTILS_UTIL_XML_HEADER_INCLUDED_

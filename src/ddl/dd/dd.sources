@@ -22,6 +22,8 @@ set(DD_CPP
     ${DD_SRC_DIR}/dd_typeinfomodel.cpp
     ${DD_SRC_DIR}/dd_validationinfomodel.cpp
     ${DD_SRC_DIR}/dd_struct_access.cpp
+    ${DD_SRC_DIR}/dd_predefined_units.cpp
+    ${DD_SRC_DIR}/dd_predefined_datatypes.cpp
 
     ${DD_SRC_DIR}/dd.cpp
     ${DD_SRC_DIR}/ddelement.cpp
@@ -34,6 +36,7 @@ set(DD_CPP
     ${DD_SRC_DIR}/dd_fromxmlelement.cpp
     ${DD_SRC_DIR}/ddfile.cpp
     ${DD_SRC_DIR}/ddstring.cpp
+    ${DD_SRC_DIR}/dddefault.cpp
     ${DD_SRC_DIR}/ddcompare.cpp
 )
 

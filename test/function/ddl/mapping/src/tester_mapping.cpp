@@ -16,16 +16,18 @@
  */
 
 #include "../../_common/adtf_compat.h"
-#include "a_util/filesystem.h"
-#include "a_util/result/error_def.h"
-#include "a_util/system.h"
-#include "ddl/codec/access_element.h"
-#include "ddl/codec/static_codec.h"
-#include "ddl/dd/ddfile.h"
-#include "ddl/dd/ddstring.h"
-#include "ddl/mapping/engine/mapping_engine.h"
+
+#include <a_util/filesystem.h>
+#include <a_util/result/error_def.h>
+#include <a_util/system.h>
+#include <ddl/codec/access_element.h>
+#include <ddl/codec/static_codec.h>
+#include <ddl/dd/ddfile.h>
+#include <ddl/dd/ddstring.h>
+#include <ddl/mapping/engine/mapping_engine.h>
 
 #include <gtest/gtest.h>
+
 #include <memory>
 
 using namespace ddl::mapping;

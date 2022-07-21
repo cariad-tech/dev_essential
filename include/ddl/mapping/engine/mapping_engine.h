@@ -27,15 +27,15 @@ You may add additional accurate notices of copyright ownership.
 #ifndef MAPPINGENGINE_HEADER
 #define MAPPINGENGINE_HEADER
 
-#include "ddl/mapping/configuration/map_configuration.h"
-#include "ddl/mapping/engine/data_trigger.h"
-#include "ddl/mapping/engine/element.h"
-#include "ddl/mapping/engine/mapping_environment_intf.h"
-#include "ddl/mapping/engine/periodic_trigger.h"
-#include "ddl/mapping/engine/signal_trigger.h"
-#include "ddl/mapping/engine/source.h"
-#include "ddl/mapping/engine/target.h"
-#include "ddl/mapping/engine/trigger.h"
+#include <ddl/mapping/configuration/map_configuration.h>
+#include <ddl/mapping/engine/data_trigger.h>
+#include <ddl/mapping/engine/element.h>
+#include <ddl/mapping/engine/mapping_environment_intf.h>
+#include <ddl/mapping/engine/periodic_trigger.h>
+#include <ddl/mapping/engine/signal_trigger.h>
+#include <ddl/mapping/engine/source.h>
+#include <ddl/mapping/engine/target.h>
+#include <ddl/mapping/engine/trigger.h>
 
 namespace ddl {
 namespace mapping {

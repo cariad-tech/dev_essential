@@ -222,7 +222,7 @@ Numeric toNumeric(const char* from);
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/strings/detail/strings_convert_impl.h"
+#include <a_util/strings/detail/strings_convert_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_STRINGS_STRINGS_CONVERT_DECL_HEADER_INCLUDED

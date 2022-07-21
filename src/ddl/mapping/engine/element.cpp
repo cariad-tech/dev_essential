@@ -14,9 +14,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/mapping/engine/element.h"
-
-#include "a_util/memory.h"
+#include <a_util/memory.h>
+#include <ddl/mapping/engine/element.h>
 
 #include <assert.h>
 

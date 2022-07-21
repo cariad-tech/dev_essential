@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_RESULT_INFO_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_RESULT_INFO_HEADER_INCLUDED
 
-#include "a_util/result/detail/result_info_impl.h"
-#include "a_util/result/result_info_decl.h"
+#include <a_util/result/detail/result_info_impl.h>
+#include <a_util/result/result_info_decl.h>
 
 #endif // A_UTIL_UTIL_RESULT_RESULT_INFO_HEADER_INCLUDED

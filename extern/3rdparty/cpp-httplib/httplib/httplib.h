@@ -139,27 +139,49 @@ private:
 // Implementation
 namespace detail {
 
-inline int socket_read(socket_t sock, char* ptr, size_t size)
+inline bool socket_read(socket_t sock, char* ptr, size_t size)
 {
-    return recv(sock, ptr, size, 0);
+    while (size)
+    {
+        int bytes_read = recv(sock, ptr, size, 0);
+        if (bytes_read <= 0)
+        {
+            return false;
+        }
+        ptr += bytes_read;
+        size -= bytes_read;
+    }
+
+    return true;
 }
 
-inline int socket_write(socket_t sock, const char* ptr, size_t size = -1)
+inline void socket_write(socket_t sock, const char* ptr, size_t size = -1)
 {
     if (size == -1) {
         size = strlen(ptr);
     }
-    return send(sock, ptr, size, 0);
+
+    while (size)
+    {
+        int bytes_written = send(sock, ptr, size, 0);
+        if (bytes_written <= 0)
+        {
+            return;
+        }
+
+        ptr += bytes_written;
+        size -= bytes_written;
+    }
 }
 
 inline bool socket_gets(socket_t sock, char* buf, int bufsiz)
 {
     // TODO: buffering for better performance
-    size_t i = 0;
+    int i = 0;
 
-    for (;;) {
+    for (; i < bufsiz - 1;) {
         char byte;
-        int n = socket_read(sock, &byte, 1);
+        int n = recv(sock, &byte, 1, 0);
 
         if (n < 1) {
             if (i == 0) {
@@ -654,6 +676,11 @@ inline bool read_request_line(socket_t sock, Request& req)
     std::string request_line(buf);
 
     size_t first_space = request_line.find(' ');
+    if (first_space == std::string::npos)
+    {
+        return false;
+    }
+
     std::string method = request_line.substr(0, first_space);
 
     size_t url_start = first_space + 1;
@@ -908,7 +935,7 @@ inline Response* Client::get(const char* url)
     req.method = "GET";
     req.url = url;
 
-    std::auto_ptr<Response> res(new Response);
+    std::unique_ptr<Response> res(new Response);
 
     return send(req, *res) ? res.release() : nullptr;
 }
@@ -919,7 +946,7 @@ inline Response* Client::head(const char* url)
     req.method = "HEAD";
     req.url = url;
 
-    std::auto_ptr<Response> res(new Response);
+    std::unique_ptr<Response> res(new Response);
 
     return send(req, *res) ? res.release() : nullptr;
 }
@@ -933,7 +960,7 @@ inline Response* Client::post(
     req.set_header("Content-Type", content_type);
     req.body = body;
 
-    std::auto_ptr<Response> res(new Response);
+    std::unique_ptr<Response> res(new Response);
 
     return send(req, *res) ? res.release() : nullptr;
 }
@@ -948,7 +975,7 @@ inline Response* Client::post(
     const char* body_ptr = reinterpret_cast<const char*>(body);
     req.body.assign(body_ptr, body_ptr + body_size);
 
-    std::auto_ptr<Response> res(new Response);
+    std::unique_ptr<Response> res(new Response);
 
     return send(req, *res) ? res.release() : nullptr;
 }

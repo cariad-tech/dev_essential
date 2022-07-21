@@ -21,6 +21,6 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_SYSTEM_TIMER_INCLUDED
 #define A_UTIL_UTIL_SYSTEM_TIMER_INCLUDED
 
-#include "a_util/system/timer_decl.h"
+#include <a_util/system/timer_decl.h>
 
 #endif // A_UTIL_UTIL_SYSTEM_TIMER_INCLUDED

@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_BASE_NULLPTR_FALLBACK_HEADER_INCLUDED
 #define A_UTIL_UTIL_BASE_NULLPTR_FALLBACK_HEADER_INCLUDED
 
-#include "a_util/base/config.h"
+#include <a_util/base/config.h>
 
 #if A_UTIL_ENABLE_COMPILER_CXX_NULLPTR
 

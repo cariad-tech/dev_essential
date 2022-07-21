@@ -15,10 +15,10 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/ddelement.h"
-
 #include "dd_alignment_calculation.h"
-#include "ddl/dd/dd_typeinfomodel.h"
+
+#include <ddl/dd/dd_typeinfomodel.h>
+#include <ddl/dd/ddelement.h>
 
 namespace ddl {
 

@@ -17,8 +17,8 @@
 
 //#ifndef HAVE_ATOMIC
 
-#include "a_util/base/std/types.h"
-#include "a_util/concurrency/atomic.h"
+#include <a_util/base/std/types.h>
+#include <a_util/concurrency/atomic.h>
 
 #ifdef _MSC_VER
 #include <intrin.h>

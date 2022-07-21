@@ -10,7 +10,7 @@
 #
 # You may add additional accurate notices of copyright ownership.
 
-set(MAPPING_DIR ${CMAKE_SOURCE_DIR}/include/ddl/mapping)
+set(MAPPING_DIR ${dev_essential_SOURCE_DIR}/include/ddl/mapping)
 
 set(MAPPING_CONFIGURATION_H
     ${MAPPING_DIR}/configuration/map_assignment.h

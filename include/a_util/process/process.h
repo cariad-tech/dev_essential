@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_PROCESS_PROCESS_HEADER_INCLUDED
 #define A_UTIL_UTIL_PROCESS_PROCESS_HEADER_INCLUDED
 
-#include "a_util/base/types.h"
-#include "a_util/filesystem/path.h"
+#include <a_util/base/types.h>
+#include <a_util/filesystem/path.h>
 
 #include <string>
 
@@ -126,7 +126,7 @@ void setEnvVar(const std::string& environment_variable_name,
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/process/detail/process_impl.h"
+#include <a_util/process/detail/process_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_PROCESS_PROCESS_HEADER_INCLUDED

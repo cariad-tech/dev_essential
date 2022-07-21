@@ -137,7 +137,7 @@ bool isNumeric(const char* str);
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/strings/detail/strings_numeric_traits_impl.h"
+#include <a_util/strings/detail/strings_numeric_traits_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_STRINGS_STRINGS_NUMERIC_TRAITS_DECL_HEADER_INCLUDED

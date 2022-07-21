@@ -27,6 +27,6 @@ namespace logging {
 }
 } // namespace a_util
 
-#include "a_util/logging/log.h"
+#include <a_util/logging/log.h>
 
 #endif // A_UTIL_LOGGING_HEADER_INCLUDED

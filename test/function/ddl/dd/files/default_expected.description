@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<ddl:ddl xmlns:ddl="ddl">
+    <header>
+        <language_version>4.01</language_version>
+        <author></author>
+        <date_creation></date_creation>
+        <date_change></date_change>
+        <description></description>
+    </header>
+    <units>
+        <baseunit name="Metre" symbol="m" description="Fundamental unit for length" />
+        <baseunit name="Kelvin" symbol="K" description="Fundamental unit for temperature" />
+        <baseunit name="Radiant" symbol="rad" description="Non-SI standard unit for angle" />
+        <baseunit name="Kilogram" symbol="kg" description="Fundamental unit for mass" />
+        <baseunit name="Second" symbol="s" description="Fundamental unit for time" />
+        <baseunit name="Ampere" symbol="A" description="Fundamental unit for electric current" />
+        <baseunit name="Mole" symbol="mol" description="Fundamental unit for amount of substance" />
+        <baseunit name="Candela" symbol="cd" description="Fundamental unit for luminous intensity" />
+        <baseunit name="Degree" symbol="deg" description="Non-SI standard unit for angle" />
+        <baseunit name="Unitless" symbol="" description="No SI, but needed for own unit definitions" />
+        <baseunit name="nou" symbol="" description="No SI, but needed for no unit definitions" />
+        <prefixes name="yotta" power="24" symbol="Y" />
+        <prefixes name="kilo" power="3" symbol="k" />
+        <prefixes name="zetta" power="21" symbol="Z" />
+        <prefixes name="exa" power="18" symbol="E" />
+        <prefixes name="tera" power="12" symbol="T" />
+        <prefixes name="mega" power="6" symbol="M" />
+        <prefixes name="peta" power="15" symbol="P" />
+        <prefixes name="giga" power="9" symbol="G" />
+        <prefixes name="hecto" power="2" symbol="h" />
+        <prefixes name="deca" power="1" symbol="da" />
+        <prefixes name="femto" power="-15" symbol="f" />
+        <prefixes name="deci" power="-1" symbol="d" />
+        <prefixes name="centi" power="-2" symbol="c" />
+        <prefixes name="mili" power="-3" symbol="m" />
+        <prefixes name="micro" power="-6" symbol="u" />
+        <prefixes name="nano" power="-9" symbol="n" />
+        <prefixes name="pico" power="-12" symbol="p" />
+        <prefixes name="atto" power="-18" symbol="a" />
+        <prefixes name="zepto" power="-21" symbol="z" />
+        <prefixes name="yocto" power="-24" symbol="y" />
+    </units>
+    <datatypes>
+        <datatype name="bool" size="8" description="Predefined DataType for bool" arraysize="1" />
+        <datatype name="char" size="8" description="Predefined DataType for char" arraysize="1" />
+        <datatype name="tBool" size="8" description="Predefined DataType for tBool" arraysize="1" />
+        <datatype name="tChar" size="8" description="Predefined DataType for tChar" arraysize="1" />
+        <datatype name="uint8_t" size="8" description="Predefined DataType for uint8_t" arraysize="1" min="0" max="255" />
+        <datatype name="int8_t" size="8" description="Predefined DataType for int8_t" arraysize="1" min="-128" max="127" />
+        <datatype name="tUInt8" size="8" description="Predefined DataType for tUInt8" arraysize="1" min="0" max="255" />
+        <datatype name="uint16_t" size="16" description="Predefined DataType for uint16_t" arraysize="1" min="0" max="65535" />
+        <datatype name="tInt8" size="8" description="Predefined DataType for tInt8" arraysize="1" min="-128" max="127" />
+        <datatype name="int16_t" size="16" description="Predefined DataType for int16_t" arraysize="1" min="-32768" max="32767" />
+        <datatype name="tUInt16" size="16" description="Predefined DataType for tUInt16" arraysize="1" min="0" max="65535" />
+        <datatype name="tInt16" size="16" description="Predefined DataType for tInt16" arraysize="1" min="-32768" max="32767" />
+        <datatype name="uint32_t" size="32" description="Predefined DataType for uint32_t" arraysize="1" min="0" max="4294967295" />
+        <datatype name="int32_t" size="32" description="Predefined DataType for int32_t" arraysize="1" min="-2147483648" max="2147483647" />
+        <datatype name="tUInt32" size="32" description="Predefined DataType for tUInt32" arraysize="1" min="0" max="4294967295" />
+        <datatype name="tInt32" size="32" description="Predefined DataType for tInt32" arraysize="1" min="-2147483648" max="2147483647" />
+        <datatype name="uint64_t" size="64" description="Predefined DataType for uint64_t" arraysize="1" min="0" max="18446744073709551615" />
+        <datatype name="int64_t" size="64" description="Predefined DataType for int64_t" arraysize="1" min="-9223372036854775808" max="9223372036854775807" />
+        <datatype name="tUInt64" size="64" description="Predefined DataType for tUInt64" arraysize="1" min="0" max="18446744073709551615" />
+        <datatype name="tInt64" size="64" description="Predefined DataType for tInt64" arraysize="1" min="-9223372036854775808" max="9223372036854775807" />
+        <datatype name="float" size="32" description="Predefined DataType for float" arraysize="1" />
+        <datatype name="tFloat32" size="32" description="Predefined DataType for tFloat32" arraysize="1" />
+        <datatype name="double" size="64" description="Predefined DataType for double" arraysize="1" />
+        <datatype name="tFloat64" size="64" description="Predefined DataType for tFloat64" arraysize="1" />
+    </datatypes>
+    <enums />
+    <structs />
+    <streammetatypes />
+    <streams />
+</ddl:ddl>

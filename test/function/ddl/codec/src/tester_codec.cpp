@@ -16,12 +16,14 @@
  */
 
 #include "../../_common/adtf_compat.h"
-#include "a_util/system.h"
-#include "ddl/codec/access_element.h"
-#include "ddl/codec/static_codec.h"
-#include "ddl/serialization/serialization.h"
+
+#include <a_util/system.h>
+#include <ddl/codec/access_element.h>
+#include <ddl/codec/static_codec.h>
+#include <ddl/serialization/serialization.h>
 
 #include <gtest/gtest.h>
+
 #include <list>
 
 using namespace ddl;

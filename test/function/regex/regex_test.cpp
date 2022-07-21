@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/regex/regularexpression.h"
+#include <a_util/regex/regularexpression.h>
 
 #include <gtest/gtest.h>
 
@@ -74,6 +74,7 @@ TEST(regex_test, TestFullMatch)
     EXPECT_TRUE(re.fullMatch("ruby:1234", s1, s2));
     EXPECT_EQ(s1, "ruby");
     EXPECT_EQ(s2, "1234");
+    EXPECT_FALSE(re.fullMatch("1234:ruby", s1, s2));
 
     // one arg less than required
     EXPECT_TRUE(re.fullMatch("ruby:1234", s1));
@@ -131,6 +132,14 @@ TEST(regex_test, TestDoMatch)
     RegularExpression text_exp("(\\d+)-(.*)-(\\d+)");
     EXPECT_TRUE(text_exp.match("1234-test-4321", RegularExpression::AT_Start, consumed));
     EXPECT_EQ(consumed, 14);
+    EXPECT_TRUE(text_exp.match("1234-test-4321", RegularExpression::AT_Both, consumed));
+    EXPECT_EQ(consumed, 14);
+
+    EXPECT_TRUE(text_exp.match("1234-test-4321a", RegularExpression::AT_Start, consumed));
+    EXPECT_EQ(consumed, 14);
+    EXPECT_FALSE(text_exp.match("1234-test-4321a", RegularExpression::AT_Both, consumed));
+
+    EXPECT_FALSE(text_exp.match("a1234-test-4321", RegularExpression::AT_Both, consumed));
 
     EXPECT_FALSE(text_exp.match("a1234-test-4321a", RegularExpression::AT_Start, consumed));
     EXPECT_TRUE(text_exp.match("a1234-test-4321a", RegularExpression::AT_Unanchored, consumed));

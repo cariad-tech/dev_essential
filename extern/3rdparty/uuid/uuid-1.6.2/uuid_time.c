@@ -53,10 +53,6 @@
 #include "uuid_time.h"
 
 
-#ifdef __APPLE__
-#include "../apple_clock_impl.h"
-#endif
-
 /* POSIX gettimeofday(2) abstraction (without timezone) */
 int time_gettimeofday(struct tm *tv)
 {

@@ -12,21 +12,15 @@
 
 add_subdirectory(../../extern/3rdparty/pugixml ${CMAKE_BINARY_DIR}/extern/3rdparty/pugixml)
 
-set(PUGI_SOURCES ${PUGI_DIR}/src/pugixml.hpp
-                 ${PUGI_DIR}/src/pugiconfig.hpp
-                 ${PUGI_DIR}/src/pugixml.cpp)
-add_library(pugi_xml OBJECT ${PUGI_SOURCES})
-set_target_properties(pugi_xml PROPERTIES FOLDER 3rdparty/object_libraries)
-
 add_library(xml STATIC
             ../../include/a_util/xml.h
             ../../include/a_util/xml/dom.h
             dom.cpp
-            $<TARGET_OBJECTS:pugi_xml>
             )
-target_link_libraries(xml PUBLIC base)
+target_link_libraries(xml PUBLIC base
+                          PRIVATE $<BUILD_INTERFACE:pugixml>)
 set_target_properties(xml PROPERTIES FOLDER a_util
                                      OUTPUT_NAME a_util_xml)
 install(TARGETS xml)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/xml DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/xml.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/xml DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/xml.h DESTINATION include/a_util)

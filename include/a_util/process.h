@@ -27,7 +27,7 @@ namespace process {
 }
 } // namespace a_util
 
-#include "a_util/process/detail/process_impl.h"
-#include "a_util/process/process.h"
+#include <a_util/process/detail/process_impl.h>
+#include <a_util/process/process.h>
 
 #endif // A_UTIL_PROCESS_HEADER_INCLUDED

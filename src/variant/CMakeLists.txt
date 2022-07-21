@@ -20,5 +20,5 @@ target_link_libraries(variant PUBLIC base
 set_target_properties(variant PROPERTIES FOLDER a_util
                                          OUTPUT_NAME a_util_variant)
 install(TARGETS variant)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/variant DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/variant.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/variant DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/variant.h DESTINATION include/a_util)

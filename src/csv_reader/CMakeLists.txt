@@ -20,5 +20,5 @@ set_target_properties(csv_reader PROPERTIES FOLDER a_util
                                             OUTPUT_NAME a_util_csv_reader)
 
 install(TARGETS csv_reader)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/parser DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/parser.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/parser DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/parser.h DESTINATION include/a_util)

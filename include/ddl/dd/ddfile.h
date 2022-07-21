@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDFILE_H_INCLUDED
 #define DDFILE_H_INCLUDED
 
-#include "ddl/dd/dd.h"
+#include <ddl/dd/dd.h>
 
 #include <string>
 #include <vector>

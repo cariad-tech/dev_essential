@@ -200,7 +200,7 @@ private:
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/base/detail/delegate_impl.h"
+#include <a_util/base/detail/delegate_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_DELEGATE_DECL_HEADER_INCLUDED

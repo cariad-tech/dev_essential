@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/result/detail/reference_counted_object.h"
+#include <a_util/result/detail/reference_counted_object.h>
 
 #include <gtest/gtest.h>
 

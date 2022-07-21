@@ -15,8 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/logging/log.h"
-#include "a_util/strings/strings_format.h"
+#include <a_util/logging/log.h>
+#include <a_util/strings/strings_format.h>
 
 #include <gtest/gtest.h>
 using namespace a_util;

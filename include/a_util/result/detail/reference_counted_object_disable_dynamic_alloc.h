@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_IMPL_REFERENCE_COUNTED_OBJECT_DISABLE_DYNAMIC_ALLOC_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_IMPL_REFERENCE_COUNTED_OBJECT_DISABLE_DYNAMIC_ALLOC_HEADER_INCLUDED
 
-#include "a_util/result/detail/error_description_intf.h"
-#include "a_util/result/detail/reference_counted_object.h"
+#include <a_util/result/detail/error_description_intf.h>
+#include <a_util/result/detail/reference_counted_object.h>
 
 #include <cstddef> //std::size_t
 

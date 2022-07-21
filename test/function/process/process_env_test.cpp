@@ -15,8 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/process.h"
-#include "a_util/strings/strings_convert.h"
+#include <a_util/process.h>
+#include <a_util/strings/strings_convert.h>
 
 #include <gtest/gtest.h>
 
@@ -44,7 +44,7 @@ TEST(process_env_test, test_env_set)
         // test empty value for unknown vars
         res = process::getEnvVar("A_UTIL_TEST_VAR_UNKNOWN");
     }
-    catch (std::exception ex) {
+    catch (const std::exception&) {
         function_call_did_throw = true;
     }
     ASSERT_TRUE(function_call_did_throw);
@@ -57,7 +57,7 @@ TEST(process_env_test, test_env_set)
     try {
         res = process::getEnvVar("");
     }
-    catch (std::exception ex) {
+    catch (const std::exception&) {
         function_call_did_throw = true;
     }
     ASSERT_TRUE(function_call_did_throw);

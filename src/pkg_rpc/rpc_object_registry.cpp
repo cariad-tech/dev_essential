@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "rpc/rpc_object_registry.h"
+#include <rpc/rpc_object_registry.h>
 
 #include <mutex>
 #include <shared_mutex>

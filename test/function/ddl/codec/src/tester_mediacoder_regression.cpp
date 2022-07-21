@@ -16,10 +16,11 @@
  */
 
 #include "../../_common/adtf_compat.h"
-#include "a_util/filesystem.h"
-#include "ddl/codec/access_element.h"
-#include "ddl/codec/codec_factory.h"
-#include "ddl/serialization/serialization.h"
+
+#include <a_util/filesystem.h>
+#include <ddl/codec/access_element.h>
+#include <ddl/codec/codec_factory.h>
+#include <ddl/serialization/serialization.h>
 
 #include <gtest/gtest.h>
 

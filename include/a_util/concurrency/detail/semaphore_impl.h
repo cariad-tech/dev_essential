@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_CONCURRENCY_DETAIL_SEMAPHORE_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_CONCURRENCY_DETAIL_SEMAPHORE_IMPL_HEADER_INCLUDED
 
-#include "a_util/concurrency/detail/semaphore_decl.h"
-#include "a_util/system/system.h"
+#include <a_util/concurrency/detail/semaphore_decl.h>
+#include <a_util/system/system.h>
 
 #ifndef _MSC_VER
 #include <condition_variable>

@@ -26,6 +26,3 @@ set_target_properties(maybe_unused_tests PROPERTIES FOLDER test/function/a_util/
 
 target_compile_options(maybe_unused_tests PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/WX>)
 target_compile_options(maybe_unused_tests PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Werror>)
-
-# test whether all public header files are self contained
-include("${CMAKE_CURRENT_LIST_DIR}/test_public_headers_are_self_contained.cmake")

@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DD_ACCESS_LIST_H_INCLUDED
 #define DD_DD_ACCESS_LIST_H_INCLUDED
 
-#include "ddl/dd/dd_common_types.h"
-#include "ddl/dd/dd_error.h"
-#include "ddl/utilities/dd_access_observer.h"
+#include <ddl/dd/dd_common_types.h>
+#include <ddl/dd/dd_error.h>
+#include <ddl/utilities/dd_access_observer.h>
 
 #include <algorithm>
 #include <memory>
@@ -434,7 +434,8 @@ public:
         }
         if (removed_value) {
             _types.erase(current_it);
-            removed_value->detachObserver(this);
+            (static_cast<subject_type*>(removed_value.get()))
+                ->detachObserver(static_cast<observer_type*>(this));
             if (_validator) {
                 _validator->notifyChangedListContent(
                     TypeAccessListEventCode::list_item_removed, *removed_value, type_name);
@@ -573,6 +574,30 @@ public:
                 ->detachObserver(static_cast<observer_type*>(this));
             _types.erase(it);
             it = begin();
+        }
+    }
+
+    /**
+     * @brief removes the last element if exists.
+     * @throw ddl::dd::Error if it is empty.
+     */
+    void popBack()
+    {
+        if (!_types.empty()) {
+            auto last_element = _types[_types.size() - 1];
+            // unregister me as observer
+            (static_cast<subject_type*>(last_element.get()))
+                ->detachObserver(static_cast<observer_type*>(this));
+            // pop last element
+            _types.pop_back();
+            if (_validator) {
+                _validator->notifyChangedListContent(TypeAccessListEventCode::list_item_removed,
+                                                     *last_element,
+                                                     last_element->getName());
+            }
+        }
+        else {
+            throw ddl::dd::Error(_validation_info + "::popBack", {}, "list is empty");
         }
     }
 

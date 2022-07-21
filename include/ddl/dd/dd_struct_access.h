@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DDL_STRUCT_ACCESS_H_INCLUDED
 #define DD_DDL_STRUCT_ACCESS_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_datadefinition.h"
-#include "ddl/dd/dd_typeinfomodel.h"
-#include "ddl/dd/dd_validationinfomodel.h"
+#include <ddl/datamodel/datamodel_datadefinition.h>
+#include <ddl/dd/dd_typeinfomodel.h>
+#include <ddl/dd/dd_validationinfomodel.h>
 
 #include <string>
 

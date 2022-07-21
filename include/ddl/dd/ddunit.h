@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDLUNIT_H_INCLUDED
 #define DDLUNIT_H_INCLUDED
 
-#include "ddl/dd/dd.h"
-#include "ddl/dd/dd_predefined_units.h"
+#include <ddl/dd/dd.h>
+#include <ddl/dd/dd_predefined_units.h>
 
 #include <memory>
 #include <string>
@@ -106,24 +106,24 @@ public:
      * @brief copy CTOR
      *
      */
-    DDUnit(const DDUnit&) = default;
+    DDUnit(const DDUnit&);
     /**
      * @brief move CTOR
      *
      */
-    DDUnit(DDUnit&&) = default;
+    DDUnit(DDUnit&&);
     /**
      * @brief copy assignment operator
      *
      * @return DDUnit&
      */
-    DDUnit& operator=(const DDUnit&) = default;
+    DDUnit& operator=(const DDUnit&);
     /**
      * @brief move assignment operator
      *
      * @return DDUnit&
      */
-    DDUnit& operator=(DDUnit&&) = default;
+    DDUnit& operator=(DDUnit&&);
 
     /**
      * @brief CTOR

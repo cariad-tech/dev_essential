@@ -15,11 +15,12 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/datetime.h"
-#include "a_util/system.h"
+#include <a_util/datetime.h>
+#include <a_util/system.h>
+
+#include <gtest/gtest.h>
 
 #include <chrono>
-#include <gtest/gtest.h>
 
 #if (defined(_MSC_VER) && (_MSC_VER <= 1600)) // vc100, C++03
 

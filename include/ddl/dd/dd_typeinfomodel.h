@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_TYPEINFOMODEL_H_INCLUDED
 #define DD_TYPEINFOMODEL_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_datadefinition.h"
-#include "ddl/dd/dd_infomodel_type.h"
+#include <ddl/datamodel/datamodel_datadefinition.h>
+#include <ddl/dd/dd_infomodel_type.h>
 
 #include <string>
 

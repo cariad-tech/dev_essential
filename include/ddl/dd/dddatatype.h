@@ -21,10 +21,10 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DATATYPE_H_INCLUDED
 #define DD_DATATYPE_H_INCLUDED
 
-#include "ddl/dd/dd.h"
-#include "ddl/dd/dd_common_types.h"
-#include "ddl/dd/dd_predefined_datatypes.h"
-#include "ddl/dd/ddunit.h"
+#include <ddl/dd/dd.h>
+#include <ddl/dd/dd_common_types.h>
+#include <ddl/dd/dd_predefined_datatypes.h>
+#include <ddl/dd/ddunit.h>
 
 #include <string>
 
@@ -44,24 +44,24 @@ public:
      * @brief copy CTOR
      *
      */
-    DDDataType(const DDDataType&) = default;
+    DDDataType(const DDDataType&);
     /**
      * @brief move CTOR
      *
      */
-    DDDataType(DDDataType&&) = default;
+    DDDataType(DDDataType&&);
     /**
      * @brief copy assignment operator
      *
      * @return DDDataType&
      */
-    DDDataType& operator=(const DDDataType&) = default;
+    DDDataType& operator=(const DDDataType&);
     /**
      * @brief move assignment operator
      *
      * @return DDDataType&
      */
-    DDDataType& operator=(DDDataType&&) = default;
+    DDDataType& operator=(DDDataType&&);
 
     /**
      * @brief CTOR

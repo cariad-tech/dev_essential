@@ -16,9 +16,10 @@
  */
 
 #define A_UTIL_ENABLE_MAKE_UNIQUE
-#include "a_util/memory/unique_ptr.h"
+#include <a_util/memory/unique_ptr.h>
 
 #include <gtest/gtest.h>
+
 #include <string>
 #include <type_traits>
 

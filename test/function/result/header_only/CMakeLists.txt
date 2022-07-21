@@ -34,7 +34,8 @@ target_link_libraries(a_util_result_legacy_shared PRIVATE GTest::gtest)
 target_compile_definitions(a_util_result_legacy_shared
                            PRIVATE A_UTIL_ENABLE_DYNAMIC_ERROR_DESCRIPTION
                                    A_UTIL_ENABLE_COMPILER_CXX_VARIADIC_TEMPLATES=1
-                                   A_UTIL_ENABLE_COMPILER_CXX_RVALUE_REFERENCES=1)
+                                   A_UTIL_ENABLE_COMPILER_CXX_RVALUE_REFERENCES=1
+                                   A_UTIL_DO_EXPORT)
 # We cannot change the implementation, because we want to test against the old implementation
 # So we have to get rid of the warnings via compiler flags
 target_compile_options(a_util_result_legacy_shared PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-pedantic -Wno-extra>)
@@ -49,3 +50,4 @@ target_link_libraries(result_type_compat_test
                       PRIVATE GTest::gtest_main a_util_result_legacy_shared dev_essential::result)
 add_test(result_type_compat_test result_type_compat_test)
 set_target_properties(result_type_compat_test PROPERTIES FOLDER test/function/a_util/result)
+target_compile_definitions(result_type_compat_test PRIVATE A_UTIL_DO_EXPORT)

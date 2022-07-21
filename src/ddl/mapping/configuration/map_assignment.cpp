@@ -14,9 +14,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/mapping/configuration/map_assignment.h"
-
-#include "a_util/strings/strings_functions.h"
+#include <a_util/strings/strings_functions.h>
+#include <ddl/mapping/configuration/map_assignment.h>
 
 namespace ddl {
 namespace mapping {

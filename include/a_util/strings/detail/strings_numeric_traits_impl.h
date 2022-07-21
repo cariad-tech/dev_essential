@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_STRINGS_DETAIL_STRINGS_NUMERIC_TRAITS_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_STRINGS_DETAIL_STRINGS_NUMERIC_TRAITS_IMPL_HEADER_INCLUDED
 
-#include "a_util/strings/strings_numeric_traits_decl.h"
+#include <a_util/strings/strings_numeric_traits_decl.h>
 
 namespace a_util {
 namespace strings {

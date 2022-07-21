@@ -22,5 +22,5 @@ target_link_libraries(filesystem PUBLIC base
 set_target_properties(filesystem PROPERTIES FOLDER a_util
                                             OUTPUT_NAME a_util_filesystem)
 install(TARGETS filesystem)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/filesystem DESTINATION include/a_util)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/filesystem.h DESTINATION include/a_util)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/filesystem DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/filesystem.h DESTINATION include/a_util)

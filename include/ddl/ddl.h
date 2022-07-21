@@ -68,16 +68,17 @@ namespace rt {
 
 } // namespace ddl
 
-#include "datamodel/datamodel_datadefinition.h"
+#include <ddl/datamodel/datamodel_datadefinition.h>
 // access and creating API
-#include "dd/dd.h"
-#include "dd/ddcompare.h"
-#include "dd/ddfile.h"
-#include "dd/ddstring.h"
-#include "dd/ddstructure.h"
+#include <ddl/dd/dd.h>
+#include <ddl/dd/ddcompare.h>
+#include <ddl/dd/dddefault.h>
+#include <ddl/dd/ddfile.h>
+#include <ddl/dd/ddstring.h>
+#include <ddl/dd/ddstructure.h>
 // codec API
-#include "codec/pkg_codec.h"
-#include "mapping/pkg_mapping.h"
-#include "serialization/pkg_serialization.h"
+#include <ddl/codec/pkg_codec.h>
+#include <ddl/mapping/pkg_mapping.h>
+#include <ddl/serialization/pkg_serialization.h>
 
 #endif // DDL_HEADER_

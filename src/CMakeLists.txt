@@ -39,6 +39,7 @@ set(_targets base
              preprocessor
              pkg_rpc
              ddl
+             ddl_capi
              )
 
 # ... or just a user defined subset
@@ -62,7 +63,7 @@ foreach(_target ${_targets})
     ## Alias targets for correct linking in dev_essential integrated test targets
     add_library(dev_essential::${_target} ALIAS ${_target})
     target_link_libraries(dev_essential INTERFACE ${_target})
-    
+
     ## Add target to export set
     install(TARGETS ${_target} EXPORT dev_essential_targets)
 endforeach()

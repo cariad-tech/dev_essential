@@ -14,11 +14,10 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/mapping/configuration/map_header.h"
-
-#include "a_util/datetime.h"
-#include "a_util/system.h"
-#include "ddl/mapping/configuration/map_configuration.h"
+#include <a_util/datetime.h>
+#include <a_util/system.h>
+#include <ddl/mapping/configuration/map_configuration.h>
+#include <ddl/mapping/configuration/map_header.h>
 
 namespace ddl {
 namespace mapping {

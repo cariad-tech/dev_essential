@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_SYSTEM_DETAIL_TIMER_IMPL_INCLUDED
 #define A_UTIL_UTIL_SYSTEM_DETAIL_TIMER_IMPL_INCLUDED
 
-#include "a_util/base/delegate.h"
-#include "a_util/system/timer_decl.h"
+#include <a_util/base/delegate.h>
+#include <a_util/system/timer_decl.h>
 
 namespace a_util {
 namespace system {

@@ -16,9 +16,9 @@
  */
 #include "dd_fromxmlelement.h"
 
-#include "a_util/xml.h"
-#include "ddl/datamodel/xml_ddfromxml_factory.h"
-#include "ddl/datamodel/xml_ddtoxml_factory.h"
+#include <a_util/xml.h>
+#include <ddl/datamodel/xml_ddfromxml_factory.h>
+#include <ddl/datamodel/xml_ddtoxml_factory.h>
 
 namespace ddl {
 namespace detail {

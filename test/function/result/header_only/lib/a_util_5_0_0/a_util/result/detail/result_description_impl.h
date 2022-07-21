@@ -21,11 +21,11 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_IMPL_HEADER_INCLUDED
 
-#include "a_util/base/nullptr_fallback.h"
-#include "a_util/base/static_assert_fallback.h"
-#include "a_util/base/std/types.h"
-#include "a_util/result/detail/reference_counted_object_intf.h"
-#include "a_util/result/detail/result_description_decl.h"
+#include <a_util/base/nullptr_fallback.h>
+#include <a_util/base/static_assert_fallback.h>
+#include <a_util/base/std/types.h>
+#include <a_util/result/detail/reference_counted_object_intf.h>
+#include <a_util/result/detail/result_description_decl.h>
 
 namespace a_util {
 namespace result {

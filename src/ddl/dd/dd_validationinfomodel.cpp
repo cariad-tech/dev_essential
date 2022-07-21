@@ -15,11 +15,10 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/dd_validationinfomodel.h"
-
-#include "ddl/dd/dd_predefined_datatypes.h"
-#include "ddl/dd/dd_predefined_units.h"
-#include "ddl/utilities/std_to_string.h"
+#include <ddl/dd/dd_predefined_datatypes.h>
+#include <ddl/dd/dd_predefined_units.h>
+#include <ddl/dd/dd_validationinfomodel.h>
+#include <ddl/utilities/std_to_string.h>
 
 namespace ddl {
 
@@ -77,7 +76,7 @@ std::vector<std::string> removeInMapTo(const std::string& to,
         std::swap(it->second, result);
         the_map.erase(it);
     }
-    return std::move(result);
+    return result;
 }
 
 void renameInMapFrom(const std::string& from_old,
@@ -655,8 +654,15 @@ ValidationInfo::Problem generateProblemMessage(const std::string& typeofmodel,
     return {name, typeofmodel + " ('" + name + "'): " + problem_message};
 }
 
-std::shared_ptr<datamodel::BaseUnit> getOrCreatePredefinedBaseUnit(
-    const std::string& name, datamodel::DataDefinition& parent_dd)
+/**
+ * This function will retrieve the base unit with the @p name from the @p parent_dd.
+ * If not found it will have a look at the (static) predefined base units and copy it to
+ * @p parent_dd if found there.
+ * @remark: This is to automatically add base units from previously incomplete defined data
+ * definitions, where the predefined types were always added as not deletable references!
+ */
+std::shared_ptr<datamodel::BaseUnit> getOrCreateBaseUnit(const std::string& name,
+                                                         datamodel::DataDefinition& parent_dd)
 {
     auto base_unit_found = parent_dd.getBaseUnits().access(name);
     if (!base_unit_found) {
@@ -669,8 +675,16 @@ std::shared_ptr<datamodel::BaseUnit> getOrCreatePredefinedBaseUnit(
     }
     return base_unit_found;
 }
-std::shared_ptr<datamodel::UnitPrefix> getOrCreatePredefinedUnitPrefix(
-    const std::string& name, datamodel::DataDefinition& parent_dd)
+
+/**
+ * This function will retrieve the unit prefix with the @p name from the @p parent_dd.
+ * If not found it will have a look at the (static) predefined unit prefixes and copy it to
+ * @p parent_dd if found there.
+ * @remark: This is to automatically add unit prefixes from previously incomplete defined data
+ * definitions, where the predefined where always there as a not deletable reference!
+ */
+std::shared_ptr<datamodel::UnitPrefix> getOrCreateUnitPrefix(const std::string& name,
+                                                             datamodel::DataDefinition& parent_dd)
 {
     auto unit_prefix_found = parent_dd.getUnitPrefixes().access(name);
     if (!unit_prefix_found) {
@@ -696,7 +710,7 @@ void ValidationInfo::update(datamodel::Unit& unit, datamodel::DataDefinition& pa
             addDependency(
                 {ValidationServiceInfo::unit_to_base_unit, unit.getName(), base_unit_name},
                 parent_dd);
-            auto base_unit = getOrCreatePredefinedBaseUnit(base_unit_name, parent_dd);
+            auto base_unit = getOrCreateBaseUnit(base_unit_name, parent_dd);
             // this will invalidate the whole dd ! If a unit is defined it must be valid!
             if (!base_unit) {
                 current_validation_level = invalid;
@@ -715,7 +729,7 @@ void ValidationInfo::update(datamodel::Unit& unit, datamodel::DataDefinition& pa
         if (!prefix_name.empty()) {
             addDependency({ValidationServiceInfo::unit_to_unit_prefix, unit.getName(), prefix_name},
                           parent_dd);
-            auto prefix = getOrCreatePredefinedUnitPrefix(prefix_name, parent_dd);
+            auto prefix = getOrCreateUnitPrefix(prefix_name, parent_dd);
             if (!prefix) {
                 // this will invalidate the whole dd ! If a unit is defined it must be valid!
                 current_validation_level = invalid;
@@ -741,7 +755,7 @@ void ValidationInfo::update(datamodel::DataType& data_type, datamodel::DataDefin
     ValidationLevel current_validation_level = valid;
     if (!unit_name.empty()) {
         // we do not care about the return value here
-        getOrCreatePredefinedBaseUnit(unit_name, parent_dd);
+        getOrCreateBaseUnit(unit_name, parent_dd);
         auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
         if (type_of_unit == base_unit) {
             addDependency(
@@ -800,8 +814,15 @@ void ValidationInfo::update(datamodel::DataType& data_type, datamodel::DataDefin
 }
 
 namespace {
-std::shared_ptr<datamodel::DataType> getOrCreatePredefinedDataType(
-    const std::string& name, datamodel::DataDefinition& parent_dd)
+/**
+ * This function will retrieve the datatype with the @p name from the @p parent_dd.
+ * If not found it will have a look at the (static) predefined datatype and copy it to
+ * @p parent_dd if found there.
+ * @remark: This is to automatically add datatypes from previously incomplete defined data
+ * definitions!
+ */
+std::shared_ptr<datamodel::DataType> getOrCreateDataType(const std::string& name,
+                                                         datamodel::DataDefinition& parent_dd)
 {
     auto data_type_found = parent_dd.getDataTypes().access(name);
     if (!data_type_found) {
@@ -830,7 +851,7 @@ void ValidationInfo::update(datamodel::EnumType& enum_type, datamodel::DataDefin
         addDependency(
             {ValidationServiceInfo::enum_type_to_data_type, enum_type.getName(), data_type_name},
             parent_ddl);
-        auto data_type = getOrCreatePredefinedDataType(data_type_name, parent_ddl);
+        auto data_type = getOrCreateDataType(data_type_name, parent_ddl);
         if (!data_type) {
             current_validation = invalid;
             addProblem(generateProblemMessage("EnumType",
@@ -878,7 +899,7 @@ const ValidationInfo* getOrCreateValidationInfo(const std::string type_name,
     // we check for invalid here to have a look at the predefined types
     if (!with_stream_meta_type) {
         if (type_of_type == TypeOfType::data_type || type_of_type == TypeOfType::invalid_type) {
-            auto dt = getOrCreatePredefinedDataType(type_name, ddl);
+            auto dt = getOrCreateDataType(type_name, ddl);
             if (dt) {
                 // if we maybe found a predefined type we mus set this to data_type
                 type_of_type = TypeOfType::data_type;
@@ -1001,7 +1022,7 @@ ValidationInfo::ValidationLevel updateValidationForElement(
     auto unit_name = element.getUnitName();
     if (!unit_name.empty()) {
         // we do not check the return value, this is just to add if it is a base unit
-        getOrCreatePredefinedBaseUnit(unit_name, parent_dd);
+        getOrCreateBaseUnit(unit_name, parent_dd);
         auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
         if (type_of_unit == base_unit) {
             addDependency({ValidationServiceInfo::struct_type_to_base_unit,

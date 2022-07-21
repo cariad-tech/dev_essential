@@ -21,14 +21,14 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DATA_MODEL_H_INCLUDED
 #define DD_DATA_MODEL_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_base.h"
-#include "ddl/datamodel/datamodel_header.h"
-#include "ddl/datamodel/datamodel_streams.h"
-#include "ddl/datamodel/datamodel_types.h"
-#include "ddl/datamodel/datamodel_units.h"
-#include "ddl/datamodel/infomodel_base.h"
-#include "ddl/dd/dd_common_types.h"
-#include "ddl/utilities/dd_access_map.h"
+#include <ddl/datamodel/datamodel_base.h>
+#include <ddl/datamodel/datamodel_header.h>
+#include <ddl/datamodel/datamodel_streams.h>
+#include <ddl/datamodel/datamodel_types.h>
+#include <ddl/datamodel/datamodel_units.h>
+#include <ddl/datamodel/infomodel_base.h>
+#include <ddl/dd/dd_common_types.h>
+#include <ddl/utilities/dd_access_map.h>
 
 #include <string>
 #include <vector>

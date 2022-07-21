@@ -15,11 +15,11 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/codec/static_codec.h"
-
-#include "a_util/result/error_def.h"
-#include "ddl/legacy_error_macros.h"
 #include "element_accessor.h"
+
+#include <a_util/result/error_def.h>
+#include <ddl/codec/static_codec.h>
+#include <ddl/legacy_error_macros.h>
 
 namespace ddl {
 // define all needed error types and values locally

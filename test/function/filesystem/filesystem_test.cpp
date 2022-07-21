@@ -16,11 +16,12 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/filesystem/filesystem.h"
+#include <a_util/filesystem/filesystem.h>
+
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <iostream>
 using namespace a_util;
 using namespace a_util::filesystem;

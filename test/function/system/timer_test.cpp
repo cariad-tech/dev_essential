@@ -15,8 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/system/system.h"
-#include "a_util/system/timer.h"
+#include <a_util/system/system.h>
+#include <a_util/system/timer.h>
 
 #include <gtest/gtest.h>
 

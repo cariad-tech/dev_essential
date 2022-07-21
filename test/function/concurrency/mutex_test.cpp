@@ -15,15 +15,17 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/concurrency/mutex.h"
-#include "a_util/concurrency/shared_mutex.h"
-#include "a_util/concurrency/thread.h"
-#include "a_util/system/system.h" //system::sleepMilliseconds
+#include <a_util/concurrency/fast_mutex.h>
+#include <a_util/concurrency/mutex.h>
+#include <a_util/concurrency/shared_mutex.h>
+#include <a_util/concurrency/thread.h>
+#include <a_util/system/system.h> //system::sleepMilliseconds
 
 #include <gtest/gtest.h>
 
+template <typename Mutex>
 struct MutexTestStruct {
-    a_util::concurrency::mutex mtx;
+    Mutex mtx;
     void Work()
     {
         mtx.lock();
@@ -31,16 +33,33 @@ struct MutexTestStruct {
     }
 };
 
-TEST(mutex_test, TestMutex)
+TEST(mutex_test, TestFastMutex)
 {
-    MutexTestStruct t;
+    using mutex_test_struct = MutexTestStruct<a_util::concurrency::fast_mutex>;
+    mutex_test_struct t;
     ASSERT_TRUE(t.mtx.try_lock());
+    ASSERT_NE(nullptr, t.mtx.native_handle()); // handle initialized during construction
 
     {
-        a_util::concurrency::thread th(&MutexTestStruct::Work, &t);
+        a_util::concurrency::thread th(&mutex_test_struct::Work, &t);
         a_util::system::sleepMilliseconds(100);
         ASSERT_TRUE(th.joinable());
 
+        t.mtx.unlock();
+        th.join();
+    }
+}
+
+TEST(mutex_test, TestMutex)
+{
+    using mutex_test_struct = MutexTestStruct<a_util::concurrency::mutex>;
+    mutex_test_struct t;
+    ASSERT_TRUE(t.mtx.try_lock());
+
+    {
+        a_util::concurrency::thread th(&mutex_test_struct::Work, &t);
+        a_util::system::sleepMilliseconds(100);
+        ASSERT_TRUE(th.joinable());
         t.mtx.unlock();
         th.join();
     }

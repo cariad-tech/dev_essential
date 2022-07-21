@@ -17,13 +17,15 @@
  */
 
 #include "./../../_common/test_oo_ddl.h"
-#include "a_util/xml.h"
-#include "ddl/dd/ddcompare.h"
-#include "ddl/dd/ddstring.h"
 #include "ddl_definitions.h"
 
-#include <cstdio>
+#include <a_util/xml.h>
+#include <ddl/dd/ddcompare.h>
+#include <ddl/dd/ddstring.h>
+
 #include <gtest/gtest.h>
+
+#include <cstdio>
 
 /**
  * @detail The building up of a DataDefinition object representation.

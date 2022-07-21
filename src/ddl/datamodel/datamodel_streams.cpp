@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/datamodel/datamodel_streams.h"
+#include <ddl/datamodel/datamodel_streams.h>
 
 #include <exception>
 #include <utility>

@@ -21,10 +21,10 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_STATIC_CODEC_CLASS_HEADER
 #define DDL_STATIC_CODEC_CLASS_HEADER
 
-#include "a_util/memory.h"
-#include "a_util/result.h"
-#include "a_util/variant.h"
-#include "ddl/codec/struct_element.h"
+#include <a_util/memory.h>
+#include <a_util/result.h>
+#include <a_util/variant.h>
+#include <ddl/codec/struct_element.h>
 
 namespace ddl {
 class StructLayout;

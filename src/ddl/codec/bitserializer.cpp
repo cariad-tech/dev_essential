@@ -15,9 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/codec/bitserializer.h"
-
-#include "a_util/memory.h"
+#include <a_util/memory.h>
+#include <ddl/codec/bitserializer.h>
 
 #include <stdexcept>
 

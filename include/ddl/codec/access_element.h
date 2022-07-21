@@ -20,10 +20,10 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_STRUCT_ELEMENT_ACCESS_CLASS_HEADER
 #define DDL_STRUCT_ELEMENT_ACCESS_CLASS_HEADER
 
-#include "a_util/result.h"
-#include "a_util/strings.h"
-#include "ddl/codec/codec_factory.h"
-#include "ddl/codec/struct_element.h"
+#include <a_util/result.h>
+#include <a_util/strings.h>
+#include <ddl/codec/codec_factory.h>
+#include <ddl/codec/struct_element.h>
 
 #include <type_traits>
 
@@ -474,8 +474,8 @@ a_util::result::Result getArrayValue(const CODEC& decoder,
                                      const std::string& array_name,
                                      T* array_value)
 {
-    const void* start_address;
-    size_t size;
+    const void* start_address = nullptr;
+    size_t size = 0;
     a_util::result::Result res = getArray(decoder, array_name, start_address, size);
     if (a_util::result::isFailed(res))
         return res;

@@ -15,11 +15,34 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/dddatatype.h"
-
-#include "a_util/strings.h"
+#include <a_util/strings.h>
+#include <ddl/dd/dddatatype.h>
 
 namespace ddl {
+
+DDDataType::DDDataType(const DDDataType& other) : _dd(other._dd)
+{
+    _data_type = _dd.getDataTypes().access(other.getDataType().getName());
+}
+
+DDDataType& DDDataType::operator=(const DDDataType& other)
+{
+    _dd = other._dd;
+    _data_type = _dd.getDataTypes().access(other.getDataType().getName());
+    return *this;
+}
+
+DDDataType::DDDataType(DDDataType&& other)
+    : _dd(std::move(other._dd)), _data_type(std::move(other._data_type))
+{
+}
+
+DDDataType& DDDataType::operator=(DDDataType&& other)
+{
+    _dd = std::move(other._dd);
+    _data_type = std::move(other._data_type);
+    return *this;
+}
 
 DDDataType::DDDataType(const std::string& name,
                        size_t bit_size,

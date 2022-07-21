@@ -14,7 +14,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "rpc/json_rpc.h"
+#include <rpc/json_rpc.h>
 
 #if defined(__QNX__) && defined(__GNUC__) && (__GNUC__ == 5)
 #include <cstdint>

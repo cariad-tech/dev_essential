@@ -16,7 +16,7 @@
 
 #include "parserhelper.h"
 
-#include "a_util/strings.h"
+#include <a_util/strings.h>
 
 #include <string.h>
 

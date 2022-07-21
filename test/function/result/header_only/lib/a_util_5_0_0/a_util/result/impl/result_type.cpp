@@ -16,15 +16,15 @@
  */
 
 #ifdef A_UTIL_ENABLE_DYNAMIC_ERROR_DESCRIPTION
-#include "a_util/result/impl/error_description.h"
+#include <a_util/result/impl/error_description.h>
 #else
-#include "a_util/result/impl/reference_counted_object_disable_dynamic_alloc.h"
+#include <a_util/result/impl/reference_counted_object_disable_dynamic_alloc.h>
 #endif
 
-#include "a_util/base/static_assert_fallback.h"
-#include "a_util/result/detail/error_description_intf.h"
-#include "a_util/result/impl/result_description_private.h"
-#include "a_util/result/result_type.h"
+#include <a_util/base/static_assert_fallback.h>
+#include <a_util/result/detail/error_description_intf.h>
+#include <a_util/result/impl/result_description_private.h>
+#include <a_util/result/result_type.h>
 
 namespace a_util {
 namespace result {

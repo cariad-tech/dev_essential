@@ -14,10 +14,9 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/dd_common_types.h"
-
-#include "ddl/dd/dd_error.h"
-#include "ddl/utilities/std_to_string.h"
+#include <ddl/dd/dd_common_types.h>
+#include <ddl/dd/dd_error.h>
+#include <ddl/utilities/std_to_string.h>
 
 #include <sstream>
 

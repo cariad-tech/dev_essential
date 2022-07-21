@@ -14,7 +14,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/mapping/engine/data_trigger.h"
+#include <ddl/mapping/engine/data_trigger.h>
 
 #include <assert.h>
 

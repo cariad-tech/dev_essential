@@ -17,7 +17,7 @@
 
 #include "dd_offset_calculation.h"
 
-#include "ddl/dd/dd_typeinfomodel.h"
+#include <ddl/dd/dd_typeinfomodel.h>
 namespace ddl {
 
 namespace dd {
@@ -328,17 +328,9 @@ CalculatedDeserializedPos calculateDeserializedPosSize(
     }
 
     if (relevant_version >= Version::ddl_version_30) {
-        // if array and version is 3.0 and higher -> then we use the aligned size for n-1 array
+        // if array and version is 3.0 and higher -> then we use the aligned size for all array
         // elements
         size_t calculated_byte_size = array_size_used * type_info->getTypeAlignedByteSize();
-
-        // now it must be aligned to the elements alignement too (says doc!)
-        size_t rest_bytes = (calculated_byte_size % alignment_of_the_element);
-        if (rest_bytes > 0) {
-            rest_bytes = alignment_of_the_element - rest_bytes;
-            // move it the gap bytes up
-            calculated_byte_size += rest_bytes;
-        }
         result._deserialized_byte_size = calculated_byte_size;
     }
     else {

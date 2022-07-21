@@ -21,16 +21,17 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_PREDEFINED_DATATYPES_H_INCLUDED
 #define DD_PREDEFINED_DATATYPES_H_INCLUDED
 
-#include "a_util/preprocessor/detail/disable_warnings.h"
-#include "ddl/datamodel/datamodel_types.h"
-#include "ddl/dd/dd_common_types.h"
-#include "ddl/utilities/std_to_string.h"
+#include <a_util/preprocessor/detail/disable_warnings.h>
+#include <ddl/datamodel/datamodel_types.h>
+#include <ddl/dd/dd_common_types.h>
+#include <ddl/utilities/std_to_string.h>
 
 #include <limits>
 #include <memory>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <vector>
 
 namespace ddl {
 
@@ -287,42 +288,12 @@ private:
      * @brief Construct a new Predefined Data Types object
      *
      */
-    PredefinedDataTypes()
-    {
-        _defined_types["bool"] = {std::make_shared<DataType<bool>>("bool"), {"tBool"}};
-        _defined_types["tBool"] = {std::make_shared<DataType<bool>>("tBool"), {"bool"}};
-
-        _defined_types["char"] = {std::make_shared<DataType<char>>("char"), {"tChar"}};
-        _defined_types["tChar"] = {std::make_shared<DataType<char>>("tChar"), {"char"}};
-
-        _defined_types["uint8_t"] = {std::make_shared<DataType<uint8_t>>("uint8_t"), {"tUInt8"}};
-        _defined_types["int8_t"] = {std::make_shared<DataType<int8_t>>("uint8_t"), {"tInt8"}};
-        _defined_types["tUInt8"] = {std::make_shared<DataType<uint8_t>>("tUInt8"), {"uint8_t"}};
-        _defined_types["tInt8"] = {std::make_shared<DataType<int8_t>>("tInt8"), {"int8_t"}};
-
-        _defined_types["uint16_t"] = {std::make_shared<DataType<uint16_t>>("uint16_t"),
-                                      {"tUInt16"}};
-        _defined_types["int16_t"] = {std::make_shared<DataType<int16_t>>("int16_t"), {"tInt16"}};
-        _defined_types["tUInt16"] = {std::make_shared<DataType<uint16_t>>("tUInt16"), {"uint16_t"}};
-        _defined_types["tInt16"] = {std::make_shared<DataType<int16_t>>("tInt16"), {"int16_t"}};
-
-        _defined_types["uint32_t"] = {std::make_shared<DataType<uint32_t>>("uint32_t"),
-                                      {"tUInt32"}};
-        _defined_types["int32_t"] = {std::make_shared<DataType<int32_t>>("int32_t"), {"tInt32"}};
-        _defined_types["tUInt32"] = {std::make_shared<DataType<uint32_t>>("tUInt32"), {"uint32_t"}};
-        _defined_types["tInt32"] = {std::make_shared<DataType<int32_t>>("tInt32"), {"int32_t"}};
-
-        _defined_types["uint64_t"] = {std::make_shared<DataType<uint64_t>>("uint64_t"),
-                                      {"tUInt64"}};
-        _defined_types["int64_t"] = {std::make_shared<DataType<int64_t>>("int64_t"), {"tInt64"}};
-        _defined_types["tUInt64"] = {std::make_shared<DataType<uint64_t>>("tUInt64"), {"uint64_t"}};
-        _defined_types["tInt64"] = {std::make_shared<DataType<int64_t>>("tInt64"), {"int64_t"}};
-
-        _defined_types["float"] = {std::make_shared<DataType<float>>("float"), {"tFloat32"}};
-        _defined_types["tFloat32"] = {std::make_shared<DataType<float>>("tFloat32"), {"float"}};
-        _defined_types["double"] = {std::make_shared<DataType<double>>("double"), {"tFloat64"}};
-        _defined_types["tFloat64"] = {std::make_shared<DataType<double>>("tFloat64"), {"double"}};
-    }
+    PredefinedDataTypes();
+    /**
+     * @brief Destructor
+     *
+     */
+    ~PredefinedDataTypes();
 
 public:
     /**
@@ -330,60 +301,41 @@ public:
      *
      * @return PredefinedDataTypes&
      */
-    static PredefinedDataTypes& getInstance()
-    {
-        static PredefinedDataTypes types;
-        return types;
-    }
+    static const PredefinedDataTypes& getInstance();
     /**
      * @brief Get the Predefined Type object by name
      *
-     * @param name the name to look for
+     * @param[in] name Name of the predefined type to look for
      * @return std::shared_ptr<dd::datamodel::DataType>
      */
-    std::shared_ptr<dd::datamodel::DataType> getPredefinedType(const std::string& name) const
-    {
-        auto found = _defined_types.find(name);
-        if (found != _defined_types.end()) {
-            return found->second._type;
-        }
-        return {};
-    }
+    std::shared_ptr<dd::datamodel::DataType> getPredefinedType(const std::string& name) const;
     /**
      * @brief Get the default alignment of a Predefined Type by name
      *
-     * @param name the name to look for
+     * @param[in] name Type name to search the default alignment for
      * @return dd::OptionalSize
      */
-    dd::OptionalSize getDefaultAlignment(const std::string& name) const
-    {
-        auto found = _defined_types.find(name);
-        if (found != _defined_types.end()) {
-            return found->second._type->getDefaultAlignment();
-        }
-        return {};
-    }
+    dd::OptionalSize getDefaultAlignment(const std::string& name) const;
     /**
-     * @brief Get the aliases for this type to determine simalar type (like tBool and bool)
+     * @brief Get the aliases for this type to determine similar type (like tBool and bool)
      *
-     * @param name the name to look for
-     * @return dd::OptionalSize
+     * @param[in] name Type name to search the aliases for
+     * @return Vector object of strings containing all aliases for @c name
      */
-    std::vector<std::string> getAliasTypes(const std::string& name) const
-    {
-        auto found = _defined_types.find(name);
-        if (found != _defined_types.end()) {
-            return found->second._aliases;
-        }
-        return {};
-    }
+    std::vector<std::string> getAliasTypes(const std::string& name) const;
+    /**
+     * @brief Gets a vector of all the predefined data types.
+     *
+     * @return std::vector<std::shared_ptr<dd::datamodel::DataType>> The predefined data types.
+     */
+    std::vector<std::shared_ptr<dd::datamodel::DataType>> getPredefinedTypes() const;
 
 private:
     struct PredefInfo {
         std::shared_ptr<dd::datamodel::DataType> _type;
         std::vector<std::string> _aliases;
     };
-    std::unordered_map<std::string, PredefInfo> _defined_types;
+    const std::unordered_map<std::string, PredefInfo> _defined_types;
 };
 
 } // namespace ddl

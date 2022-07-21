@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_IMPL_ERROR_DESCRIPTION_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_IMPL_ERROR_DESCRIPTION_HEADER_INCLUDED
 
-#include "a_util/result/detail/error_description_intf.h"
-#include "a_util/result/result_info_decl.h"
+#include <a_util/result/detail/error_description_intf.h>
+#include <a_util/result/result_info_decl.h>
 
 #include <string>
 
@@ -161,6 +161,6 @@ private:
 } // namespace result
 } // namespace a_util
 
-#include "a_util/result/detail/error_description_impl.h"
+#include <a_util/result/detail/error_description_impl.h>
 
 #endif // A_UTIL_UTIL_RESULT_IMPL_ERROR_DESCRIPTION_HEADER_INCLUDED

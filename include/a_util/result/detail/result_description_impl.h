@@ -22,11 +22,11 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_IMPL_HEADER_INCLUDED
 
-#include "a_util/result/detail/result_description_decl.h"
+#include <a_util/result/detail/result_description_decl.h>
 
 // This comment keeps result_description_decl.h on top while clang-formatting
-#include "a_util/result/detail/error_description.h"
-#include "a_util/result/detail/reference_counted_object.h"
+#include <a_util/result/detail/error_description.h>
+#include <a_util/result/detail/reference_counted_object.h>
 
 #include <new>
 

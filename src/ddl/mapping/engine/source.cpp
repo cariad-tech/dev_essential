@@ -14,14 +14,13 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/mapping/engine/source.h"
-
-#include "a_util/result/error_def.h"
-#include "ddl/codec/access_element.h"
-#include "ddl/legacy_error_macros.h"
-#include "ddl/mapping/configuration/map_configuration.h"
-#include "ddl/mapping/engine/data_trigger.h"
-#include "ddl/mapping/engine/signal_trigger.h"
+#include <a_util/result/error_def.h>
+#include <ddl/codec/access_element.h>
+#include <ddl/legacy_error_macros.h>
+#include <ddl/mapping/configuration/map_configuration.h>
+#include <ddl/mapping/engine/data_trigger.h>
+#include <ddl/mapping/engine/signal_trigger.h>
+#include <ddl/mapping/engine/source.h>
 
 #include <assert.h>
 

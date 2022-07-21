@@ -88,7 +88,7 @@ protected:
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/concurrency/detail/semaphore_impl.h"
+#include <a_util/concurrency/detail/semaphore_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_CONCURRENCY_DETAIL_SEMAPHORE_DECL_HEADER_INCLUDED

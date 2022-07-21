@@ -21,12 +21,12 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_DETAIL_RESULT_TYPE_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_DETAIL_RESULT_TYPE_IMPL_HEADER_INCLUDED
 
-#include "a_util/base/config.h"
-#include "a_util/base/std/types.h"
-#include "a_util/result/detail/result_description_decl.h"
-#include "a_util/result/detail/result_description_impl.h"
-#include "a_util/result/result_info.h"
-#include "a_util/result/result_type_decl.h"
+#include <a_util/base/config.h>
+#include <a_util/base/std/types.h>
+#include <a_util/result/detail/result_description_decl.h>
+#include <a_util/result/detail/result_description_impl.h>
+#include <a_util/result/result_info.h>
+#include <a_util/result/result_type_decl.h>
 
 #include <utility> //std::swap
 

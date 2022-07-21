@@ -22,8 +22,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef LEGACY_ERROR_MACROS_H_
 #define LEGACY_ERROR_MACROS_H_
 
-#include "a_util/result/result_info.h"
-#include "a_util/result/result_type.h"
+#include <a_util/result/result_info.h>
+#include <a_util/result/result_type.h>
 
 /**
  * @brief legacy error macro

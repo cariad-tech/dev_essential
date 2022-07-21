@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/ddenum.h"
+#include <ddl/dd/ddenum.h>
 
 namespace ddl {
 
@@ -28,6 +28,17 @@ DDEnum& DDEnum::operator=(const DDEnum& other)
 {
     _dd = other._dd;
     _enum_type = _dd.getEnumTypes().access(other.getEnumType().getName());
+    return *this;
+}
+
+DDEnum::DDEnum(DDEnum&& other) : _dd(std::move(other._dd)), _enum_type(std::move(other._enum_type))
+{
+}
+
+DDEnum& DDEnum::operator=(DDEnum&& other)
+{
+    _dd = std::move(other._dd);
+    _enum_type = std::move(other._enum_type);
     return *this;
 }
 
@@ -77,6 +88,11 @@ const dd::EnumType& DDEnum::getEnumType() const
 const dd::DataDefinition& DDEnum::getDD() const
 {
     return _dd;
+}
+
+size_t DDEnum::getAlignment() const
+{
+    return _enum_type->getInfo<dd::TypeInfo>()->getTypeAlignment();
 }
 
 } // namespace ddl

@@ -10,7 +10,7 @@
 #
 # You may add additional accurate notices of copyright ownership.
 
-set(DD_DATAMODEL_DIR ${CMAKE_SOURCE_DIR}/include/ddl/datamodel)
+set(DD_DATAMODEL_DIR ${dev_essential_SOURCE_DIR}/include/ddl/datamodel)
 
 set(DD_DATAMODEL_H
     ${DD_DATAMODEL_DIR}/infomodel_base.h
@@ -22,7 +22,7 @@ set(DD_DATAMODEL_H
     ${DD_DATAMODEL_DIR}/datamodel_streams.h
     ${DD_DATAMODEL_DIR}/datamodel_datadefinition.h
 
-    ${DD_DATAMODEL_DIR}/xml_datamodel.h    
+    ${DD_DATAMODEL_DIR}/xml_datamodel.h
     ${DD_DATAMODEL_DIR}/xml_ddtoxml_factory.h
     ${DD_DATAMODEL_DIR}/xml_ddfromxml_factory.h
 )

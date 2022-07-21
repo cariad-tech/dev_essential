@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef PKG_RPC_HTTP_RPC_PROTOCOL_H_INCLUDED
 #define PKG_RPC_HTTP_RPC_PROTOCOL_H_INCLUDED
 
-#include "rpc/http/threaded_http_server.h"
-#include "rpc/rpc_object_registry.h"
+#include <rpc/http/threaded_http_server.h>
+#include <rpc/rpc_object_registry.h>
 
 namespace rpc {
 

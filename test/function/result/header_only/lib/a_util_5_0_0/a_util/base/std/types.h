@@ -21,17 +21,18 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_BASE_STD_TYPES_H
 #define A_UTIL_UTIL_BASE_STD_TYPES_H
 
-#include "a_util/base/std/config.h"
+#include <a_util/base/std/config.h>
 
 #if defined(HAVE_CSTDINT) /* Include <cstdint> if available */
 #include <cstdint>
 #elif defined(HAVE_STDINT_H) /* Do we at least have an stdint.h ? */
-#include "a_util/base/std/stdint.h"
+#include <a_util/base/std/stdint.h>
 
 #include <stdint.h>
 #else /* As a last resort use the provided one */
 #include "3rdparty/pstdint/pstdint-0.1.16.0/pstdint.h"
-#include "a_util/base/std/stdint.h"
+
+#include <a_util/base/std/stdint.h>
 #endif
 
 /// type definition for a handle value

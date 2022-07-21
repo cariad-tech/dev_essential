@@ -15,12 +15,13 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/strings/strings_functions.h"
-#include "a_util/variant/variant.h"
+#include <a_util/strings/strings_functions.h>
+#include <a_util/variant/variant.h>
+
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <array>
-#include <gtest/gtest.h>
 
 using namespace a_util;
 using namespace a_util::variant;

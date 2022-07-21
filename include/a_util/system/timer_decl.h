@@ -132,7 +132,7 @@ private:
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/system/detail/timer_impl.h"
+#include <a_util/system/detail/timer_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_SYSTEM_TIMER_DECL_INCLUDED

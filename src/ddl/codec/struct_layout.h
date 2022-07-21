@@ -18,8 +18,8 @@
 #ifndef DDL_STRUCT_LAYOUT_CLASS_HEADER
 #define DDL_STRUCT_LAYOUT_CLASS_HEADER
 
-#include "ddl/codec/struct_element.h"
-#include "ddl/dd/dd_struct_access.h"
+#include <ddl/codec/struct_element.h>
+#include <ddl/dd/dd_struct_access.h>
 
 namespace ddl {
 class DDLComplex;

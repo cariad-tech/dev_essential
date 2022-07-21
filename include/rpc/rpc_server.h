@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef PKG_RPC_RPC_SERVER_H_INCLUDED
 #define PKG_RPC_RPC_SERVER_H_INCLUDED
 
-#include "a_util/result.h"
+#include <a_util/result.h>
 
 namespace rpc {
 

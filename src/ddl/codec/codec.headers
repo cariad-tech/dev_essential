@@ -10,7 +10,7 @@
 #
 # You may add additional accurate notices of copyright ownership.
 
-set(CODEC_DIR ${CMAKE_SOURCE_DIR}/include/ddl/codec)
+set(CODEC_DIR ${dev_essential_SOURCE_DIR}/include/ddl/codec)
 
 set(CODEC_H_PUBLIC
     ${CODEC_DIR}/pkg_codec.h

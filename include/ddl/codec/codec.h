@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_CODEC_CLASS_HEADER
 #define DDL_CODEC_CLASS_HEADER
 
-#include "a_util/result.h"
-#include "static_codec.h"
+#include <a_util/result.h>
+#include <ddl/codec/static_codec.h>
 
 namespace ddl {
 class Codec;

@@ -21,11 +21,11 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DD_FROM_XML_FACTORY_H_INCLUDED
 #define DD_DD_FROM_XML_FACTORY_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_datadefinition.h"
-#include "ddl/dd/dd_error.h"
-#include "ddl/dd/dd_predefined_datatypes.h"
-#include "ddl/utilities/dd_access_optional.h"
-#include "ddl/utilities/std_to_string.h"
+#include <ddl/datamodel/datamodel_datadefinition.h>
+#include <ddl/dd/dd_error.h>
+#include <ddl/dd/dd_predefined_datatypes.h>
+#include <ddl/utilities/dd_access_optional.h>
+#include <ddl/utilities/std_to_string.h>
 
 #include <list>
 #include <regex>
@@ -54,7 +54,7 @@ struct DDFromXMLFactory {
      */
     static bool isInteger(const std::string& stringToCheck)
     {
-        static const std::regex numeric_integer_check("^-{0,1}(\\d)+");
+        const std::regex numeric_integer_check("^-{0,1}(\\d)+");
         return std::regex_match(stringToCheck, numeric_integer_check);
     } // namespace utility
     /**
@@ -69,7 +69,7 @@ struct DDFromXMLFactory {
     {
         try {
             int i_converted = std::stoi(from_string);
-            return std::move(i_converted);
+            return i_converted;
         }
         catch (const std::invalid_argument&) {
             return default_value;
@@ -96,7 +96,7 @@ struct DDFromXMLFactory {
                 return default_value;
             }
             else {
-                return std::move(size_converted);
+                return size_converted;
             }
         }
         catch (const std::invalid_argument&) {
@@ -267,7 +267,7 @@ struct DDFromXMLFactory {
         if (description) {
             created_header.setDescription(description);
         }
-        return std::move(created_header);
+        return created_header;
     }
 
     /**
@@ -316,7 +316,7 @@ struct DDFromXMLFactory {
             dom_node, "power", {}, true, "unit/refUnit tag has no mandatory 'power' attribute");
         auto prefix_name = getAttribute<std::string>(
             dom_node, "prefix", {}, true, "unit/refUnit tag has no mandatory 'prefix' attribute");
-        return std::move(datamodel::Unit::RefUnit(*unit_name, *power, *prefix_name));
+        return datamodel::Unit::RefUnit(*unit_name, *power, *prefix_name);
     }
 
     /**
@@ -343,7 +343,7 @@ struct DDFromXMLFactory {
             dom_node, "denominator", {}, true, "unit tag has no mandatory 'denominator' tag");
         auto offset = getData<std::string>(
             dom_node, "offset", {}, true, "unit tag has no mandatory 'offset' tag");
-        return std::move(datamodel::Unit(*name, *numerator, *denominator, *offset, ref_units));
+        return datamodel::Unit(*name, *numerator, *denominator, *offset, ref_units);
     }
 
     /**
@@ -424,7 +424,7 @@ struct DDFromXMLFactory {
                 created_type.setMax(*max_val);
             }
         }
-        return std::move(created_type);
+        return created_type;
     }
 
     /**
@@ -463,7 +463,7 @@ struct DDFromXMLFactory {
                     createEnumTypeElement(current_enum_element_node));
             }
         }
-        return std::move(created_enum);
+        return created_enum;
     }
 
     /**
@@ -668,7 +668,7 @@ struct DDFromXMLFactory {
             }
         }
 
-        return std::move(created_element);
+        return created_element;
     }
 
     /**
@@ -730,7 +730,7 @@ struct DDFromXMLFactory {
                     createStructTypeElement(current_struct_element_node, file_ddl_version, strict));
             }
         }
-        return std::move(struct_type);
+        return struct_type;
     }
 
     /**
@@ -790,7 +790,7 @@ struct DDFromXMLFactory {
                     createStreamMetaTypeProperty(current_smt_prop_node));
             }
         }
-        return std::move(created_type);
+        return created_type;
     }
 
     /**
@@ -839,7 +839,7 @@ struct DDFromXMLFactory {
                 created_stream.getStructs().emplace(createStreamStruct(current_stream_struct_node));
             }
         }
-        return std::move(created_stream);
+        return created_stream;
     }
 
     /**
@@ -930,7 +930,7 @@ struct DDFromXMLFactory {
                 new_ddl.getStreams().emplace(createStream(current_stream_node));
             }
         }
-        return std::move(new_ddl);
+        return new_ddl;
     }
 };
 

@@ -22,7 +22,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTILS_UTIL_XML_DOM_HEADER_INCLUDED_
 #define A_UTILS_UTIL_XML_DOM_HEADER_INCLUDED_
 
-#include "a_util/memory/stack_ptr.h"
+#include <a_util/memory/stack_ptr.h>
 
 #include <list>
 #include <map>

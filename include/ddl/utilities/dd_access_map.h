@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DD_ACCESS_MAP_H_INCLUDED
 #define DD_DD_ACCESS_MAP_H_INCLUDED
 
-#include "ddl/dd/dd_error.h"
-#include "ddl/utilities/dd_access_observer.h"
+#include <ddl/dd/dd_error.h>
+#include <ddl/utilities/dd_access_observer.h>
 
 #include <memory>
 #include <unordered_map>

@@ -18,7 +18,7 @@
 #ifndef OO_ALIGNMENT_CALCULATION_H_INCLUDED
 #define OO_ALIGNMENT_CALCULATION_H_INCLUDED
 
-#include "ddl/dd/dd.h"
+#include <ddl/dd/dd.h>
 
 namespace ddl {
 

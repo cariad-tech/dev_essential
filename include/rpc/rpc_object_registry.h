@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef PKG_RPC_OBJECTSERVER_REGISTRY_H_INCLUDED
 #define PKG_RPC_OBJECTSERVER_REGISTRY_H_INCLUDED
 
-#include "a_util/concurrency/shared_mutex.h"
-#include "a_util/result/result_type.h"
-#include "rpc/rpc_server.h"
+#include <a_util/concurrency/shared_mutex.h>
+#include <a_util/result/result_type.h>
+#include <rpc/rpc_server.h>
 
 #include <map>
 

@@ -13,13 +13,19 @@
 ################################ Options and general project setup ################################
 cmake_minimum_required(VERSION 3.17.0) # cxx_std_11
 
+cmake_policy(SET CMP0048 NEW)
+
 # Start project() now, since any include checks will use the correct compiler flags
-project(dev_essential VERSION 1.0.0)
+file(STRINGS version VERSION LIMIT_COUNT 1)
+project(dev_essential VERSION ${VERSION})
 
 # Disable extensions here and require the chosen CMAKE_CXX_STANDARD
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 14)
+# minimum is currently C++14, but default is C++17
+if (NOT DEFINED CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
+endif()
 
 # if Conan is used, we have to include the generated file and doing some basic setup
 if(CONAN_COMPILER)
@@ -40,7 +46,6 @@ if(CONAN_COMPILER)
         else()
             conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
         endif()
-    set(gtest_search_mode CONFIG)
 endif(CONAN_COMPILER)
 
 set(dev_essential_cmake_include_components "." CACHE STRING "List of components to build, separated\
@@ -57,6 +62,9 @@ include(scripts/cmake/enable_multicore_compilation.cmake)
 
 # Use integrated debug symbols on Windows (avoiding PDBs)
 include(scripts/cmake/use_integrated_debug_symbols.cmake)
+
+# set default symbol visibility for compilers supporting it
+include(scripts/cmake/set_symbol_visibilty.cmake)
 
 if("${dev_essential_cmake_include_components}" STREQUAL ".")
     add_subdirectory(extern/3rdparty/clara)
@@ -87,6 +95,7 @@ if(dev_essential_cmake_enable_integrated_tests)
         include(scripts/cmake/stub_generation.cmake)
         add_subdirectory(test/function)
     endif (NOT GTest_FOUND)
+    add_subdirectory(test/sca)
 endif(dev_essential_cmake_enable_integrated_tests)
 
 # License Information must be delivered anyway!

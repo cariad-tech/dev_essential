@@ -17,12 +17,14 @@
  */
 
 #include "../../_common/test_oo_ddl.h"
-#include "ddl/dd/dd.h"
-#include "ddl/dd/dddatatype.h"
-#include "ddl/dd/ddstring.h"
-#include "ddl/dd/ddstructure.h"
+
+#include <ddl/dd/dd.h>
+#include <ddl/dd/dddatatype.h>
+#include <ddl/dd/ddstring.h>
+#include <ddl/dd/ddstructure.h>
 
 #include <gtest/gtest.h>
+
 #include <iostream>
 
 void dump_deserialized_positions(const ddl::dd::StructTypeAccess& struct_type)

@@ -21,14 +21,14 @@ You may add additional accurate notices of copyright ownership.
 #ifndef TARGET_HEADER
 #define TARGET_HEADER
 
-#include "a_util/concurrency.h"
-#include "a_util/result.h"
-#include "ddl/codec/static_codec.h"
-#include "ddl/mapping/configuration/map_source.h"
-#include "ddl/mapping/configuration/map_target.h"
-#include "ddl/mapping/engine/element.h"
-#include "ddl/mapping/engine/mapping_environment_intf.h"
-#include "ddl/mapping/engine/source.h"
+#include <a_util/concurrency.h>
+#include <a_util/result.h>
+#include <ddl/codec/static_codec.h>
+#include <ddl/mapping/configuration/map_source.h>
+#include <ddl/mapping/configuration/map_target.h>
+#include <ddl/mapping/engine/element.h>
+#include <ddl/mapping/engine/mapping_environment_intf.h>
+#include <ddl/mapping/engine/source.h>
 
 #include <vector>
 

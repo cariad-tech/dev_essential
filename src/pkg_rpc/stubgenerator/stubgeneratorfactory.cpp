@@ -25,15 +25,16 @@
 
 #include "stubgeneratorfactory.h"
 
-#include "client/cppclientstubgenerator.h"
-#include "client/jsclientstubgenerator.h"
 #include "commandline.h"
-#include "helper/cpphelper.h"
-#include "server/cppserverstubgenerator.h"
 
-#include <iostream>
+#include <client/cppclientstubgenerator.h>
+#include <client/jsclientstubgenerator.h>
+#include <helper/cpphelper.h>
 #include <jsonrpccpp/common/specificationparser.h>
 #include <jsonrpccpp/version.h>
+#include <server/cppserverstubgenerator.h>
+
+#include <iostream>
 
 using namespace jsonrpc;
 using namespace std;

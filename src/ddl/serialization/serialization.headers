@@ -10,7 +10,7 @@
 #
 # You may add additional accurate notices of copyright ownership.
 
-set(SERIALIZATION_DIR ${CMAKE_SOURCE_DIR}/include/ddl/serialization)
+set(SERIALIZATION_DIR ${dev_essential_SOURCE_DIR}/include/ddl/serialization)
 
 set(SERIALIZATION_H
     ${SERIALIZATION_DIR}/pkg_serialization.h

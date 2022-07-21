@@ -48,11 +48,11 @@ if (NOT ${dev_essential_cmake_enable_result_header_only})
                                             OUTPUT_NAME a_util_result)
     target_link_libraries(result PRIVATE strings)
     install(TARGETS result)
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/result DESTINATION include/a_util)
+    install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/result DESTINATION include/a_util)
 else()
     # Standalone header only project with minor missing features
     add_library(result INTERFACE)
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/a_util/result DESTINATION include/a_util
+    install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/result DESTINATION include/a_util
             PATTERN "error_def.h" EXCLUDE   #dependency to dev_essential_strings
             PATTERN "result_util.h" EXCLUDE #dependency to dev_essential_strings
             )
@@ -65,8 +65,6 @@ endif()
 target_include_directories(result
                            INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extern>) # 3rdparty
 target_link_libraries(result INTERFACE base)
-install(FILES ${CMAKE_SOURCE_DIR}/include/a_util/result.h DESTINATION include/a_util)
-if(MSVC)
-    install(FILES ${CMAKE_SOURCE_DIR}/scripts/debugging/result.natvis
-            DESTINATION scripts/debugging)
-endif()
+install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/result.h DESTINATION include/a_util)
+install(FILES ${dev_essential_SOURCE_DIR}/scripts/debugging/result.natvis
+        DESTINATION scripts/debugging)

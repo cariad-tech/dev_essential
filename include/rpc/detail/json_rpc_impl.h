@@ -21,7 +21,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef PKG_RPC_DETAIL_JSON_RPC_IMPL_H_INCLUDED
 #define PKG_RPC_DETAIL_JSON_RPC_IMPL_H_INCLUDED
 
-#include "rpc/json_rpc.h"
+#include <rpc/json_rpc.h>
 
 namespace rpc {
 

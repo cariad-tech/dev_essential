@@ -52,9 +52,9 @@ It is similar to the header informations in the DDL Definition File Format.
 
 ### Sources
 
-This section defines the source signals that can be used in assignments to any target signal elements(s).
+This section defines the source signals that can be used in assignments to any target signal elements.
 
-The tag `&lt;source&gt;` supports the following attributes:
+The tag `<source>` supports the following attributes:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
@@ -66,14 +66,14 @@ The tag `&lt;source&gt;` supports the following attributes:
 
 This section contains definitions of target signals, assignement to their target elements as well as any trigger definitions.
 
-The tag `&lt;target&gt;` supports the following attributes:
+The tag `<target>` supports the following attributes:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
 |name|String|mandatory|Name of the signal|
 |type|String|mandatory|DDL structured type of the signal|
 
-The tag `&lt;assignment&gt;` supports the following attributes:
+The tag `<assignment>` supports the following attributes:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
@@ -84,10 +84,10 @@ The tag `&lt;assignment&gt;` supports the following attributes:
 |transformation|String|optional|Transformation to apply to the source element|
 
 
-__*__: The attributes _constant_, _function_ and _from_ are mutually exclusive but one of them is required.
-The attribute _transformation_ can only be applied when the attribute _from_ is defined.
+__*__: The attributes `constant`, `function` and `from` are mutually exclusive but one of them is required.
+The attribute `transformation` can only be applied when the attribute `from` is defined.
 
-The attribute _function_ can have the values:
+The attribute `function` can have the values:
 
 | Function | Parameter | Description |
 | -------- | --------- | ----------- |
@@ -97,33 +97,32 @@ The attribute _function_ can have the values:
 |received()|Name of the source signal|Received indicator, evaluates to true if the source signal has been received|
 
 
-The tag `&lt;trigger&gt;` supports the following attributes:
+The tag `<trigger>` supports the following attributes:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
-|type|String|mandatory|Trigger type|
+|type|String|mandatory|Trigger type: `periodic`, `data` or `signal`|
 |period|String|optional|Float value defining the length of the period|
 |unit|String|optional|unit to interpret the given _period_|
-|variable|String|optional|For _signal_ triggers: name of the source signal, for _data triggers: name of the source signal element|
-|operator|String|optional|Operator used for data triggers: less_than, greater_than, less_than_equal, greater_than_equal, equal or not_equal|
+|variable|String|optional|For `signal` triggers: name of the source signal, for `data` triggers: name of the source signal element|
+|operator|String|optional|Operator used for data triggers: `less_than`, `greater_than`, `less_than_equal`, `greater_than_equal`, `equal` or `not_equal`|
 |value|String|optional|Float value to compare with the source element|
 
+The attribute `type` has three acceptable values:
+- `periodic`
+- `data`
+- `signal`
 
-The attribute _type_ has three acceptable values:
-- _periodic_
-- _data_
-- _signal_
-
-For the _periodic_ Trigger type, the attributes _period_ and _unit_ are mandatory.
-For the _data_ Trigger type, the attributes _variable_, _operator_ and _value_ are mandatory.
-For the _signal_ Trigger type, the attribute _variable_ is mandatory.
+For the `periodic` Trigger type, the attributes `period` and `unit` are mandatory.  
+For the `data` Trigger type, the attributes `variable`, `operator` and `value` are mandatory.  
+For the `signal` Trigger type, the attribute `variable` is mandatory.
 
 ### Transformations
 
 This section contains definitions of transformations that can be used in assignements.
 For the moment the only transformations available are polynomial tranformations and enum to enum transformations.
 
-The tag `&lt;polynomial&gt;` supports the following attributes:
+The tag `<polynomial>` supports the following attributes:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
@@ -135,7 +134,7 @@ The tag `&lt;polynomial&gt;` supports the following attributes:
 |e|String|optional|parameter of the polynom for X^4|
 
 
-The tag `&lt;enum_table&gt;` supports the following attributes:
+The tag `<enum_table>` supports the following attributes:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
@@ -145,7 +144,7 @@ The tag `&lt;enum_table&gt;` supports the following attributes:
 |default|String|mandatory|Default value used when no conversion is defined. It must be an element of the target enumeration|
 
 
-The tag `&lt;conversion&gt;` supports the following attributes:
+The tag `<conversion>` supports the following attributes:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
@@ -156,9 +155,10 @@ The tag `&lt;conversion&gt;` supports the following attributes:
 ## Example
 The following example shows the mapping of the target signals `LightSource` and `Object`.
 `LightSource` elements are mapped from two source signals, `LightOrientation` and `LightPos`, as well as some constants.
- Two of its assignments are also transformed during mapping. The entire target is triggered by a periodic trigger with a period of 5s, and when LightPos is received and LightPos.f64X is lesser than 2.
+
+ Two of its assignments are also transformed during mapping. The entire target is triggered by a periodic trigger with a period of 5s, and when `LightPos` is received and `LightPos.f64X` is less than 2.
  `Object` element is an enumeration, mapped with transformation from `SourceObject`.
- The Enumeration Type _tObjectType_ is mapped in an obsolete Enumeration created for the example.
+ The Enumeration Type `tObjectType` is mapped in an obsolete Enumeration created for the example.
  This Target is trigger when `LightOrientation` is received.
 
 ````xml
@@ -218,9 +218,7 @@ A target signal element can be assigned a constant numeric value. This value wil
 
 A target signal element can also be assigned the simulation time, a trigger counter or a received flag.
 
-**Note:**
-
-Constants and Macros can only be used to initialize scalar as well as arrays of scalar elements
+> _**Note:**_ Constants and Macros can only be used to initialize scalar as well as arrays of scalar elements
 Any unassigned target elements will be assigned the default value configured in the DDL definition of the target signal type
 
 ## Transformations
@@ -237,26 +235,24 @@ value = a*value^0 + b*value^1 + c*value^2 + d*value^3 + e*value^4
 Any undefined coefficients are set to 0.
 
 
-**Note:**
-
-Transformations are only supported for scalar as well as arrays of scalar elements
+> _**Note:**_ Transformations are only supported for scalar as well as arrays of scalar elements
 
 ## Supported types and cross-type assignments
 
 Assignments from one type to another are supported in the following way
 
-| Source | Target | Specification                                                                                                               |
-| ------ | ------ | --------------------------------------------------------------------------------------------------------------------------- |
-| Constant | Scalar | Datatype conversion using standard C++ casting methods                                                                    |
-| Simulation time | Scalar | Datatype conversion using standard C++ casting methods                                                             |
-| Trigger counter | Scalar | Datatype conversion using standard C++ casting methods                                                             |
-| Received Flag | Scalar | Only for boolean                                                                                                     |
-| Scalar | Scalar | Datatype conversion using standard C++ casting methods. Transformations allowed                                             |
+| Source | Target | Specification |
+| ------ | ------ | ------------- |
+| Constant | Scalar | Datatype conversion using standard C++ casting methods |
+| Simulation time | Scalar | Datatype conversion using standard C++ casting methods |
+| Trigger counter | Scalar | Datatype conversion using standard C++ casting methods |
+| Received Flag | Scalar | Only for boolean |
+| Scalar | Scalar | Datatype conversion using standard C++ casting methods. Transformations allowed |
 | Array<Scalar> | Array<Scalar> | Only for arrays of same size. Datatype conversion using standard C++ casting methods. Transformations allowed |
-| Structure | Structure | Only for structures of same type
-| Array<Structure> | Array<Structure> | Only for arrays of same size and structures of same type
-| Enum | Enum | Datatype conversion to the underlying numerical datatype using standard C++ casting methods
-| Array<Enum> | Array<Enum> | Only for arrays of same size. Datatype conversion using standard C++ casting methods.
+| Structure | Structure | Only for structures of same type |
+| Array<Structure> | Array<Structure> | Only for arrays of same size and structures of same type |
+| Enum | Enum | Datatype conversion to the underlying numerical datatype using standard C++ casting methods |
+| Array<Enum> | Array<Enum> | Only for arrays of same size. Datatype conversion using standard C++ casting methods. |
 
 Scalar datatypes are enumerations, `tBool`, `tChar`, `tUInt8`, `tInt8`, `tUInt16`, `tInt16`, `tUInt32`, `tInt32`, `tUInt64`, `tInt64`, `tFloat32` and `tFloat64`.
 
@@ -267,9 +263,6 @@ Array and structure elements can be used separately in assignments, for example:
 <assignment to="structMinimalAry[0]" from="MinimalSignal" />
 ````
 
-**Note:**
+> _**Note:**_ A target element can only be assigned once. For instance, if one element in a substructure is already assigned, the whole substructure can not be assigned and reciprocally.
 
-A target element can only be assigned once. For instance, if one element in a substructure is already assigned, the whole substructure can not be assigned and reciprocally.
-
-Target and source signals may only use structured types
-
+Target and source signals may only use structured types.

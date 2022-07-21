@@ -15,13 +15,12 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/datetime.h"
-
-#include "a_util/memory/memory.h"
-#include "a_util/memory/memorybuffer.h"
-#include "a_util/regex.h"
-#include "a_util/strings/strings_convert_decl.h"
-#include "a_util/strings/strings_functions.h"
+#include <a_util/datetime.h>
+#include <a_util/memory/memory.h>
+#include <a_util/memory/memorybuffer.h>
+#include <a_util/regex.h>
+#include <a_util/strings/strings_convert_decl.h>
+#include <a_util/strings/strings_functions.h>
 
 #ifdef WIN32
 

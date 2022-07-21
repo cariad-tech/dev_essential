@@ -28,5 +28,5 @@ set_target_properties(jsonrpcstub PROPERTIES FOLDER rpc/jsonrpcstub)
 install(TARGETS jsonrpcstub
         DESTINATION bin
         CONFIGURATIONS Release RelWithDebInfo Debug)
-install(FILES ${CMAKE_SOURCE_DIR}/scripts/cmake/stub_generation.cmake DESTINATION cmake)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/scripts/cmake/modules DESTINATION cmake)
+install(FILES ${dev_essential_SOURCE_DIR}/scripts/cmake/stub_generation.cmake DESTINATION cmake)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/scripts/cmake/modules DESTINATION cmake)

@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DATA_MODEL_KEYVALUE_H_INCLUDED
 #define DD_DATA_MODEL_KEYVALUE_H_INCLUDED
 
-#include "ddl/datamodel/infomodel_base.h"
-#include "ddl/utilities/dd_access_map.h"
+#include <ddl/datamodel/infomodel_base.h>
+#include <ddl/utilities/dd_access_map.h>
 
 #include <string>
 

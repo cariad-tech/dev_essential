@@ -15,11 +15,11 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/codec/codec_factory.h"
-
-#include "a_util/strings.h"
-#include "ddl/dd/ddstring.h"
 #include "struct_layout.h"
+
+#include <a_util/strings.h>
+#include <ddl/codec/codec_factory.h>
+#include <ddl/dd/ddstring.h>
 
 namespace ddl {
 // define all needed error types and values locally

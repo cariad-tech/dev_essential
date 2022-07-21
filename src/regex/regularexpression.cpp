@@ -15,59 +15,60 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/regex/regularexpression.h"
+#include <a_util/regex/regularexpression.h>
 
-#include "../../extern/3rdparty/pcre/pcre-8.39/pcrecpp.h"
+#include <regex>
 
 namespace a_util {
 namespace regex {
 // using this in member initialization list
 #pragma warning(disable : 4355)
 
-#define DECLARE_ARG_HELPER(arg)                                                                    \
-    pcrecppinternal::Arg arg##_t(&arg);                                                            \
-    const pcrecppinternal::Arg& arg##_h =                                                          \
-        *(&arg == &RegularExpression::noArg() ? &pcrecppinternal::RE::no_arg : &arg##_t);
-
 // RegularExpression implementation
 class RegularExpression::Implementation {
 public:
     RegularExpression* _self;
     bool _is_case_sensitive;
-    std::unique_ptr<pcrecppinternal::RE> _regex;
+    std::unique_ptr<std::regex> _regex;
     std::string _error_description;
+    std::string _pattern;
 
     Implementation(RegularExpression* self)
-        : _self(self), _is_case_sensitive(true), _regex(), _error_description()
+        : _self(self), _is_case_sensitive(true), _regex(), _error_description(), _pattern()
     {
     }
 };
 
+// Default constructor
 RegularExpression::RegularExpression() : _impl(new Implementation(this))
 {
 }
 
+// Constructor with a preinitialized pattern
 RegularExpression::RegularExpression(const std::string& pattern, bool case_sensitive)
     : _impl(new Implementation(this))
 {
     setPattern(pattern, case_sensitive);
 }
 
+// destructor
 RegularExpression::~RegularExpression()
 {
 }
 
+// Copy constructor
 RegularExpression::RegularExpression(const RegularExpression& other)
     : _impl(new Implementation(this))
 {
-    setPattern(other.getPattern(), other._impl->_is_case_sensitive);
+    setPattern(other._impl->_pattern, other._impl->_is_case_sensitive);
 }
 
+// Copy assignment operator
 RegularExpression& RegularExpression::operator=(const RegularExpression& other)
 {
     if (&other != this) {
         _impl.reset(new Implementation(this));
-        setPattern(other.getPattern(), other._impl->_is_case_sensitive);
+        setPattern(other._impl->_pattern, other._impl->_is_case_sensitive);
     }
 
     return *this;
@@ -80,24 +81,28 @@ bool RegularExpression::setPattern(const std::string& pattern, bool case_sensiti
         return false;
     }
 
-    pcrecppinternal::RE_Options opts;
-    opts.set_caseless(!case_sensitive);
-    std::unique_ptr<pcrecppinternal::RE> regex(new pcrecppinternal::RE(pattern.c_str(), opts));
-    if (!regex->error().empty()) {
-        _impl->_error_description = _impl->_regex->error();
+    try {
+        std::unique_ptr<std::regex> regex(new std::regex(pattern));
+        if (!case_sensitive) {
+            regex->assign(pattern, regex->flags() | std::regex_constants::icase);
+        }
+        _impl->_regex.reset(regex.release());
+    }
+    catch (std::regex_error& e) {
+        _impl->_error_description = e.what();
         return false;
     }
 
-    _impl->_regex.reset(regex.release());
     _impl->_is_case_sensitive = case_sensitive;
     _impl->_error_description.clear();
+    _impl->_pattern = pattern;
 
     return true;
 }
 
 std::string RegularExpression::getPattern() const
 {
-    return _impl->_regex ? _impl->_regex->pattern() : std::string();
+    return _impl->_regex ? _impl->_pattern : std::string();
 }
 
 const std::string& RegularExpression::getError() const
@@ -109,7 +114,7 @@ bool RegularExpression::fullMatch(const std::string& text) const
 {
     if (!_impl->_regex)
         return false;
-    return _impl->_regex->FullMatch(text);
+    return std::regex_match(text, *_impl->_regex);
 }
 
 bool RegularExpression::fullMatch(const std::string& text,
@@ -133,40 +138,39 @@ bool RegularExpression::fullMatch(const std::string& text,
     if (!_impl->_regex)
         return false;
 
-    DECLARE_ARG_HELPER(arg1);
-    DECLARE_ARG_HELPER(arg2);
-    DECLARE_ARG_HELPER(arg3);
-    DECLARE_ARG_HELPER(arg4);
-    DECLARE_ARG_HELPER(arg5);
-    DECLARE_ARG_HELPER(arg6);
-    DECLARE_ARG_HELPER(arg7);
-    DECLARE_ARG_HELPER(arg8);
-    DECLARE_ARG_HELPER(arg9);
-    DECLARE_ARG_HELPER(arg10);
-    DECLARE_ARG_HELPER(arg11);
-    DECLARE_ARG_HELPER(arg12);
-    DECLARE_ARG_HELPER(arg13);
-    DECLARE_ARG_HELPER(arg14);
-    DECLARE_ARG_HELPER(arg15);
-    DECLARE_ARG_HELPER(arg16);
+    std::string arg0;
+    const std::vector<std::string*> args{&arg0,
+                                         &arg1,
+                                         &arg2,
+                                         &arg3,
+                                         &arg4,
+                                         &arg5,
+                                         &arg6,
+                                         &arg7,
+                                         &arg8,
+                                         &arg9,
+                                         &arg10,
+                                         &arg11,
+                                         &arg12,
+                                         &arg13,
+                                         &arg14,
+                                         &arg15,
+                                         &arg16};
 
-    return _impl->_regex->FullMatch(text,
-                                    arg1_h,
-                                    arg2_h,
-                                    arg3_h,
-                                    arg4_h,
-                                    arg5_h,
-                                    arg6_h,
-                                    arg7_h,
-                                    arg8_h,
-                                    arg9_h,
-                                    arg10_h,
-                                    arg11_h,
-                                    arg12_h,
-                                    arg13_h,
-                                    arg14_h,
-                                    arg15_h,
-                                    arg16_h);
+    std::smatch matches;
+    bool result = std::regex_match(text, matches, *_impl->_regex);
+
+    if (matches.size() > args.size()) {
+        _impl->_error_description = "Too many matches found";
+        return false;
+    }
+
+    auto arg = args.begin();
+    for (auto match: matches) {
+        **arg++ = match.str();
+    }
+
+    return result && matches.size() > 1; // fist match is always the overall regex match
 }
 
 bool RegularExpression::match(const std::string& text, AnchorType anchor, int& consumed) const
@@ -174,16 +178,26 @@ bool RegularExpression::match(const std::string& text, AnchorType anchor, int& c
     if (!_impl->_regex)
         return false;
 
-    pcrecppinternal::RE::Anchor anchor_internal = pcrecppinternal::RE::UNANCHORED;
-    if (anchor == AT_Start) {
-        anchor_internal = pcrecppinternal::RE::ANCHOR_START;
-    }
-    else if (anchor == AT_Both) {
-        anchor_internal = pcrecppinternal::RE::ANCHOR_BOTH;
+    bool result;
+    std::smatch matches;
+
+    // change regular expression temporary
+    if (anchor == AT_Start)
+        _impl->_regex->assign("^" + _impl->_pattern);
+    if (anchor == AT_Both)
+        _impl->_regex->assign("^" + _impl->_pattern + "$");
+
+    result = std::regex_search(text, matches, *_impl->_regex);
+
+    // restore regular expression to origin
+    if (anchor != AT_Unanchored)
+        _impl->_regex->assign(_impl->_pattern);
+
+    if (result) {
+        consumed = static_cast<int>(text.find(matches[0].str()) + matches[0].str().size());
     }
 
-    return _impl->_regex->DoMatch(
-        pcrecppinternal::StringPiece(text), anchor_internal, &consumed, nullptr, 0);
+    return result;
 }
 
 std::string& RegularExpression::noArg()

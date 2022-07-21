@@ -47,12 +47,12 @@ namespace chrono {
 }
 } // namespace a_util
 
-#include "a_util/concurrency/atomic.h"
-#include "a_util/concurrency/condition_variable.h"
-#include "a_util/concurrency/fast_mutex.h"
-#include "a_util/concurrency/mutex.h"
-#include "a_util/concurrency/semaphore.h"
-#include "a_util/concurrency/shared_mutex.h"
-#include "a_util/concurrency/thread.h"
+#include <a_util/concurrency/atomic.h>
+#include <a_util/concurrency/condition_variable.h>
+#include <a_util/concurrency/fast_mutex.h>
+#include <a_util/concurrency/mutex.h>
+#include <a_util/concurrency/semaphore.h>
+#include <a_util/concurrency/shared_mutex.h>
+#include <a_util/concurrency/thread.h>
 
 #endif // A_UTIL_CONCURRENCY_HEADER_INCLUDED

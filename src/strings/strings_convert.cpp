@@ -19,10 +19,11 @@
 #ifdef __QNX__
 #include <cstdio> // sscanf
 #endif
-#include "a_util/strings/strings_convert.h"
-#include "a_util/strings/strings_functions.h"
 #include "std_to_detail.h"
 #include "strings_format_detail.h"
+
+#include <a_util/strings/strings_convert.h>
+#include <a_util/strings/strings_functions.h>
 
 namespace a_util {
 namespace strings {

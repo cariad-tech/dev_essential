@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/preprocessor/current_function.h"
+#include <a_util/preprocessor/current_function.h>
 
 #include <gtest/gtest.h>
 

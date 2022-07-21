@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_DECL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_DETAIL_DESCRIPTION_DECL_HEADER_INCLUDED
 
-#include "a_util/base/config.h"
-#include "a_util/base/std/types.h"
-#include "a_util/result/detail/reference_counted_object_intf.h"
+#include <a_util/base/config.h>
+#include <a_util/base/std/types.h>
+#include <a_util/result/detail/reference_counted_object_intf.h>
 
 namespace a_util {
 namespace base {

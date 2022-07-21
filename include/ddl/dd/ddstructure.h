@@ -21,9 +21,9 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDSTRUCTURE_H_INCLUDED
 #define DDSTRUCTURE_H_INCLUDED
 
-#include "ddl/dd/dd.h"
-#include "ddl/dd/ddelement.h"
-#include "ddl/utilities/std_to_string.h"
+#include <ddl/dd/dd.h>
+#include <ddl/dd/ddelement.h>
+#include <ddl/utilities/std_to_string.h>
 
 #include <type_traits>
 
@@ -67,26 +67,30 @@ public:
     DDStructure() = delete;
     /**
      * @brief Construct a new DDStructure object
+     * @param other the structure to move.
      *
      */
-    DDStructure(DDStructure&&) = default;
+    DDStructure(DDStructure&& other);
     /**
      * @brief Construct a new DDStructure object
+     * @param other the structure to copy.
      *
      */
-    DDStructure(const DDStructure&) = default;
+    DDStructure(const DDStructure& other);
     /**
      * @brief move assignment operator
+     * @param other the structure to move.
      *
      * @return DDStructure&
      */
-    DDStructure& operator=(DDStructure&&) = default;
+    DDStructure& operator=(DDStructure&& other);
     /**
      * @brief copy assignment operator
+     * @param other the structure to copy.
      *
      * @return DDStructure&
      */
-    DDStructure& operator=(const DDStructure&) = default;
+    DDStructure& operator=(const DDStructure& other);
     /**
      * @brief Destroy the DDStructure object
      *
@@ -101,6 +105,7 @@ public:
      * @param comment optional comment
      * @param ddl_version optional DDL language version of this struct (defines the size of the
      * struct by alignment or not!)
+     *
      */
     explicit DDStructure(const std::string& name,
                          const uint32_t struct_version = 1,
@@ -418,14 +423,6 @@ public:
     DDStructure& addElements(const std::vector<DDElement>& elements);
 
     /**
-     * Return the minimum alignment between the current offset of the structure and this given
-     * offset in \p expected_offset
-     * @param expected_offset the offset
-     * @return dd::OptionalSize the Minimum alignment of the given and the current offset
-     */
-    dd::OptionalSize getMinimumAlignment(size_t expected_offset);
-
-    /**
      * @brief iterator to iterate the elements of the struct
      */
     typedef dd::datamodel::StructType::Elements::const_iterator const_iterator;
@@ -484,7 +481,7 @@ public:
      *
      * @return std::string
      */
-    virtual std::string getStructDescription() const;
+    std::string getStructDescription() const;
     /**
      * @brief Gets the Struct Name
      *
@@ -509,7 +506,24 @@ public:
      */
     bool isEqual(const DDStructure& other) const;
 
+    /**
+     * @brief Retrieves the current evaluated deserialized size (in bytes) of the structure.
+     * @return the size (in bytes)
+     */
+    size_t getSize() const;
+
+    /**
+     * @brief Retrieves the current evaluated alignment of the structure.
+     * @return the alignment
+     */
+    size_t getAlignment() const;
+
 private:
+    template <typename T, bool align_with_padding>
+    friend class DDStructureGenerator;
+
+    void popLastElement();
+
     dd::DataDefinition _dd;
     std::shared_ptr<dd::StructType> _struct_type;
     dd::OptionalSize _initial_alignment = {};
@@ -535,6 +549,7 @@ size_t memberPointerToOffset(MemberType T::*member)
     T* start = 0;
     return reinterpret_cast<size_t>(&(start->*member));
 }
+
 } // namespace detail
 ///@endcond nodoc
 
@@ -542,6 +557,9 @@ size_t memberPointerToOffset(MemberType T::*member)
  * @brief Creating a valid Structure Data Definition by a existing type and its member types.
  *
  * @tparam T The Struct type to use.
+ * @tparam align_with_padding Set to true to align the structure and structure members with padding
+ * bytes to reach expected size of T.
+ *
  * @code
  * struct NestedStruct {
  *   uint16_t value1;
@@ -571,8 +589,8 @@ size_t memberPointerToOffset(MemberType T::*member)
  *                              .addElement("nested_enum", &MyStruct::nested_enum, my_enum_type);
  * @endcode
  */
-template <typename T>
-class DDStructureGenerator : public DDStructure {
+template <typename T, bool align_with_padding = true>
+class DDStructureGenerator {
     static_assert(std::is_trivially_copyable<T>::value,
                   "You can only use structs with plain old datatypes and complex members. Do not "
                   "use pointers!");
@@ -584,8 +602,8 @@ public:
      * @param name The name of the type.
      * @param struct_version the version of the type.
      */
-    DDStructureGenerator(const std::string& name, uint32_t struct_version = 1)
-        : DDStructure(name, struct_version, alignof(T))
+    explicit DDStructureGenerator(const std::string& name, uint32_t struct_version = 1)
+        : _structure(name, struct_version, alignof(T))
     {
     }
     /**
@@ -597,11 +615,14 @@ public:
     template <typename MemberType>
     DDStructureGenerator& addElement(const std::string& name, MemberType T::*member_offset)
     {
-        DDStructure::addElement<
-            typename std::remove_pointer<typename std::decay<MemberType>::type>::type>(
-            name,
-            detail::arrayCount<MemberType>::value,
-            *getMinimumAlignment(detail::memberPointerToOffset(member_offset)));
+        popAlignment();
+        _structure
+            .addElement<typename std::remove_pointer<typename std::decay<MemberType>::type>::type>(
+                name,
+                detail::arrayCount<MemberType>::value,
+                *evaluateAlignment(
+                    name, detail::memberPointerToOffset(member_offset), alignof(MemberType)));
+        pushAlignment();
         return *this;
     }
 
@@ -617,10 +638,14 @@ public:
                                      MemberType T::*member_offset,
                                      const DDEnum& enum_type)
     {
-        DDStructure::addElement(name,
-                                enum_type,
-                                detail::arrayCount<MemberType>::value,
-                                *getMinimumAlignment(detail::memberPointerToOffset(member_offset)));
+        popAlignment();
+        _structure.addElement(name,
+                              enum_type,
+                              detail::arrayCount<MemberType>::value,
+                              *evaluateAlignment(name,
+                                                 detail::memberPointerToOffset(member_offset),
+                                                 alignof(MemberType)));
+        pushAlignment();
         return *this;
     }
     /**
@@ -635,29 +660,224 @@ public:
                                      MemberType T::*member_offset,
                                      const DDStructure& struct_type)
     {
-        DDStructure::addElement(name,
-                                struct_type,
-                                detail::arrayCount<MemberType>::value,
-                                *getMinimumAlignment(detail::memberPointerToOffset(member_offset)));
+        popAlignment();
+        _structure.addElement(name,
+                              struct_type,
+                              detail::arrayCount<MemberType>::value,
+                              *evaluateAlignment(name,
+                                                 detail::memberPointerToOffset(member_offset),
+                                                 alignof(MemberType)));
+        pushAlignment();
         return *this;
     }
 
-    std::string getStructDescription() const override
+    /**
+     * @brief Gets the Struct Data Description as XML String
+     *
+     * @return std::string
+     */
+    std::string getStructDescription() const
     {
-        auto evaluated_size = DDStructure::getDD()
-                                  .getStructTypeAccess(DDStructure::getStructName())
-                                  .getStaticStructSize();
-        if (evaluated_size == sizeof(T)) {
-            return DDStructure::getStructDescription();
-        }
-        else {
-            throw ddl::dd::Error("DDStructureGenerator<T>::getStructDescription",
-                                 "The struct '" + DDStructure::getStructName() +
-                                     "' does not have the expected size of (" +
-                                     std::to_string(sizeof(T)) + ") - evaluated a size of (" +
-                                     std::to_string(evaluated_size) + ")");
+        validate();
+        return _structure.getStructDescription();
+    }
+    /**
+     * @brief Gets the Struct Name
+     *
+     * @return std::string
+     */
+    std::string getStructName() const
+    {
+        return _structure.getStructName();
+    }
+
+    /**
+     * @brief returns a valid DDL.
+     *
+     * @return const dd::DataDefinition&
+     * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
+     * missed elements.
+     */
+    const dd::DataDefinition& getDD() const
+    {
+        validate();
+        return _structure.getDD();
+    }
+
+    /**
+     * @brief Get the Struct Type object
+     *
+     * @return const dd::StructType&
+     * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
+     * missed elements.
+     */
+    const dd::StructType& getStructType() const
+    {
+        validate();
+        return _structure.getStructType();
+    }
+    /**
+     * @brief Get the current valid DDStructure object
+     *
+     * @return const DDStructure&
+     * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
+     * missed elements.
+     */
+    const DDStructure& getStructure() const
+    {
+        validate();
+        return _structure;
+    }
+
+    /**
+     * @brief Retrieves the current evaluated size of the structure.
+     * @return the size
+     */
+    size_t getSize() const
+    {
+        return _structure.getSize();
+    }
+
+    /**
+     * @brief Retrieves the current evaluated alignment of the structure.
+     * @return the alignment
+     */
+    size_t getAlignment() const
+    {
+        return _structure.getAlignment();
+    }
+
+    /**
+     * @brief Get the current valid DDStructure object
+     *
+     * @return const DDStructure&
+     * @throw ddl::dd::Error Throws if the evaluated size is not sizeof(T). Check if there may be
+     * missed elements.
+     */
+    operator const DDStructure&() const
+    {
+        return getStructure();
+    }
+
+private:
+    void pushAlignment()
+    {
+        if (align_with_padding) {
+            auto current_struct_size = _structure.getSize();
+            if (sizeof(T) > current_struct_size) {
+                _structure.addElement<uint8_t>(
+                    "__padding_final", sizeof(T) - current_struct_size, 1);
+                _padded_final = true;
+            }
         }
     }
+    void popAlignment()
+    {
+        if (align_with_padding) {
+            if (_padded_final) {
+                _structure.popLastElement();
+                _padded_final = false;
+            }
+        }
+    }
+    void validate() const
+    {
+        constexpr auto padding_aligned = align_with_padding;
+        if (!padding_aligned) {
+            if (_structure.getSize() != sizeof(T)) {
+                throw ddl::dd::Error(
+                    "DDStructureGenerator::validate",
+                    "The generated struct '" + _structure.getStructName() +
+                        "' does not have the expected size of (" + std::to_string(sizeof(T)) +
+                        ") - The evaluated a size is (" + std::to_string(_structure.getSize()) +
+                        "). Check if there are missed or misordered elements. ");
+            }
+        }
+    }
+
+    dd::OptionalSize evaluateAlignment(const std::string& element_name,
+                                       size_t member_offset,
+                                       size_t member_type_alignment)
+    {
+        // obtain the unaligned size
+        auto struct_access = _structure.getDD().getStructTypeAccess(getStructName());
+        auto current_struct_offset = struct_access.getStaticUnalignedStructSize();
+
+        if (member_offset < current_struct_offset) {
+            throw ddl::dd::Error(
+                "evaluateAlignment",
+                {std::to_string(member_offset)},
+                "The evaluated struct size of '" + getStructName() + "' is already (" +
+                    std::to_string(current_struct_offset) + ") - Trying to add a member at (" +
+                    std::to_string(member_offset) +
+                    ") at a address prior the last element. Check misordered addElement calls.");
+        }
+
+        // evaluate difference between last added element and current offset
+        auto difference = member_offset - current_struct_offset;
+
+        // find the minimum alignment to begin alignment discovery
+        // this is the data_type alignment or the struct alignment
+        size_t minimum_alignment = member_type_alignment;
+        if (member_type_alignment > alignof(T)) {
+            minimum_alignment = alignof(T);
+        }
+
+        auto valid_alignment_range = {1u, 2u, 4u, 8u, 16u, 32u, 64u};
+
+        // find a valid alignment in the range of member_type_alignment and struct_alignment
+        for (size_t alignment: valid_alignment_range) {
+            // maximum alignment is the alignment of the struct
+            if (alignment <= alignof(T)) {
+                if (alignment >= minimum_alignment) {
+                    if (alignment > difference && member_offset % alignment == 0) {
+                        // we do not add padding bytes between if it fits with alignment
+                        return alignment;
+                    }
+                }
+            }
+            else {
+                break;
+            }
+        }
+
+        // if diffence is below minimum alignment and we could not reach the position
+        // the struct has been packed by the user to another alignment then the struct alignment
+        if (difference < minimum_alignment) {
+            for (size_t alignment: valid_alignment_range) {
+                if (alignment < minimum_alignment) {
+                    if (alignment > difference && member_offset % alignment == 0) {
+                        // we do not add padding bytes between if it fits with alignment
+                        return alignment;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+        }
+
+        // we could not reach the position with alignments, so we
+        // align with padding if switch on
+        if (align_with_padding) {
+            if (difference != 0) {
+                _structure.addElement<uint8_t>("__padding_" + element_name, difference, 1);
+            }
+            // We need to return alignment 1 to use the very next position
+            return 1;
+        }
+
+        throw ddl::dd::Error(
+            "evaluateAlignment",
+            {std::to_string(member_offset)},
+            "For the generated struct '" + getStructName() +
+                "' it is not possible to find a valid member alignment to reach offset (" +
+                std::to_string(member_offset) + ") from position (" +
+                std::to_string(current_struct_offset) + ")");
+    }
+
+    DDStructure _structure;
+    bool _padded_final = false;
 };
 
 } // namespace ddl

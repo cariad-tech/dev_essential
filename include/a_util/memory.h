@@ -27,9 +27,9 @@ namespace memory {
 }
 } // namespace a_util
 
-#include "a_util/memory/memory.h"
-#include "a_util/memory/memorybuffer.h"
-#include "a_util/memory/shared_ptr.h"
-#include "a_util/memory/unique_ptr.h"
+#include <a_util/memory/memory.h>
+#include <a_util/memory/memorybuffer.h>
+#include <a_util/memory/shared_ptr.h>
+#include <a_util/memory/unique_ptr.h>
 
 #endif // !A_UTILS_UTIL_MEMORY_HEADER_INCLUDED_

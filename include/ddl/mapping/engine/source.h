@@ -21,11 +21,11 @@ You may add additional accurate notices of copyright ownership.
 #ifndef MAPPING_SOURCE_HEADER
 #define MAPPING_SOURCE_HEADER
 
-#include "a_util/result.h"
-#include "ddl/codec/codec_factory.h"
-#include "ddl/mapping/configuration/map_source.h"
-#include "ddl/mapping/engine/element.h"
-#include "ddl/mapping/engine/mapping_environment_intf.h"
+#include <a_util/result.h>
+#include <ddl/codec/codec_factory.h>
+#include <ddl/mapping/configuration/map_source.h>
+#include <ddl/mapping/engine/element.h>
+#include <ddl/mapping/engine/mapping_environment_intf.h>
 
 namespace ddl {
 namespace mapping {

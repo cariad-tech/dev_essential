@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/memory/shared_ptr.h"
+#include <a_util/memory/shared_ptr.h>
 
 #include <gtest/gtest.h>
 

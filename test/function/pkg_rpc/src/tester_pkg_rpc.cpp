@@ -15,22 +15,23 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/strings/strings_functions.h"
-#include "rpc/rpc.h"
+#include <a_util/strings/strings_functions.h>
+#include <rpc/rpc.h>
 
 #include <testclientstub.h>
 #include <testserverstub.h>
 
 #ifdef WIN32
 #define NOMINMAX
-#include "winsock2.h"
+#include <winsock2.h>
 #else
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif
 
-#include <cstdint>
 #include <gtest/gtest.h>
+
+#include <cstdint>
 #include <limits>
 
 typedef rpc::

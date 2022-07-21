@@ -14,11 +14,10 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/mapping/configuration/map_trigger.h"
-
-#include "a_util/result/error_def.h"
-#include "ddl/legacy_error_macros.h"
-#include "ddl/mapping/configuration/map_configuration.h"
+#include <a_util/result/error_def.h>
+#include <ddl/legacy_error_macros.h>
+#include <ddl/mapping/configuration/map_configuration.h>
+#include <ddl/mapping/configuration/map_trigger.h>
 
 #include <cmath>
 

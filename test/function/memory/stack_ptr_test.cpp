@@ -15,9 +15,9 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/memory/memory.h" //compare
-#include "a_util/memory/stack_ptr.h"
-#include "a_util/strings/strings_format.h" //toString
+#include <a_util/memory/memory.h> //compare
+#include <a_util/memory/stack_ptr.h>
+#include <a_util/strings/strings_format.h> //toString
 
 #include <gtest/gtest.h>
 
@@ -239,4 +239,61 @@ TEST(memory_test, TestStackPtrWithCopyConstructorOfStoragedType)
         EXPECT_EQ("1", test_object_copy->instanceAsString()); // copied from test_object
     }
     EXPECT_EQ(0, TestClass::instances());
+}
+
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4324) // structure was padded due to alignment specifier
+#endif
+
+template <class T, size_t Alignment>
+struct alignas(128) AlignmentTestStruct {
+    char pad = true;
+    a_util::memory::StackPtr<T, sizeof(T), Alignment> obj;
+};
+
+#ifdef _WIN32
+#pragma warning(pop) // warning(disable : 4324)
+#endif
+
+TEST(memory_test, TestStackPtrAlignment)
+{
+    const auto misalignment = [](auto* p, size_t alignment) {
+        return reinterpret_cast<std::uintptr_t>(p) % alignment;
+    };
+
+    static constexpr auto char_align = alignof(char);
+    static constexpr auto float_align = alignof(float);
+    static constexpr auto dbl_ptr_align = alignof(double*);
+
+    using TestStruct1 = AlignmentTestStruct<char, char_align>;
+    using TestStruct2 = AlignmentTestStruct<char, 4 * char_align>;
+    using TestStruct3 = AlignmentTestStruct<float, float_align>;
+    using TestStruct4 = AlignmentTestStruct<double*, dbl_ptr_align>;
+
+    TestStruct1 s1;
+    EXPECT_EQ(misalignment(&*s1.obj, char_align), 0);
+    TestStruct2 s2; // Alignment on larger than required intervals should be ok, too.
+    EXPECT_EQ(misalignment(&*s2.obj, 4 * char_align), 0);
+    TestStruct3 s3;
+    EXPECT_EQ(misalignment(&*s3.obj, float_align), 0);
+    TestStruct4 s4;
+    EXPECT_EQ(misalignment(&*s4.obj, dbl_ptr_align), 0);
+
+    // using TestStruct5 = AlignmentTestStruct<float, 2>;  // Bad! Alignment too small!
+    // TestStruct5 s5; // Static assert correctly triggering!
+
+    // All the tester structs are aligned at 128 byte boundaries.
+    // Within these 128 byte "buckets", the StackPtr instances
+    // are shifted around to have the proper offsets. They cannot start
+    // right at the 128 byte boundary because of the padding char.
+    EXPECT_EQ(misalignment(&s1, 128), 0);
+    EXPECT_EQ(misalignment(&s2, 128), 0);
+    EXPECT_EQ(misalignment(&s3, 128), 0);
+    EXPECT_EQ(misalignment(&s4, 128), 0);
+
+    EXPECT_GT(offsetof(TestStruct1, obj), 0);
+    EXPECT_GT(offsetof(TestStruct2, obj), 0);
+    EXPECT_GT(offsetof(TestStruct3, obj), 0);
+    EXPECT_GT(offsetof(TestStruct4, obj), 0);
 }

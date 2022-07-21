@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/strings/strings_numeric_traits.h"
+#include <a_util/strings/strings_numeric_traits.h>
 
 #include <gtest/gtest.h>
 

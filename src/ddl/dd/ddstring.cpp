@@ -15,10 +15,10 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/ddstring.h"
-
-#include "a_util/strings.h"
 #include "dd_fromxmlelement.h"
+
+#include <a_util/strings.h>
+#include <ddl/dd/ddstring.h>
 
 namespace ddl {
 
@@ -62,7 +62,7 @@ dd::DataDefinition DDString::fromXMLString(const std::string& xml_string,
                         "is not valid. See validation protocol!",
                         created_dd.getValidationProtocol());
     };
-    return std::move(created_dd);
+    return created_dd;
 }
 
 dd::DataDefinition DDString::fromXMLString(const std::string& struct_name,
@@ -81,7 +81,7 @@ dd::DataDefinition DDString::fromXMLString(const std::string& struct_name,
     }
     else {
         // We do not extract, this will slow down performance
-        return std::move(complete_dd);
+        return complete_dd;
     }
 }
 

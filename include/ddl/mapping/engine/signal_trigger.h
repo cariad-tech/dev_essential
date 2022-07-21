@@ -20,8 +20,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef SIGNAL_TRIGGER_HEADER
 #define SIGNAL_TRIGGER_HEADER
 
-#include "a_util/result.h"
-#include "ddl/mapping/engine/trigger.h"
+#include <a_util/result.h>
+#include <ddl/mapping/engine/trigger.h>
 
 namespace ddl {
 namespace mapping {

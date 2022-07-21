@@ -21,10 +21,10 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DD_DD_H_INCLUDED
 #define DD_DD_H_INCLUDED
 
-#include "ddl/datamodel/datamodel_datadefinition.h"
-#include "ddl/dd/dd_common_types.h"
-#include "ddl/dd/dd_struct_access.h"
-#include "ddl/dd/dd_validationinfomodel.h"
+#include <ddl/datamodel/datamodel_datadefinition.h>
+#include <ddl/dd/dd_common_types.h>
+#include <ddl/dd/dd_struct_access.h>
+#include <ddl/dd/dd_validationinfomodel.h>
 
 #include <string>
 

@@ -15,9 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/dd_struct_access.h"
-
-#include "a_util/strings.h"
+#include <a_util/strings.h>
+#include <ddl/dd/dd_struct_access.h>
 
 namespace ddl {
 
@@ -116,7 +115,7 @@ size_t StructElementAccess::getDeserializedTypeByteSize() const
 size_t StructElementAccess::getSerializedBytePos(size_t array_size) const
 {
     auto byte_pos_within_the_struct = _element_type_info->getSerializedBytePos(array_size);
-    if (*_serialized_struct_bit_offset && byte_pos_within_the_struct) {
+    if (_serialized_struct_bit_offset && byte_pos_within_the_struct) {
         return *_serialized_struct_bit_offset / 8 + *byte_pos_within_the_struct;
     }
     return 0;

@@ -20,7 +20,7 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DATA_TRIGGER_HEADER
 #define DATA_TRIGGER_HEADER
 
-#include "ddl/mapping/engine/trigger.h"
+#include <ddl/mapping/engine/trigger.h>
 
 namespace ddl {
 namespace mapping {

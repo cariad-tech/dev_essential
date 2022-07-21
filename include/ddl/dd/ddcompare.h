@@ -20,8 +20,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDCOMPARE_H_INCLUDED
 #define DDCOMPARE_H_INCLUDED
 
-#include "a_util/result.h"
-#include "ddl/dd/dd.h"
+#include <a_util/result.h>
+#include <ddl/dd/dd.h>
 
 namespace ddl {
 /**

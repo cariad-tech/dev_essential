@@ -174,6 +174,6 @@ bool operator>=(const ResultInfo<ResultTypeLHS>& lhs, const ResultInfo<ResultTyp
 } // namespace a_util
 
 /** @cond INTERNAL_DOCUMENTATION */
-#include "a_util/result/detail/result_info_impl.h"
+#include <a_util/result/detail/result_info_impl.h>
 /** @endcond*/
 #endif // A_UTIL_UTIL_RESULT_RESULT_INFO_DECL_HEADER_INCLUDED

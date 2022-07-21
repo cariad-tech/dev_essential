@@ -18,10 +18,15 @@
 #ifndef TEST_DDL_H_INCLUDED
 #define TEST_DDL_H_INCLUDED
 
-#include "ddl/dd/dd.h"
-#include "ddl/dd/dd_predefined_datatypes.h"
+#include <a_util/filesystem.h>
+#include <a_util/result.h>
+#include <ddl/dd/dd.h>
+#include <ddl/dd/dd_predefined_datatypes.h>
+#include <ddl/dd/ddcompare.h>
 
 #include <gtest/gtest.h>
+
+_MAKE_RESULT(-38, ERR_FAILED);
 
 namespace test_ddl {
 
@@ -142,6 +147,24 @@ inline bool containsASpecificProblem(const std::vector<ddl::dd::Problem>& proble
         }
     }
     return false;
+}
+
+inline a_util::result::Result CompOutput(const std::string& strFile1, const std::string& strFile2)
+{
+    using namespace ddl;
+    std::string strContent1;
+    std::string strContent2;
+
+    if (a_util::filesystem::readTextFile(strFile1, strContent1) != a_util::filesystem::OK ||
+        a_util::filesystem::readTextFile(strFile2, strContent2) != a_util::filesystem::OK) {
+        return ERR_FAILED;
+    }
+
+    a_util::result::Result res = DDCompare::isEqual(strContent1,
+                                                    strContent2,
+                                                    DDCompare::dcf_all | DDCompare::dcf_subset |
+                                                        DDCompare::dcf_no_header_dates);
+    return res;
 }
 
 #if defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))

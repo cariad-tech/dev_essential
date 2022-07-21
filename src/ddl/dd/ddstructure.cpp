@@ -15,16 +15,45 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/dd/ddstructure.h"
-
-#include "a_util/strings.h"
 #include "dd_alignment_calculation.h"
-#include "ddl/dd/dd_typeinfomodel.h"
-#include "ddl/dd/ddcompare.h"
-#include "ddl/dd/ddstring.h"
-#include "ddl/utilities/std_to_string.h"
+
+#include <a_util/strings.h>
+#include <ddl/dd/dd_typeinfomodel.h>
+#include <ddl/dd/ddcompare.h>
+#include <ddl/dd/ddstring.h>
+#include <ddl/dd/ddstructure.h>
+#include <ddl/utilities/std_to_string.h>
 
 namespace ddl {
+
+DDStructure::DDStructure(DDStructure&& other)
+    : _dd(std::move(other._dd)),
+      _initial_alignment(std::move(other._initial_alignment)),
+      _struct_type(std::move(other._struct_type))
+{
+}
+
+DDStructure::DDStructure(const DDStructure& other)
+    : _dd(other._dd), _initial_alignment(other._initial_alignment)
+{
+    _struct_type = _dd.getStructTypes().access(other.getStructName());
+}
+
+DDStructure& DDStructure::operator=(DDStructure&& other)
+{
+    _dd = std::move(other._dd);
+    _initial_alignment = std::move(other._initial_alignment);
+    _struct_type = std::move(other._struct_type);
+    return *this;
+}
+
+DDStructure& DDStructure::operator=(const DDStructure& other)
+{
+    _dd = other._dd;
+    _initial_alignment = other._initial_alignment;
+    _struct_type = _dd.getStructTypes().access(other.getStructName());
+    return *this;
+}
 
 DDStructure::DDStructure(const std::string& name,
                          uint32_t struct_version,
@@ -57,7 +86,7 @@ DDStructure::DDStructure(const std::string& name,
 
 std::string DDStructure::getStructDescription() const
 {
-    return DDString::toXMLString(getDD());
+    return DDString::toXMLString(_dd);
 }
 
 std::string DDStructure::getStructName() const
@@ -75,6 +104,16 @@ bool DDStructure::isEqual(const DDStructure& other) const
 {
     return isOk(DDCompare::isEqual(
         getStructType(), getDD(), other.getStructType(), other.getDD(), DDCompare::icf_everything));
+}
+
+size_t DDStructure::getSize() const
+{
+    return _dd.getStructTypeAccess(_struct_type->getName()).getStaticStructSize();
+}
+
+size_t DDStructure::getAlignment() const
+{
+    return _struct_type->getAlignment();
 }
 
 namespace {
@@ -123,7 +162,6 @@ void checkAndSetAlignment(const dd::OptionalSize& initialized_struct_alignment,
 }
 
 } // namespace
-
 DDStructure& DDStructure::addElement(const std::string& element_name,
                                      const dd::DataType& data_type,
                                      size_t array_size)
@@ -285,19 +323,6 @@ DDStructure& DDStructure::addElements(const std::vector<DDElement>& elements)
     return *this;
 }
 
-dd::OptionalSize DDStructure::getMinimumAlignment(size_t expected_offset)
-{
-    auto struct_access = _dd.getStructTypeAccess(_struct_type->getName());
-    auto difference = expected_offset - struct_access.getStaticUnalignedStructSize();
-
-    for (size_t alignment: {1u, 2u, 4u, 8u}) {
-        if (alignment > difference && expected_offset % alignment == 0) {
-            return alignment;
-        }
-    }
-    return false;
-}
-
 const dd::DataDefinition& DDStructure::getDD() const
 {
     return _dd;
@@ -306,6 +331,11 @@ const dd::DataDefinition& DDStructure::getDD() const
 const dd::StructType& DDStructure::getStructType() const
 {
     return *_struct_type;
+}
+
+void DDStructure::popLastElement()
+{
+    _struct_type->getElements().popBack();
 }
 
 } // namespace ddl

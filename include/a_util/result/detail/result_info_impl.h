@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_DETAIL_RESULT_INFO_IMPL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_DETAIL_RESULT_INFO_IMPL_HEADER_INCLUDED
 
-#include "a_util/base/types.h"
-#include "a_util/result/result_info_decl.h"
+#include <a_util/base/types.h>
+#include <a_util/result/result_info_decl.h>
 
 namespace a_util {
 namespace result {

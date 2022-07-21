@@ -67,8 +67,8 @@ install(FILES ${MAPPING_INSTALL} DESTINATION ${MAPPING_DIR})
 install(FILES ../../include/ddl/ddl.h
               ../../include/ddl/legacy_error_macros.h
         DESTINATION include/ddl)
-install(FILES ${CMAKE_SOURCE_DIR}/doc/extern/ddl/specification/ddl3.xsd
-              ${CMAKE_SOURCE_DIR}/doc/extern/ddl/specification/ddl4.xsd
-              ${CMAKE_SOURCE_DIR}/doc/extern/ddl/specification/mapping_configuration.xsd
+install(FILES ${dev_essential_SOURCE_DIR}/doc/extern/ddl/specification/ddl3.xsd
+              ${dev_essential_SOURCE_DIR}/doc/extern/ddl/specification/ddl4.xsd
+              ${dev_essential_SOURCE_DIR}/doc/extern/ddl/specification/mapping_configuration.xsd
         DESTINATION doc/specification)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ddl DESTINATION include)
+install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/ddl DESTINATION include)

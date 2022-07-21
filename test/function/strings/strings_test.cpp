@@ -15,8 +15,8 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/memory.h"
-#include "a_util/strings/strings_functions.h"
+#include <a_util/memory.h>
+#include <a_util/strings/strings_functions.h>
 
 #include <gtest/gtest.h>
 

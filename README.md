@@ -1,14 +1,14 @@
 <!---
 Copyright @ 2021 VW Group. All rights reserved.
- 
+
      This Source Code Form is subject to the terms of the Mozilla
      Public License, v. 2.0. If a copy of the MPL was not distributed
      with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
 If it is not possible or desirable to put the notice in a particular file, then
 You may include the notice in a location (such as a LICENSE file in a
 relevant directory) where a recipient would be likely to look for such a notice.
- 
+
 You may add additional accurate notices of copyright ownership.
 -->
 # Dev essential
@@ -19,6 +19,7 @@ The dev_essential project is the successor of the following projects:
 * Utility library aka [a_util](a_util.md)
 * Package Remote Procedure Call aka [pkg_rpc](rpc.md)
 * Data Definition Language Library aka [ddl](ddl.md)
+* DDL C Application Programming Interface aka [ddl_capi](ddl_capi.md)
 * ...
 
 The dev_essential project strives for backwards compatibility with the latest versions of these
@@ -29,6 +30,7 @@ projects. The following table provides an overview of the versions and the compa
 | a_util v5.8.x | dev_essential 1.0.0 |
 | pkg_rpc 3.5.x | dev_essential 1.0.0 |
 | ddl 4.6.x     | dev_essential 1.0.0 |
+| ddl_capi      | dev_essential 1.1.0 |
 
 However, for downstream projects already using one of the aforementioned projects and porting to the
 dev_essential project, the [portation guide](#portation-guide) shall be consulted.
@@ -57,11 +59,18 @@ Table of contents:
 **dev_essential_cmake_enable_integrated_tests (default: OFF)**
 * Enable tests as integrated build - requires googletest
 
+**dev_essential_cmake_enable_self_contained_header_tests (default: ON)**
+* Whether or not to enable tests checking for self contained header files
+* Requires `dev_essential_cmake_enable_integrated_tests=ON`
+
 **dev_essential_cmake_enable_position_independent_code (Default: ON)**
 * Enable position independent code for static libraries
 
 **dev_essential_cmake_enable_result_header_only (default: OFF)**
 * Whether or not to build header only version of dev_essential_result library
+
+**dev_essential_cmake_enable_visibility_hidden (default: ON)**
+* If ON, set visibility of target symbols to hidden, otherwise use the default visibility
 
 **dev_essential_cmake_enable_warn_on_default_cmake_install_prefix (Default: ON)**
 * Warn if `CMAKE_INSTALL_PREFIX` is set to default
@@ -197,7 +206,7 @@ The changelog can be found [here](doc/extern/changelog.md).
 ## License Information <a name="license-information"></a>
 ### Dev essential libraries - License
 The dev essential libraries are delivered under the
-[MPL - Mozilla Public License - Version 2.0](LICENSE).
+[MPL - Mozilla Public License - Version 2.0](doc/extern/license/MPL2.0.txt).
 
 ### Used software license information
 The dev essential libraries are delivered with the following 3rdparty dependencies:
@@ -205,8 +214,6 @@ The dev essential libraries are delivered with the following 3rdparty dependenci
   ([License](extern/3rdparty/clara/Clara-1.1.2/LICENSE.txt))
 - [current_function of Boost 1.64.0](http://www.boost.org/doc/libs/1_64_0/boost/current_function.hpp)
   ([License](extern/3rdparty/boost/boost_1_64_0/boost/current_function.hpp))
-- [PCRE 8.39](https://sourceforge.net/projects/pcre/files/pcre/8.39/)
-  ([License](extern/3rdparty/pcre/pcre-8.39/LICENCE))
 - [pugixml 1.8](https://github.com/zeux/pugixml/tree/v1.8)
   ([License](extern/3rdparty/pugixml/pugixml-1.8/readme.txt))
 - [uuid 1.6.2](http://www.ossp.org/pkg/lib/uuid/)

@@ -15,12 +15,13 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/memory/memory.h"
-#include "a_util/memory/memorybuffer.h"
+#include <a_util/memory/memory.h>
+#include <a_util/memory/memorybuffer.h>
+
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <array>
-#include <gtest/gtest.h>
 
 class MemoryBufferTestFixture : public ::testing::Test {
 public:

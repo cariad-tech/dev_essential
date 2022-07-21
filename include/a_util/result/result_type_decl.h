@@ -21,8 +21,8 @@ You may add additional accurate notices of copyright ownership.
 #ifndef A_UTIL_UTIL_RESULT_RESULT_TYPE_DECL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_RESULT_TYPE_DECL_HEADER_INCLUDED
 
-#include "a_util/result/detail/result_description_decl.h"
-#include "a_util/result/result_info.h"
+#include <a_util/result/detail/result_description_decl.h>
+#include <a_util/result/result_info.h>
 
 #include <utility> //std::swap
 
@@ -340,7 +340,7 @@ template <>
 void swap<a_util::result::Result>(a_util::result::Result& lhs, a_util::result::Result& rhs);
 } // namespace std
 
-#include "a_util/result/detail/result_type_impl.h"
+#include <a_util/result/detail/result_type_impl.h>
 /** @endcond */
 
 #endif // A_UTIL_UTIL_RESULT_RESULT_TYPE_DECL_HEADER_INCLUDED

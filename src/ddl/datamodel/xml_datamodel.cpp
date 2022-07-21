@@ -15,11 +15,10 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "ddl/datamodel/xml_datamodel.h"
-
-#include "a_util/xml.h"
-#include "ddl/datamodel/xml_ddfromxml_factory.h"
-#include "ddl/datamodel/xml_ddtoxml_factory.h"
+#include <a_util/xml.h>
+#include <ddl/datamodel/xml_datamodel.h>
+#include <ddl/datamodel/xml_ddfromxml_factory.h>
+#include <ddl/datamodel/xml_ddtoxml_factory.h>
 
 #include <exception>
 #include <utility>
@@ -50,7 +49,7 @@ DataDefinition fromXMLString(const std::string& xml_string,
         throw dd::Error("readFromXMLString", {"..."}, dd_string.getLastError());
     }
 
-    return std::move(new_dd);
+    return new_dd;
 }
 
 std::string toXMLString(const dd::datamodel::DataDefinition& dd)
@@ -63,7 +62,7 @@ std::string toXMLString(const dd::datamodel::DataDefinition& dd)
     a_util::xml::DOMElement root = dom.getRoot();
     dd::DDToXMLFactory<a_util::xml::DOMElement>::createNode(root, dd);
 
-    return std::move(dom.toString());
+    return dom.toString();
 }
 
 // static reading
@@ -85,7 +84,7 @@ DataDefinition fromXMLFile(const std::string& xml_filepath, bool strict)
         throw dd::Error("readFromFile", {xml_filepath}, ddl_file.getLastError());
     }
 
-    return std::move(new_ddl);
+    return new_ddl;
 }
 
 void toXMLFile(const dd::datamodel::DataDefinition& ddl, const std::string& xml_filepath)

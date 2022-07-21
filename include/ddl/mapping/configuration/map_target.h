@@ -20,11 +20,11 @@ You may add additional accurate notices of copyright ownership.
 #ifndef HEADER_MAP_TARGET_H
 #define HEADER_MAP_TARGET_H
 
-#include "a_util/result.h"
-#include "a_util/xml.h"
-#include "ddl/mapping/configuration/map_assignment.h"
-#include "ddl/mapping/configuration/map_source.h"
-#include "ddl/mapping/configuration/map_trigger.h"
+#include <a_util/result.h>
+#include <a_util/xml.h>
+#include <ddl/mapping/configuration/map_assignment.h>
+#include <ddl/mapping/configuration/map_source.h>
+#include <ddl/mapping/configuration/map_trigger.h>
 
 namespace ddl {
 namespace mapping {

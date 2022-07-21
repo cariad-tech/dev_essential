@@ -15,7 +15,7 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "a_util/result/error_def.h"
+#include <a_util/result/error_def.h>
 
 #include <gtest/gtest.h>
 
@@ -35,9 +35,9 @@ TEST(error_def_test, TestReturnErrorDescription)
 
     EXPECT_EQ(result.getErrorCode(), TEST_ERROR.getCode());
     EXPECT_EQ(result.getErrorCode(), 666);
-    EXPECT_EQ(result.getLine(),
-              27); // this is the line of the above  ... RETURN_ERROR_DESCRIPTION(TEST_ERROR, "Hello
-                   // World!"); statement!
+    // this is the line of the above  ... RETURN_ERROR_DESCRIPTION(TEST_ERROR, "Hello World!");
+    // statement!
+    EXPECT_EQ(result.getLine(), 27);
     EXPECT_STREQ(result.getErrorLabel(), TEST_ERROR.getLabel());
     EXPECT_STREQ(result.getErrorLabel(), "TEST_ERROR");
     EXPECT_STREQ(result.getDescription(), "Hello World!");

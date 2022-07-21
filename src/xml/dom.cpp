@@ -15,8 +15,9 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include "../../extern/3rdparty/pugixml/pugixml-1.8/src/pugixml.hpp"
-#include "a_util/xml.h"
+#include <a_util/xml.h>
+
+#include <pugixml-1.8/src/pugixml.hpp>
 
 #include <algorithm> //std::equal
 

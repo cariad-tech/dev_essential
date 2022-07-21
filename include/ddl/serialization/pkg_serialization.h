@@ -21,6 +21,6 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_SERIALIZATION_PKG_HEADER
 #define DDL_SERIALIZATION_PKG_HEADER
 
-#include "ddl/serialization/serialization.h"
+#include <ddl/serialization/serialization.h>
 
 #endif // DDL_SERIALIZATION_PKG_HEADER

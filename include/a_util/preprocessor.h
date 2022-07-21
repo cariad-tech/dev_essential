@@ -34,9 +34,9 @@ namespace preprocessor {
 }
 } // namespace a_util
 
-#include "a_util/preprocessor/current_function.h"
-#include "a_util/preprocessor/detail/disable_warnings.h"
-#include "a_util/preprocessor/dll_export.h"
-#include "a_util/preprocessor/to_string.h"
+#include <a_util/preprocessor/current_function.h>
+#include <a_util/preprocessor/detail/disable_warnings.h>
+#include <a_util/preprocessor/dll_export.h>
+#include <a_util/preprocessor/to_string.h>
 
 #endif // A_UTIL_PREPROCESSOR_HEADER_INCLUDED

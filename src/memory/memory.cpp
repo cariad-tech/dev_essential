@@ -32,8 +32,8 @@ static inline unsigned short __builtin_bswap16(unsigned short a)
 #endif
 #endif
 
-#include "a_util/memory/memory.h"
-#include "a_util/memory/memorybuffer.h"
+#include <a_util/memory/memory.h>
+#include <a_util/memory/memorybuffer.h>
 
 namespace a_util {
 namespace memory {

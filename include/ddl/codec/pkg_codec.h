@@ -21,11 +21,11 @@ You may add additional accurate notices of copyright ownership.
 #ifndef DDL_CODEC_PKG_HEADER
 #define DDL_CODEC_PKG_HEADER
 
-#include "ddl/codec/access_element.h"
-#include "ddl/codec/bitserializer.h"
-#include "ddl/codec/codec.h"
-#include "ddl/codec/codec_factory.h"
-#include "ddl/codec/static_codec.h"
-#include "ddl/codec/struct_element.h"
+#include <ddl/codec/access_element.h>
+#include <ddl/codec/bitserializer.h>
+#include <ddl/codec/codec.h>
+#include <ddl/codec/codec_factory.h>
+#include <ddl/codec/static_codec.h>
+#include <ddl/codec/struct_element.h>
 
 #endif // DDL_CODEC_PKG_HEADER

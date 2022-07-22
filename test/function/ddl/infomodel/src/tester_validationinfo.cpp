@@ -57,11 +57,11 @@ TEST(TesterOODDL, checkValidationForAutoRenamingsDataType)
     ASSERT_EQ(enum3_access->getDataTypeName(), "tBool");
 
     auto bool_type = my_dd.getDataTypes().access("tBool");
-    bool_type->setName("bool");
+    bool_type->setName("tbool");
 
-    ASSERT_EQ(enum1_access->getDataTypeName(), "bool");
-    ASSERT_EQ(enum2_access->getDataTypeName(), "bool");
-    ASSERT_EQ(enum3_access->getDataTypeName(), "bool");
+    ASSERT_EQ(enum1_access->getDataTypeName(), "tbool");
+    ASSERT_EQ(enum2_access->getDataTypeName(), "tbool");
+    ASSERT_EQ(enum3_access->getDataTypeName(), "tbool");
 
     DDStructure a("A");
     a.addElement<int32_t>("elem1");
@@ -83,10 +83,10 @@ TEST(TesterOODDL, checkValidationForAutoRenamingsDataType)
     ASSERT_EQ(elem3->getTypeName(), "tUInt64");
     ASSERT_EQ(elem7->getTypeName(), "tUInt64");
 
-    uint64_data_type->setName("renamed_uint64_t");
+    uint64_data_type->setName("other_t");
 
-    ASSERT_EQ(elem3->getTypeName(), "renamed_uint64_t");
-    ASSERT_EQ(elem7->getTypeName(), "renamed_uint64_t");
+    ASSERT_EQ(elem3->getTypeName(), "other_t");
+    ASSERT_EQ(elem7->getTypeName(), "other_t");
 }
 
 /**
@@ -168,14 +168,14 @@ TEST(TesterOODDL, checkValidationForAutoRenamingsStructType)
 
     // rename it
     auto a_in_mydd = my_ddl.getStructTypes().access("A");
-    a_in_mydd->setName("renamed_A");
+    a_in_mydd->setName("C");
 
-    ASSERT_EQ(nested1->getTypeName(), "renamed_A");
-    ASSERT_EQ(nested2->getTypeName(), "renamed_A");
+    ASSERT_EQ(nested1->getTypeName(), "C");
+    ASSERT_EQ(nested2->getTypeName(), "C");
 
-    ASSERT_EQ(stream1->getStreamTypeName(), "renamed_A");
-    ASSERT_EQ(stream2->getStreamTypeName(), "renamed_A");
-    ASSERT_EQ(stream2_first->getTypeName(), "renamed_A");
+    ASSERT_EQ(stream1->getStreamTypeName(), "C");
+    ASSERT_EQ(stream2->getStreamTypeName(), "C");
+    ASSERT_EQ(stream2_first->getTypeName(), "C");
 }
 
 /**
@@ -191,8 +191,12 @@ TEST(TesterOODDL, checkValidationForAutoRenamingsStreamMetaType)
 
     // create stream meta types depending on the "adtf/default"
     my_dd.getStreamMetaTypes().emplace({"test_parent_not_yet_defined", "1", "adtf/default", {}});
+    // now this is not valid
+    ASSERT_FALSE(my_dd.isValid());
     my_dd.getStreamMetaTypes().emplace(
         {"adtf/default", "1", {}, {{"md_struct", "string"}, {"md_definitions", "string"}}});
+    // now this is valid because adtf/default does now exist
+    ASSERT_TRUE(my_dd.isValid());
     my_dd.getStreamMetaTypes().emplace({"test", "1", "adtf/default", {{"test_prop", "tInt32"}}});
 
     // create stream depending on the "adtf/default"
@@ -219,7 +223,6 @@ TEST(TesterOODDL, checkValidationForAutoRenamingsStreamMetaType)
     ASSERT_EQ(test_parent_not_yet_defined->getParent(), "adtf/default/renamed");
     ASSERT_EQ(stream1->getStreamTypeName(), "adtf/default/renamed");
 
-    my_dd.validate();
     ASSERT_TRUE(my_dd.isValid());
 }
 
@@ -268,7 +271,7 @@ TEST(TesterDDLFile, readDatamodelWithRecursion)
     ASSERT_FALSE(oo_dd.isValid());
 
     // And it is completely invalid
-    ASSERT_FALSE(oo_dd.isValid(dd::DataDefinition::ValidationLevel::good_enough));
+    ASSERT_FALSE(oo_dd.isValid(dd::ValidationLevel::good_enough));
 
     // there is a message for this validation info
     auto protocol = oo_dd.getValidationProtocol();
@@ -341,7 +344,7 @@ TEST(TesterOODDL, checkValidationForRemovingStructTypes)
     auto protocol = my_ddl.getValidationProtocol();
     bool found_validation_string_in_protocol = false;
     for (const auto& item: protocol) {
-        if (item.problem_message.find_first_of(test_validation_string) != std::string::npos) {
+        if (item.problem_message.find(test_validation_string) != std::string::npos) {
             found_validation_string_in_protocol = true;
         }
     }
@@ -362,16 +365,52 @@ TEST(TesterDDLFile, detectStreamMetaTypesWithRecursion)
     my_ddl.getStreamMetaTypes().add({"smt1", "1", ""});
     my_ddl.getStreamMetaTypes().add({"smt2", "1", "smt1"});
 
-    my_ddl.validate();
     ASSERT_EQ(my_ddl.getStreamMetaTypes().getSize(), 2);
     ASSERT_TRUE(my_ddl.isValid());
+
+    // this invalidates the model because of recursion
     my_ddl.getStreamMetaTypes().access("smt1")->setParent("smt2");
-    my_ddl.validate();
+
     ASSERT_FALSE(my_ddl.isValid());
 
     bool contains_recursion_keyword = false;
     for (const auto& problem: my_ddl.getValidationProtocol()) {
-        if (problem.problem_message.find_first_of("recursion") != std::string::npos) {
+        if (problem.problem_message.find("recursion") != std::string::npos) {
+            contains_recursion_keyword = true;
+        }
+    }
+    ASSERT_TRUE(contains_recursion_keyword)
+        << "The keyword 'recursion' was not found in problems, expecting it";
+}
+
+/**
+ * @detail The building up of a DataDefinition object representation with a recursion.
+ * This must be detected!
+ *
+ */
+TEST(TesterDDLFile, detectStreamMetaTypesWithRecursionLongWay)
+{
+    using namespace ddl;
+
+    dd::DataDefinition my_ddl;
+    my_ddl.getStreamMetaTypes().add({"smt1", "1", ""});
+    my_ddl.getStreamMetaTypes().add({"smt2", "1", "smt1"});
+    my_ddl.getStreamMetaTypes().add({"smt3", "1", "smt2"});
+    my_ddl.getStreamMetaTypes().add({"smt4", "1", "smt3"});
+    my_ddl.getStreamMetaTypes().add({"smt5", "1", "smt4"});
+    my_ddl.getStreamMetaTypes().add({"smt6", "1", "smt5"});
+
+    ASSERT_EQ(my_ddl.getStreamMetaTypes().getSize(), 6);
+    ASSERT_TRUE(my_ddl.isValid());
+
+    // this invalidates the model because of recursion
+    my_ddl.getStreamMetaTypes().access("smt1")->setParent("smt6");
+
+    ASSERT_FALSE(my_ddl.isValid());
+
+    bool contains_recursion_keyword = false;
+    for (const auto& problem: my_ddl.getValidationProtocol()) {
+        if (problem.problem_message.find("recursion") != std::string::npos) {
             contains_recursion_keyword = true;
         }
     }

@@ -22,14 +22,14 @@ You may add additional accurate notices of copyright ownership.
 #define DD_DDL_STRUCT_ACCESS_H_INCLUDED
 
 #include <ddl/datamodel/datamodel_datadefinition.h>
-#include <ddl/dd/dd_typeinfomodel.h>
-#include <ddl/dd/dd_validationinfomodel.h>
 
 #include <string>
 
 namespace ddl {
 namespace dd {
 
+class TypeInfo;
+class ElementTypeInfo;
 class StructTypeAccess;
 
 /**

@@ -46,7 +46,9 @@ enum TypeAccessMapEventCode {
     map_subitem_added,
     map_subitem_removed,
     map_subitem_changed,
-    map_subitem_renamed
+    map_subitem_renamed,
+    map_subitem_popped,
+    map_subitem_inserted
 };
 
 /**
@@ -269,6 +271,7 @@ public:
                                      {type_to_add.getName()},
                                      "value with the given name already exists");
             }
+            return;
         }
         else {
             // has already another type
@@ -464,14 +467,12 @@ public:
      */
     void clear()
     {
-        auto it = begin();
-        while (it != end()) {
+        for (auto& current: _types) {
             // unregister me as observer
-            (static_cast<map_subject_type*>(it->second.get()))
+            (static_cast<map_subject_type*>(current.second.get()))
                 ->detachObserver(static_cast<observer_type*>(this));
-            _types.erase(it);
-            it = begin();
         }
+        _types.clear();
     }
 
 public:

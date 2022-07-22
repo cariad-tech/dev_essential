@@ -22,6 +22,7 @@ include(mapping/mapping.headers)
 
 
 # Include sources
+include(utilities/utilities.sources)
 include(datamodel/datamodel.sources)
 include(dd/dd.sources)
 
@@ -30,6 +31,7 @@ include(serialization/serialization.sources)
 include(mapping/mapping.sources)
 
 add_library(ddl STATIC
+    ${DD_UTILITIES_CPP}
     ${DD_DATAMODEL_CPP}
     ${DD_CPP}
     ${CODEC_CPP}

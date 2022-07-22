@@ -53,9 +53,48 @@ enum InfoType : uint8_t {
      */
     element_type_info,
     /**
+     * @brief internal type
+     */
+    named_container_info = element_type_info,
+    /**
      * @brief for customer info (use a offset to implement own infos if necessary)
      */
     last_info
+};
+
+/**
+ * @brief Validation level
+ */
+enum class ValidationLevel : uint8_t {
+    /**
+     * @brief The validation is not known. This means it is not calculated yet. Use i.e. @ref
+     * ddl::dd::DataDefinition::validate
+     */
+    dont_know,
+    /**
+     * @brief the validation level is invalid, dependencies can not be obtained or the
+     * dependency "to" is invalid (struct to struct i.e.).
+     *
+     */
+    invalid,
+    /**
+     * @brief Structs and elements can be "good_enough" for the TypeInfo.
+     * This means the Coder and Decoder can calculate the sizes and the all access Functions can
+     * obtain values. Usually this should be the valid state. The problem is, that there are
+     * DataDefinition out there (in the users world) using i.e. units, but does not define the
+     * unit within that DD. At this point we do not want to break that code! So good enough
+     * means: Not well defined in some cases, but good enough for calculate byte positions and
+     * @ref TypeInfo.
+     *
+     * Only structs, enums and datatypes may have a validationlevel of "good_enough" if there
+     * are any other DD Objects used in a @ref DataDefinition and they are "invalid", the DD
+     * will also set to "invalid"!
+     */
+    good_enough,
+    /**
+     * @brief every thing is well defined.
+     */
+    valid
 };
 
 } // namespace dd

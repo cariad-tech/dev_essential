@@ -17,6 +17,7 @@
 
 #include <a_util/strings.h>
 #include <ddl/dd/dd_struct_access.h>
+#include <ddl/dd/dd_typeinfomodel.h>
 
 namespace ddl {
 

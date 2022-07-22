@@ -129,14 +129,21 @@ public:
     /// Non-virtual DTOR
     ~Variant();
 
-    /// Move CTOR
-    Variant(Variant&&);
+    /**
+     * Move CTOR
+     * @param[in,out] other Moved-from object *this is constructed from. Left in a valid but
+     *                      unspecified state. Should not be used after this move ctor returns
+     */
+    Variant(Variant&& other) noexcept;
 
     /**
      * Move assignment
+     * @param[in,out] other Moved-from object *this is assigned from. Left in a valid but
+     *                      unspecified state. Should not be used after this assignment operator
+     *                      returns.
      * @retval *this
      */
-    Variant& operator=(Variant&&);
+    Variant& operator=(Variant&& other) noexcept;
 
     /// Returns the current underlying data type of the instance
     VariantType getType() const;

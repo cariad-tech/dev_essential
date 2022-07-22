@@ -17,8 +17,12 @@
 
 #include <ddl/dd/dd_predefined_datatypes.h>
 #include <ddl/dd/dd_predefined_units.h>
-#include <ddl/dd/dd_validationinfomodel.h>
 #include <ddl/utilities/std_to_string.h>
+
+#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+#include <ddl/dd/dd_validationinfomodel.h>
+
+#include <algorithm>
 
 namespace ddl {
 
@@ -67,27 +71,39 @@ void removeInMapFrom(const std::string& from, ValidationServiceInfo::ToFromMap& 
     }
 }
 
-std::vector<std::string> removeInMapTo(const std::string& to,
+std::vector<std::string> removeInMapTo(const std::string& old_to_name,
+                                       const std::string& new_to_name,
                                        ValidationServiceInfo::ToFromMap& the_map)
 {
-    std::vector<std::string> result = {};
-    auto it = the_map.find(to);
-    if (it != the_map.end()) {
-        std::swap(it->second, result);
-        the_map.erase(it);
+    if (old_to_name != new_to_name) {
+        std::vector<std::string> result = {};
+        auto it = the_map.find(old_to_name);
+        if (it != the_map.end()) {
+            std::swap(it->second, result);
+            the_map.erase(it);
+        }
+        return result;
     }
-    return result;
+    else {
+        auto it = the_map.find(old_to_name);
+        if (it != the_map.end()) {
+            return it->second;
+        }
+        return {};
+    }
 }
 
 void renameInMapFrom(const std::string& from_old,
                      const std::string& from_new,
                      ValidationServiceInfo::ToFromMap& the_map)
 {
-    for (auto& current_to: the_map) {
-        for (auto it = current_to.second.begin(); it != current_to.second.end(); ++it) {
-            if (*it == from_old) {
-                *it = from_new;
-                break;
+    if (from_old != from_new) {
+        for (auto& current_to: the_map) {
+            for (auto it = current_to.second.begin(); it != current_to.second.end(); ++it) {
+                if (*it == from_old) {
+                    *it = from_new;
+                    break;
+                }
             }
         }
     }
@@ -116,19 +132,13 @@ void ValidationServiceInfo::addDependency(const Dependency& dependency)
 
 namespace {
 
-DEF_GETINFO_NON_CONST(ValidationInfo, datamodel::Unit);
-DEF_GETINFO_NON_CONST(ValidationInfo, datamodel::DataType);
-DEF_GETINFO_NON_CONST(ValidationInfo, datamodel::EnumType);
-DEF_GETINFO_NON_CONST(ValidationInfo, datamodel::StructType);
-DEF_GETINFO_NON_CONST(ValidationInfo, datamodel::StreamMetaType);
-DEF_GETINFO_NON_CONST(ValidationInfo, datamodel::Stream);
-
 template <typename T>
 void updateValidationInfo(const std::shared_ptr<T>& type_ref, datamodel::DataDefinition& parent_ddl)
 {
     if (type_ref) {
-        auto info = getInfoFrom(*type_ref);
+        auto info = type_ref->template getInfo<ValidationInfo>();
         if (info) {
+            info->forceRevalidation();
             info->update(*type_ref, parent_ddl);
         }
     }
@@ -139,13 +149,14 @@ void ValidationServiceInfo::removed(const datamodel::DataType& data_type,
                                     datamodel::DataDefinition& parent_ddl)
 {
     removeInMapFrom(data_type.getName(), _dependencies[data_type_to_unit]);
-    auto dependencies = removeInMapTo(data_type.getName(), _dependencies[enum_type_to_data_type]);
+    auto dependencies =
+        removeInMapTo(data_type.getName(), "", _dependencies[enum_type_to_data_type]);
     // this should invalidate the enum_type if there are values
     for (const auto& current_enum_name: dependencies) {
         const auto enum_type = parent_ddl.getEnumTypes().access(current_enum_name);
         updateValidationInfo<datamodel::EnumType>(enum_type, parent_ddl);
     }
-    dependencies = removeInMapTo(data_type.getName(), _dependencies[struct_type_to_data_type]);
+    dependencies = removeInMapTo(data_type.getName(), "", _dependencies[struct_type_to_data_type]);
     // this should invalidate the struct_types
     for (const auto& current_struct_name: dependencies) {
         const auto struct_type = parent_ddl.getStructTypes().access(current_struct_name);
@@ -157,7 +168,8 @@ void ValidationServiceInfo::removed(const datamodel::EnumType& enum_type,
                                     datamodel::DataDefinition& parent_ddl)
 {
     removeInMapFrom(enum_type.getName(), _dependencies[enum_type_to_data_type]);
-    auto dependencies = removeInMapTo(enum_type.getName(), _dependencies[struct_type_to_enum_type]);
+    auto dependencies =
+        removeInMapTo(enum_type.getName(), "", _dependencies[struct_type_to_enum_type]);
     // this should invalidate the struct_types using it
     for (const auto& current_struct_name: dependencies) {
         const auto struct_type = parent_ddl.getStructTypes().access(current_struct_name);
@@ -172,13 +184,13 @@ void ValidationServiceInfo::removed(const datamodel::StructType& struct_type,
     removeInMapFrom(struct_type.getName(), _dependencies[struct_type_to_enum_type]);
     removeInMapFrom(struct_type.getName(), _dependencies[struct_type_to_struct_type]);
     auto dependencies =
-        removeInMapTo(struct_type.getName(), _dependencies[struct_type_to_struct_type]);
+        removeInMapTo(struct_type.getName(), "", _dependencies[struct_type_to_struct_type]);
     // this should invalidate the struct_types using it
     for (const auto& current_struct_name: dependencies) {
         const auto struct_type_to_access = parent_ddl.getStructTypes().access(current_struct_name);
         updateValidationInfo<datamodel::StructType>(struct_type_to_access, parent_ddl);
     }
-    dependencies = removeInMapTo(struct_type.getName(), _dependencies[stream_to_struct_type]);
+    dependencies = removeInMapTo(struct_type.getName(), "", _dependencies[stream_to_struct_type]);
     // this should invalidate the streams
     for (const auto& current_stream: dependencies) {
         const auto stream = parent_ddl.getStreams().access(current_stream);
@@ -192,8 +204,8 @@ void ValidationServiceInfo::removed(const datamodel::StreamMetaType& stream_meta
     removeInMapFrom(stream_meta_type.getName(),
                     _dependencies[stream_meta_type_to_stream_meta_type]);
 
-    auto dependencies = removeInMapTo(stream_meta_type.getName(),
-                                      _dependencies[stream_meta_type_to_stream_meta_type]);
+    auto dependencies = removeInMapTo(
+        stream_meta_type.getName(), "", _dependencies[stream_meta_type_to_stream_meta_type]);
     // this should invalidate the struct_types using it
     for (const auto& current_stream_meta_name: dependencies) {
         const auto current_meta_type =
@@ -201,7 +213,7 @@ void ValidationServiceInfo::removed(const datamodel::StreamMetaType& stream_meta
         updateValidationInfo<datamodel::StreamMetaType>(current_meta_type, parent_dd);
     }
     dependencies =
-        removeInMapTo(stream_meta_type.getName(), _dependencies[stream_to_stream_meta_type]);
+        removeInMapTo(stream_meta_type.getName(), "", _dependencies[stream_to_stream_meta_type]);
     // this should invalidate the struct_types using it
     for (const auto& current_stream: dependencies) {
         const auto stream = parent_dd.getStreams().access(current_stream);
@@ -219,19 +231,19 @@ void ValidationServiceInfo::removed(const datamodel::BaseUnit& base_unit,
                                     datamodel::DataDefinition& parent_dd)
 {
     // update all units
-    auto dependencies = removeInMapTo(base_unit.getName(), _dependencies[unit_to_base_unit]);
+    auto dependencies = removeInMapTo(base_unit.getName(), "", _dependencies[unit_to_base_unit]);
     for (const auto& current_unit_name: dependencies) {
         const auto unit = parent_dd.getUnits().access(current_unit_name);
         updateValidationInfo<datamodel::Unit>(unit, parent_dd);
     }
     // update all data types
-    dependencies = removeInMapTo(base_unit.getName(), _dependencies[data_type_to_base_unit]);
+    dependencies = removeInMapTo(base_unit.getName(), "", _dependencies[data_type_to_base_unit]);
     for (const auto& current_data_type_name: dependencies) {
         const auto data_type = parent_dd.getDataTypes().access(current_data_type_name);
         updateValidationInfo<datamodel::DataType>(data_type, parent_dd);
     }
     // update all struct types
-    dependencies = removeInMapTo(base_unit.getName(), _dependencies[struct_type_to_base_unit]);
+    dependencies = removeInMapTo(base_unit.getName(), "", _dependencies[struct_type_to_base_unit]);
     for (const auto& current_struct_type_name: dependencies) {
         const auto struct_type = parent_dd.getStructTypes().access(current_struct_type_name);
         updateValidationInfo<datamodel::StructType>(struct_type, parent_dd);
@@ -242,7 +254,8 @@ void ValidationServiceInfo::removed(const datamodel::UnitPrefix& unit_prefix,
                                     datamodel::DataDefinition& parent_dd)
 {
     // update all units
-    auto dependencies = removeInMapTo(unit_prefix.getName(), _dependencies[unit_to_unit_prefix]);
+    auto dependencies =
+        removeInMapTo(unit_prefix.getName(), "", _dependencies[unit_to_unit_prefix]);
     for (const auto& current_unit_name: dependencies) {
         auto unit = parent_dd.getUnits().access(current_unit_name);
         updateValidationInfo<datamodel::Unit>(unit, parent_dd);
@@ -256,13 +269,13 @@ void ValidationServiceInfo::removed(const datamodel::Unit& unit,
     removeInMapFrom(unit.getName(), _dependencies[unit_to_unit_prefix]);
 
     // update all data types
-    auto dependencies = removeInMapTo(unit.getName(), _dependencies[data_type_to_unit]);
+    auto dependencies = removeInMapTo(unit.getName(), "", _dependencies[data_type_to_unit]);
     for (const auto& current_data_type_name: dependencies) {
         auto data_type = parent_dd.getDataTypes().access(current_data_type_name);
         updateValidationInfo<datamodel::DataType>(data_type, parent_dd);
     }
     // update all struct types
-    dependencies = removeInMapTo(unit.getName(), _dependencies[struct_type_to_unit]);
+    dependencies = removeInMapTo(unit.getName(), "", _dependencies[struct_type_to_unit]);
     for (const auto& current_struct_type_name: dependencies) {
         auto struct_type = parent_dd.getStructTypes().access(current_struct_type_name);
         updateValidationInfo<datamodel::StructType>(struct_type, parent_dd);
@@ -276,7 +289,8 @@ void ValidationServiceInfo::renamed(const datamodel::DataType& data_type,
     renameInMapFrom(old_name, data_type.getName(), _dependencies[data_type_to_unit]);
 
     // this should invalidate the enum_type if there are values
-    auto dependencies = removeInMapTo(old_name, _dependencies[enum_type_to_data_type]);
+    auto dependencies =
+        removeInMapTo(old_name, data_type.getName(), _dependencies[enum_type_to_data_type]);
     for (const auto& current_enum_name: dependencies) {
         auto enum_type = parent_dd.getEnumTypes().access(current_enum_name);
         if (enum_type) {
@@ -289,21 +303,25 @@ void ValidationServiceInfo::renamed(const datamodel::DataType& data_type,
 
     // this should invalidate the struct_type if there are values
     // go through the structs using this
-    dependencies = removeInMapTo(old_name, _dependencies[struct_type_to_data_type]);
+    dependencies =
+        removeInMapTo(old_name, data_type.getName(), _dependencies[struct_type_to_data_type]);
     // this should invalidate the struct_types
     for (const auto& current_struct_name: dependencies) {
         auto struct_type = parent_dd.getStructTypes().access(current_struct_name);
         // this is just for optimization, we need to to update ValidationInfo only once
         _validation_needed = false;
         if (struct_type) {
-            for (auto& elem: struct_type->getElements()) {
-                if (elem->getTypeName() == old_name) {
-                    elem->setTypeName(data_type.getName());
+            // rename it
+            if (data_type.getName() != old_name) {
+                for (auto& elem: struct_type->getElements()) {
+                    if (elem->getTypeName() == old_name) {
+                        elem->setTypeName(data_type.getName());
+                    }
                 }
             }
-            // the setType should not invalidate, but this is also needed to readd dependencies
-            updateValidationInfo<datamodel::StructType>(struct_type, parent_dd);
         }
+        // the setType should not invalidate, but this is also needed to readd dependencies
+        updateValidationInfo<datamodel::StructType>(struct_type, parent_dd);
         _validation_needed = true;
     }
 }
@@ -314,16 +332,20 @@ void ValidationServiceInfo::renamed(const datamodel::EnumType& enum_type,
 {
     renameInMapFrom(old_name, enum_type.getName(), _dependencies[enum_type_to_data_type]);
 
-    auto dependencies = removeInMapTo(old_name, _dependencies[struct_type_to_enum_type]);
+    auto dependencies =
+        removeInMapTo(old_name, enum_type.getName(), _dependencies[struct_type_to_enum_type]);
     // this should invalidate the struct_types using it
     for (const auto& current_struct_name: dependencies) {
         auto struct_type = parent_dd.getStructTypes().access(current_struct_name);
         // this is just for optimization, we need to to update ValidationInfo only once
         _validation_needed = false;
         if (struct_type) {
-            for (auto& elem: struct_type->getElements()) {
-                if (elem->getTypeName() == old_name) {
-                    elem->setTypeName(enum_type.getName());
+            // rename it
+            if (enum_type.getName() != old_name) {
+                for (auto& elem: struct_type->getElements()) {
+                    if (elem->getTypeName() == old_name) {
+                        elem->setTypeName(enum_type.getName());
+                    }
                 }
             }
             // the setType should not invalidate, but this is also needed to readd dependencies
@@ -341,16 +363,20 @@ void ValidationServiceInfo::renamed(const datamodel::StructType& struct_type,
     renameInMapFrom(old_name, struct_type.getName(), _dependencies[struct_type_to_enum_type]);
     renameInMapFrom(old_name, struct_type.getName(), _dependencies[struct_type_to_struct_type]);
 
-    auto dependencies = removeInMapTo(old_name, _dependencies[struct_type_to_struct_type]);
+    auto dependencies =
+        removeInMapTo(old_name, struct_type.getName(), _dependencies[struct_type_to_struct_type]);
     // this should invalidate the struct_types using it
     for (const auto& current_struct_name: dependencies) {
         auto struct_type_current = parent_dd.getStructTypes().access(current_struct_name);
         // this is just for optimization, we need to to update ValidationInfo only once
         _validation_needed = false;
         if (struct_type_current) {
-            for (auto& elem: struct_type_current->getElements()) {
-                if (elem->getTypeName() == old_name) {
-                    elem->setTypeName(struct_type.getName());
+            // rename it
+            if (struct_type.getName() != old_name) {
+                for (auto& elem: struct_type_current->getElements()) {
+                    if (elem->getTypeName() == old_name) {
+                        elem->setTypeName(struct_type.getName());
+                    }
                 }
             }
             // the setType should not invalidate, but this is also needed to readd dependencies
@@ -359,20 +385,23 @@ void ValidationServiceInfo::renamed(const datamodel::StructType& struct_type,
         _validation_needed = true;
     }
 
-    dependencies = removeInMapTo(old_name, _dependencies[stream_to_struct_type]);
+    dependencies =
+        removeInMapTo(old_name, struct_type.getName(), _dependencies[stream_to_struct_type]);
     // this should invalidate the streams
     for (const auto& current_stream_name: dependencies) {
         auto current_stream = parent_dd.getStreams().access(current_stream_name);
         // this is just for optimization, we need to to update ValidationInfo only once
         _validation_needed = false;
         if (current_stream) {
-            for (auto& stream_struct: current_stream->getStructs()) {
-                if (stream_struct->getTypeName() == old_name) {
-                    stream_struct->setTypeName(struct_type.getName());
+            if (struct_type.getName() != old_name) {
+                for (auto& stream_struct: current_stream->getStructs()) {
+                    if (stream_struct->getTypeName() == old_name) {
+                        stream_struct->setTypeName(struct_type.getName());
+                    }
                 }
-            }
-            if (current_stream->getStreamTypeName() == old_name) {
-                current_stream->setStreamTypeName(struct_type.getName());
+                if (current_stream->getStreamTypeName() == old_name) {
+                    current_stream->setStreamTypeName(struct_type.getName());
+                }
             }
             // the setType should not invalidate, but this is also needed to readd dependencies
             updateValidationInfo<datamodel::Stream>(current_stream, parent_dd);
@@ -388,8 +417,8 @@ void ValidationServiceInfo::renamed(const datamodel::StreamMetaType& stream_meta
     renameInMapFrom(
         old_name, stream_meta_type.getName(), _dependencies[stream_meta_type_to_stream_meta_type]);
 
-    auto dependencies =
-        removeInMapTo(old_name, _dependencies[stream_meta_type_to_stream_meta_type]);
+    auto dependencies = removeInMapTo(
+        old_name, stream_meta_type.getName(), _dependencies[stream_meta_type_to_stream_meta_type]);
     // this should invalidate the struct_types using it
     for (const auto& current_stream_meta_type_name: dependencies) {
         auto current_stream_meta_type =
@@ -398,7 +427,11 @@ void ValidationServiceInfo::renamed(const datamodel::StreamMetaType& stream_meta
         _validation_needed = false;
         if (current_stream_meta_type) {
             if (current_stream_meta_type->getParent() == old_name) {
-                current_stream_meta_type->setParent(stream_meta_type.getName());
+                if (stream_meta_type.getName() != old_name) {
+                    // we do not reset the name here, because this is usually call on adding a type
+                    // which was used before and we update the validation information only
+                    current_stream_meta_type->setParent(stream_meta_type.getName());
+                }
             }
             // the setType should not invalidate, but this is also needed to readd dependencies
             updateValidationInfo<datamodel::StreamMetaType>(current_stream_meta_type, parent_dd);
@@ -406,7 +439,8 @@ void ValidationServiceInfo::renamed(const datamodel::StreamMetaType& stream_meta
         _validation_needed = true;
     }
 
-    dependencies = removeInMapTo(old_name, _dependencies[stream_to_stream_meta_type]);
+    dependencies = removeInMapTo(
+        old_name, stream_meta_type.getName(), _dependencies[stream_to_stream_meta_type]);
     // this should invalidate the streams using it
     for (const auto& current_stream_name: dependencies) {
         auto current_stream = parent_dd.getStreams().access(current_stream_name);
@@ -436,7 +470,8 @@ void ValidationServiceInfo::renamed(const datamodel::BaseUnit& base_unit,
                                     datamodel::DataDefinition& parent_dd)
 {
     // rename in structs
-    auto dependencies = removeInMapTo(old_name, _dependencies[struct_type_to_base_unit]);
+    auto dependencies =
+        removeInMapTo(old_name, base_unit.getName(), _dependencies[struct_type_to_base_unit]);
     // this should invalidate the struct_types using it
     for (const auto& current_struct_name: dependencies) {
         auto current_struct_type = parent_dd.getStructTypes().access(current_struct_name);
@@ -455,7 +490,8 @@ void ValidationServiceInfo::renamed(const datamodel::BaseUnit& base_unit,
     }
 
     // rename in data_types
-    dependencies = removeInMapTo(old_name, _dependencies[data_type_to_base_unit]);
+    dependencies =
+        removeInMapTo(old_name, base_unit.getName(), _dependencies[data_type_to_base_unit]);
     // this should invalidate the struct_types using it
     for (const auto& current_data_type_name: dependencies) {
         auto current_data_type = parent_dd.getDataTypes().access(current_data_type_name);
@@ -472,7 +508,7 @@ void ValidationServiceInfo::renamed(const datamodel::BaseUnit& base_unit,
     }
 
     // rename in refUnits
-    dependencies = removeInMapTo(old_name, _dependencies[unit_to_base_unit]);
+    dependencies = removeInMapTo(old_name, base_unit.getName(), _dependencies[unit_to_base_unit]);
     // this should invalidate the struct_types using it
     for (const auto& current_unit_name: dependencies) {
         auto current_unit = parent_dd.getUnits().access(current_unit_name);
@@ -506,7 +542,8 @@ void ValidationServiceInfo::renamed(const datamodel::UnitPrefix& unit_prefix,
                                     datamodel::DataDefinition& parent_dd)
 {
     // rename in refUnits
-    auto dependencies = removeInMapTo(old_name, _dependencies[unit_to_unit_prefix]);
+    auto dependencies =
+        removeInMapTo(old_name, unit_prefix.getName(), _dependencies[unit_to_unit_prefix]);
     // this should invalidate the struct_types using it
     for (const auto& current_unit_name: dependencies) {
         auto current_unit = parent_dd.getUnits().access(current_unit_name);
@@ -543,7 +580,7 @@ void ValidationServiceInfo::renamed(const datamodel::Unit& unit,
     renameInMapFrom(old_name, unit.getName(), _dependencies[unit_to_unit_prefix]);
 
     // rename in structs
-    auto dependencies = removeInMapTo(old_name, _dependencies[struct_type_to_unit]);
+    auto dependencies = removeInMapTo(old_name, unit.getName(), _dependencies[struct_type_to_unit]);
     // this should invalidate the struct_types using it
     for (const auto& current_struct_name: dependencies) {
         auto current_struct_type = parent_ddl.getStructTypes().access(current_struct_name);
@@ -562,7 +599,7 @@ void ValidationServiceInfo::renamed(const datamodel::Unit& unit,
     }
 
     // rename in data_types
-    dependencies = removeInMapTo(old_name, _dependencies[data_type_to_unit]);
+    dependencies = removeInMapTo(old_name, unit.getName(), _dependencies[data_type_to_unit]);
     // this should invalidate the struct_types using it
     for (const auto& current_data_type_name: dependencies) {
         auto current_data_type = parent_ddl.getDataTypes().access(current_data_type_name);
@@ -582,6 +619,74 @@ void ValidationServiceInfo::renamed(const datamodel::Unit& unit,
 bool ValidationServiceInfo::validationNeeded() const
 {
     return _validation_needed;
+}
+
+ValidationServiceInfo::ValidationProblem::ValidationProblem(ValidationLevel level,
+                                                            const ddl::dd::Problem& problem)
+    : _level(level), _problem(problem)
+{
+}
+
+ValidationServiceInfo::ValidationProblem::ValidationProblem(const ddl::dd::Problem& problem)
+    : ValidationProblem(ValidationLevel::invalid, problem)
+{
+}
+
+ValidationLevel ValidationServiceInfo::ValidationProblem::getLevel() const
+{
+    return _level;
+}
+
+ddl::dd::Problem ValidationServiceInfo::ValidationProblem::getProblem() const
+{
+    return _problem;
+}
+
+void ValidationServiceInfo::removeProblem(ValidationProblemId id, ValidationLevel level)
+{
+    if (level < ValidationLevel::valid) {
+        auto found_level_entry = _validation_problems.find(static_cast<uint8_t>(level));
+        if (found_level_entry != _validation_problems.end()) {
+            found_level_entry->second.erase(id);
+        }
+        if (found_level_entry->second.empty()) {
+            _validation_problems.erase(found_level_entry);
+        }
+    }
+}
+
+void ValidationServiceInfo::updateProblem(ValidationProblemId id,
+                                          const std::shared_ptr<const ValidationProblem>& problem)
+{
+    if (problem->getLevel() < ValidationLevel::valid) {
+        _validation_problems[static_cast<uint8_t>(problem->getLevel())][id] = problem;
+    }
+}
+
+ValidationLevel ValidationServiceInfo::getValidationLevel() const
+{
+    if (_validation_problems.empty()) {
+        return ValidationLevel::valid;
+    }
+    else {
+        return static_cast<ValidationLevel>(_validation_problems.rbegin()->first);
+    }
+}
+
+std::vector<Problem> ValidationServiceInfo::getProblems() const
+{
+    std::vector<Problem> problems;
+    size_t pre_size = 0;
+    for (const auto& current_level: _validation_problems) {
+        pre_size += current_level.second.size();
+    }
+    problems.reserve(pre_size);
+    for (const auto& current_level: _validation_problems) {
+        for (const auto& current_problem: current_level.second) {
+            problems.push_back(current_problem.second->getProblem());
+        }
+    }
+    return problems;
 }
 
 /**
@@ -615,10 +720,11 @@ ValidationInfo::~ValidationInfo()
 
 bool ValidationInfo::isValid(ValidationLevel level) const
 {
-    if (_valid == invalid) {
+    const auto current_level = getValidationLevel();
+    if (current_level == ValidationLevel::invalid) {
         return false;
     }
-    else if (_valid >= level) {
+    else if (current_level >= level) {
         return true;
     }
     else {
@@ -628,22 +734,71 @@ bool ValidationInfo::isValid(ValidationLevel level) const
 
 ValidationInfo::ValidationLevel ValidationInfo::getValidationLevel() const
 {
-    return _valid;
+    if (!_is_validated) {
+        return ValidationLevel::dont_know;
+    }
+    if (_validation_problems.empty()) {
+        return ValidationLevel::valid;
+    }
+    return static_cast<ValidationInfo::ValidationLevel>(_validation_problems.rbegin()->first);
 }
 
-const std::vector<ValidationInfo::Problem>& ValidationInfo::getProblems() const
+std::vector<ValidationInfo::Problem> ValidationInfo::getProblems() const
 {
-    return _validation_problems;
+    std::vector<ValidationInfo::Problem> problems;
+    size_t pre_size = 0;
+    for (const auto& current_level: _validation_problems) {
+        pre_size += current_level.second.size();
+    }
+    problems.reserve(pre_size);
+    for (const auto& current_level: _validation_problems) {
+        for (const auto& current_problem: current_level.second) {
+            problems.push_back(current_problem.second->getProblem());
+        }
+    }
+    return problems;
 }
 
-void ValidationInfo::addProblem(Problem&& problem)
+void ValidationInfo::addProblem(ValidationServiceInfo::ValidationProblem&& problem)
 {
-    _validation_problems.emplace_back(problem);
+    auto problem_to_add =
+        std::make_shared<ValidationServiceInfo::ValidationProblem>(std::move(problem));
+    addProblem(problem_to_add);
 }
 
-void ValidationInfo::addProblem(const Problem& problem)
+void ValidationInfo::addProblem(const ValidationServiceInfo::ValidationProblem& problem)
 {
-    _validation_problems.emplace_back(problem);
+    auto problem_to_add = std::make_shared<ValidationServiceInfo::ValidationProblem>(problem);
+    addProblem(problem_to_add);
+}
+
+void ValidationInfo::addProblem(
+    const std::shared_ptr<ValidationServiceInfo::ValidationProblem>& problem)
+{
+    if (problem->getLevel() < static_cast<ddl::dd::ValidationLevel>(ValidationLevel::valid)) {
+        auto id = static_cast<ValidationServiceInfo::ValidationProblemId>(problem.get());
+        _validation_problems[static_cast<uint8_t>(problem->getLevel())][id] = problem;
+        if (_current_validation_service) {
+            _current_validation_service->updateProblem(id, problem);
+        }
+    }
+}
+
+/**
+ * Remove all problems
+ */
+void ValidationInfo::removeProblems(datamodel::DataDefinition& parent_dd)
+{
+    _current_validation_service = parent_dd.getInfo<ValidationServiceInfo>();
+    if (_current_validation_service) {
+        for (const auto& current_level: _validation_problems) {
+            for (const auto& current_problem: current_level.second) {
+                _current_validation_service->removeProblem(current_problem.first,
+                                                           current_problem.second->getLevel());
+            }
+        }
+    }
+    _validation_problems.clear();
 }
 
 namespace {
@@ -701,116 +856,113 @@ std::shared_ptr<datamodel::UnitPrefix> getOrCreateUnitPrefix(const std::string& 
 
 void ValidationInfo::update(datamodel::Unit& unit, datamodel::DataDefinition& parent_dd)
 {
-    _validation_problems.clear();
-    // the unit may be dependent to base unit or prefix within its ref units
-    ValidationLevel current_validation_level = valid;
-    for (auto& ref_unit: unit.getRefUnits()) {
-        auto base_unit_name = ref_unit.getUnitName();
-        if (!base_unit_name.empty()) {
-            addDependency(
-                {ValidationServiceInfo::unit_to_base_unit, unit.getName(), base_unit_name},
-                parent_dd);
-            auto base_unit = getOrCreateBaseUnit(base_unit_name, parent_dd);
-            // this will invalidate the whole dd ! If a unit is defined it must be valid!
-            if (!base_unit) {
-                current_validation_level = invalid;
-                addProblem(generateProblemMessage("Unit::RefUnit",
-                                                  unit.getName(),
-                                                  "BaseUnit '" + base_unit_name +
-                                                      "' is not defined in DataDefinition"));
-            }
-        }
-        else {
-            current_validation_level = invalid;
-            addProblem(
-                generateProblemMessage("Unit::RefUnit", unit.getName(), "BaseUnit is empty"));
-        }
-        auto prefix_name = ref_unit.getPrefixName();
-        if (!prefix_name.empty()) {
-            addDependency({ValidationServiceInfo::unit_to_unit_prefix, unit.getName(), prefix_name},
-                          parent_dd);
-            auto prefix = getOrCreateUnitPrefix(prefix_name, parent_dd);
-            if (!prefix) {
+    if (!_is_validated) {
+        removeProblems(parent_dd);
+        // the unit may be dependent to base unit or prefix within its ref units
+        for (auto& ref_unit: unit.getRefUnits()) {
+            auto base_unit_name = ref_unit.getUnitName();
+            if (!base_unit_name.empty()) {
+                addDependency(
+                    {ValidationServiceInfo::unit_to_base_unit, unit.getName(), base_unit_name},
+                    parent_dd);
+                auto base_unit = getOrCreateBaseUnit(base_unit_name, parent_dd);
                 // this will invalidate the whole dd ! If a unit is defined it must be valid!
-                current_validation_level = invalid;
-                addProblem(generateProblemMessage("Unit::RefUnit",
-                                                  unit.getName(),
-                                                  "UnitPrefix '" + prefix_name +
-                                                      "' is not defined in DataDefinition"));
+                if (!base_unit) {
+                    addProblem(generateProblemMessage("Unit::RefUnit",
+                                                      unit.getName(),
+                                                      "BaseUnit '" + base_unit_name +
+                                                          "' is not defined in DataDefinition"));
+                }
+            }
+            else {
+                addProblem(
+                    generateProblemMessage("Unit::RefUnit", unit.getName(), "BaseUnit is empty"));
+            }
+            auto prefix_name = ref_unit.getPrefixName();
+            if (!prefix_name.empty()) {
+                addDependency(
+                    {ValidationServiceInfo::unit_to_unit_prefix, unit.getName(), prefix_name},
+                    parent_dd);
+                auto prefix = getOrCreateUnitPrefix(prefix_name, parent_dd);
+                if (!prefix) {
+                    // this will invalidate the whole dd ! If a unit is defined it must be valid!
+                    addProblem(generateProblemMessage("Unit::RefUnit",
+                                                      unit.getName(),
+                                                      "UnitPrefix '" + prefix_name +
+                                                          "' is not defined in DataDefinition"));
+                }
+            }
+            else {
+                addProblem(
+                    generateProblemMessage("Unit::RefUnit", unit.getName(), "UnitPrefix is empty"));
             }
         }
-        else {
-            current_validation_level = invalid;
-            addProblem(
-                generateProblemMessage("Unit::RefUnit", unit.getName(), "UnitPrefix is empty"));
-        }
+        _is_validated = true;
     }
-    _valid = current_validation_level;
 }
 
 void ValidationInfo::update(datamodel::DataType& data_type, datamodel::DataDefinition& parent_dd)
 {
-    _validation_problems.clear();
-    auto unit_name = data_type.getUnitName();
-    ValidationLevel current_validation_level = valid;
-    if (!unit_name.empty()) {
-        // we do not care about the return value here
-        getOrCreateBaseUnit(unit_name, parent_dd);
-        auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
-        if (type_of_unit == base_unit) {
-            addDependency(
-                {ValidationServiceInfo::data_type_to_base_unit, data_type.getName(), unit_name},
-                parent_dd);
-        }
-        else if (type_of_unit == unit) {
-            auto found_unit = parent_dd.getUnits().access(unit_name);
-            auto validation_info = found_unit->getInfo<ValidationInfo>();
-            if (validation_info == nullptr) {
-                found_unit->setInfo<ValidationInfo>(
-                    std::make_shared<ValidationInfo>(*found_unit, parent_dd));
-                validation_info = found_unit->getInfo<ValidationInfo>();
+    if (!_is_validated) {
+        removeProblems(parent_dd);
+        auto unit_name = data_type.getUnitName();
+        if (!unit_name.empty()) {
+            // we do not care about the return value here
+            getOrCreateBaseUnit(unit_name, parent_dd);
+            auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
+            if (type_of_unit == base_unit) {
+                addDependency(
+                    {ValidationServiceInfo::data_type_to_base_unit, data_type.getName(), unit_name},
+                    parent_dd);
             }
-            if (validation_info->getValidationLevel() < valid) {
-                current_validation_level = good_enough;
+            else if (type_of_unit == unit) {
+                auto found_unit = parent_dd.getUnits().access(unit_name);
+                auto validation_info = found_unit->getInfo<ValidationInfo>();
+                if (validation_info == nullptr) {
+                    found_unit->setInfo<ValidationInfo>(
+                        std::make_shared<ValidationInfo>(*found_unit, parent_dd));
+                    validation_info = found_unit->getInfo<ValidationInfo>();
+                }
+                if (validation_info->getValidationLevel() < ValidationLevel::valid) {
+                    addProblem({ddl::dd::ValidationLevel::good_enough,
+                                generateProblemMessage("DataType",
+                                                       data_type.getName(),
+                                                       "The used unit '" + unit_name +
+                                                           "' has a Problem")});
+                }
+                addDependency(
+                    {ValidationServiceInfo::data_type_to_unit, data_type.getName(), unit_name},
+                    parent_dd);
+            }
+            else {
+                addDependency(
+                    {ValidationServiceInfo::data_type_to_unit, data_type.getName(), unit_name},
+                    parent_dd);
+                addDependency(
+                    {ValidationServiceInfo::data_type_to_base_unit, data_type.getName(), unit_name},
+                    parent_dd);
                 addProblem(
-                    generateProblemMessage("DataType",
-                                           data_type.getName(),
-                                           "The used unit '" + unit_name + "' has a Problem"));
+                    {ddl::dd::ValidationLevel::good_enough,
+                     generateProblemMessage("DataType",
+                                            data_type.getName(),
+                                            "The used unit '" + unit_name + "' is not defined")});
             }
-            addDependency(
-                {ValidationServiceInfo::data_type_to_unit, data_type.getName(), unit_name},
-                parent_dd);
         }
-        else {
-            addDependency(
-                {ValidationServiceInfo::data_type_to_unit, data_type.getName(), unit_name},
-                parent_dd);
-            addDependency(
-                {ValidationServiceInfo::data_type_to_base_unit, data_type.getName(), unit_name},
-                parent_dd);
-            current_validation_level = good_enough; // good enough for type info
+        // other attributes
+        if (data_type.getBitSize() == 0) {
             addProblem(generateProblemMessage("DataType",
                                               data_type.getName(),
-                                              "The used unit '" + unit_name + "' is not defined"));
+                                              "The bit_size of " + data_type.getName() +
+                                                  " is invalid (0 is not valid)"));
         }
+        if (data_type.getArraySize() && *data_type.getArraySize() == 0) {
+            addProblem(generateProblemMessage("DataType",
+                                              data_type.getName(),
+                                              "The array_size of '" + data_type.getName() +
+                                                  "' is invalid (0 is not valid)"));
+        }
+        _is_validated = true;
     }
-    // other attributes
-    if (data_type.getBitSize() == 0) {
-        current_validation_level = invalid; // good enough for type info
-        addProblem(generateProblemMessage("DataType",
-                                          data_type.getName(),
-                                          "The bit_size of " + data_type.getName() +
-                                              " is invalid (0 is not valid)"));
-    }
-    if (data_type.getArraySize() && *data_type.getArraySize() == 0) {
-        current_validation_level = invalid; // good enough for type info
-        addProblem(generateProblemMessage("DataType",
-                                          data_type.getName(),
-                                          "The array_size of '" + data_type.getName() +
-                                              "' is invalid (0 is not valid)"));
-    }
-
-    _valid = current_validation_level;
 }
 
 namespace {
@@ -837,55 +989,59 @@ std::shared_ptr<datamodel::DataType> getOrCreateDataType(const std::string& name
 }
 } // namespace
 
-void ValidationInfo::update(datamodel::EnumType& enum_type, datamodel::DataDefinition& parent_ddl)
+void ValidationInfo::update(datamodel::EnumType& enum_type, datamodel::DataDefinition& parent_dd)
 {
-    _validation_problems.clear();
-    ValidationLevel current_validation = valid;
-    auto data_type_name = enum_type.getDataTypeName();
-    if (data_type_name.empty()) {
-        current_validation = invalid;
-        addProblem(generateProblemMessage(
-            "EnumType", enum_type.getName(), "The used data_type is not defined"));
-    }
-    else {
-        addDependency(
-            {ValidationServiceInfo::enum_type_to_data_type, enum_type.getName(), data_type_name},
-            parent_ddl);
-        auto data_type = getOrCreateDataType(data_type_name, parent_ddl);
-        if (!data_type) {
-            current_validation = invalid;
-            addProblem(generateProblemMessage("EnumType",
-                                              enum_type.getName(),
-                                              "The used data_type '" + data_type_name +
-                                                  "' is not defined"));
+    if (!_is_validated) {
+        removeProblems(parent_dd);
+        auto data_type_name = enum_type.getDataTypeName();
+        if (data_type_name.empty()) {
+            addProblem(generateProblemMessage(
+                "EnumType", enum_type.getName(), "The used data_type is not defined"));
         }
         else {
-            auto info = data_type->getInfo<ValidationInfo>();
-            if (info) {
-                current_validation = data_type->getInfo<ValidationInfo>()->getValidationLevel();
-                if (current_validation != valid) {
-                    addProblem(generateProblemMessage("EnumType",
-                                                      enum_type.getName(),
-                                                      "The used data_type '" + data_type_name +
-                                                          "' has a problem"));
-                }
+            addDependency({ValidationServiceInfo::enum_type_to_data_type,
+                           enum_type.getName(),
+                           data_type_name},
+                          parent_dd);
+            auto data_type = getOrCreateDataType(data_type_name, parent_dd);
+            if (!data_type) {
+                addProblem(generateProblemMessage("EnumType",
+                                                  enum_type.getName(),
+                                                  "The used data_type '" + data_type_name +
+                                                      "' is not defined"));
             }
             else {
-                current_validation = good_enough;
+                auto info = data_type->getInfo<ValidationInfo>();
+                if (info) {
+                    if (data_type->getInfo<ValidationInfo>()->getValidationLevel() !=
+                        ValidationLevel::valid) {
+                        addProblem(generateProblemMessage("EnumType",
+                                                          enum_type.getName(),
+                                                          "The used data_type '" + data_type_name +
+                                                              "' has a problem"));
+                    }
+                }
+                else {
+                    addProblem({ddl::dd::ValidationLevel::good_enough,
+                                generateProblemMessage("EnumType",
+                                                       enum_type.getName(),
+                                                       "The used data_type '" + data_type_name +
+                                                           "' has no validation state")});
+                }
             }
         }
+        _is_validated = true;
     }
-    _valid = current_validation;
 }
 
 void ValidationInfo::forceRevalidation()
 {
-    _valid = invalid;
+    _is_validated = false;
 }
 
 namespace {
 
-const ValidationInfo* getOrCreateValidationInfo(const std::string type_name,
+const ValidationInfo* getOrCreateValidationInfo(const std::string& type_name,
                                                 TypeOfType& type_of_type,
                                                 datamodel::DataDefinition& ddl,
                                                 bool with_stream_meta_type)
@@ -972,27 +1128,28 @@ const ValidationInfo* getOrCreateValidationInfo(const std::string type_name,
     }
 }
 
-ValidationInfo::ValidationLevel updateValidationForElement(
-    datamodel::StructType& parent_struct_type,
-    datamodel::StructType::Element& element,
-    std::vector<ValidationInfo::Problem>& problems,
-    datamodel::DataDefinition& parent_dd)
+void updateValidationForElement(datamodel::StructType& parent_struct_type,
+                                datamodel::StructType::Element& element,
+                                datamodel::DataDefinition& parent_dd)
 {
-    ValidationInfo::ValidationLevel current_validation = ValidationInfo::valid;
+    ValidationInfo* validation_info = parent_struct_type.getInfo<ValidationInfo>();
+    if (!validation_info) {
+        return;
+    }
     TypeOfType type_returned = {};
-    std::string type_name = element.getTypeName();
+    const auto& type_name = element.getTypeName();
     // this would detect a recursion
-    auto validation_info = getOrCreateValidationInfo(type_name, type_returned, parent_dd, false);
-    if (validation_info == nullptr) {
-        current_validation = ValidationInfo::invalid;
+    auto validation_info_type =
+        getOrCreateValidationInfo(type_name, type_returned, parent_dd, false);
+    if (validation_info_type == nullptr) {
         if (type_name.empty()) {
-            problems.push_back(
+            validation_info->addProblem(
                 generateProblemMessage("StructType::Element",
                                        parent_struct_type.getName() + "." + element.getName(),
                                        "The used data_type is not set"));
         }
         else {
-            problems.push_back(generateProblemMessage(
+            validation_info->addProblem(generateProblemMessage(
                 "StructType::Element",
                 parent_struct_type.getName() + "." + element.getName(),
                 "The used data_type '" + type_name + "' is not defined in DataDefinition"));
@@ -1010,12 +1167,13 @@ ValidationInfo::ValidationLevel updateValidationForElement(
             dep_type = ValidationServiceInfo::struct_type_to_struct_type;
         }
         addDependency({dep_type, parent_struct_type.getName(), type_name}, parent_dd);
-        current_validation = validation_info->getValidationLevel();
-        if (current_validation != ValidationInfo::valid) {
-            problems.push_back(
-                generateProblemMessage("StructType::Element",
-                                       parent_struct_type.getName() + "." + element.getName(),
-                                       "The used data type '" + type_name + "' has a problem"));
+        const auto current_validation = validation_info_type->getValidationLevel();
+        if (current_validation != ValidationInfo::ValidationLevel::valid) {
+            validation_info->addProblem(
+                {static_cast<ddl::dd::ValidationLevel>(current_validation),
+                 generateProblemMessage("StructType::Element",
+                                        parent_struct_type.getName() + "." + element.getName(),
+                                        "The used data type '" + type_name + "' has a problem")});
         }
     }
     // now we check the unit
@@ -1040,13 +1198,11 @@ ValidationInfo::ValidationLevel updateValidationForElement(
             }
             auto found_level = unit_validation_info->getValidationLevel();
             if (found_level < ValidationInfo::ValidationLevel::valid) {
-                if (current_validation == ValidationInfo::ValidationLevel::valid) {
-                    current_validation = ValidationInfo::ValidationLevel::good_enough;
-                }
-                problems.push_back(
-                    (generateProblemMessage("StructType::Element",
-                                            parent_struct_type.getName() + "." + element.getName(),
-                                            "The used unit '" + unit_name + "' has a Problem")));
+                validation_info->addProblem(
+                    {ValidationLevel::good_enough,
+                     (generateProblemMessage("StructType::Element",
+                                             parent_struct_type.getName() + "." + element.getName(),
+                                             "The used unit '" + unit_name + "' has a Problem"))});
             }
             addDependency({ValidationServiceInfo::struct_type_to_unit,
                            parent_struct_type.getName(),
@@ -1062,21 +1218,18 @@ ValidationInfo::ValidationLevel updateValidationForElement(
                            parent_struct_type.getName(),
                            unit_name},
                           parent_dd);
-            if (current_validation == ValidationInfo::ValidationLevel::valid) {
-                current_validation = ValidationInfo::ValidationLevel::good_enough;
-            }
-            problems.push_back(
-                (generateProblemMessage("StructType::Element",
-                                        parent_struct_type.getName() + "." + element.getName(),
-                                        "The used unit '" + unit_name + "' is not defined")));
+            validation_info->addProblem(
+                {ValidationLevel::good_enough,
+                 (generateProblemMessage("StructType::Element",
+                                         parent_struct_type.getName() + "." + element.getName(),
+                                         "The used unit '" + unit_name + "' is not defined"))});
         }
     }
     // other attributes
     if (element.getArraySize().isDynamicArraySize() &&
         !static_cast<bool>(parent_struct_type.getElements().get(
             element.getArraySize().getArraySizeElementName()))) {
-        current_validation = ValidationInfo::ValidationLevel::invalid;
-        problems.push_back(generateProblemMessage(
+        validation_info->addProblem(generateProblemMessage(
             "StructType::Element",
             parent_struct_type.getName() + "." + element.getName(),
             "The array_size_element_name '" + element.getArraySize().getArraySizeElementName() +
@@ -1084,8 +1237,7 @@ ValidationInfo::ValidationLevel updateValidationForElement(
     }
     if (!element.getArraySize().isDynamicArraySize() &&
         element.getArraySize().getArraySizeValue() == 0) {
-        current_validation = ValidationInfo::ValidationLevel::invalid;
-        problems.push_back(
+        validation_info->addProblem(
             generateProblemMessage("StructType::Element",
                                    parent_struct_type.getName() + "." + element.getName(),
                                    "The array_size with 0 is invalid!"));
@@ -1094,8 +1246,7 @@ ValidationInfo::ValidationLevel updateValidationForElement(
         auto enum_type = parent_dd.getEnumTypes().get(element.getTypeName());
         if (enum_type) {
             if (!static_cast<bool>(enum_type->getElements().get(element.getValue()))) {
-                current_validation = ValidationInfo::ValidationLevel::invalid;
-                problems.push_back(generateProblemMessage(
+                validation_info->addProblem(generateProblemMessage(
                     "StructType::Element",
                     parent_struct_type.getName() + "." + element.getName(),
                     "The value is set to '" + element.getValue() +
@@ -1103,8 +1254,7 @@ ValidationInfo::ValidationLevel updateValidationForElement(
             }
         }
         else {
-            current_validation = ValidationInfo::ValidationLevel::invalid;
-            problems.push_back(
+            validation_info->addProblem(
                 generateProblemMessage("StructType::Element",
                                        parent_struct_type.getName() + "." + element.getName(),
                                        "The value is set, but the type is not an enum_type!"));
@@ -1112,217 +1262,230 @@ ValidationInfo::ValidationLevel updateValidationForElement(
     }
 
     if (!dd::AlignmentValidation::isValid(element.getAlignment())) {
-        current_validation = ValidationInfo::ValidationLevel::invalid;
-        problems.push_back(generateProblemMessage(
+        validation_info->addProblem(generateProblemMessage(
             "StructType::Element",
             parent_struct_type.getName() + "." + element.getName(),
             "The alignment with '" + std::to_string(element.getAlignment()) + "' is invalid!"));
     }
-    return current_validation;
 }
 
 } // namespace
 
 void ValidationInfo::update(datamodel::StructType& struct_type,
-                            datamodel::DataDefinition& parent_dd)
+                            datamodel::DataDefinition& parent_dd,
+                            UpdateType update_type)
 {
-    if (_currently_on_validation) {
-        _valid = ValidationLevel::invalid;
-        // recursion found
-        addProblem(generateProblemMessage("StructType",
-                                          struct_type.getName(),
-                                          "Found a recursion! " + struct_type.getName() + " uses " +
-                                              struct_type.getName() + " in recursion somehow!"));
-        return;
-    }
-
-    _currently_on_validation = true;
-    _validation_problems.clear();
-    ValidationLevel current_validation = valid;
-    // for struct type validation we need only to check each element
-    for (auto& elem: struct_type.getElements()) {
-        auto elem_valididation =
-            updateValidationForElement(struct_type, *elem, _validation_problems, parent_dd);
-        if (elem_valididation < current_validation) {
-            current_validation = elem_valididation;
+    if (!_is_validated) {
+        if (_currently_on_validation) {
+            // recursion found
+            addProblem(generateProblemMessage("StructType",
+                                              struct_type.getName(),
+                                              "Found a recursion! " + struct_type.getName() +
+                                                  " uses " + struct_type.getName() +
+                                                  " in recursion somehow!"));
+            _is_validated = true;
+            return;
         }
-    }
 
-    if (struct_type.getAlignment() &&
-        !dd::AlignmentValidation::isValid(*struct_type.getAlignment())) {
-        current_validation = ValidationInfo::ValidationLevel::invalid;
-        addProblem(generateProblemMessage(
-            "StructType",
-            struct_type.getName(),
-            "The alignment of '" + std::to_string(*struct_type.getAlignment()) + "' is invalid!"));
-    }
+        _currently_on_validation = true;
+        // this is a shortcut for validation on a single added element at the end of the structure
+        if (update_type == UpdateType::only_last) {
+            auto& elems = struct_type.getElements();
+            auto added_elem = elems.begin();
+            if (elems.getSize() > 1) {
+                std::advance(added_elem, elems.getSize() - 1);
+            }
+            updateValidationForElement(struct_type, *(*added_elem), parent_dd);
+        }
+        else {
+            removeProblems(parent_dd);
+            // for struct type validation we need only to check each element
+            for (auto& elem: struct_type.getElements()) {
+                updateValidationForElement(struct_type, *elem, parent_dd);
+            }
 
-    _valid = current_validation;
-    _currently_on_validation = false;
+            if (struct_type.getAlignment() &&
+                !dd::AlignmentValidation::isValid(*struct_type.getAlignment())) {
+                addProblem(generateProblemMessage("StructType",
+                                                  struct_type.getName(),
+                                                  "The alignment of '" +
+                                                      std::to_string(*struct_type.getAlignment()) +
+                                                      "' is invalid!"));
+            }
+        }
+        _currently_on_validation = false;
+        _is_validated = true;
+    }
 }
 
 void ValidationInfo::update(datamodel::StreamMetaType& stream_meta_type,
                             datamodel::DataDefinition& parent_dd)
 {
-    if (_currently_on_validation) {
-        _valid = ValidationLevel::invalid;
-        // recursion found
-        addProblem(generateProblemMessage("StreamMetaType",
-                                          stream_meta_type.getName(),
-                                          "Found a recursion! " + stream_meta_type.getName() +
-                                              " uses " + stream_meta_type.getName() +
-                                              "as parent in recursion somehow!"));
-        return;
-    }
-    _currently_on_validation = true;
-    _validation_problems.clear();
-    ValidationLevel current_validation = valid;
-    auto parent = stream_meta_type.getParent();
-    if (!parent.empty()) {
-        addDependency({ValidationServiceInfo::stream_meta_type_to_stream_meta_type,
-                       stream_meta_type.getName(),
-                       parent},
-                      parent_dd);
-        auto parent_meta_type = parent_dd.getStreamMetaTypes().access(parent);
-        if (!parent_meta_type) {
-            current_validation = invalid;
+    if (!_is_validated) {
+        if (_currently_on_validation) {
+            // recursion found
             addProblem(generateProblemMessage("StreamMetaType",
                                               stream_meta_type.getName(),
-                                              "The parent stream meta type '" + parent +
-                                                  "' is not defined"));
+                                              "Found a recursion! " + stream_meta_type.getName() +
+                                                  " uses " + stream_meta_type.getName() +
+                                                  "as parent in recursion somehow!"));
+            _is_validated = true;
+            return;
         }
-        else {
-            auto info = parent_meta_type->getInfo<ValidationInfo>();
-            if (info == nullptr) {
-                // do it like this because of recursion detection!
-                parent_meta_type->setInfo<ValidationInfo>(std::make_shared<ValidationInfo>());
-                info = parent_meta_type->getInfo<ValidationInfo>();
-            }
-            if (info) {
-                info->update(*parent_meta_type, parent_dd);
-                current_validation =
-                    parent_meta_type->getInfo<ValidationInfo>()->getValidationLevel();
-                if (current_validation != valid) {
-                    addProblem(
-                        generateProblemMessage("StreamMetaType",
-                                               stream_meta_type.getName(),
-                                               "The used parent '" + parent + "' has a problem"));
-                }
+        _currently_on_validation = true;
+        removeProblems(parent_dd);
+        auto parent = stream_meta_type.getParent();
+        if (!parent.empty()) {
+            addDependency({ValidationServiceInfo::stream_meta_type_to_stream_meta_type,
+                           stream_meta_type.getName(),
+                           parent},
+                          parent_dd);
+            auto parent_meta_type = parent_dd.getStreamMetaTypes().access(parent);
+            if (!parent_meta_type) {
+                addProblem(generateProblemMessage("StreamMetaType",
+                                                  stream_meta_type.getName(),
+                                                  "The parent stream meta type '" + parent +
+                                                      "' is not defined"));
             }
             else {
-                current_validation = good_enough;
+                auto info = parent_meta_type->getInfo<ValidationInfo>();
+                if (info == nullptr) {
+                    // do it like this because of recursion detection!
+                    parent_meta_type->setInfo<ValidationInfo>(std::make_shared<ValidationInfo>());
+                    info = parent_meta_type->getInfo<ValidationInfo>();
+                    info->update(*parent_meta_type, parent_dd);
+                }
+                else {
+                    info->forceRevalidation();
+                    info->update(*parent_meta_type, parent_dd);
+                }
+                if (info) {
+                    const auto current_validation =
+                        parent_meta_type->getInfo<ValidationInfo>()->getValidationLevel();
+                    if (current_validation != ValidationLevel::valid) {
+                        addProblem({ddl::dd::ValidationLevel::good_enough,
+                                    generateProblemMessage("StreamMetaType",
+                                                           stream_meta_type.getName(),
+                                                           "The used parent '" + parent +
+                                                               "' has a problem")});
+                    }
+                }
+                else {
+                    addProblem({ddl::dd::ValidationLevel::good_enough,
+                                generateProblemMessage("StreamMetaType",
+                                                       stream_meta_type.getName(),
+                                                       "The used parent '" + parent +
+                                                           "' has no validation information")});
+                }
             }
         }
+        _currently_on_validation = false;
+        _is_validated = true;
     }
-    _valid = current_validation;
-    _currently_on_validation = false;
 }
 
-ValidationInfo::ValidationLevel updateValidationForStreamStruct(
-    const std::string& stream_name,
-    datamodel::Stream::Struct& stream_struct,
-    std::vector<ValidationInfo::Problem>& problems,
-    datamodel::DataDefinition& parent_dd)
+void updateValidationForStreamStruct(datamodel::Stream& stream,
+                                     datamodel::Stream::Struct& stream_struct,
+                                     datamodel::DataDefinition& parent_dd)
 {
-    ValidationInfo::ValidationLevel current_validation = ValidationInfo::valid;
     // this would detect a recursion
-    ValidationInfo* validation_info = nullptr;
-    std::string type_name = stream_struct.getTypeName();
+    auto validation_info_stream = stream.getInfo<ValidationInfo>();
+    if (!validation_info_stream) {
+        return;
+    }
+    ValidationInfo* validation_info_stream_struct = nullptr;
+    const auto& type_name = stream_struct.getTypeName();
     auto struct_type = parent_dd.getStructTypes().access(type_name);
     if (struct_type) {
-        validation_info = struct_type->getInfo<ValidationInfo>();
-        if (validation_info) {
-            validation_info->update(*struct_type, parent_dd);
+        validation_info_stream_struct = struct_type->getInfo<ValidationInfo>();
+        if (validation_info_stream_struct) {
+            validation_info_stream_struct->update(*struct_type, parent_dd);
         }
         else {
             // do it in this order because of recursion detection
             struct_type->setInfo<ValidationInfo>(std::make_shared<ValidationInfo>());
-            validation_info = struct_type->getInfo<ValidationInfo>();
-            validation_info->update(*struct_type, parent_dd);
+            validation_info_stream_struct = struct_type->getInfo<ValidationInfo>();
+            validation_info_stream_struct->update(*struct_type, parent_dd);
         }
     }
-    addDependency({ValidationServiceInfo::stream_to_struct_type, stream_name, type_name},
+    addDependency({ValidationServiceInfo::stream_to_struct_type, stream.getName(), type_name},
                   parent_dd);
-    if (validation_info == nullptr) {
-        current_validation = ValidationInfo::invalid;
+    if (validation_info_stream_struct == nullptr) {
         if (type_name.empty()) {
-            problems.push_back(generateProblemMessage("Stream::Struct",
-                                                      stream_name + "." + stream_struct.getName(),
-                                                      "The type is not set"));
+            validation_info_stream->addProblem(
+                generateProblemMessage("Stream::Struct",
+                                       stream.getName() + "." + stream_struct.getName(),
+                                       "The type is not set"));
         }
         else {
-            problems.push_back(generateProblemMessage("Stream::Struct",
-                                                      stream_name + "." + stream_struct.getName(),
-                                                      "The set type '" + type_name +
-                                                          "' is not defined in DataDefinition"));
+            validation_info_stream->addProblem(generateProblemMessage(
+                "Stream::Struct",
+                stream.getName() + "." + stream_struct.getName(),
+                "The set type '" + type_name + "' is not defined in DataDefinition"));
         }
     }
     else {
-        current_validation = validation_info->getValidationLevel();
-        if (current_validation != ValidationInfo::valid) {
-            problems.push_back(
-                generateProblemMessage("Stream::Struct",
-                                       stream_name + "." + stream_struct.getName(),
-                                       "The set type '" + type_name + "' has a problem"));
+        const auto current_validation = validation_info_stream_struct->getValidationLevel();
+        if (current_validation != ValidationInfo::ValidationLevel::valid) {
+            validation_info_stream->addProblem(
+                {static_cast<ddl::dd::ValidationLevel>(current_validation),
+                 generateProblemMessage("Stream::Struct",
+                                        stream.getName() + "." + stream_struct.getName(),
+                                        "The set type '" + type_name + "' has a problem")});
         }
     }
-    return current_validation;
 }
 
 void ValidationInfo::update(datamodel::Stream& stream, datamodel::DataDefinition& parent_dd)
 {
-    _validation_problems.clear();
-    ValidationLevel current_validation = valid;
+    if (!_is_validated) {
+        removeProblems(parent_dd);
 
-    auto stream_type_name = stream.getStreamTypeName();
-    TypeOfType type_of_stream_type = invalid_type;
-    auto stream_type_info =
-        getOrCreateValidationInfo(stream_type_name, type_of_stream_type, parent_dd, true);
-    if (stream_type_info) {
-        if (type_of_stream_type == stream_meta_type) {
-            addDependency({ValidationServiceInfo::stream_to_stream_meta_type,
-                           stream.getName(),
-                           stream_type_name},
-                          parent_dd);
+        auto stream_type_name = stream.getStreamTypeName();
+        TypeOfType type_of_stream_type = invalid_type;
+        auto stream_type_info =
+            getOrCreateValidationInfo(stream_type_name, type_of_stream_type, parent_dd, true);
+        if (stream_type_info) {
+            if (type_of_stream_type == stream_meta_type) {
+                addDependency({ValidationServiceInfo::stream_to_stream_meta_type,
+                               stream.getName(),
+                               stream_type_name},
+                              parent_dd);
+            }
+            else {
+                addDependency({ValidationServiceInfo::stream_to_struct_type,
+                               stream.getName(),
+                               stream_type_name},
+                              parent_dd);
+            }
+            const auto stream_struct_type_valididation = stream_type_info->getValidationLevel();
+            if (stream_struct_type_valididation != ValidationLevel::valid) {
+                addProblem({static_cast<ddl::dd::ValidationLevel>(stream_struct_type_valididation),
+                            generateProblemMessage("Stream",
+                                                   stream.getName(),
+                                                   "The set type '" + stream_type_name +
+                                                       "' has a problem")});
+            }
         }
         else {
-            addDependency(
-                {ValidationServiceInfo::stream_to_struct_type, stream.getName(), stream_type_name},
-                parent_dd);
+            if (stream_type_name.empty()) {
+                addProblem(
+                    generateProblemMessage("Stream", stream.getName(), "The type is not set"));
+            }
+            else {
+                addProblem(generateProblemMessage("Stream",
+                                                  stream.getName(),
+                                                  "The set type '" + stream_type_name +
+                                                      "' is not defined in DataDefinition"));
+            }
         }
-        auto stream_struct_type_valididation = stream_type_info->getValidationLevel();
-        if (stream_struct_type_valididation < current_validation) {
-            current_validation = stream_struct_type_valididation;
-            addProblem(
-                generateProblemMessage("Stream",
-                                       stream.getName(),
-                                       "The set type '" + stream_type_name + "' has a problem"));
-        }
-    }
-    else {
-        current_validation = ValidationInfo::invalid;
-        if (stream_type_name.empty()) {
-            addProblem(generateProblemMessage("Stream", stream.getName(), "The type is not set"));
-        }
-        else {
-            addProblem(generateProblemMessage("Stream",
-                                              stream.getName(),
-                                              "The set type '" + stream_type_name +
-                                                  "' is not defined in DataDefinition"));
-        }
-    }
 
-    // for stream validation need to check the stream structs
-    for (auto& stream_struct: stream.getStructs()) {
-        auto stream_struct_valididation = updateValidationForStreamStruct(
-            stream.getName(), *stream_struct, _validation_problems, parent_dd);
-        if (stream_struct_valididation < current_validation) {
-            current_validation = stream_struct_valididation;
+        // for stream validation need to check the stream structs
+        for (auto& stream_struct: stream.getStructs()) {
+            updateValidationForStreamStruct(stream, *stream_struct, parent_dd);
         }
+        _is_validated = true;
     }
-
-    // TODO: check the all other attributes
-    _valid = current_validation;
 }
 
 namespace {
@@ -1337,38 +1500,34 @@ std::vector<std::string> findInMapTo(const std::string& find_to_type,
 }
 } // namespace
 
-ValidationServiceInfo::InvalidatedTypes ValidationServiceInfo::forceRevalidationOfTypeDependencies(
+void ValidationServiceInfo::forceRevalidationOfTypeDependencies(
     const std::string& type_name,
     ddl::dd::TypeOfType type,
-    datamodel::DataDefinition& parent_dd) const
+    datamodel::DataDefinition& parent_dd,
+    ValidationServiceInfo::InvalidatedTypes& invalidated_types_to_return) const
 {
-    ValidationServiceInfo::InvalidatedTypes invalidated_types_to_return;
     std::vector<std::string> invalidated_structs;
     std::vector<std::string> invalidated_enums;
     if (type == struct_type) {
         const auto& to_struct_type_map = _dependencies.find(struct_type_to_struct_type);
         if (to_struct_type_map != _dependencies.end()) {
             invalidated_structs = findInMapTo(type_name, to_struct_type_map->second);
-            invalidated_types_to_return._struct_type_names = invalidated_structs;
         }
     }
     else if (type == enum_type) {
         const auto& to_struct_type_map = _dependencies.find(struct_type_to_enum_type);
         if (to_struct_type_map != _dependencies.end()) {
             invalidated_structs = findInMapTo(type_name, to_struct_type_map->second);
-            invalidated_types_to_return._struct_type_names = invalidated_structs;
         }
     }
     else if (type == data_type) {
         const auto& to_struct_type_map = _dependencies.find(struct_type_to_data_type);
         if (to_struct_type_map != _dependencies.end()) {
             invalidated_structs = findInMapTo(type_name, to_struct_type_map->second);
-            invalidated_types_to_return._struct_type_names = invalidated_structs;
         }
         const auto& to_enum_type_map = _dependencies.find(enum_type_to_data_type);
         if (to_enum_type_map != _dependencies.end()) {
             invalidated_enums = findInMapTo(type_name, to_enum_type_map->second);
-            invalidated_types_to_return._enum_type_names = invalidated_enums;
         }
     }
 
@@ -1377,19 +1536,19 @@ ValidationServiceInfo::InvalidatedTypes ValidationServiceInfo::forceRevalidation
         auto struct_type = parent_dd.getStructTypes().access(current);
         if (struct_type) {
             auto info = struct_type->getInfo<ValidationInfo>();
-            if (info) {
-                if (info->isValid()) {
+            // if struct type already added find it and detect recursuin with that
+            if (std::find(invalidated_types_to_return._struct_type_names.begin(),
+                          invalidated_types_to_return._struct_type_names.end(),
+                          struct_type->getName()) ==
+                invalidated_types_to_return._struct_type_names.end()) {
+                // we insert the value here to ensure recursion detection
+                invalidated_types_to_return._struct_type_names.push_back(current);
+                if (info) {
                     info->forceRevalidation();
-                    auto invalidated_types = forceRevalidationOfTypeDependencies(
-                        struct_type->getName(), struct_type->getTypeOfType(), parent_dd);
-                    invalidated_types_to_return._enum_type_names.insert(
-                        invalidated_types_to_return._enum_type_names.end(),
-                        invalidated_types._enum_type_names.begin(),
-                        invalidated_types._enum_type_names.end());
-                    invalidated_types_to_return._struct_type_names.insert(
-                        invalidated_types_to_return._struct_type_names.end(),
-                        invalidated_types._struct_type_names.begin(),
-                        invalidated_types._struct_type_names.end());
+                    forceRevalidationOfTypeDependencies(struct_type->getName(),
+                                                        struct_type->getTypeOfType(),
+                                                        parent_dd,
+                                                        invalidated_types_to_return);
                 }
             }
         }
@@ -1400,25 +1559,16 @@ ValidationServiceInfo::InvalidatedTypes ValidationServiceInfo::forceRevalidation
         auto enum_type = parent_dd.getEnumTypes().access(current);
         if (enum_type) {
             auto info = enum_type->getInfo<ValidationInfo>();
+            invalidated_types_to_return._enum_type_names.push_back(current);
             if (info) {
                 info->forceRevalidation();
-                if (info->isValid()) {
-                    info->forceRevalidation();
-                    auto invalidated_types = forceRevalidationOfTypeDependencies(
-                        enum_type->getName(), enum_type->getTypeOfType(), parent_dd);
-                    invalidated_types_to_return._enum_type_names.insert(
-                        invalidated_types_to_return._enum_type_names.end(),
-                        invalidated_types._enum_type_names.begin(),
-                        invalidated_types._enum_type_names.end());
-                    invalidated_types_to_return._struct_type_names.insert(
-                        invalidated_types_to_return._struct_type_names.end(),
-                        invalidated_types._struct_type_names.begin(),
-                        invalidated_types._struct_type_names.end());
-                }
+                forceRevalidationOfTypeDependencies(enum_type->getName(),
+                                                    enum_type->getTypeOfType(),
+                                                    parent_dd,
+                                                    invalidated_types_to_return);
             }
         }
     }
-    return invalidated_types_to_return;
 }
 
 } // namespace dd

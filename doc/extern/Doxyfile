@@ -17,7 +17,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = dev_essential
-PROJECT_NUMBER         = v1.1.1
+PROJECT_NUMBER         = v1.1.4
 PROJECT_BRIEF          = "Documentation for essential C++ libraries and interfaces"
 OUTPUT_DIRECTORY       =
 STRIP_FROM_PATH        = include/

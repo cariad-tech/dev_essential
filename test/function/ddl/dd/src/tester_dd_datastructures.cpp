@@ -30,18 +30,21 @@ using namespace ddl::dd;
  * Test list
  *****************************************************************************************/
 
+struct TestValidatorList;
+using TestElementList = utility::TypeAccessList<StructType::Element, TestValidatorList>;
+
 struct TestValidatorList : utility::TypeAccessListObserver<StructType::Element> {
     void clearEvents()
     {
         _change_events.clear();
     }
-    void setReturnVal(bool return_val)
+
+    bool validateContains(const StructType::Element& elem)
     {
-        _current_return_val = return_val;
-    }
-    bool validateContains(const StructType::Element&)
-    {
-        return _current_return_val;
+        if (_list_to_check) {
+            return _list_to_check->contains(elem.getName());
+        }
+        return false;
     }
 
     bool notifyChangedListContent(utility::TypeAccessListEventCode code,
@@ -59,11 +62,24 @@ struct TestValidatorList : utility::TypeAccessListObserver<StructType::Element> 
         _change_events.push_back({code, additional_info});
     }
 
-    bool _current_return_val = false;
-    std::vector<std::pair<utility::TypeAccessListEventCode, std::string>> _change_events;
-};
+    void setListToCheck(TestElementList* list_to_check)
+    {
+        _list_to_check = list_to_check;
+    }
+    const TestElementList::container_named_type* getNamedItemList() const
+    {
+        return &_container;
+    }
 
-using TestElementList = utility::TypeAccessList<StructType::Element, TestValidatorList>;
+    TestElementList::container_named_type* getNamedItemList()
+    {
+        return &_container;
+    }
+
+    std::vector<std::pair<utility::TypeAccessListEventCode, std::string>> _change_events;
+    TestElementList* _list_to_check = {};
+    TestElementList::container_named_type _container;
+};
 
 /**
  * @detail Create an element list add remoce get access elements, check if events are sent
@@ -74,6 +90,7 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
     {
         TestValidatorList test_validator;
         TestElementList elems(&test_validator, "test_list");
+        test_validator.setListToCheck(&elems);
 
         elems.add(StructType::Element("elem1", "some_type", {}, {}));
         elems.add(StructType::Element("elem3", "some_type", {}, {}));
@@ -92,7 +109,7 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
                       {utility::TypeAccessListEventCode::list_item_added, "elem3"}));
         EXPECT_EQ(test_validator._change_events[2],
                   decltype(test_validator._change_events)::value_type(
-                      {utility::TypeAccessListEventCode::list_item_added, "elem2"}));
+                      {utility::TypeAccessListEventCode::list_item_inserted, "elem2"}));
         EXPECT_EQ(test_validator._change_events[3],
                   decltype(test_validator._change_events)::value_type(
                       {utility::TypeAccessListEventCode::list_item_added, "elem4"}));
@@ -105,7 +122,7 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
 
         auto check_elem5_access = elems.access("elem5");
         EXPECT_TRUE(check_elem5_access);
-        check_elem5_access->setName("new_name_elem5");
+        check_elem5_access->setName("elem6");
 
         // check the events
         ASSERT_EQ(test_validator._change_events.size(), 7);
@@ -116,16 +133,16 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
                   decltype(test_validator._change_events)::value_type(
                       {utility::TypeAccessListEventCode::list_item_changed, "name"}));
 
-        // remove and item
-        elems.remove("new_name_elem5");
-        auto check_elem5_access_after_remove = elems.access("new_name_elem5");
+        // remove an item
+        elems.remove("elem6");
+        auto check_elem5_access_after_remove = elems.access("elem6");
         EXPECT_FALSE(check_elem5_access_after_remove);
 
         // check the events
         EXPECT_EQ(test_validator._change_events.size(), 8);
         EXPECT_EQ(test_validator._change_events[7],
                   decltype(test_validator._change_events)::value_type(
-                      {utility::TypeAccessListEventCode::list_item_removed, "new_name_elem5"}));
+                      {utility::TypeAccessListEventCode::list_item_removed, "elem6"}));
 
         // but the other is still accessable!
         EXPECT_TRUE(check_elem5_access);
@@ -312,12 +329,12 @@ TEST(TesterUtilityDataStructureMap, observerMove)
         dd::datamodel::DataDefinition data_model;
         data_model.getDataTypes().add({"type1", 1});
         data_model.getDataTypes().add({"type2", 2});
-        data_model.getDataTypes().add({"type3", 2});
+        data_model.getDataTypes().emplace({"type3", 2});
 
         data_model.getStructTypes().add({"structtype1", "1"});
         auto struct_type = data_model.getStructTypes().access("structtype1");
         struct_type->getElements().add({"elem1", "type1", {}, {}});
-        struct_type->getElements().add({"elem2", "type2", {}, {}});
+        struct_type->getElements().emplace({"elem2", "type2", {}, {}});
 
         data_model.getStructTypes().add({"structtype2", "2"});
         data_model.getStructTypes().add({"structtype3", "2"});

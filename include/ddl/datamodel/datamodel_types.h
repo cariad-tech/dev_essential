@@ -1149,6 +1149,8 @@ private:
     void notifyChangedListContent(utility::TypeAccessListEventCode code,
                                   Elements::access_type& element,
                                   const std::string& additional_info);
+    const Elements::container_named_type* getNamedItemList() const;
+    Elements::container_named_type* getNamedItemList();
 
     std::string _struct_version;
     dd::Version _ddl_version;

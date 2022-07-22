@@ -291,6 +291,8 @@ private:
     void notifyChangedListContent(utility::TypeAccessListEventCode code,
                                   Structs::access_type& stream_struct,
                                   const std::string& additional_info);
+    const Structs::container_named_type* getNamedItemList() const;
+    Structs::container_named_type* getNamedItemList();
 
     std::string _name;
     std::string _stream_type_name;

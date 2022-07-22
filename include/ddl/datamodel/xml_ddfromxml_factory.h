@@ -26,6 +26,7 @@ You may add additional accurate notices of copyright ownership.
 #include <ddl/dd/dd_predefined_datatypes.h>
 #include <ddl/utilities/dd_access_optional.h>
 #include <ddl/utilities/std_to_string.h>
+#include <ddl/utilities/string_check.h>
 
 #include <list>
 #include <regex>
@@ -49,14 +50,15 @@ namespace dd {
 template <typename DOM_NODE_TYPE>
 struct DDFromXMLFactory {
     /**
-     * check if the given string is an integer value.
+     * @brief Checks if the given string is an integer value.
+     * @param[in] string_to_check the string to check
      * @return true/false
      */
-    static bool isInteger(const std::string& stringToCheck)
+    static bool isInteger(const std::string& string_to_check)
     {
-        const std::regex numeric_integer_check("^-{0,1}(\\d)+");
-        return std::regex_match(stringToCheck, numeric_integer_check);
-    } // namespace utility
+        return utility::isInteger(string_to_check);
+    }
+
     /**
      * @brief specialized conversion to the Optional<int32_t>
      *

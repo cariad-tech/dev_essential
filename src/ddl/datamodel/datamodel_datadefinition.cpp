@@ -379,6 +379,12 @@ ModelEventCode getModelEventCodeFromMapCode(utility::TypeAccessMapEventCode code
     case map_subitem_renamed:
         code_to_forward = subitem_renamed;
         break;
+    case map_subitem_popped:
+        code_to_forward = subitem_popped;
+        break;
+    case map_subitem_inserted:
+        code_to_forward = subitem_inserted;
+        break;
     }
     return code_to_forward;
 }

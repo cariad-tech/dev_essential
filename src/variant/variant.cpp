@@ -15,17 +15,19 @@
  * You may add additional accurate notices of copyright ownership.
  */
 
-#include <a_util/memory.h>
+#include <a_util/memory/memory.h>
 #include <a_util/strings/strings_convert.h>
 #include <a_util/strings/strings_format.h>
 #include <a_util/strings/strings_functions.h>
 #include <a_util/variant/variant.h>
 
+#include <memory>
 #include <stdexcept>
-#include <vector>
+#include <utility>
 
 namespace a_util {
 namespace variant {
+
 // using this in member initialization list
 #pragma warning(disable : 4355)
 
@@ -62,6 +64,8 @@ template <>
 const VariantType VariantTraits<float>::value = VT_Float;
 template <>
 const VariantType VariantTraits<double>::value = VT_Double;
+template <>
+const VariantType VariantTraits<char>::value = VT_String;
 
 #if defined(__GNUC__) && (__GNUC__ == 5) && defined(__QNX__)
 #pragma GCC diagnostic warning                                                                     \
@@ -88,18 +92,8 @@ static const std::int8_t variant_type_sizes[] = {
 // Variant implementation (d-ptr)
 class Variant::Implementation {
 private:
-    Implementation& operator=(const Implementation&) = delete;
-    Implementation(Implementation&&) noexcept = default;
-    Implementation& operator=(Implementation&&) noexcept = default;
-
-public:
-    /// The current variant type
-    VariantType _stored_type;
-    std::uint8_t* _array_storage;
-    std::size_t _array_size;
-
-    /// Union to actually store element values
-    union {
+    union Union {
+        const void* no_val;
         bool bool_val;
         std::int8_t int8_val;
         std::uint8_t uint8_val;
@@ -111,91 +105,148 @@ public:
         std::uint64_t uint64_val;
         float float_val;
         double double_val;
-    } _value;
 
-    Implementation() : _stored_type(VT_Empty), _array_storage(nullptr), _array_size(0)
+        constexpr Union() noexcept : no_val{}
+        {
+        }
+
+        template <typename T>
+        constexpr explicit Union(T) noexcept : no_val{}
+        {
+        }
+
+        constexpr explicit Union(bool val) noexcept : bool_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::int8_t val) noexcept : int8_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::uint8_t val) noexcept : uint8_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::int16_t val) noexcept : int16_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::uint16_t val) noexcept : uint16_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::int32_t val) noexcept : int32_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::uint32_t val) noexcept : uint32_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::int64_t val) noexcept : int64_val{val}
+        {
+        }
+
+        constexpr explicit Union(std::uint64_t val) noexcept : uint64_val{val}
+        {
+        }
+
+        constexpr explicit Union(float val) noexcept : float_val{val}
+        {
+        }
+
+        constexpr explicit Union(double val) noexcept : double_val{val}
+        {
+        }
+    } _value = {};
+    VariantType _type = {};
+    std::unique_ptr<std::uint8_t[]> _array_storage;
+    std::size_t _array_size = {};
+
+public:
+    Implementation() = default;
+
+    template <typename T>
+    constexpr explicit Implementation(const T& value) noexcept
+        : _value{value}, _type{VariantTraits<T>::value}
     {
+    }
+
+    constexpr explicit Implementation(VariantType type) noexcept : _type{type}
+    {
+    }
+
+    template <typename T>
+    constexpr Implementation(const T* array, const std::size_t array_size)
+        : _type(VariantTraits<T>::value),
+          _array_storage(array && array_size > 0 ?
+                             std::make_unique<std::uint8_t[]>(array_size * sizeof(T)) :
+                             nullptr),
+          _array_size(array_size)
+    {
+        if (!_array_storage)
+            throw std::invalid_argument("array");
+        if (_array_size == 0)
+            throw std::invalid_argument("array_size");
+
+        using a_util::memory::copy;
+        copy(_array_storage.get(), _array_size * sizeof(T), array, _array_size * sizeof(T));
     }
 
     Implementation(const Implementation& other_var)
-        : _stored_type(other_var._stored_type),
+        : _value(other_var._value),
+          _type(other_var._type),
           _array_storage(nullptr),
-          _array_size(other_var._array_size),
-          _value(other_var._value)
+          _array_size(other_var._array_size)
     {
         if (other_var._array_storage) {
-            std::size_t storage_size;
-            if (_stored_type == VT_String) {
-                storage_size = _array_size + 1;
-            }
-            else {
-                storage_size = _array_size * variant_type_sizes[_stored_type];
-            }
-            _array_storage = new std::uint8_t[storage_size];
-            a_util::memory::copy(
-                _array_storage, storage_size, other_var._array_storage, storage_size);
+            const std::size_t storage_size =
+                (_type == VT_String) ? _array_size + 1 : _array_size * variant_type_sizes[_type];
+            _array_storage = std::make_unique<std::uint8_t[]>(storage_size);
+            using a_util::memory::copy;
+            copy(_array_storage.get(), storage_size, other_var._array_storage.get(), storage_size);
         }
     }
 
-    ~Implementation()
+    Implementation& operator=(const Implementation& other_var)
     {
-        reset(VT_Empty);
+        if (this != &other_var) {
+            Implementation tmp(other_var);
+            swap(tmp, *this);
+        }
+        return *this;
     }
 
-    /// Resets the variant to the empty state
-    void reset(VariantType new_type)
+    Implementation(Implementation&& other_var) noexcept
+        : _value(std::move(other_var._value)),
+          _type(std::move(other_var._type)),
+          _array_storage(std::move(other_var._array_storage)),
+          _array_size(std::move(other_var._array_size))
     {
-        _stored_type = new_type;
-        delete[] _array_storage;
-        _array_storage = nullptr;
-        _array_size = 0;
+        other_var._type = {};
+        other_var._value = {};
+        other_var._array_size = {};
     }
 
-    /// Resets the variant to a string
-    void reset(const char* value)
+    Implementation& operator=(Implementation&& other_var) noexcept
     {
-        if (!value)
-            throw std::invalid_argument("value");
-        reset(VT_String);
+        _value = std::move(other_var._value);
+        _type = std::move(other_var._type);
+        _array_storage = std::move(other_var._array_storage);
+        _array_size = std::move(other_var._array_size);
 
-        std::size_t length = strings::getLength(value);
+        other_var._type = {};
+        other_var._value = {};
+        other_var._array_size = {};
 
-        _array_storage = new std::uint8_t[length + 1];
-        _array_storage[length] = 0;
-        a_util::memory::copy(_array_storage, length + 1, value, length);
-
-        _array_size = length;
-    }
-
-    /// Resets the variant to a single element value
-    template <typename T>
-    void reset(T value, T& union_ref)
-    {
-        reset(VariantTraits<T>::value);
-        union_ref = value;
-    }
-
-    /// Resets the variant to an array value
-    template <typename T>
-    void ResetArray(const T* new_array_storage, std::size_t new_array_size)
-    {
-        if (!new_array_storage)
-            throw std::invalid_argument("array");
-        if (new_array_size == 0)
-            throw std::invalid_argument("array_size");
-        reset(VariantTraits<T>::value);
-
-        _array_size = new_array_size;
-        _array_storage = new std::uint8_t[_array_size * sizeof(T)];
-        a_util::memory::copy(
-            _array_storage, _array_size * sizeof(T), new_array_storage, new_array_size * sizeof(T));
+        return *this;
     }
 
     /// Get a contained value
     template <typename T>
-    T Get(std::size_t array_index, T& union_ref)
+    T Get(std::size_t array_index, T union_ref) const
     {
-        if (_stored_type != VariantTraits<T>::value) {
+        if (_type != VariantTraits<T>::value) {
             throw std::runtime_error("Invalid type");
         }
 
@@ -206,7 +257,58 @@ public:
             throw std::out_of_range("array_index");
         }
         else {
-            return *reinterpret_cast<T*>(_array_storage + array_index * sizeof(T));
+            return *reinterpret_cast<T*>(_array_storage.get() + array_index * sizeof(T));
+        }
+    }
+
+    VariantType getType() const noexcept
+    {
+        return _type;
+    }
+
+    Union getValue() const noexcept
+    {
+        return _value;
+    }
+
+    std::size_t getArraySize() const noexcept
+    {
+        return _array_size;
+    }
+
+    const std::uint8_t* getArrayStorage() const noexcept
+    {
+        return _array_storage.get();
+    }
+
+    friend void swap(Implementation& lhs, Implementation& rhs) noexcept
+    {
+        using std::swap;
+        swap(lhs._array_size, rhs._array_size);
+        swap(lhs._array_storage, rhs._array_storage);
+        swap(lhs._value, rhs._value);
+        swap(lhs._type, rhs._type);
+    }
+
+    template <typename T>
+    static void resetVariant(Variant& variant, const T& value)
+    {
+        if (variant._impl) {
+            *variant._impl = Implementation(value);
+        }
+        else {
+            variant._impl = std::make_unique<Variant::Implementation>(value);
+        }
+    }
+
+    template <typename T>
+    static void resetVariant(Variant& variant, const T* array, const std::size_t array_size)
+    {
+        if (variant._impl) {
+            *variant._impl = Implementation(array, array_size);
+        }
+        else {
+            variant._impl = std::make_unique<Variant::Implementation>(array, array_size);
         }
     }
 };
@@ -287,114 +389,99 @@ bool As(const Variant& this_)
     throw std::runtime_error("unexpected type");
 }
 
-Variant::Variant() : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(bool value) : _impl(std::make_unique<Implementation>(value))
 {
 }
 
-Variant::Variant(bool value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::int8_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.bool_val);
 }
 
-Variant::Variant(std::int8_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::uint8_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.int8_val);
 }
 
-Variant::Variant(std::uint8_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::int16_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.uint8_val);
 }
 
-Variant::Variant(std::int16_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::uint16_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.int16_val);
 }
 
-Variant::Variant(std::uint16_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::int32_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.uint16_val);
 }
 
-Variant::Variant(std::int32_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::uint32_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.int32_val);
 }
 
-Variant::Variant(std::uint32_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::int64_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.uint32_val);
 }
 
-Variant::Variant(std::int64_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(std::uint64_t value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.int64_val);
 }
 
-Variant::Variant(std::uint64_t value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(float value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.uint64_val);
 }
 
-Variant::Variant(float value) : _impl(a_util::memory::make_unique<Implementation>())
+Variant::Variant(double value) : _impl(std::make_unique<Implementation>(value))
 {
-    _impl->reset(value, _impl->_value.float_val);
-}
-
-Variant::Variant(double value) : _impl(a_util::memory::make_unique<Implementation>())
-{
-    _impl->reset(value, _impl->_value.double_val);
 }
 
 a_util::variant::Variant::Variant(const char* value)
-    : _impl(a_util::memory::make_unique<Implementation>())
-{
-    _impl->reset(value);
-}
-
-Variant::Variant(const Variant& other_var)
-    : _impl(a_util::memory::make_unique<Implementation>(*other_var._impl))
+    : _impl(std::make_unique<Implementation>(value, a_util::strings::getLength(value) + 1))
 {
 }
 
-Variant& Variant::operator=(const Variant& other_var)
-{
-    if (&other_var != this) {
-        _impl = a_util::memory::make_unique<Implementation>(*other_var._impl);
-    }
-    return *this;
-}
-
+// Default implementations are necessary, because if trying to follow the rule-of-zero undefined
+// references to default, copy and assignment ctors are the result
 Variant::~Variant() = default;
+Variant::Variant(Variant&&) noexcept = default;
+Variant& Variant::operator=(Variant&&) noexcept = default;
 
-Variant::Variant(Variant&& other) : _impl(std::move(other._impl))
+Variant::Variant() : _impl(std::make_unique<Implementation>())
 {
-    other._impl = a_util::memory::make_unique<Implementation>();
 }
 
-Variant& Variant::operator=(Variant&& other)
+Variant::Variant(const Variant& other)
+    : _impl(other._impl ? std::make_unique<Implementation>(*other._impl) : nullptr)
 {
-    if (this != &other) {
-        this->_impl.reset();
-        this->_impl = std::move(other._impl);
-        other._impl = a_util::memory::make_unique<Implementation>();
+}
+
+Variant& Variant::operator=(const Variant& other)
+{
+    if (this == &other) {
+        return *this;
     }
+
+    if (other._impl) {
+        Implementation::resetVariant(*this, *other._impl);
+    }
+    else if (_impl) {
+        _impl.reset();
+    }
+
     return *this;
 }
 
 VariantType Variant::getType() const
 {
-    return _impl->_stored_type;
+    return _impl ? _impl->getType() : VT_Empty;
 }
 
 std::size_t Variant::getArraySize() const
 {
-    return getType() != VT_String ? _impl->_array_size : 0;
+    return (getType() != VT_Empty && getType() != VT_String) ? _impl->getArraySize() : 0;
 }
 
 bool Variant::isArray() const
 {
-    return getType() != VT_String && getArraySize() > 1;
+    return getArraySize() > 1;
 }
 
 bool Variant::isEmpty() const
@@ -404,177 +491,177 @@ bool Variant::isEmpty() const
 
 void Variant::reset()
 {
-    _impl->reset(VT_Empty);
+    Implementation::resetVariant(*this, VT_Empty);
 }
 
 void Variant::reset(bool value)
 {
-    _impl->reset(value, _impl->_value.bool_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::int8_t value)
 {
-    _impl->reset(value, _impl->_value.int8_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::uint8_t value)
 {
-    _impl->reset(value, _impl->_value.uint8_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::int16_t value)
 {
-    _impl->reset(value, _impl->_value.int16_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::uint16_t value)
 {
-    _impl->reset(value, _impl->_value.uint16_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::int32_t value)
 {
-    _impl->reset(value, _impl->_value.int32_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::uint32_t value)
 {
-    _impl->reset(value, _impl->_value.uint32_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::int64_t value)
 {
-    _impl->reset(value, _impl->_value.int64_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(std::uint64_t value)
 {
-    _impl->reset(value, _impl->_value.uint64_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(float value)
 {
-    _impl->reset(value, _impl->_value.float_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(double value)
 {
-    _impl->reset(value, _impl->_value.double_val);
+    Implementation::resetVariant(*this, value);
 }
 
 void Variant::reset(const bool* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::int8_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::uint8_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::int16_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::uint16_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::int32_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::uint32_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::int64_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const std::uint64_t* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const float* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const double* _array_storage, std::size_t _array_size)
 {
-    _impl->ResetArray(_array_storage, _array_size);
+    Implementation::resetVariant(*this, _array_storage, _array_size);
 }
 
 void Variant::reset(const char* value)
 {
-    _impl->reset(value);
+    Implementation::resetVariant(*this, value, a_util::strings::getLength(value) + 1);
 }
 
 bool Variant::getBool(std::size_t array_index) const
 {
-    return _impl->Get<bool>(array_index, _impl->_value.bool_val);
+    return _impl->Get<bool>(array_index, _impl->getValue().bool_val);
 }
 
 std::int8_t Variant::getInt8(std::size_t array_index) const
 {
-    return _impl->Get<std::int8_t>(array_index, _impl->_value.int8_val);
+    return _impl->Get<std::int8_t>(array_index, _impl->getValue().int8_val);
 }
 
 std::uint8_t Variant::getUInt8(std::size_t array_index) const
 {
-    return _impl->Get<std::uint8_t>(array_index, _impl->_value.uint8_val);
+    return _impl->Get<std::uint8_t>(array_index, _impl->getValue().uint8_val);
 }
 
 std::int16_t Variant::getInt16(std::size_t array_index) const
 {
-    return _impl->Get<std::int16_t>(array_index, _impl->_value.int16_val);
+    return _impl->Get<std::int16_t>(array_index, _impl->getValue().int16_val);
 }
 
 std::uint16_t Variant::getUInt16(std::size_t array_index) const
 {
-    return _impl->Get<std::uint16_t>(array_index, _impl->_value.uint16_val);
+    return _impl->Get<std::uint16_t>(array_index, _impl->getValue().uint16_val);
 }
 
 std::int32_t Variant::getInt32(std::size_t array_index) const
 {
-    return _impl->Get<std::int32_t>(array_index, _impl->_value.int32_val);
+    return _impl->Get<std::int32_t>(array_index, _impl->getValue().int32_val);
 }
 
 std::uint32_t Variant::getUInt32(std::size_t array_index) const
 {
-    return _impl->Get<std::uint32_t>(array_index, _impl->_value.uint32_val);
+    return _impl->Get<std::uint32_t>(array_index, _impl->getValue().uint32_val);
 }
 
 std::int64_t Variant::getInt64(std::size_t array_index) const
 {
-    return _impl->Get<std::int64_t>(array_index, _impl->_value.int64_val);
+    return _impl->Get<std::int64_t>(array_index, _impl->getValue().int64_val);
 }
 
 std::uint64_t Variant::getUInt64(std::size_t array_index) const
 {
-    return _impl->Get<std::uint64_t>(array_index, _impl->_value.uint64_val);
+    return _impl->Get<std::uint64_t>(array_index, _impl->getValue().uint64_val);
 }
 
 float Variant::getFloat(std::size_t array_index) const
 {
-    return _impl->Get<float>(array_index, _impl->_value.float_val);
+    return _impl->Get<float>(array_index, _impl->getValue().float_val);
 }
 
 double Variant::getDouble(std::size_t array_index) const
 {
-    return _impl->Get<double>(array_index, _impl->_value.double_val);
+    return _impl->Get<double>(array_index, _impl->getValue().double_val);
 }
 
 const char* Variant::getString() const
@@ -582,7 +669,7 @@ const char* Variant::getString() const
     if (getType() != VT_String) {
         throw std::runtime_error("Invalid type");
     }
-    return reinterpret_cast<const char*>(_impl->_array_storage);
+    return reinterpret_cast<const char*>(_impl->getArrayStorage());
 }
 
 /// Provided for compatibility reasons
@@ -831,9 +918,9 @@ bool operator==(const Variant& a, const Variant& b)
     }
 
     if (a.isArray()) {
-        return a_util::memory::compare(a._impl->_array_storage,
+        return a_util::memory::compare(a._impl->getArrayStorage(),
                                        a.getArraySize() * variant_type_sizes[a.getType()],
-                                       b._impl->_array_storage,
+                                       b._impl->getArrayStorage(),
                                        b.getArraySize() * variant_type_sizes[b.getType()]) == 0;
     }
 
@@ -861,13 +948,13 @@ bool operator==(const Variant& a, const Variant& b)
     case VT_Double:
         return a.getDouble() == b.getDouble();
     case VT_String:
-        if (a._impl->_array_size != b._impl->_array_size) {
+        if (a._impl->getArraySize() != b._impl->getArraySize()) {
             return false;
         }
-        return a_util::memory::compare(a._impl->_array_storage,
-                                       a._impl->_array_size,
-                                       b._impl->_array_storage,
-                                       b._impl->_array_size) == 0;
+        return a_util::memory::compare(a._impl->getArrayStorage(),
+                                       a._impl->getArraySize(),
+                                       b._impl->getArrayStorage(),
+                                       b._impl->getArraySize()) == 0;
     case VT_Empty:
         return true;
     }

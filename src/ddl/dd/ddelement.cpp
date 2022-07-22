@@ -23,9 +23,6 @@
 namespace ddl {
 
 namespace detail {
-DEF_GETINFO(dd::TypeInfo, dd::DataType);
-DEF_GETINFO(dd::TypeInfo, dd::EnumType);
-DEF_GETINFO(dd::TypeInfo, dd::StructType);
 
 template <typename TYPE>
 void resetAlignmentByTypeAlignment(const TYPE& ddl_type, dd::StructType::Element& element)

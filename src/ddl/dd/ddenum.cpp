@@ -16,6 +16,8 @@
  */
 
 #include <ddl/dd/ddenum.h>
+#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+#include <ddl/dd/dd_typeinfomodel.h>
 
 namespace ddl {
 

@@ -16,6 +16,7 @@
  */
 
 #include <ddl/datamodel/datamodel_streams.h>
+#include <ddl/dd/dd_infomodel_type.h>
 
 #include <exception>
 #include <utility>
@@ -92,6 +93,23 @@ void Stream::Struct::setBytePos(OptionalSize byte_pos)
     notifyChanged({}, *this, "byte_pos");
 }
 
+class NamedContainerInfoStream : public datamodel::Info<NamedContainerInfoStream> {
+public:
+    /// the type info id to use the @ref datamodel::Info template.
+    static constexpr const uint8_t INFO_TYPE_ID = ddl::dd::InfoType::named_container_info;
+
+    const Stream::Structs::container_named_type* getContainer() const
+    {
+        return &_named_container;
+    }
+    Stream::Structs::container_named_type* getContainer()
+    {
+        return &_named_container;
+    }
+
+private:
+    Stream::Structs::container_named_type _named_container;
+};
 /**
  * @brief Stream
  *
@@ -102,6 +120,7 @@ Stream::Stream(const Stream& other)
       InfoMap(),
       _structs(this, "Stream::Struct")
 {
+    setInfo<NamedContainerInfoStream>(std::make_shared<NamedContainerInfoStream>());
     operator=(other);
 }
 
@@ -120,11 +139,12 @@ Stream::Stream(Stream&& other)
       InfoMap(),
       _structs(this, "Stream::Struct")
 {
+    setInfo<NamedContainerInfoStream>(std::make_shared<NamedContainerInfoStream>());
     std::swap(_name, other._name);
     std::swap(_stream_type_name, other._stream_type_name);
     std::swap(_description, other._description);
     std::swap(_structs, other._structs);
-    _structs._validator = this;
+    _structs.setValidator(this);
 }
 
 Stream& Stream::operator=(Stream&& other)
@@ -133,7 +153,7 @@ Stream& Stream::operator=(Stream&& other)
     std::swap(_stream_type_name, other._stream_type_name);
     std::swap(_description, other._description);
     std::swap(_structs, other._structs);
-    _structs._validator = this;
+    _structs.setValidator(this);
     return *this;
 }
 
@@ -149,6 +169,7 @@ Stream::Stream(const std::string& name,
       _description(description),
       _structs(this, "Stream::Struct")
 {
+    setInfo<NamedContainerInfoStream>(std::make_shared<NamedContainerInfoStream>());
     for (const auto& stream_struct: structs) {
         getStructs().add(stream_struct);
     }
@@ -250,10 +271,20 @@ void Stream::notifyChangedListContent(utility::TypeAccessListEventCode code,
         local_code = subitem_renamed;
         forwarded_code = map_subitem_renamed;
         break;
+    case list_item_popped:
+        local_code = subitem_popped;
+        forwarded_code = map_subitem_popped;
+        break;
+    case list_item_inserted:
+        local_code = subitem_inserted;
+        forwarded_code = map_subitem_inserted;
+        break;
         // all others should not appear
     case list_subitem_added:
     case list_subitem_removed:
     case list_subitem_changed:
+    case list_subitem_popped:
+    case list_subitem_inserted:
         break;
     }
     notify(local_code, forwarded_code, additional_info);
@@ -265,6 +296,16 @@ void Stream::notify(ModelEventCode code,
 {
     ModelSubject<Stream>::notifyChanged(code, *this, additional_info);
     utility::TypeAccessMapSubject<Stream>::notifyChanged(map_code, *this, additional_info);
+}
+
+const Stream::Structs::container_named_type* Stream::getNamedItemList() const
+{
+    return getInfo<NamedContainerInfoStream>()->getContainer();
+}
+
+Stream::Structs::container_named_type* Stream::getNamedItemList()
+{
+    return getInfo<NamedContainerInfoStream>()->getContainer();
 }
 
 } // namespace datamodel

@@ -61,8 +61,10 @@ const std::string& KeyValuePair::getValue() const
 
 void KeyValuePair::setValue(const std::string& value)
 {
-    _value_type = value;
-    notifyChanged({}, *this, "value");
+    if (_value_type != value) {
+        _value_type = value;
+        notifyChanged({}, *this, "value");
+    }
 }
 
 const std::string& KeyValuePair::getType() const
@@ -72,42 +74,48 @@ const std::string& KeyValuePair::getType() const
 
 void KeyValuePair::setType(const std::string& type)
 {
-    _value_type = type;
-    notifyChanged({}, *this, "type");
+    if (_value_type != type) {
+        _value_type = type;
+        notifyChanged({}, *this, "type");
+    }
 }
 
 void KeyValuePair::setName(const std::string& name)
 {
     // Keep old name for reset
-    std::string old_name = _name_key;
-    _name_key = name;
-    try {
-        notifyChanged(utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
-    }
-    catch (const dd::Error& error) {
-        // keep consistent .. this exeption does not invalidate the whole model
-        _name_key = old_name;
-        throw error;
-    }
+    const std::string old_name = _name_key;
+    if (old_name != name) {
+        _name_key = name;
+        try {
+            notifyChanged(utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
+        }
+        catch (const dd::Error& error) {
+            // keep consistent .. this exeption does not invalidate the whole model
+            _name_key = old_name;
+            throw error;
+        }
 
-    notifyChanged({}, *this, "name");
+        notifyChanged({}, *this, "name");
+    }
 }
 
 void KeyValuePair::setKey(const std::string& key)
 {
     // Keep old name for reset
-    std::string old_name = _name_key;
-    _name_key = key;
-    try {
-        notifyChanged(utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
-    }
-    catch (const dd::Error& error) {
-        // keep consistent .. this exeption does not invalidate the whole model
-        _name_key = old_name;
-        throw error;
-    }
+    const std::string old_name = _name_key;
+    if (old_name != key) {
+        _name_key = key;
+        try {
+            notifyChanged(utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
+        }
+        catch (const dd::Error& error) {
+            // keep consistent .. this exeption does not invalidate the whole model
+            _name_key = old_name;
+            throw error;
+        }
 
-    notifyChanged({}, *this, "key");
+        notifyChanged({}, *this, "key");
+    }
 }
 
 } // namespace datamodel

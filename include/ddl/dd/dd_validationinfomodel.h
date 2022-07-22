@@ -24,17 +24,35 @@ You may add additional accurate notices of copyright ownership.
 #include <ddl/dd/dd_error.h>
 #include <ddl/dd/dd_infomodel_type.h>
 
+#include <map>
 #include <memory>
 #include <unordered_map>
+
+/**
+ * @def DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
+ * @brief defines deprecated warnings on ddl::dd::ValidationServiceInfo, it will be removed from
+ * public API!
+ * @remark disable by defining DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+ */
+
+#ifndef DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+#define DEV_ESSENTIAL_DEPRECATED_VALIDATION_API                                                    \
+    [[deprecated("Use the ddl::DataDefinition::isValid() and getValidationProtocol() instead")]]
+#else
+#define DEV_ESSENTIAL_DEPRECATED_VALIDATION_API /**/
+#endif
 
 namespace ddl {
 
 namespace dd {
-
 /**
  * @brief Validation Service Info used only as one global instance at the dd::DataDefinition.
  * It keeps the model consistent while renaming types, unit, enum values, streammetatypes while
  * using a loose coupling.
+ *
+ * @remark: This internal API is part of the internal infomodel of the ddl::DataDefinition class for
+ * Validation. It must not be used by you directly while it is not part of the binary compatibility
+ * promise!
  */
 class ValidationServiceInfo : public datamodel::Info<ValidationServiceInfo> {
 public:
@@ -73,6 +91,12 @@ public:
         /// dependency stream depends on a struct_type
         stream_to_struct_type
     };
+
+    /**
+     * @brief default CTOR
+     */
+    DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
+    ValidationServiceInfo() = default;
 
     /**
      * @brief dependency
@@ -301,12 +325,76 @@ public:
      * @param type_name the type_name looking for dependencies
      * @param type the type of the given \p type_name
      * @param parent_dd the dd where to set forceRevalidation
-     * @return return all typenames depending on the given type
+     * @param invalidated_types_to_return the invalidated types collection as return value
      */
-    InvalidatedTypes forceRevalidationOfTypeDependencies(
-        const std::string& type_name,
-        ddl::dd::TypeOfType type,
-        datamodel::DataDefinition& parent_dd) const;
+    void forceRevalidationOfTypeDependencies(const std::string& type_name,
+                                             ddl::dd::TypeOfType type,
+                                             datamodel::DataDefinition& parent_dd,
+                                             InvalidatedTypes& invalidated_types_to_return) const;
+    /**
+     * Id to identify a concrete validation problem entry.
+     */
+    using ValidationProblemId = void*;
+    /**
+     * A Validation problem
+     */
+    class ValidationProblem {
+    public:
+        /**
+         * @brief CTOR
+         */
+        ValidationProblem() = default;
+        /**
+         * @brief CTOR
+         * @param level the level to set
+         * @param problem the problem to set
+         */
+        ValidationProblem(ValidationLevel level, const ddl::dd::Problem& problem);
+        /**
+         * @brief CTOR which sets the level to ValidationLevel::invalid
+         * @param problem the problem to set
+         */
+        ValidationProblem(const ddl::dd::Problem& problem);
+        /**
+         * @brief Get the Level
+         * @return ValidationLevel
+         */
+        ValidationLevel getLevel() const;
+        /**
+         * @brief Get the Problem
+         * @return ddl::dd::Problem
+         */
+        ddl::dd::Problem getProblem() const;
+
+    private:
+        ValidationLevel _level = ValidationLevel::valid;
+        ddl::dd::Problem _problem = {};
+    };
+
+    /**
+     * @brief updates or add a problem entry by id
+     * @param id the id of the problem
+     * @param problem the problem entry
+     */
+    void updateProblem(ValidationProblemId id,
+                       const std::shared_ptr<const ValidationProblem>& problem);
+    /**
+     * @brief Removes a validation propbelm entry by id and level
+     * @param id the id to find the problem
+     * @param level the level the entry belongs to
+     */
+    void removeProblem(ValidationProblemId id, ValidationLevel level);
+    /**
+     * @brief Get the current Validation Level
+     *
+     * @return ValidationLevel
+     */
+    ValidationLevel getValidationLevel() const;
+    /**
+     * @brief Get all current known problems of validation
+     * @return std::vector<Problem>
+     */
+    std::vector<Problem> getProblems() const;
 
 private:
     /**
@@ -319,6 +407,9 @@ private:
 #endif // defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
 
     std::unordered_map<uint8_t, ToFromMap> _dependencies;
+    std::map<uint8_t,
+             std::unordered_map<ValidationProblemId, std::shared_ptr<const ValidationProblem>>>
+        _validation_problems;
 
 #if defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
 #pragma GCC diagnostic pop
@@ -330,6 +421,10 @@ private:
 /**
  * Validation Info model will check for validation.
  * Sometimes the TypeInfo must be already set before this validation can be performed.
+ *
+ * @remark: This internal API is part of the internal infomodel of the ddl::DataDefinition class for
+ * Validation. It must not be used by you directly while it is not part of the binary compatibility
+ * promise!
  */
 class ValidationInfo : public datamodel::Info<ValidationInfo> {
 public:
@@ -338,8 +433,8 @@ public:
 
     /**
      * @brief default CTOR
-     *
      */
+    DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
     ValidationInfo() = default;
     /**
      * @brief CTOR and immediatelly update a Validation Info for units
@@ -347,6 +442,7 @@ public:
      * @param unit the unit to update the validation info
      * @param parent_dd the parent DD to retrieve dependencies
      */
+    DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
     ValidationInfo(datamodel::Unit& unit, datamodel::DataDefinition& parent_dd);
     /**
      * @brief CTOR and immediatelly update a Validation Info for data_types
@@ -354,6 +450,7 @@ public:
      * @param data_type the data_type to update the validation info
      * @param parent_dd the parent DD to retrieve dependencies
      */
+    DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
     ValidationInfo(datamodel::DataType& data_type, datamodel::DataDefinition& parent_dd);
     /**
      * @brief CTOR and immediatelly update a Validation Info for enum_type
@@ -361,6 +458,7 @@ public:
      * @param enum_type the enum_type to update the validation info
      * @param parent_dd the parent DD to retrieve dependencies
      */
+    DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
     ValidationInfo(datamodel::EnumType& enum_type, datamodel::DataDefinition& parent_dd);
     /**
      * @brief CTOR and immediatelly update a Validation Info for streams
@@ -368,6 +466,7 @@ public:
      * @param stream the stream to update the validation info
      * @param parent_dd the parent DD to retrieve dependencies
      */
+    DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
     ValidationInfo(datamodel::Stream& stream, datamodel::DataDefinition& parent_dd);
     /**
      * @brief DTOR
@@ -376,8 +475,7 @@ public:
     virtual ~ValidationInfo();
 
     /**
-     * @brief Validation level
-     *
+     * @brief Validation level. This is used now used only for binary compatibility here.
      */
     enum ValidationLevel : uint8_t {
         /**
@@ -425,7 +523,7 @@ public:
      * @return true the given \p level is reached
      * @return false the given \p level is NOT reached
      */
-    bool isValid(ValidationLevel level = valid) const;
+    bool isValid(ValidationLevel level = ValidationLevel::valid) const;
 
     /**
      * @brief sets the Info to invalid to force revalidation
@@ -442,21 +540,26 @@ public:
     /**
      * @brief Get the Validation Problems (only set if below "valid")
      *
-     * @return const std::vector<Problem>&
+     * @return std::vector<Problem>
      */
-    const std::vector<Problem>& getProblems() const;
+    std::vector<Problem> getProblems() const;
     /**
      * @brief adds a problem
      *
      * @param problem the problem to add
      */
-    void addProblem(Problem&& problem);
+    void addProblem(ValidationServiceInfo::ValidationProblem&& problem);
     /**
      * @brief adds a problem
      *
-     * @param problem the propblem to add
+     * @param problem the prpblem to add
      */
-    void addProblem(const Problem& problem);
+    void addProblem(const ValidationServiceInfo::ValidationProblem& problem);
+
+    /**
+     * Remove all problems
+     */
+    void removeProblems(datamodel::DataDefinition& parent_dd);
 
     /**
      * @brief Update and revalidate the unit.
@@ -480,12 +583,22 @@ public:
      */
     void update(datamodel::EnumType& enum_type, datamodel::DataDefinition& parent_dd);
     /**
+     * @brief Update type for the struct update.
+     */
+    enum class UpdateType {
+        all = 0,      //!< update all elements validation info
+        only_last = 1 //!< update the last element only
+    };
+    /**
      * @brief Update and revalidate the struct_type.
      *
      * @param struct_type the struct_type to validate
      * @param parent_dd the parent DD
+     * @param update_type update type to determine to validate only the last added element or all
      */
-    void update(datamodel::StructType& struct_type, datamodel::DataDefinition& parent_dd);
+    void update(datamodel::StructType& struct_type,
+                datamodel::DataDefinition& parent_dd,
+                UpdateType update_type = UpdateType::all);
     /**
      * @brief Update and revalidate the stream_meta_type.
      *
@@ -502,10 +615,15 @@ public:
     void update(datamodel::Stream& stream, datamodel::DataDefinition& parent_dd);
 
 private:
-    ValidationLevel _valid = ValidationLevel::invalid;
     bool _currently_on_validation = false; // to prevent recursive validation calls if somebody
                                            // defines this type as a part of the type
-    std::vector<Problem> _validation_problems;
+    void addProblem(const std::shared_ptr<ValidationServiceInfo::ValidationProblem>& problem);
+    std::map<uint8_t,
+             std::unordered_map<ValidationServiceInfo::ValidationProblemId,
+                                std::shared_ptr<ValidationServiceInfo::ValidationProblem>>>
+        _validation_problems;
+    ValidationServiceInfo* _current_validation_service = {};
+    bool _is_validated = false;
 };
 
 } // namespace dd

@@ -16,6 +16,7 @@
  */
 
 #include <ddl/datamodel/datamodel_types.h>
+#include <ddl/dd/dd_infomodel_type.h>
 #include <ddl/utilities/std_to_string.h>
 
 #include <exception>
@@ -137,8 +138,10 @@ size_t DataType::getBitSize() const // override
 
 void DataType::setBitSize(size_t size)
 {
-    _bit_size = size;
-    notify("bit_size");
+    if (_bit_size != size) {
+        _bit_size = size;
+        notify("bit_size");
+    }
 }
 
 OptionalSize DataType::getArraySize() const
@@ -150,25 +153,28 @@ void DataType::setName(const std::string& name)
 {
     // Keep old name for reset
     std::string old_name = TypeBase::getName();
-    TypeBase::setName(name);
-    try {
-        utility::TypeAccessMapSubject<DataType>::notifyChanged(
-            utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
-        ModelSubject<DataType>::notifyChanged(item_renamed, *this, old_name);
+    if (old_name != name) {
+        TypeBase::setName(name);
+        try {
+            utility::TypeAccessMapSubject<DataType>::notifyChanged(
+                utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
+            ModelSubject<DataType>::notifyChanged(item_renamed, *this, old_name);
+        }
+        catch (const dd::Error& error) {
+            // keep consistent .. this exeption does not invalidate the whole model
+            TypeBase::setName(old_name);
+            throw error;
+        }
+        notify("name");
     }
-    catch (const dd::Error& error) {
-        // keep consistent .. this exeption does not invalidate the whole model
-        TypeBase::setName(old_name);
-        throw error;
-    }
-
-    notify("name");
 }
 
 void DataType::setArraySize(OptionalSize array_size)
 {
-    _array_size = array_size;
-    notify("array_size");
+    if (array_size) {
+        _array_size = array_size;
+        notify("array_size");
+    }
 }
 
 const std::string& DataType::getUnitName() const
@@ -178,8 +184,10 @@ const std::string& DataType::getUnitName() const
 
 void DataType::setUnitName(const std::string& unit_name)
 {
-    _unit_name = unit_name;
-    notify("unit_name");
+    if (_unit_name != unit_name) {
+        _unit_name = unit_name;
+        notify("unit_name");
+    }
 }
 
 const std::string& DataType::getMin() const
@@ -189,8 +197,10 @@ const std::string& DataType::getMin() const
 
 void DataType::setMin(const std::string& minimum_value)
 {
-    _minimum_value = minimum_value;
-    notify("min");
+    if (_minimum_value != minimum_value) {
+        _minimum_value = minimum_value;
+        notify("min");
+    }
 }
 
 const std::string& DataType::getMax() const
@@ -200,8 +210,10 @@ const std::string& DataType::getMax() const
 
 void DataType::setMax(const std::string& maximum_value)
 {
-    _maximum_value = maximum_value;
-    notify("max");
+    if (_maximum_value != maximum_value) {
+        _maximum_value = maximum_value;
+        notify("max");
+    }
 }
 
 const std::string& DataType::getDescription() const
@@ -211,8 +223,10 @@ const std::string& DataType::getDescription() const
 
 void DataType::setDescription(const std::string& description)
 {
-    _description = description;
-    notify("description");
+    if (_description != description) {
+        _description = description;
+        notify("description");
+    }
 }
 
 const OptionalSize& DataType::getDefaultAlignment() const
@@ -302,8 +316,10 @@ const std::string& EnumType::getDataTypeName() const
 
 void EnumType::setDataTypeName(const std::string& data_type_name)
 {
-    _data_type_name = data_type_name;
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "data_type_name");
+    if (_data_type_name != data_type_name) {
+        _data_type_name = data_type_name;
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "data_type_name");
+    }
 }
 
 TypeOfType EnumType::getTypeOfType() const
@@ -315,18 +331,20 @@ void EnumType::setName(const std::string& name)
 {
     // Keep old name for reset
     std::string old_name = TypeBase::getName();
-    TypeBase::setName(name);
-    try {
-        utility::TypeAccessMapSubject<EnumType>::notifyChanged(
-            utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
-        ModelSubject<EnumType>::notifyChanged(item_renamed, *this, old_name);
+    if (old_name != name) {
+        TypeBase::setName(name);
+        try {
+            utility::TypeAccessMapSubject<EnumType>::notifyChanged(
+                utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
+            ModelSubject<EnumType>::notifyChanged(item_renamed, *this, old_name);
+        }
+        catch (const dd::Error& error) {
+            // keep consistent .. this exeption does not invalidate the whole model
+            TypeBase::setName(old_name);
+            throw error;
+        }
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "name");
     }
-    catch (const dd::Error& error) {
-        // keep consistent .. this exeption does not invalidate the whole model
-        TypeBase::setName(old_name);
-        throw error;
-    }
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "name");
 }
 
 const EnumType::Elements& EnumType::getElements() const
@@ -374,6 +392,8 @@ void EnumType::notifyChangedMapContent(utility::TypeAccessMapEventCode code,
     case map_subitem_removed:
     case map_subitem_changed:
     case map_subitem_renamed:
+    case map_subitem_popped:
+    case map_subitem_inserted:
         break;
     }
     notify(local_code, forwarded_code, additional_info);
@@ -436,9 +456,11 @@ OptionalSize StructType::SerializedInfo::getBytePos() const
 
 void StructType::SerializedInfo::setBytePos(OptionalSize byte_pos, bool prevent_notification)
 {
-    _byte_pos = byte_pos;
-    if (!prevent_notification) {
-        notifyChangeSerialized("byte_pos");
+    if (_byte_pos != byte_pos) {
+        _byte_pos = byte_pos;
+        if (!prevent_notification) {
+            notifyChangeSerialized("byte_pos");
+        }
     }
 }
 
@@ -449,9 +471,11 @@ OptionalSize StructType::SerializedInfo::getBitPos() const
 
 void StructType::SerializedInfo::setBitPos(OptionalSize bit_pos, bool prevent_notification)
 {
-    _bit_pos = bit_pos;
-    if (!prevent_notification) {
-        notifyChangeSerialized("bit_pos");
+    if (_bit_pos != bit_pos) {
+        _bit_pos = bit_pos;
+        if (!prevent_notification) {
+            notifyChangeSerialized("bit_pos");
+        }
     }
 }
 
@@ -462,18 +486,23 @@ OptionalSize StructType::SerializedInfo::getNumBits() const
 
 void StructType::SerializedInfo::setNumBits(OptionalSize num_bits)
 {
-    _num_bits = num_bits;
-    notifyChangeSerialized("num_bits");
+    if (_num_bits != num_bits) {
+        _num_bits = num_bits;
+        notifyChangeSerialized("num_bits");
+    }
 }
 
 ByteOrder StructType::SerializedInfo::getByteOrder() const
 {
     return _byte_order;
 }
+
 void StructType::SerializedInfo::setByteOrder(ByteOrder byte_order)
 {
-    _byte_order = byte_order;
-    notifyChangeSerialized("byte_order");
+    if (_byte_order != byte_order) {
+        _byte_order = byte_order;
+        notifyChangeSerialized("byte_order");
+    }
 }
 
 /*************************************************************************************************************/
@@ -504,8 +533,10 @@ size_t StructType::DeserializedInfo::getAlignment() const
 
 void StructType::DeserializedInfo::setAlignment(size_t alignment)
 {
-    _alignment = alignment;
-    notifyChangeDeserialized("alignment");
+    if (_alignment != alignment) {
+        _alignment = alignment;
+        notifyChangeDeserialized("alignment");
+    }
 }
 
 /*************************************************************************************************************/
@@ -564,17 +595,19 @@ void StructType::Element::setName(const std::string& name)
 {
     // Keep old name for reset
     std::string old_name = _name;
-    _name = name;
-    try {
-        notifyChanged(utility::TypeAccessListEventCode::list_item_renamed, *this, old_name);
-    }
-    catch (const dd::Error& error) {
-        // keep consistent .. this exeption does not invalidate the whole model
-        _name = old_name;
-        throw error;
-    }
+    if (old_name != name) {
+        _name = name;
+        try {
+            notifyChanged(utility::TypeAccessListEventCode::list_item_renamed, *this, old_name);
+        }
+        catch (const dd::Error& error) {
+            // keep consistent .. this exeption does not invalidate the whole model
+            _name = old_name;
+            throw error;
+        }
 
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "name");
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "name");
+    }
 }
 
 const std::string& StructType::Element::getTypeName() const
@@ -584,8 +617,10 @@ const std::string& StructType::Element::getTypeName() const
 
 void StructType::Element::setTypeName(const std::string& type_name)
 {
-    _type_name = type_name;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "type_name");
+    if (_type_name != type_name) {
+        _type_name = type_name;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "type_name");
+    }
 }
 
 // description String optional Description of the created data type
@@ -596,8 +631,10 @@ const std::string& StructType::Element::getDescription() const
 
 void StructType::Element::setDescription(const std::string& description)
 {
-    _description = description;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "description");
+    if (_description != description) {
+        _description = description;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "description");
+    }
 }
 
 // comment Text optional Additional comments
@@ -608,8 +645,10 @@ const std::string& StructType::Element::getComment() const
 
 void StructType::Element::setComment(const std::string& comment)
 {
-    _comment = comment;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "comment");
+    if (_comment != comment) {
+        _comment = comment;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "comment");
+    }
 }
 
 const ArraySize& StructType::Element::getArraySize() const
@@ -619,8 +658,10 @@ const ArraySize& StructType::Element::getArraySize() const
 
 void StructType::Element::setArraySize(const ArraySize& array_size)
 {
-    _array_size = array_size;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "array_size");
+    if (_array_size != array_size) {
+        _array_size = array_size;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "array_size");
+    }
 }
 
 const std::string& StructType::Element::getUnitName() const
@@ -629,8 +670,10 @@ const std::string& StructType::Element::getUnitName() const
 }
 void StructType::Element::setUnitName(const std::string& unit_name)
 {
-    _unit_name = unit_name;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "unit_name");
+    if (_unit_name != unit_name) {
+        _unit_name = unit_name;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "unit_name");
+    }
 }
 
 const std::string& StructType::Element::getValue() const
@@ -639,8 +682,10 @@ const std::string& StructType::Element::getValue() const
 }
 void StructType::Element::setValue(const std::string& value)
 {
-    _value = value;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "value");
+    if (_value != value) {
+        _value = value;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "value");
+    }
 }
 
 const std::string& StructType::Element::getMin() const
@@ -649,8 +694,10 @@ const std::string& StructType::Element::getMin() const
 }
 void StructType::Element::setMin(const std::string& minimum_value)
 {
-    _minimum_value = minimum_value;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "min");
+    if (_minimum_value != minimum_value) {
+        _minimum_value = minimum_value;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "min");
+    }
 }
 
 const std::string& StructType::Element::getMax() const
@@ -659,8 +706,10 @@ const std::string& StructType::Element::getMax() const
 }
 void StructType::Element::setMax(const std::string& maximum_value)
 {
-    _maximum_value = maximum_value;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "max");
+    if (_maximum_value != maximum_value) {
+        _maximum_value = maximum_value;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "max");
+    }
 }
 
 const std::string& StructType::Element::getDefault() const
@@ -669,8 +718,10 @@ const std::string& StructType::Element::getDefault() const
 }
 void StructType::Element::setDefault(const std::string& default_value)
 {
-    _default_value = default_value;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "default");
+    if (_default_value != default_value) {
+        _default_value = default_value;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "default");
+    }
 }
 
 const std::string& StructType::Element::getScale() const
@@ -680,8 +731,10 @@ const std::string& StructType::Element::getScale() const
 
 void StructType::Element::setScale(const std::string& scale)
 {
-    _scale = scale;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "scale");
+    if (_scale != scale) {
+        _scale = scale;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "scale");
+    }
 }
 
 const std::string& StructType::Element::getOffset() const
@@ -690,8 +743,10 @@ const std::string& StructType::Element::getOffset() const
 }
 void StructType::Element::setOffset(const std::string& offset)
 {
-    _offset = offset;
-    notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "offset");
+    if (_offset != offset) {
+        _offset = offset;
+        notifyChanged(utility::TypeAccessListEventCode::list_item_changed, *this, "offset");
+    }
 }
 
 void StructType::Element::notifyChangeSerialized(const std::string& additional_info)
@@ -707,6 +762,24 @@ void StructType::Element::notifyChangeDeserialized(const std::string& additional
 /*************************************************************************************************************/
 // StructType
 /*************************************************************************************************************/
+class NamedContainerInfoStructType : public datamodel::Info<NamedContainerInfoStructType> {
+public:
+    /// the type info id to use the @ref datamodel::Info template.
+    static constexpr const uint8_t INFO_TYPE_ID = ddl::dd::InfoType::named_container_info;
+
+    const StructType::Elements::container_named_type* getContainer() const
+    {
+        return &_named_container;
+    }
+    StructType::Elements::container_named_type* getContainer()
+    {
+        return &_named_container;
+    }
+
+private:
+    StructType::Elements::container_named_type _named_container;
+};
+
 StructType::StructType(const std::string& name,
                        const std::string& struct_version,
                        OptionalSize alignment,
@@ -723,6 +796,7 @@ StructType::StructType(const std::string& name,
       _ddl_version(ddl_version),
       _elements(this, "datamodel::StructType::Elements")
 {
+    setInfo<NamedContainerInfoStructType>(std::make_shared<NamedContainerInfoStructType>());
     for (auto& ref_elem: elements) {
         getElements().add(ref_elem);
     }
@@ -746,6 +820,7 @@ StructType::StructType(const StructType& other)
       InfoMap(),
       _elements(this, "datamodel::StructType::Elements")
 {
+    setInfo<NamedContainerInfoStructType>(std::make_shared<NamedContainerInfoStructType>());
     *this = other;
 }
 
@@ -756,12 +831,13 @@ StructType::StructType(StructType&& other)
       InfoMap(),
       _elements(std::move(other._elements))
 {
+    setInfo<NamedContainerInfoStructType>(std::make_shared<NamedContainerInfoStructType>());
     TypeBase::operator=(other);
     std::swap(_alignment, other._alignment);
     std::swap(_struct_version, other._struct_version);
     std::swap(_comment, other._comment);
     std::swap(_ddl_version, other._ddl_version);
-    _elements._validator = this;
+    _elements.setValidator(this);
 }
 
 StructType& StructType::operator=(StructType&& other)
@@ -772,7 +848,7 @@ StructType& StructType::operator=(StructType&& other)
     std::swap(_comment, other._comment);
     std::swap(_ddl_version, other._ddl_version);
     std::swap(_elements, other._elements);
-    _elements._validator = this;
+    _elements.setValidator(this);
     return *this;
 }
 
@@ -794,8 +870,10 @@ OptionalSize StructType::getAlignment() const
 
 void StructType::setAlignment(OptionalSize alignment)
 {
-    _alignment = alignment;
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "alignment");
+    if (_alignment != alignment) {
+        _alignment = alignment;
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "alignment");
+    }
 }
 
 const std::string& StructType::getComment() const
@@ -805,8 +883,10 @@ const std::string& StructType::getComment() const
 
 void StructType::setComment(const std::string& comment)
 {
-    _comment = comment;
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "comment");
+    if (_comment != comment) {
+        _comment = comment;
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "comment");
+    }
 }
 
 const std::string& StructType::getVersion() const
@@ -816,8 +896,10 @@ const std::string& StructType::getVersion() const
 
 void StructType::setVersion(const std::string& struct_version)
 {
-    _struct_version = struct_version;
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "version");
+    if (_struct_version != struct_version) {
+        _struct_version = struct_version;
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "version");
+    }
 }
 
 Version StructType::getLanguageVersion() const
@@ -827,8 +909,10 @@ Version StructType::getLanguageVersion() const
 
 void StructType::setLanguageVersion(const Version& ddl_version)
 {
-    _ddl_version = ddl_version;
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "language_version");
+    if (_ddl_version != ddl_version) {
+        _ddl_version = ddl_version;
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "language_version");
+    }
 }
 
 TypeOfType StructType::getTypeOfType() const
@@ -840,18 +924,20 @@ void StructType::setName(const std::string& name)
 {
     // Keep old name for reset
     std::string old_name = TypeBase::getName();
-    TypeBase::setName(name);
-    try {
-        utility::TypeAccessMapSubject<StructType>::notifyChanged(
-            utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
-        ModelSubject<StructType>::notifyChanged(item_renamed, *this, old_name);
+    if (old_name != name) {
+        TypeBase::setName(name);
+        try {
+            utility::TypeAccessMapSubject<StructType>::notifyChanged(
+                utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
+            ModelSubject<StructType>::notifyChanged(item_renamed, *this, old_name);
+        }
+        catch (const dd::Error& error) {
+            // keep consistent .. this exeption does not invalidate the whole model
+            TypeBase::setName(old_name);
+            throw error;
+        }
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "name");
     }
-    catch (const dd::Error& error) {
-        // keep consistent .. this exeption does not invalidate the whole model
-        TypeBase::setName(old_name);
-        throw error;
-    }
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "name");
 }
 
 const StructType::Elements& StructType::getElements() const
@@ -894,10 +980,20 @@ void StructType::notifyChangedListContent(utility::TypeAccessListEventCode code,
         local_code = subitem_renamed;
         forwarded_code = map_subitem_renamed;
         break;
+    case list_item_popped:
+        local_code = subitem_popped;
+        forwarded_code = map_subitem_popped;
+        break;
+    case list_item_inserted:
+        local_code = subitem_inserted;
+        forwarded_code = map_subitem_inserted;
+        break;
         // all others should not appear
     case list_subitem_added:
     case list_subitem_removed:
     case list_subitem_changed:
+    case list_subitem_popped:
+    case list_subitem_inserted:
         break;
     }
     notify(local_code, forwarded_code, additional_info);
@@ -909,6 +1005,16 @@ void StructType::notify(ModelEventCode code,
 {
     ModelSubject<StructType>::notifyChanged(code, *this, additional_info);
     utility::TypeAccessMapSubject<StructType>::notifyChanged(forward_code, *this, additional_info);
+}
+
+const StructType::Elements::container_named_type* StructType::getNamedItemList() const
+{
+    return getInfo<NamedContainerInfoStructType>()->getContainer();
+}
+
+StructType::Elements::container_named_type* StructType::getNamedItemList()
+{
+    return getInfo<NamedContainerInfoStructType>()->getContainer();
 }
 
 /*************************************************************************************************************/
@@ -993,8 +1099,10 @@ const std::string& StreamMetaType::getParent() const
 
 void StreamMetaType::setParent(const std::string& parent)
 {
-    _parent = parent;
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "parent");
+    if (_parent != parent) {
+        _parent = parent;
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "parent");
+    }
 }
 
 const std::string& StreamMetaType::getVersion() const
@@ -1004,8 +1112,10 @@ const std::string& StreamMetaType::getVersion() const
 
 void StreamMetaType::setVersion(const std::string& version)
 {
-    _version = version;
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "version");
+    if (_version != version) {
+        _version = version;
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "version");
+    }
 }
 
 TypeOfType StreamMetaType::getTypeOfType() const
@@ -1017,18 +1127,20 @@ void StreamMetaType::setName(const std::string& name)
 {
     // Keep old name for reset
     std::string old_name = TypeBase::getName();
-    TypeBase::setName(name);
-    try {
-        utility::TypeAccessMapSubject<StreamMetaType>::notifyChanged(
-            utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
-        ModelSubject<StreamMetaType>::notifyChanged(item_renamed, *this, old_name);
+    if (old_name != name) {
+        TypeBase::setName(name);
+        try {
+            utility::TypeAccessMapSubject<StreamMetaType>::notifyChanged(
+                utility::TypeAccessMapEventCode::map_item_renamed, *this, old_name);
+            ModelSubject<StreamMetaType>::notifyChanged(item_renamed, *this, old_name);
+        }
+        catch (const dd::Error& error) {
+            // keep consistent .. this exeption does not invalidate the whole model
+            TypeBase::setName(old_name);
+            throw error;
+        }
+        notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "name");
     }
-    catch (const dd::Error& error) {
-        // keep consistent .. this exeption does not invalidate the whole model
-        TypeBase::setName(old_name);
-        throw error;
-    }
-    notify(item_changed, utility::TypeAccessMapEventCode::map_item_changed, "name");
 }
 
 const StreamMetaType::Properties& StreamMetaType::getProperties() const
@@ -1076,6 +1188,8 @@ void StreamMetaType::notifyChangedMapContent(utility::TypeAccessMapEventCode cod
     case map_subitem_removed:
     case map_subitem_changed:
     case map_subitem_renamed:
+    case map_subitem_popped:
+    case map_subitem_inserted:
         break;
     }
     notify(local_code, forwarded_code, additional_info);

@@ -23,8 +23,8 @@ You may add additional accurate notices of copyright ownership.
 
 #include <ddl/datamodel/datamodel_datadefinition.h>
 #include <ddl/dd/dd_common_types.h>
+#include <ddl/dd/dd_infomodel_type.h>
 #include <ddl/dd/dd_struct_access.h>
-#include <ddl/dd/dd_validationinfomodel.h>
 
 #include <string>
 
@@ -378,11 +378,6 @@ public:
     Streams& getStreams();
 
     /**
-     * @brief Reuse of the validation level. see @ref ddl::dd::ValidationInfo::ValidationLevel.
-     *
-     */
-    typedef ValidationInfo::ValidationLevel ValidationLevel;
-    /**
      * @brief Obtains if the validation level has reached at least the given \p level.
      * @see @ref ValidationServiceInfo, @ref ValidationInfo.
      *
@@ -409,7 +404,7 @@ public:
      * @remarks to print or flatten the protocol consider @ref
      * ddl::dd::transformValidationProblemList.
      */
-    std::vector<ValidationInfo::Problem> getValidationProtocol() const;
+    std::vector<ddl::dd::Problem> getValidationProtocol() const;
 
     /**
      * @brief calculates the element sizes and positions of all structs, enumtypes and datatypes or
@@ -571,7 +566,8 @@ private:
                       const std::string& additional_info) override;
 
     Version _last_known_ddl_version;
-    ValidationLevel _validation_level = ValidationLevel::dont_know;
+    // this member variable must stay there for ABI compatibility!
+    ValidationLevel _dummy_validation_level = ValidationLevel::dont_know;
     std::unordered_map<std::string, std::string> _recursion_detection_stream_meta_types;
     std::unordered_map<std::string, std::string> _recursion_detection_struct;
 };
@@ -652,7 +648,7 @@ bool addUnitByName(const std::string& unit_name,
  * @return std::vector<std::string>
  */
 std::vector<std::string> transformValidationProblemList(
-    const std::vector<ValidationInfo::Problem>& problems);
+    const std::vector<ddl::dd::Problem>& problems);
 
 /**
  * @brief Alias Name for DataDefinition, formally known as DataDescription

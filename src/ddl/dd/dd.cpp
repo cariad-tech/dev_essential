@@ -17,7 +17,9 @@
 
 #include <ddl/dd/dd.h>
 #include <ddl/dd/dd_predefined_datatypes.h>
+#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
 #include <ddl/dd/dd_typeinfomodel.h>
+#include <ddl/dd/dd_validationinfomodel.h>
 
 #include <memory>
 
@@ -42,7 +44,6 @@ DataDefinition::DataDefinition(const std::shared_ptr<datamodel::DataDefinition>&
 DataDefinition::DataDefinition(const DataDefinition& other)
 {
     setModel(std::make_shared<datamodel::DataDefinition>(*other.getModel()));
-    _validation_level = other._validation_level;
     _last_known_ddl_version = other._last_known_ddl_version;
 }
 
@@ -50,7 +51,6 @@ DataDefinition::DataDefinition(DataDefinition&& other)
 {
     detachFromModel();
     _datamodel = other._datamodel;
-    _validation_level = other._validation_level;
     _last_known_ddl_version = other._last_known_ddl_version;
     attachToModel();
 }
@@ -59,7 +59,6 @@ DataDefinition& DataDefinition::operator=(const DataDefinition& other)
 {
     setModel(std::make_shared<datamodel::DataDefinition>(*other.getModel()));
     _last_known_ddl_version = other._last_known_ddl_version;
-    _validation_level = other._validation_level;
     return *this;
 }
 
@@ -67,7 +66,6 @@ DataDefinition& DataDefinition::operator=(DataDefinition&& other)
 {
     detachFromModel();
     _datamodel = other._datamodel;
-    _validation_level = other._validation_level;
     _last_known_ddl_version = other._last_known_ddl_version;
     attachToModel();
     return *this;
@@ -82,6 +80,7 @@ void DataDefinition::setModel(const std::shared_ptr<datamodel::DataDefinition>& 
 {
     detachFromModel();
     _datamodel = datamodel;
+    attachToModel();
     if (_datamodel) {
         auto info = _datamodel->getInfo<ValidationServiceInfo>();
         if (info == nullptr) {
@@ -93,8 +92,6 @@ void DataDefinition::setModel(const std::shared_ptr<datamodel::DataDefinition>& 
         validate();
         calculatePositions("", invalid_type, false);
     }
-
-    attachToModel();
 }
 
 std::shared_ptr<const datamodel::DataDefinition> DataDefinition::getModel() const
@@ -277,14 +274,27 @@ TypeOfUnit DataDefinition::getTypeOfUnit(const std::string& unit_name) const
 
 bool DataDefinition::isValid(ValidationLevel level) const
 {
+    ValidationLevel current_level = ValidationLevel::dont_know;
+    if (_datamodel) {
+        if (_datamodel->isEmpty()) {
+            current_level = ValidationLevel::valid;
+        }
+        else {
+            auto info = _datamodel->getInfo<ValidationServiceInfo>();
+            if (info) {
+                current_level = info->getValidationLevel();
+            }
+        }
+    }
+
     if (level == ValidationLevel::invalid) {
         return false;
     }
-    else if (_validation_level == ValidationLevel::invalid) {
+    else if (current_level == ValidationLevel::invalid) {
         return false;
     }
     else {
-        return (_validation_level >= level);
+        return (current_level >= level);
     }
 }
 
@@ -310,167 +320,69 @@ DataDefinition::Streams& DataDefinition::getStreams()
 
 namespace {
 
-DEF_GETINFO(ValidationInfo, Unit);
-DEF_SETINFO(ValidationInfo, Unit);
-
-DEF_GETINFO(ValidationInfo, DataType);
-DEF_SETINFO(ValidationInfo, DataType);
-
-DEF_GETINFO(ValidationInfo, EnumType);
-DEF_SETINFO(ValidationInfo, EnumType);
-
-DEF_GETINFO(ValidationInfo, StructType);
-DEF_SETINFO(ValidationInfo, StructType);
-
-DEF_GETINFO(ValidationInfo, StreamMetaType);
-DEF_SETINFO(ValidationInfo, StreamMetaType);
-
-DEF_GETINFO(ValidationInfo, Stream);
-DEF_SETINFO(ValidationInfo, Stream);
-
 template <typename T>
-DataDefinition::ValidationLevel getOrCreateValidationLevelFor(std::shared_ptr<T>& type_val,
-                                                              datamodel::DataDefinition& parent_ddl,
-                                                              bool force_update)
+void getOrCreateValidationLevelFor(std::shared_ptr<T>& type_val,
+                                   datamodel::DataDefinition& parent_ddl,
+                                   bool force_update)
 {
-    auto info = getInfoFrom(*type_val);
+    auto info = type_val->template getInfo<ValidationInfo>();
     if (info == nullptr) {
         // for recursion detection we need to create it first, then update!
-        setInfoTo(*type_val);
-        info = getInfoFrom(*type_val);
+        type_val->template setInfo<ValidationInfo>(std::make_shared<ValidationInfo>());
+        info = type_val->template getInfo<ValidationInfo>();
         info->update(*type_val, parent_ddl);
     }
     else if (force_update || info->getValidationLevel() < ValidationInfo::ValidationLevel::valid) {
+        info->forceRevalidation();
         info->update(*type_val, parent_ddl);
     }
-    return info->getValidationLevel();
 }
 } // namespace
 
 void DataDefinition::validate(bool force_revalidation)
 {
-    auto discovered_level = ValidationLevel::valid;
     if (_datamodel->isEmpty()) {
-        _validation_level = discovered_level;
         return;
     }
 
     // validate data types
     for (auto& ref_types: getUnits()) {
-        auto level =
-            getOrCreateValidationLevelFor<Unit>(ref_types.second, *_datamodel, force_revalidation);
-        if (level < discovered_level) {
-            discovered_level = level;
-        }
+        getOrCreateValidationLevelFor<Unit>(ref_types.second, *_datamodel, force_revalidation);
     }
     // validate data types
     for (auto& ref_types: getDataTypes()) {
-        auto level = getOrCreateValidationLevelFor<DataType>(
-            ref_types.second, *_datamodel, force_revalidation);
-        if (level < discovered_level) {
-            discovered_level = level;
-        }
+        getOrCreateValidationLevelFor<DataType>(ref_types.second, *_datamodel, force_revalidation);
     }
     // validate enum types
     for (auto& ref_types: getEnumTypes()) {
-        auto level = getOrCreateValidationLevelFor<EnumType>(
-            ref_types.second, *_datamodel, force_revalidation);
-        if (level < discovered_level) {
-            discovered_level = level;
-        }
+        getOrCreateValidationLevelFor<EnumType>(ref_types.second, *_datamodel, force_revalidation);
     }
     // validate struct types
     for (auto& ref_types: getStructTypes()) {
-        auto level = getOrCreateValidationLevelFor<StructType>(
+        getOrCreateValidationLevelFor<StructType>(
             ref_types.second, *_datamodel, force_revalidation);
-        if (level < discovered_level) {
-            discovered_level = level;
-        }
     }
     // validate stream meta types
     for (auto& ref_types: getStreamMetaTypes()) {
-        auto level = getOrCreateValidationLevelFor<StreamMetaType>(
+        getOrCreateValidationLevelFor<StreamMetaType>(
             ref_types.second, *_datamodel, force_revalidation);
-        if (level < discovered_level) {
-            discovered_level = level;
-        }
     }
 
     // validate streams
     for (auto& ref_types: getStreams()) {
-        auto level = getOrCreateValidationLevelFor<Stream>(
-            ref_types.second, *_datamodel, force_revalidation);
-        if (level < discovered_level) {
-            discovered_level = level;
-        }
-    }
-    _validation_level = discovered_level;
-}
-
-namespace {
-
-template <typename T>
-std::vector<ValidationInfo::Problem> collectValidationProtocol(
-    const std::shared_ptr<const T>& type_val)
-{
-    auto info = getInfoFromConst(*type_val);
-    if (info != nullptr) {
-        return info->getProblems();
-    }
-    else {
-        return {};
+        getOrCreateValidationLevelFor<Stream>(ref_types.second, *_datamodel, force_revalidation);
     }
 }
-} // namespace
 
 std::vector<ValidationInfo::Problem> DataDefinition::getValidationProtocol() const
 {
-    std::vector<ValidationInfo::Problem> res;
-
-    // validate unit
-    for (auto& ref_types: getUnits()) {
-        auto sub_res = collectValidationProtocol<Unit>(ref_types.second);
-        for (auto& sub_entry: sub_res) {
-            res.push_back(sub_entry);
+    if (_datamodel) {
+        auto info_service = _datamodel->getInfo<ValidationServiceInfo>();
+        if (info_service) {
+            return info_service->getProblems();
         }
     }
-    // validate data types
-    for (auto& ref_types: getDataTypes()) {
-        auto sub_res = collectValidationProtocol<DataType>(ref_types.second);
-        for (auto& sub_entry: sub_res) {
-            res.push_back(sub_entry);
-        }
-    }
-    // validate enum types
-    for (auto& ref_types: getEnumTypes()) {
-        auto sub_res = collectValidationProtocol<EnumType>(ref_types.second);
-        for (auto& sub_entry: sub_res) {
-            res.push_back(sub_entry);
-        }
-    }
-    // validate struct types
-    for (auto& ref_types: getStructTypes()) {
-        auto sub_res = collectValidationProtocol<StructType>(ref_types.second);
-        for (auto& sub_entry: sub_res) {
-            res.push_back(sub_entry);
-        }
-    }
-    // validate stream meta types
-    for (auto& ref_types: getStreamMetaTypes()) {
-        auto sub_res = collectValidationProtocol<StreamMetaType>(ref_types.second);
-        for (auto& sub_entry: sub_res) {
-            res.push_back(sub_entry);
-        }
-    }
-
-    // validate streams
-    for (auto& ref_types: getStreams()) {
-        auto sub_res = collectValidationProtocol<Stream>(ref_types.second);
-        for (auto& sub_entry: sub_res) {
-            res.push_back(sub_entry);
-        }
-    }
-    return res;
+    return {};
 }
 
 void DataDefinition::calculatePositions(const std::string& type_name,
@@ -529,10 +441,14 @@ void DataDefinition::calculatePositions(const std::string& type_name,
                     // we need that order because of possible recursions!
                     ref_types.second->setInfo(std::make_shared<TypeInfo>());
                     type_info = ref_types.second->getInfo<TypeInfo>();
-                    type_info->update(*(ref_types.second), *_datamodel);
+                    type_info->update(
+                        *(ref_types.second), *_datamodel, TypeInfo::UpdateType::force_all);
                 }
                 else {
-                    type_info->update(*(ref_types.second), *_datamodel, force_recalculation);
+                    type_info->update(*(ref_types.second),
+                                      *_datamodel,
+                                      force_recalculation ? TypeInfo::UpdateType::force_all :
+                                                            TypeInfo::UpdateType::only_changed);
                 }
             }
         }
@@ -546,10 +462,13 @@ void DataDefinition::calculatePositions(const std::string& type_name,
                 // we need that order because of possible recursion!
                 struct_type->setInfo(std::make_shared<TypeInfo>());
                 type_info = struct_type->getInfo<TypeInfo>();
-                type_info->update(*(struct_type), *_datamodel);
+                type_info->update(*(struct_type), *_datamodel, TypeInfo::UpdateType::force_all);
             }
             else {
-                type_info->update(*(struct_type), *_datamodel, force_recalculation);
+                type_info->update(*(struct_type),
+                                  *_datamodel,
+                                  force_recalculation ? TypeInfo::UpdateType::force_all :
+                                                        TypeInfo::UpdateType::only_changed);
             }
         }
         else if (enum_type) {
@@ -583,6 +502,18 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode,
     }
 }
 
+namespace {
+// remove all validations
+template <typename T>
+void removeAllValidations(T& item, datamodel::DataDefinition& parent_dd)
+{
+    auto info = item.template getInfo<ValidationInfo>();
+    if (info) {
+        info->removeProblems(parent_dd);
+    }
+}
+} // namespace
+
 void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
                                   datamodel::BaseUnit& changed_subject,
                                   const std::string& additional_info)
@@ -593,6 +524,7 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::item_removed) {
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
     }
 }
 
@@ -606,6 +538,7 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::item_removed) {
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
     }
 }
 
@@ -623,16 +556,13 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::subitem_changed) {
         if (additional_info == "prefix_name" || additional_info == "unit_name") {
-            auto valid_info = _datamodel->getInfo<ValidationServiceInfo>();
-            if (valid_info) {
-                // switch off if this change comes from the Validation service while renaming
-                // the validation service will take care of this by itself
-                if (valid_info->validationNeeded()) {
-                    changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-                }
-            }
-            else {
-                changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
+            auto valid_info_service = _datamodel->getInfo<ValidationServiceInfo>();
+            auto valid_info = changed_subject.getInfo<ValidationInfo>();
+            // switch off if this change comes from the Validation service while renaming
+            // the validation service will take care of this by itself
+            if (valid_info_service->validationNeeded()) {
+                valid_info->forceRevalidation();
+                valid_info->update(changed_subject, *_datamodel);
             }
         }
     }
@@ -642,6 +572,7 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::item_removed) {
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
     }
 }
 
@@ -654,12 +585,11 @@ void updateInfoAllStructs(const std::vector<std::string>& struct_names,
         auto struct_type = parent_dd.getStructTypes().access(current_dependency_type);
         if (struct_type) {
             auto struct_info = struct_type->getInfo<ValidationInfo>();
-            if (!struct_info->isValid()) {
-                struct_info->update(*struct_type, parent_dd);
-            }
+            struct_info->update(*struct_type, parent_dd);
             if (with_type_info) {
-                if (struct_info->isValid(ValidationInfo::good_enough)) {
-                    struct_type->getInfo<TypeInfo>()->update(*struct_type, parent_dd, true);
+                if (struct_info->isValid(ValidationInfo::ValidationLevel::good_enough)) {
+                    struct_type->getInfo<TypeInfo>()->update(
+                        *struct_type, parent_dd, TypeInfo::UpdateType::force_all);
                 }
             }
         }
@@ -673,10 +603,8 @@ void updateInfoAllEnums(const std::vector<std::string>& enum_names,
         auto enum_type = parent_dd.getEnumTypes().access(current_dependency_type);
         if (enum_type) {
             auto enum_type_info = enum_type->getInfo<ValidationInfo>();
-            if (!enum_type_info->isValid()) {
-                enum_type_info->update(*enum_type, parent_dd);
-            }
-            if (enum_type_info->isValid(ValidationInfo::good_enough)) {
+            enum_type_info->update(*enum_type, parent_dd);
+            if (enum_type_info->isValid(ValidationInfo::ValidationLevel::good_enough)) {
                 enum_type->getInfo<TypeInfo>()->update(*enum_type, parent_dd);
             }
         }
@@ -692,41 +620,35 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
         changed_subject.setInfo<TypeInfo>(std::make_shared<TypeInfo>(changed_subject, *_datamodel));
         changed_subject.setInfo<ValidationInfo>(
             std::make_shared<ValidationInfo>(changed_subject, *_datamodel));
+        _datamodel->getInfo<ValidationServiceInfo>()->renamed(
+            changed_subject, changed_subject.getName(), *_datamodel);
     }
     else if (event_code == datamodel::ModelEventCode::item_changed) {
         // almost every change on a type will invalidate the type info (except description, but we
         // do not check that here
-        auto valid_info = _datamodel->getInfo<ValidationServiceInfo>();
+        auto valid_info_service = _datamodel->getInfo<ValidationServiceInfo>();
+        auto valid_info = changed_subject.getInfo<ValidationInfo>();
         if (additional_info == "unit_name") {
-            if (valid_info) {
-                // switch off if this change comes from the Validation service while renaming
-                // the validation service will take care of this by itself
-                if (valid_info->validationNeeded()) {
-                    changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-                }
-            }
-            else {
-                changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
+            // switch off if this change comes from the Validation service while renaming
+            // the validation service will take care of this by itself
+            if (valid_info_service->validationNeeded()) {
+                valid_info->forceRevalidation();
+                valid_info->update(changed_subject, *_datamodel);
             }
         }
         else {
-            if (valid_info) {
-                if (valid_info->validationNeeded()) {
-                    changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-                    changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
-                    if (valid_info) {
-                        const auto dependencies = valid_info->forceRevalidationOfTypeDependencies(
-                            changed_subject.getName(),
-                            changed_subject.getTypeOfType(),
-                            *_datamodel);
-                        updateInfoAllStructs(dependencies._struct_type_names, true, *_datamodel);
-                        updateInfoAllEnums(dependencies._enum_type_names, *_datamodel);
-                    }
-                }
-            }
-            else {
-                changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
+            if (valid_info_service->validationNeeded()) {
+                valid_info->forceRevalidation();
+                valid_info->update(changed_subject, *_datamodel);
                 changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
+                ValidationServiceInfo::InvalidatedTypes dependencies;
+                valid_info_service->forceRevalidationOfTypeDependencies(
+                    changed_subject.getName(),
+                    changed_subject.getTypeOfType(),
+                    *_datamodel,
+                    dependencies);
+                updateInfoAllStructs(dependencies._struct_type_names, true, *_datamodel);
+                updateInfoAllEnums(dependencies._enum_type_names, *_datamodel);
             }
         }
     }
@@ -736,6 +658,7 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::item_removed) {
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
     }
 }
 
@@ -747,31 +670,31 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
         changed_subject.setInfo<TypeInfo>(std::make_shared<TypeInfo>(changed_subject, *_datamodel));
         changed_subject.setInfo<ValidationInfo>(
             std::make_shared<ValidationInfo>(changed_subject, *_datamodel));
+        _datamodel->getInfo<ValidationServiceInfo>()->renamed(
+            changed_subject, changed_subject.getName(), *_datamodel);
     }
     else if (event_code == datamodel::ModelEventCode::item_changed) {
         // validation and typeinfo depends only on the data_type_name, nothing more!
         bool is_relevant_change = (additional_info == "data_type_name");
         if (is_relevant_change) {
-            auto valid_info = _datamodel->getInfo<ValidationServiceInfo>();
-            if (valid_info) {
-                // switch off if this change comes from the Validation service while renaming
-                // the validation service will take care of this by itself
-                if (valid_info->validationNeeded()) {
-                    // we need to invalidate everything before to force revalidation
-                    const auto dependencies = valid_info->forceRevalidationOfTypeDependencies(
-                        changed_subject.getName(), changed_subject.getTypeOfType(), *_datamodel);
-                    auto info = changed_subject.getInfo<ValidationInfo>();
-                    info->forceRevalidation();
-                    info->update(changed_subject, *_datamodel);
-                    updateInfoAllStructs(dependencies._struct_type_names, true, *_datamodel);
-                    if (info->isValid(ValidationInfo::good_enough)) {
-                        changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
-                    }
+            auto valid_info_service = _datamodel->getInfo<ValidationServiceInfo>();
+            // switch off if this change comes from the Validation service while renaming
+            // the validation service will take care of this by itself
+            if (valid_info_service->validationNeeded()) {
+                // we need to invalidate everything before to force revalidation
+                ValidationServiceInfo::InvalidatedTypes dependencies;
+                valid_info_service->forceRevalidationOfTypeDependencies(
+                    changed_subject.getName(),
+                    changed_subject.getTypeOfType(),
+                    *_datamodel,
+                    dependencies);
+                auto info = changed_subject.getInfo<ValidationInfo>();
+                info->forceRevalidation();
+                info->update(changed_subject, *_datamodel);
+                updateInfoAllStructs(dependencies._struct_type_names, true, *_datamodel);
+                if (info->isValid(ValidationInfo::ValidationLevel::good_enough)) {
+                    changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
                 }
-            }
-            else {
-                changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-                changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
             }
         }
     }
@@ -781,6 +704,7 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::item_removed) {
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
     }
     // we do not react on subitem changes for type info
 }
@@ -799,73 +723,100 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
         // update it
         changed_subject.setInfo<TypeInfo>(std::make_shared<TypeInfo>());
         changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
+        _datamodel->getInfo<ValidationServiceInfo>()->renamed(
+            changed_subject, changed_subject.getName(), *_datamodel);
         break;
     case datamodel::ModelEventCode::item_removed:
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
         break;
     case datamodel::ModelEventCode::subitem_changed: {
-        auto valid_info = _datamodel->getInfo<ValidationServiceInfo>();
-        if (valid_info) {
-            // switch off if this change comes from the Validation service while renaming
-            // the validation service will take care of this by itself
-            if (valid_info->validationNeeded()) {
-                // We need to force revalidation because of recursion detection
-                const auto dependencies = valid_info->forceRevalidationOfTypeDependencies(
-                    changed_subject.getName(), changed_subject.getTypeOfType(), *_datamodel);
-                auto info = changed_subject.getInfo<ValidationInfo>();
-                info->forceRevalidation();
-                info->update(changed_subject, *_datamodel);
-                // calculate position after validation
-                const bool update_type_info =
-                    additional_info == "type_name" || additional_info == "alignment" ||
-                    additional_info == "byte_pos" || additional_info == "num_bits" ||
-                    additional_info == "array_size";
-                if (update_type_info) {
-                    changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel, true);
-                }
-                updateInfoAllStructs(
-                    dependencies._struct_type_names, update_type_info, *_datamodel);
+        auto valid_info_service = _datamodel->getInfo<ValidationServiceInfo>();
+        // switch off if this change comes from the Validation service while renaming
+        // the validation service will take care of this by itself
+        if (valid_info_service->validationNeeded()) {
+            // We need to force revalidation because of recursion detection
+            ValidationServiceInfo::InvalidatedTypes dependencies;
+            valid_info_service->forceRevalidationOfTypeDependencies(changed_subject.getName(),
+                                                                    changed_subject.getTypeOfType(),
+                                                                    *_datamodel,
+                                                                    dependencies);
+            auto info = changed_subject.getInfo<ValidationInfo>();
+            info->forceRevalidation();
+            info->update(changed_subject, *_datamodel);
+            // calculate position after validation
+            const bool update_type_info =
+                additional_info == "type_name" || additional_info == "alignment" ||
+                additional_info == "byte_pos" || additional_info == "num_bits" ||
+                additional_info == "array_size";
+            if (update_type_info) {
+                changed_subject.getInfo<TypeInfo>()->update(
+                    changed_subject, *_datamodel, TypeInfo::UpdateType::force_all);
             }
+            updateInfoAllStructs(dependencies._struct_type_names, update_type_info, *_datamodel);
         }
-        else {
-            changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-            changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel, true);
-        }
+
     } break;
     case datamodel::ModelEventCode::item_changed: {
         const bool relevant_change =
             ("language_version" == additional_info) || ("alignment" == additional_info);
         if (relevant_change) {
-            auto valid_info = _datamodel->getInfo<ValidationServiceInfo>();
-            if (valid_info) {
-                // force revalidation of all depencencies
-                // no check for validation needed because of language_version and alignment is no
-                // renaming thing
-                const auto dependencies = valid_info->forceRevalidationOfTypeDependencies(
-                    changed_subject.getName(), changed_subject.getTypeOfType(), *_datamodel);
-                auto info = changed_subject.getInfo<ValidationInfo>();
-                info->forceRevalidation();
-                info->update(changed_subject, *_datamodel);
-                changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel, true);
-                updateInfoAllStructs(dependencies._struct_type_names, true, *_datamodel);
-            }
-            else {
-                changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-                changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel, true);
-            }
+            auto valid_info_service = _datamodel->getInfo<ValidationServiceInfo>();
+            // force revalidation of all depencencies
+            // no check for validation needed because of language_version and alignment is no
+            // renaming thing
+            ValidationServiceInfo::InvalidatedTypes dependencies;
+            valid_info_service->forceRevalidationOfTypeDependencies(changed_subject.getName(),
+                                                                    changed_subject.getTypeOfType(),
+                                                                    *_datamodel,
+                                                                    dependencies);
+            auto info = changed_subject.getInfo<ValidationInfo>();
+            info->forceRevalidation();
+            info->update(changed_subject, *_datamodel);
+            changed_subject.getInfo<TypeInfo>()->update(
+                changed_subject, *_datamodel, TypeInfo::UpdateType::force_all);
+            updateInfoAllStructs(dependencies._struct_type_names, true, *_datamodel);
         }
     } break;
     case datamodel::ModelEventCode::subitem_removed:
-        changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel, true);
-        changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
+    case datamodel::ModelEventCode::subitem_popped:
+        // this is the case if one element is added, this must be optimized in runtime !! (used for
+        // DDStructure!)
+        {
+            const auto update_type = (event_code == datamodel::ModelEventCode::subitem_popped) ?
+                                         TypeInfo::UpdateType::only_last :
+                                         TypeInfo::UpdateType::force_all;
+            changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel, update_type);
+            if (update_type == TypeInfo::UpdateType::force_all) {
+                auto valid_info = changed_subject.getInfo<ValidationInfo>();
+                valid_info->forceRevalidation();
+                valid_info->update(changed_subject, *_datamodel);
+            }
+        }
         break;
     case datamodel::ModelEventCode::item_renamed:
         _datamodel->getInfo<ValidationServiceInfo>()->renamed(
             changed_subject, additional_info, *_datamodel);
         break;
+    case datamodel::ModelEventCode::subitem_inserted:
     case datamodel::ModelEventCode::subitem_added:
-        // this is the case if one element is added
-        changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel, false);
+        // this is the case if one element is added, this must be optimized in runtime !! (used for
+        // DDStructure!)
+        {
+            auto valid_info = changed_subject.getInfo<ValidationInfo>();
+            const ValidationInfo::UpdateType valid_update_type =
+                (event_code == datamodel::ModelEventCode::subitem_added) ?
+                    ValidationInfo::UpdateType::only_last :
+                    ValidationInfo::UpdateType::all;
+            const TypeInfo::UpdateType type_update_type =
+                (event_code == datamodel::ModelEventCode::subitem_added) ?
+                    TypeInfo::UpdateType::only_last :
+                    TypeInfo::UpdateType::only_changed;
+            valid_info->forceRevalidation();
+            valid_info->update(changed_subject, *_datamodel, valid_update_type);
+            changed_subject.getInfo<TypeInfo>()->update(
+                changed_subject, *_datamodel, type_update_type);
+        }
         break;
     case datamodel::ModelEventCode::subitem_renamed:
         break;
@@ -879,19 +830,20 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     if (event_code == datamodel::ModelEventCode::item_added) {
         changed_subject.setInfo<ValidationInfo>(std::make_shared<ValidationInfo>());
         changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
+        _datamodel->getInfo<ValidationServiceInfo>()->renamed(
+            changed_subject, changed_subject.getName(), *_datamodel);
     }
     else if (event_code == datamodel::ModelEventCode::item_changed) {
         // validation and typeinfo depends only on the data_type_name, nothing more!
         bool is_relevant_change = (additional_info == "parent");
         if (is_relevant_change) {
-            auto valid_info = _datamodel->getInfo<ValidationServiceInfo>();
-            if (valid_info) {
-                // switch off if this change comes from the Validation service while renaming
-                // the validation service will take care of this by itself
-                if (valid_info->validationNeeded()) {
-                    // validation and typeinfo depends only on the data_type_name, nothing more!
-                    changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-                }
+            auto valid_info_service = _datamodel->getInfo<ValidationServiceInfo>();
+            // switch off if this change comes from the Validation service while renaming
+            // the validation service will take care of this by itself
+            if (valid_info_service->validationNeeded()) {
+                auto info = changed_subject.getInfo<ValidationInfo>();
+                info->forceRevalidation();
+                info->update(changed_subject, *_datamodel);
             }
         }
     }
@@ -901,6 +853,7 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::item_removed) {
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
     }
     // we do not react on subitem changes for type info
 }
@@ -917,14 +870,14 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
         // validation and typeinfo depends only on the data_type_name, nothing more!
         bool is_relevant_change = (additional_info == "stream_type_name");
         if (is_relevant_change) {
-            auto valid_info = _datamodel->getInfo<ValidationServiceInfo>();
-            if (valid_info) {
-                // switch off if this change comes from the Validation service while renaming
-                // the validation service will take care of this by itself
-                if (valid_info->validationNeeded()) {
-                    // validation and typeinfo depends only on the data_type_name, nothing more!
-                    changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
-                }
+            auto valid_info_service = _datamodel->getInfo<ValidationServiceInfo>();
+            // switch off if this change comes from the Validation service while renaming
+            // the validation service will take care of this by itself
+            if (valid_info_service->validationNeeded()) {
+                // validation and typeinfo depends only on the data_type_name, nothing more!
+                auto info = changed_subject.getInfo<ValidationInfo>();
+                info->forceRevalidation();
+                info->update(changed_subject, *_datamodel);
             }
         }
     }
@@ -934,6 +887,7 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
     }
     else if (event_code == datamodel::ModelEventCode::item_removed) {
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
+        removeAllValidations(changed_subject, *_datamodel);
     }
     // we do not react on subitem changes for type info
 }

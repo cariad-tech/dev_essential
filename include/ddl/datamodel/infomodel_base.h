@@ -81,6 +81,38 @@ protected:
 class InfoMap {
 public:
     /**
+     * @brief CTOR
+     */
+    InfoMap() = default;
+    /**
+     * @brief copy CTOR
+     * @remark InfoMaps will be never copied!
+     */
+    InfoMap(const InfoMap&){};
+    /**
+     * @brief move CTOR
+     * @remark InfoMaps will be never moved!
+     */
+    InfoMap(InfoMap&&){};
+    /**
+     * @brief copy assignment operator
+     * @remark InfoMaps will be never copied!
+     * @return InfoMap&
+     */
+    InfoMap& operator=(const InfoMap&)
+    {
+        return *this;
+    };
+    /**
+     * @brief move assignment operator
+     * @remark InfoMaps will be never moved!
+     * @return InfoMap&
+     */
+    InfoMap& operator=(InfoMap&&)
+    {
+        return *this;
+    };
+    /**
      * @brief Get the Info Pointer
      *
      * @tparam INFO_T The Info type class type to retrieve.
@@ -164,55 +196,5 @@ private:
 } // namespace datamodel
 } // namespace dd
 } // namespace ddl
-
-/**
- * Needed for the strange gcc where templated functions can not be used within templates functions.
- * @details This macro will expand to a getInfoFrom @c for the given _infotype_.
- * @param _infotype_ the infotype to define the getInfoFrom function for.
- * @param _type_ the valuetype to define the getInfoFrom function for.
- */
-#define DEF_GETINFO_NON_CONST(_infotype_, _type_)                                                  \
-    _infotype_* getInfoFrom(_type_& val_type)                                                      \
-    {                                                                                              \
-        return val_type.getInfo<_infotype_>();                                                     \
-    }                                                                                              \
-    static_assert(true, "Simply to make sure a closing semicolon ';' is used for the macro")
-
-/**
- * Needed for the strange gcc where templated functions can not be used within templates functions.
- * @details This macro will expand to a getInfoFromConst @c for the given _infotype_.
- * @param _infotype_ the infotype to define the getInfoFrom function for.
- * @param _type_ the valuetype to define the getInfoFrom function for.
- */
-#define DEF_GETINFO_CONST(_infotype_, _type_)                                                      \
-    const _infotype_* getInfoFromConst(const _type_& val_type)                                     \
-    {                                                                                              \
-        return val_type.getInfo<_infotype_>();                                                     \
-    }                                                                                              \
-    static_assert(true, "Simply to make sure a closing semicolon ';' is used for the macro")
-
-/**
- * Needed for the strange gcc where templated functions can not be used within templates functions.
- * @details This will expand to a @c getInfoFrom and a @c getInfoFromConst for the given _infotype_.
- * @param _infotype_ the infotype to define the getInfoFrom function for.
- * @param _type_ the valuetype to define the getInfoFrom function for.
- */
-#define DEF_GETINFO(_infotype_, _type_)                                                            \
-    DEF_GETINFO_NON_CONST(_infotype_, _type_);                                                     \
-    DEF_GETINFO_CONST(_infotype_, _type_)
-
-/**
- * @brief This helper macro is needed for the strange gcc where templated functions can not be used
- * within templates functions. This will implement a setInfo.
- * @param _infotype_ the infotype to define the setInfo function for.
- * @param _type_ the valuetype to define the setInfo function for.
- *
- */
-#define DEF_SETINFO(_infotype_, _type_)                                                            \
-    void setInfoTo(_type_& val_type)                                                               \
-    {                                                                                              \
-        val_type.setInfo<_infotype_>(std::make_shared<_infotype_>());                              \
-    }                                                                                              \
-    static_assert(true, "Simply to make sure a closing semicolon ';' is used for the macro")
 
 #endif // DD_DATA_MODEL_INFO_H_INCLUDED

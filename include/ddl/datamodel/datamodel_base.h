@@ -102,7 +102,7 @@ enum ModelEventCode {
     subitem_added,
     /**
      * @brief the sub item was removed
-     * \li for struct -> element
+     * \li for struct -> element at the end
      * \li for header -> ext declaration
      * \li for enum -> element
      * \li for streammetatype -> property
@@ -135,7 +135,18 @@ enum ModelEventCode {
      * The event has a additional parameter "additional_info":
      * This is set to the old name of item that was changed.
      */
-    subitem_renamed
+    subitem_renamed,
+    /**
+     * @brief the last item was removed.
+     * \n Possible items
+     * \li structtype
+     */
+    subitem_popped,
+    /**
+     * @brief the sub item was inserted
+     * \li for struct -> element
+     */
+    subitem_inserted
 };
 
 /**

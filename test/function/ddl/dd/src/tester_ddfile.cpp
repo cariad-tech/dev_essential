@@ -4,16 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
- *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "./../../_common/test_oo_ddl.h"
@@ -32,11 +25,11 @@ TEST(TesterDDFile, readAndWriteHeader)
     using namespace ddl;
     DataDefinition dd_test_file_with_ext_declarations;
 
-    ASSERT_NO_THROW(dd_test_file_with_ext_declarations = DDFile::fromXMLFile(
-                        TEST_FILES_DIR "/test_insert_results_ref.description"););
+    ASSERT_NO_THROW(dd_test_file_with_ext_declarations =
+                        DDFile::fromXMLFile(TEST_FILES_DIR "test_insert_results_ref.description"););
     EXPECT_TRUE(dd_test_file_with_ext_declarations.isValid());
 
-    dd::datamodel::Header created_header(dd::Version::ddl_version_12,
+    dd::datamodel::Header created_header(dd::Version(1, 2),
                                          "dev_essential team",
                                          "07.04.2010",
                                          "07.04.2010",
@@ -53,15 +46,14 @@ TEST(TesterDDFile, readAndWriteHeader)
     ASSERT_EQ(created_header, dd_test_file_with_ext_declarations.getHeader());
 
     // write the file with this header to the disk and check if it is written completly!
-    std::remove(TEST_FILES_WRITE_DIR "/test_insert_results_ref_write_header_test.description");
+    std::remove(TEST_FILES_WRITE_DIR "test_insert_results_ref_write_header_test.description");
     DDFile::toXMLFile(dd_test_file_with_ext_declarations,
-                      TEST_FILES_WRITE_DIR
-                      "/test_insert_results_ref_write_header_test.description");
+                      TEST_FILES_WRITE_DIR "test_insert_results_ref_write_header_test.description");
 
     DataDefinition dd_test_file_with_ext_declarations_check_write;
     ASSERT_NO_THROW(dd_test_file_with_ext_declarations_check_write = DDFile::fromXMLFile(
                         TEST_FILES_WRITE_DIR
-                        "/test_insert_results_ref_write_header_test.description"););
+                        "test_insert_results_ref_write_header_test.description"););
     // the header in the new file must be the same like epected
     ASSERT_EQ(created_header, dd_test_file_with_ext_declarations_check_write.getHeader());
 }
@@ -74,11 +66,11 @@ TEST(TesterDDFile, readAndWriteDataTypes)
     using namespace ddl;
 
     DataDefinition dd_test_file;
-    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "/adtf.description"););
+    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "adtf.description"););
 
     EXPECT_TRUE(dd_test_file.isValid());
 
-    EXPECT_EQ(dd_test_file.getDataTypes().getSize(), 12);
+    EXPECT_EQ(dd_test_file.getDataTypes().getSize(), 12U);
     // test if all expected datatypes are the
     test_ddl::containsDataType(dd_test_file, {"tBool", "8", "predefined ADTF tBool datatype"});
     test_ddl::containsDataType(dd_test_file, {"tChar", "8", "predefined ADTF tChar datatype"});
@@ -96,14 +88,14 @@ TEST(TesterDDFile, readAndWriteDataTypes)
                                {"tFloat64", "64", "predefined ADTF tFloat64 datatype"});
 
     // write the file with this header to the disk and check if it is written completly!
-    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "adtf_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
     DataDefinition dd_test_file_written;
     ASSERT_NO_THROW(dd_test_file_written = DDFile::fromXMLFile(test_file_write););
 
-    EXPECT_EQ(dd_test_file_written.getDataTypes().getSize(), 12);
+    EXPECT_EQ(dd_test_file_written.getDataTypes().getSize(), 12U);
     // test if all expected datatypes are the
     test_ddl::containsDataType(dd_test_file_written,
                                {"tBool", "8", "predefined ADTF tBool datatype"});
@@ -140,7 +132,7 @@ TEST(TesterDDFile, readAndWriteEnumTypes)
 
     DataDefinition dd_test_file;
     ASSERT_NO_THROW(dd_test_file =
-                        DDFile::fromXMLFile(TEST_FILES_DIR "/adtf_changed_expected.xml"););
+                        DDFile::fromXMLFile(TEST_FILES_DIR "adtf_changed_expected.xml"););
 
     EXPECT_TRUE(dd_test_file.isValid());
 
@@ -188,7 +180,7 @@ TEST(TesterDDFile, readAndWriteEnumTypes)
 
     // write the file with this header to the disk and check if it is written completly!
     const std::string test_file_write =
-        TEST_FILES_WRITE_DIR "/adtf_changed_expected_test.description";
+        TEST_FILES_WRITE_DIR "adtf_changed_expected_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -208,7 +200,7 @@ TEST(TesterDDFile, readAndWriteStructTypes)
     using namespace ddl;
 
     DataDefinition dd_test_file;
-    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "/adtf.description"););
+    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "adtf.description"););
 
     EXPECT_TRUE(dd_test_file.isValid());
 
@@ -228,11 +220,11 @@ TEST(TesterDDFile, readAndWriteStructTypes)
         EXPECT_EQ(struct_for_test->getAlignment(), dd::OptionalSize(dd::Alignment::e1));
         EXPECT_EQ(struct_for_test->getVersion(), "1");
         EXPECT_EQ(struct_for_test->getComment(), "");
-        EXPECT_EQ(struct_for_test->getLanguageVersion(), dd::Version::ddl_version_notset);
+        EXPECT_EQ(struct_for_test->getLanguageVersion(), dd::Version(0, 0));
 
         auto element_to_test = struct_for_test->getElements().get("mediatype");
         EXPECT_EQ(element_to_test->getAlignment(), dd::Alignment::e1);
-        EXPECT_EQ(element_to_test->getArraySize(), 1);
+        EXPECT_EQ(element_to_test->getArraySize(), 1U);
         EXPECT_EQ(element_to_test->getByteOrder(), dd::ByteOrder::e_le);
         EXPECT_EQ(element_to_test->getBytePos(), dd::OptionalSize(0));
         EXPECT_EQ(element_to_test->getComment(), "");
@@ -250,7 +242,7 @@ TEST(TesterDDFile, readAndWriteStructTypes)
     }
 
     // write the file with this header to the disk and check if it is written completly!
-    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "adtf_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -274,11 +266,11 @@ TEST(TesterDDFile, readAndWriteStructTypes)
         EXPECT_EQ(struct_for_test->getAlignment(), dd::OptionalSize(dd::Alignment::e1));
         EXPECT_EQ(struct_for_test->getVersion(), "1");
         EXPECT_EQ(struct_for_test->getComment(), "");
-        EXPECT_EQ(struct_for_test->getLanguageVersion(), dd::Version::ddl_version_notset);
+        EXPECT_EQ(struct_for_test->getLanguageVersion(), dd::Version(0, 0));
 
         auto element_to_test = struct_for_test->getElements().get("mediatype");
         EXPECT_EQ(element_to_test->getAlignment(), dd::Alignment::e1);
-        EXPECT_EQ(element_to_test->getArraySize(), 1);
+        EXPECT_EQ(element_to_test->getArraySize(), 1U);
         EXPECT_EQ(element_to_test->getByteOrder(), dd::ByteOrder::e_le);
         EXPECT_EQ(element_to_test->getBytePos(), dd::OptionalSize(0));
         EXPECT_EQ(element_to_test->getComment(), "");
@@ -305,7 +297,7 @@ TEST(TesterDDFile, readAndWriteStructTypesV4)
 
     DataDefinition dd_test_file;
 
-    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "/adtf_v40.description"););
+    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "adtf_v40.description"););
     EXPECT_TRUE(dd_test_file.isValid());
 
     // find structs with a simple test
@@ -318,11 +310,11 @@ TEST(TesterDDFile, readAndWriteStructTypesV4)
         EXPECT_EQ(tTest_struct->getAlignment(), dd::OptionalSize(dd::Alignment::e4));
         EXPECT_EQ(tTest_struct->getVersion(), "1");
         EXPECT_EQ(tTest_struct->getComment(), "");
-        EXPECT_EQ(tTest_struct->getLanguageVersion(), dd::Version::ddl_version_20);
+        EXPECT_EQ(tTest_struct->getLanguageVersion(), dd::Version(2, 0));
 
         auto element_to_test = tTest_struct->getElements().get("fFloat32");
         EXPECT_EQ(element_to_test->getAlignment(), dd::Alignment::e4);
-        EXPECT_EQ(element_to_test->getArraySize(), 1);
+        EXPECT_EQ(element_to_test->getArraySize(), 1U);
         EXPECT_EQ(element_to_test->getByteOrder(), dd::ByteOrder::e_le);
         EXPECT_EQ(element_to_test->getBytePos(), dd::OptionalSize(6));
         EXPECT_EQ(element_to_test->getComment(), "");
@@ -340,7 +332,7 @@ TEST(TesterDDFile, readAndWriteStructTypesV4)
     }
 
     // write the file with this header to the disk and check if it is written completly!
-    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_v40_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "adtf_v40_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -357,11 +349,11 @@ TEST(TesterDDFile, readAndWriteStructTypesV4)
         EXPECT_EQ(tTest_struct->getAlignment(), dd::OptionalSize(dd::Alignment::e4));
         EXPECT_EQ(tTest_struct->getVersion(), "1");
         EXPECT_EQ(tTest_struct->getComment(), "");
-        EXPECT_EQ(tTest_struct->getLanguageVersion(), dd::Version::ddl_version_20);
+        EXPECT_EQ(tTest_struct->getLanguageVersion(), dd::Version(2, 0));
 
         auto element_to_test = tTest_struct->getElements().get("fFloat32");
         EXPECT_EQ(element_to_test->getAlignment(), dd::Alignment::e4);
-        EXPECT_EQ(element_to_test->getArraySize(), 1);
+        EXPECT_EQ(element_to_test->getArraySize(), 1U);
         EXPECT_EQ(element_to_test->getByteOrder(), dd::ByteOrder::e_le);
         EXPECT_EQ(element_to_test->getBytePos(), dd::OptionalSize(6));
         EXPECT_EQ(element_to_test->getComment(), "");
@@ -387,9 +379,9 @@ TEST(TesterDDFile, readAndWriteStreamMetaTypes)
     using namespace ddl;
 
     DataDefinition dd_test_file;
-    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "/adtf_v40.description"););
+    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "adtf_v40.description"););
 
-    EXPECT_EQ(dd_test_file.getStreamMetaTypes().getSize(), 3);
+    EXPECT_EQ(dd_test_file.getStreamMetaTypes().getSize(), 3U);
     // test if all expected datatypes are the
     dd::StreamMetaType stream_type_expected_test_parent_not_yet = {
         "test_parent_not_yet_defined", "1", "adtf/default", {}};
@@ -407,14 +399,14 @@ TEST(TesterDDFile, readAndWriteStreamMetaTypes)
     EXPECT_TRUE(dd_test_file.isValid());
 
     // write the file with this header to the disk and check if it is written completly!
-    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_v40_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "adtf_v40_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
     DataDefinition dd_test_file_written;
     ASSERT_NO_THROW(dd_test_file_written = DDFile::fromXMLFile(test_file_write););
 
-    EXPECT_EQ(dd_test_file_written.getStreamMetaTypes().getSize(), 3);
+    EXPECT_EQ(dd_test_file_written.getStreamMetaTypes().getSize(), 3U);
     // test if all expected stream meta types are
     EXPECT_EQ(*(dd_test_file_written.getStreamMetaTypes().get("test_parent_not_yet_defined")),
               stream_type_expected_test_parent_not_yet);
@@ -433,9 +425,9 @@ TEST(TesterDDFile, readAndWriteBaseUnits)
 
     DataDefinition dd_test_file;
     ASSERT_NO_THROW(dd_test_file =
-                        DDFile::fromXMLFile(TEST_FILES_DIR "/adtf_changed_expected.xml"););
+                        DDFile::fromXMLFile(TEST_FILES_DIR "adtf_changed_expected.xml"););
 
-    EXPECT_EQ(dd_test_file.getBaseUnits().getSize(), 11);
+    EXPECT_EQ(dd_test_file.getBaseUnits().getSize(), 11U);
     // test if some expected datatypes are there
     dd::datamodel::BaseUnit unit_metre("Metre", "m", "Fundamental unit for length");
     dd::datamodel::BaseUnit unit_kilogram("Kilogram", "kg", "Fundamental unit for mass");
@@ -449,7 +441,7 @@ TEST(TesterDDFile, readAndWriteBaseUnits)
 
     // write the file with this header to the disk and check if it is written completly!
     const std::string test_file_write =
-        TEST_FILES_WRITE_DIR "/adtf_changed_expected_test.description";
+        TEST_FILES_WRITE_DIR "adtf_changed_expected_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -457,7 +449,7 @@ TEST(TesterDDFile, readAndWriteBaseUnits)
     ASSERT_NO_THROW(dd_test_file_written = DDFile::fromXMLFile(test_file_write););
 
     // do the same test like above
-    EXPECT_EQ(dd_test_file_written.getBaseUnits().getSize(), 11);
+    EXPECT_EQ(dd_test_file_written.getBaseUnits().getSize(), 11U);
 
     EXPECT_EQ(*(dd_test_file_written.getBaseUnits().get("Metre")), unit_metre);
     EXPECT_EQ(*(dd_test_file_written.getBaseUnits().get("Kilogram")), unit_kilogram);
@@ -473,9 +465,9 @@ TEST(TesterDDFile, readAndWriteUnitPrefixes)
 
     DataDefinition dd_test_file;
     ASSERT_NO_THROW(dd_test_file =
-                        DDFile::fromXMLFile(TEST_FILES_DIR "/adtf_changed_expected.xml"););
+                        DDFile::fromXMLFile(TEST_FILES_DIR "adtf_changed_expected.xml"););
 
-    EXPECT_EQ(dd_test_file.getUnitPrefixes().getSize(), 20);
+    EXPECT_EQ(dd_test_file.getUnitPrefixes().getSize(), 20U);
     // test if some expected unit prefixes are there
     dd::datamodel::UnitPrefix unit_prefix_yotta("yotta", "Y", 24);
     dd::datamodel::UnitPrefix unit_prefix_zepto("zepto", "z", -21);
@@ -489,7 +481,7 @@ TEST(TesterDDFile, readAndWriteUnitPrefixes)
 
     // write the file with this header to the disk and check if it is written completly!
     const std::string test_file_write =
-        TEST_FILES_WRITE_DIR "/adtf_changed_expected_test_unit.description";
+        TEST_FILES_WRITE_DIR "adtf_changed_expected_test_unit.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -497,7 +489,7 @@ TEST(TesterDDFile, readAndWriteUnitPrefixes)
     ASSERT_NO_THROW(dd_test_file_written = DDFile::fromXMLFile(test_file_write););
 
     // do the same test like above
-    EXPECT_EQ(dd_test_file_written.getUnitPrefixes().getSize(), 20);
+    EXPECT_EQ(dd_test_file_written.getUnitPrefixes().getSize(), 20U);
 
     EXPECT_EQ(*(dd_test_file_written.getUnitPrefixes().get("yotta")), unit_prefix_yotta);
     EXPECT_EQ(*(dd_test_file_written.getUnitPrefixes().get("zepto")), unit_prefix_zepto);
@@ -513,9 +505,9 @@ TEST(TesterDDFile, readAndWriteUnits)
 
     DataDefinition dd_test_file;
     ASSERT_NO_THROW(dd_test_file =
-                        DDFile::fromXMLFile(TEST_FILES_DIR "/test_insert_valid.description"););
+                        DDFile::fromXMLFile(TEST_FILES_DIR "test_insert_valid.description"););
 
-    EXPECT_EQ(dd_test_file.getUnits().getSize(), 4);
+    EXPECT_EQ(dd_test_file.getUnits().getSize(), 4U);
     // test if some expected unit prefixes are there
     dd::datamodel::Unit unit_a_unit("a_unit",
                                     "1",
@@ -531,7 +523,7 @@ TEST(TesterDDFile, readAndWriteUnits)
 
     // write the file with this header to the disk and check if it is written completly!
     const std::string test_file_write =
-        TEST_FILES_WRITE_DIR "/adtf_changed_expected_test_unit_again.description";
+        TEST_FILES_WRITE_DIR "adtf_changed_expected_test_unit_again.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -539,7 +531,7 @@ TEST(TesterDDFile, readAndWriteUnits)
     ASSERT_NO_THROW(dd_test_file_written = DDFile::fromXMLFile(test_file_write););
 
     // do the same test like above
-    EXPECT_EQ(dd_test_file_written.getUnits().getSize(), 4);
+    EXPECT_EQ(dd_test_file_written.getUnits().getSize(), 4U);
 
     EXPECT_EQ(*(dd_test_file_written.getUnits().get("a_unit")), unit_a_unit);
     EXPECT_EQ(*(dd_test_file_written.getUnits().get("e_unit")), unit_e_unit);
@@ -553,9 +545,9 @@ TEST(TesterDDFile, readAndWriteStreams)
     using namespace ddl;
 
     DataDefinition dd_test_file;
-    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "/adtf_1_0p.description"););
+    ASSERT_NO_THROW(dd_test_file = DDFile::fromXMLFile(TEST_FILES_DIR "adtf_1_0p.description"););
 
-    ASSERT_EQ(dd_test_file.getStreams().getSize(), 4);
+    ASSERT_EQ(dd_test_file.getStreams().getSize(), 4U);
 
     dd::Stream can_stream = {"can_stream", "adtf.core.media_type", "can", {{"", "tCanMessage", 0}}};
     dd::Stream extended_can_stream = {
@@ -570,7 +562,7 @@ TEST(TesterDDFile, readAndWriteStreams)
     ASSERT_EQ(*dd_test_file.getStreams().get("video_stream"), video_stream);
 
     // write the file with this header to the disk and check if it is written completly!
-    const std::string test_file_write = TEST_FILES_WRITE_DIR "/adtf_1_0p_test.description";
+    const std::string test_file_write = TEST_FILES_WRITE_DIR "adtf_1_0p_test.description";
     std::remove(test_file_write.c_str());
     DDFile::toXMLFile(dd_test_file, test_file_write);
 
@@ -596,8 +588,8 @@ TEST(TesterDDFile, testCompatibility)
 
     dd::DataDefinition dd_read;
 
-    const std::string read_file = TEST_FILES_DIR "/adtf_1_0p.description";
-    const std::string write_file = TEST_FILES_WRITE_DIR "/adtf_1_0p_out.xml";
+    const std::string read_file = TEST_FILES_DIR "adtf_1_0p.description";
+    const std::string write_file = TEST_FILES_WRITE_DIR "adtf_1_0p_out.xml";
     // test import
     EXPECT_NO_THROW(dd_read = DDFile::fromXMLFile(read_file);) << "Import of DDL1.0+ failed.";
 
@@ -605,7 +597,7 @@ TEST(TesterDDFile, testCompatibility)
     EXPECT_NO_THROW(DDFile::toXMLFile(dd_read, write_file);) << "Printing of DDL1.0+ failed.";
 
     ASSERT_EQ(a_util::result::SUCCESS,
-              test_ddl::CompOutput(write_file, TEST_FILES_DIR "/adtf_1_0p_out_expected.xml"));
+              test_ddl::CompOutput(write_file, TEST_FILES_DIR "adtf_1_0p_out_expected.xml"));
 }
 
 /**
@@ -619,8 +611,8 @@ TEST(TesterDDFile, testCompatibilityForInvalidFiles)
 
     dd::DataDefinition dd_read;
 
-    const std::string read_invalid_file_1 = TEST_FILES_DIR "/invalid_but_legacy_test.description";
-    const std::string read_invalid_file_2 = TEST_FILES_DIR "/invalid_but_legacy_test_2.description";
+    const std::string read_invalid_file_1 = TEST_FILES_DIR "invalid_but_legacy_test.description";
+    const std::string read_invalid_file_2 = TEST_FILES_DIR "invalid_but_legacy_test_2.description";
 
     // test import
     EXPECT_NO_THROW(dd_read = DDFile::fromXMLFile(read_invalid_file_1);)
@@ -645,28 +637,28 @@ TEST(TesterDDFile, testCompatibilityForInvalidFiles)
 TEST(TesterDDFile, writeSorted)
 {
     const std::string description_v3_sorted_ascending_expected =
-        TEST_FILES_DIR "/sorting/sorted_ascending_v3.description";
+        TEST_FILES_DIR "sorting/sorted_ascending_v3.description";
     const std::string description_v3_sorted_descending_expected =
-        TEST_FILES_DIR "/sorting/sorted_descending_v3.description";
+        TEST_FILES_DIR "sorting/sorted_descending_v3.description";
 
     const std::string description_v4_sorted_ascending_expected =
-        TEST_FILES_DIR "/sorting/sorted_ascending_v4.description";
+        TEST_FILES_DIR "sorting/sorted_ascending_v4.description";
     const std::string description_v4_sorted_descending_expected =
-        TEST_FILES_DIR "/sorting/sorted_descending_v4.description";
+        TEST_FILES_DIR "sorting/sorted_descending_v4.description";
 
     const std::string description_v3_sorted_ascending =
-        TEST_FILES_WRITE_DIR "/sorted_ascending_v3.description";
+        TEST_FILES_WRITE_DIR "sorted_ascending_v3.description";
     const std::string description_v3_sorted_descending =
-        TEST_FILES_WRITE_DIR "/sorted_descending_v3.description";
+        TEST_FILES_WRITE_DIR "sorted_descending_v3.description";
 
     const std::string description_v4_sorted_ascending =
-        TEST_FILES_WRITE_DIR "/sorted_ascending_v4.description";
+        TEST_FILES_WRITE_DIR "sorted_ascending_v4.description";
     const std::string description_v4_sorted_descending =
-        TEST_FILES_WRITE_DIR "/sorted_descending_v4.description";
+        TEST_FILES_WRITE_DIR "sorted_descending_v4.description";
 
     // sorted writing v3
     {
-        const std::string description_v3 = TEST_FILES_DIR "/sorting/unsorted_v3.description";
+        const std::string description_v3 = TEST_FILES_DIR "sorting/unsorted_v3.description";
         ddl::dd::DataDefinition dd_read;
 
         ASSERT_NO_THROW(dd_read = ddl::DDFile::fromXMLFile(description_v3))
@@ -685,7 +677,7 @@ TEST(TesterDDFile, writeSorted)
 
     // sorted writing v4
     {
-        const std::string description_v4 = TEST_FILES_DIR "/sorting/unsorted_v4.description";
+        const std::string description_v4 = TEST_FILES_DIR "sorting/unsorted_v4.description";
         ddl::dd::DataDefinition dd_read;
 
         ASSERT_NO_THROW(dd_read = ddl::DDFile::fromXMLFile(description_v4))

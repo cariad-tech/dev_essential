@@ -1,51 +1,44 @@
 /**
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+#if defined(_WIN32) && !defined(__MINGW32__)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif // defined(_WIN32) && !defined(__MINGW32__)
 
 #include <a_util/concurrency/fast_mutex.h>
 
 #if defined(_WIN32) && !defined(__MINGW32__)
-#ifndef NOMINMAX
-#define UNDEF_NOMINMAX
-#define NOMINMAX
-#endif
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define UNDEF_WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <windows.h>
-
-#ifdef UNDEF_NOMINMAX
-#undef NOMINMAX
-#undef UNDEF_NOMINMAX
-#endif
-
-#ifdef UNDEF_WIN32_LEAN_AND_MEAN
-#undef WIN32_LEAN_AND_MEAN
-#undef UNDEF_WIN32_LEAN_AND_MEAN
-#endif
 
 namespace {
 
 struct PlatformSpecific {
     using HandleType = CRITICAL_SECTION;
-    static constexpr VOID (*initialize)(HandleType*) = &InitializeCriticalSection;
-    static constexpr VOID (*destroy)(HandleType*) = &DeleteCriticalSection;
-    static constexpr BOOL (*tryLock)(HandleType*) = &TryEnterCriticalSection;
-    static constexpr VOID (*lock)(HandleType*) = &EnterCriticalSection;
-    static constexpr VOID (*unlock)(HandleType*) = &LeaveCriticalSection;
+    static inline VOID initialize(HandleType* mutex)
+    {
+        InitializeCriticalSection(mutex);
+    }
+    static inline VOID destroy(HandleType* mutex)
+    {
+        DeleteCriticalSection(mutex);
+    }
+    static inline BOOL tryLock(HandleType* mutex)
+    {
+        return TryEnterCriticalSection(mutex);
+    };
+    static inline VOID lock(HandleType* mutex)
+    {
+        EnterCriticalSection(mutex);
+    }
+    static inline VOID unlock(HandleType* mutex)
+    {
+        LeaveCriticalSection(mutex);
+    }
 };
 
 } // namespace

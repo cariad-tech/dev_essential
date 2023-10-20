@@ -1,0 +1,20 @@
+/*
+Copyright @ 2022 VW Group. All rights reserved.
+
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+####################################################################################################
+# This file is parsed by doxygen, its content will be part of the generated documentation artifact.#
+# This file is used to document entitites that might be of interest for the customer, but would    #
+# only be part of the codebase for documentation purposes.                                         #
+####################################################################################################
+*/
+
+/**
+ * @def DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+ * If defined, disables all deprecated warnings annotated with @ref DEV_ESSENTIAL_DEPRECATED.
+ * @ingroup a_util_preprocessor
+ */
+#define DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS

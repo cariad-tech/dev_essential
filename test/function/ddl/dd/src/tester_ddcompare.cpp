@@ -4,16 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
- *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "./../../_common/test_oo_ddl.h"
@@ -22,6 +15,7 @@
 #include <a_util/xml.h>
 #include <ddl/dd/ddcompare.h>
 #include <ddl/dd/ddstring.h>
+#include <ddl/dd/ddstructure.h>
 
 #include <gtest/gtest.h>
 
@@ -113,6 +107,506 @@ TEST(TesterDDCompare, TestIsBinaryEqualNegativeSubset)
         a_util::result::SUCCESS,
         DDCompare::isBinaryEqual(
             "adtf.type.video", DDL_TEST_STRING, "adtf.type.video", DDL_TEST_STRING_SUBSET, true));
+}
+
+namespace compare_with_padding {
+struct StructLevel2 {
+    uint64_t value1;
+    int32_t value2;
+    uint8_t value3;
+    double value4;
+    static ddl::DDStructure createFull()
+    {
+        ddl::DDStructureGenerator<StructLevel2, false> structure("StructLevel2");
+        structure.addElement("value1", &StructLevel2::value1);
+        structure.addElement("value2", &StructLevel2::value2);
+        structure.addElement("value3", &StructLevel2::value3);
+        structure.addElement("value4", &StructLevel2::value4);
+        return structure;
+    }
+    static ddl::DDStructure createPartial1()
+    {
+        ddl::DDStructureGenerator<StructLevel2> structure("StructLevel2");
+        structure.addElement("value2", &StructLevel2::value2);
+        structure.addElement("value3", &StructLevel2::value3);
+        return structure;
+    }
+    static ddl::DDStructure createPartial2()
+    {
+        ddl::DDStructureGenerator<StructLevel2> structure("StructLevel2");
+        structure.addElement("value1", &StructLevel2::value1);
+        structure.addElement("value4", &StructLevel2::value4);
+        return structure;
+    }
+};
+
+struct StructLevel1 {
+    uint32_t value_before;
+    StructLevel2 sub_sub_struct1;
+    uint64_t value_middle[2];
+    StructLevel2 sub_sub_struct2;
+    float value_after[3];
+    static ddl::DDStructure createFull()
+    {
+        ddl::DDStructureGenerator<StructLevel1, false> structure("StructLevel1");
+        auto struct_level2_structure = StructLevel2::createFull();
+        structure.addElement("value_before", &StructLevel1::value_before);
+        structure.addElement(
+            "sub_sub_struct1", &StructLevel1::sub_sub_struct1, struct_level2_structure);
+        structure.addElement("value_middle", &StructLevel1::value_middle);
+        structure.addElement(
+            "sub_sub_struct2", &StructLevel1::sub_sub_struct2, struct_level2_structure);
+        structure.addElement("value_after", &StructLevel1::value_after);
+        return structure;
+    }
+    static ddl::DDStructure createPartial1()
+    {
+        ddl::DDStructureGenerator<StructLevel1> structure("StructLevel1");
+        structure.addElement("value_before", &StructLevel1::value_before);
+        structure.addElement("value_middle", &StructLevel1::value_middle);
+        structure.addElement(
+            "sub_sub_struct2", &StructLevel1::sub_sub_struct2, StructLevel2::createPartial1());
+        structure.addElement("value_after", &StructLevel1::value_after);
+        return structure;
+    }
+    static ddl::DDStructure createPartial2()
+    {
+        ddl::DDStructureGenerator<StructLevel1> structure("StructLevel1");
+        auto struct_level2_structure = StructLevel2::createPartial2();
+        structure.addElement("value_before", &StructLevel1::value_before);
+        structure.addElement(
+            "sub_sub_struct1", &StructLevel1::sub_sub_struct1, struct_level2_structure);
+        structure.addElement("value_middle", &StructLevel1::value_middle);
+        structure.addElement(
+            "sub_sub_struct2", &StructLevel1::sub_sub_struct2, struct_level2_structure);
+        structure.addElement("value_after", &StructLevel1::value_after);
+        return structure;
+    }
+};
+struct TestStruct {
+    uint32_t value_before;
+    StructLevel1 sub_struct1;
+    uint64_t value_middle[2];
+    StructLevel1 sub_struct2[2];
+    float value_after[3];
+
+    static ddl::DDStructure createFull()
+    {
+        ddl::DDStructureGenerator<TestStruct, false> structure("TestStruct");
+        auto struct_level1_structure = StructLevel1::createFull();
+        structure.addElement("value_before", &TestStruct::value_before);
+        structure.addElement("sub_struct1", &TestStruct::sub_struct1, struct_level1_structure);
+        structure.addElement("value_middle", &TestStruct::value_middle);
+        structure.addElement("sub_struct2", &TestStruct::sub_struct2, struct_level1_structure);
+        structure.addElement("value_after", &TestStruct::value_after);
+        return structure;
+    }
+    static ddl::DDStructure createByteArray(size_t size_of_byte_array)
+    {
+        ddl::DDStructure structure("TestStruct");
+        structure.addElement<uint8_t>("bytes", size_of_byte_array);
+        return structure;
+    }
+    static ddl::DDStructure createPartialWithPadding1()
+    {
+        ddl::DDStructureGenerator<TestStruct> structure("TestStruct");
+        auto struct_level1_structure = StructLevel1::createPartial1();
+        structure.addElement("value_before", &TestStruct::value_before);
+        structure.addElement("sub_struct1", &TestStruct::sub_struct1, struct_level1_structure);
+        structure.addElement("value_middle", &TestStruct::value_middle);
+        structure.addElement("sub_struct2", &TestStruct::sub_struct2, struct_level1_structure);
+        structure.addElement("value_after", &TestStruct::value_after);
+        return structure;
+    }
+    static ddl::DDStructure createPartialWithPadding1WithATypeChange()
+    {
+        ddl::DDStructure structure("TestStruct", 1, alignof(TestStruct));
+        auto struct_level1_structure = StructLevel1::createPartial1();
+        structure.addElement<uint32_t>("value_before");
+        structure.addElement("sub_struct1", struct_level1_structure);
+        structure.addElement<int32_t>("value_middle", 2);
+        structure.addElement("sub_struct2", struct_level1_structure, 2);
+        structure.addElement<float>("value_after", 3);
+        return structure;
+    }
+    static ddl::DDStructure createPartialWithPadding2()
+    {
+        ddl::DDStructureGenerator<TestStruct> structure("TestStruct");
+        auto struct_level1_structure = StructLevel1::createPartial2();
+        structure.addElement("sub_struct1", &TestStruct::sub_struct1, struct_level1_structure);
+        structure.addElement("value_middle", &TestStruct::value_middle);
+        return structure;
+    }
+    static ddl::DDStructure createPartialWithoutPadding()
+    {
+        ddl::DDStructure structure("TestStruct");
+        structure.addElement<uint32_t>("value_before");
+        structure.addElement("sub_struct1", StructLevel1::createPartial1());
+        return structure;
+    }
+};
+} // namespace compare_with_padding
+
+namespace {
+void testByteArrayAtDescription1IsBinaryEqual(const std::string& test_struct_description2)
+{
+    using namespace ddl;
+    constexpr auto size_of_test_struct = sizeof(compare_with_padding::TestStruct);
+    const auto description_1_byte_array_lower =
+        compare_with_padding::TestStruct::createByteArray(size_of_test_struct - 4)
+            .getStructDescription();
+    const auto description_1_byte_array_equal =
+        compare_with_padding::TestStruct::createByteArray(size_of_test_struct)
+            .getStructDescription();
+    const auto description_1_byte_array_greater =
+        compare_with_padding::TestStruct::createByteArray(size_of_test_struct + 4)
+            .getStructDescription();
+    // positive
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("TestStruct",
+                                       description_1_byte_array_lower,
+                                       "TestStruct",
+                                       test_struct_description2,
+                                       true));
+
+    // positive
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("TestStruct",
+                                       description_1_byte_array_equal,
+                                       "TestStruct",
+                                       test_struct_description2,
+                                       true));
+
+    // negative
+    // because a greater #1 can not be a subset of #2
+    ASSERT_NE(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("TestStruct",
+                                       description_1_byte_array_greater,
+                                       "TestStruct",
+                                       test_struct_description2,
+                                       true));
+}
+} // namespace
+
+/**
+ * @detail Tests for binary compatibility of data descriptions with padding elements if description
+ * #1 is fully padded: Must be stated as compatible to description #2 for following pre-conditions:
+ * \li description #2 is greater or equal in byte size
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualByteArrayOnDescription1)
+{
+    testByteArrayAtDescription1IsBinaryEqual(
+        compare_with_padding::TestStruct::createFull().getStructDescription());
+
+    testByteArrayAtDescription1IsBinaryEqual(
+        compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription());
+
+    testByteArrayAtDescription1IsBinaryEqual(
+        compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription());
+}
+
+namespace {
+void testByteArrayAtDescription2IsBinaryEqual(const std::string& test_struct_description1)
+{
+    using namespace ddl;
+    constexpr auto size_of_test_struct = sizeof(compare_with_padding::TestStruct);
+    const auto description_1_byte_array_lower =
+        compare_with_padding::TestStruct::createByteArray(size_of_test_struct - 220)
+            .getStructDescription();
+    const auto description_1_byte_array_equal =
+        compare_with_padding::TestStruct::createByteArray(size_of_test_struct)
+            .getStructDescription();
+    const auto description_1_byte_array_greater =
+        compare_with_padding::TestStruct::createByteArray(size_of_test_struct + 220)
+            .getStructDescription();
+
+    // negative because description 1 is greater than 2
+    // so #1 can not be a subset of #2
+    ASSERT_NE(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("TestStruct",
+                                       test_struct_description1,
+                                       "TestStruct",
+                                       description_1_byte_array_lower,
+                                       true));
+    // positive
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("TestStruct",
+                                       test_struct_description1,
+                                       "TestStruct",
+                                       description_1_byte_array_equal,
+                                       true));
+
+    // positive
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("TestStruct",
+                                       test_struct_description1,
+                                       "TestStruct",
+                                       description_1_byte_array_greater,
+                                       true));
+}
+} // namespace
+
+/**
+ * @detail Tests for binary compatibility of data descriptions with padding elements if description
+ * #1 is fully or padded described:
+ * It must be stated as compatible to description #2 for following pre-conditions:
+ * \li description #2 is a byte array which is greater or equal in byte size
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualByteArrayOnDescription2)
+{
+    testByteArrayAtDescription2IsBinaryEqual(
+        compare_with_padding::TestStruct::createFull().getStructDescription());
+
+    testByteArrayAtDescription2IsBinaryEqual(
+        compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription());
+
+    testByteArrayAtDescription2IsBinaryEqual(
+        compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription());
+
+    // Mind! The byte Array must be lower 96 bytes for this test (because without padding the
+    // createPartialWithoutPadding is 96 bytes!)
+    testByteArrayAtDescription2IsBinaryEqual(
+        compare_with_padding::TestStruct::createPartialWithoutPadding().getStructDescription());
+}
+
+/**
+ * @detail Tests for binary compatibility of data descriptions if description
+ * #1 is fully described:
+ * It must be stated as compatible to description #2 for following pre-conditions:
+ * \li description #1 is a subset of #2 also if padded
+ * \li each element in #1 is at the same position in #2 and have same element type or is padded in
+ * #2 \li #2 must be greater or equal in bytesize of #1
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualFullOnDescription1)
+{
+    using namespace ddl;
+
+    const auto full_test_struct_description =
+        compare_with_padding::TestStruct::createFull().getStructDescription();
+
+    // positive
+    ASSERT_EQ(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual("TestStruct",
+                                       full_test_struct_description,
+                                       "TestStruct",
+                                       full_test_struct_description,
+                                       true));
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            full_test_struct_description,
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            true));
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            full_test_struct_description,
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            true));
+
+    // negative
+    // #1 can not be a subset of #2 because #2 is lower in byte size
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            full_test_struct_description,
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithoutPadding().getStructDescription(),
+            true));
+
+    // negative
+    // #1 can not be a subset of #2 because there are type changes at "value_middle"
+    ASSERT_NE(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual(
+                  "TestStruct",
+                  full_test_struct_description,
+                  "TestStruct",
+                  compare_with_padding::TestStruct::createPartialWithPadding1WithATypeChange()
+                      .getStructDescription(),
+                  true));
+}
+
+/**
+ * @detail Tests for binary compatibility of data descriptions if description
+ * #2 is fully described:
+ * It must be stated as compatible to description #1 for following pre-conditions:
+ * \li description #1 is lower or equal in byte size
+ * \li each non padded element in #1 is at the same position in #2 and have same element type or is
+ * padded in #1
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualFullOnDescription2)
+{
+    using namespace ddl;
+
+    const auto full_test_struct_description =
+        compare_with_padding::TestStruct::createFull().getStructDescription();
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            "TestStruct",
+            full_test_struct_description,
+            true));
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            "TestStruct",
+            full_test_struct_description,
+            true));
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithoutPadding().getStructDescription(),
+            "TestStruct",
+            full_test_struct_description,
+            true));
+
+    // negative
+    // #1 can not be a subset of #2 because there are type changes at "value_middle"
+    ASSERT_NE(a_util::result::SUCCESS,
+              DDCompare::isBinaryEqual(
+                  "TestStruct",
+                  compare_with_padding::TestStruct::createPartialWithPadding1WithATypeChange()
+                      .getStructDescription(),
+                  "TestStruct",
+                  full_test_struct_description,
+                  true));
+}
+
+/**
+ * @detail Tests for binary compatibility of data descriptions if description
+ * #2 and #2 are padded:
+ * It must be stated as compatible to description #1 for following pre-conditions:
+ * \li description #1 is lower or equal in byte size to #2
+ * \li each non padded element in #1 is at the same position in #2 and have same element type or is
+ * padded in #1
+ */
+TEST(TesterDDCompare, TestIsBinaryEqualBothPadded)
+{
+    using namespace ddl;
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            true));
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            true));
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            true));
+
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithoutPadding().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            true));
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithoutPadding().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            true));
+    // positive
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithoutPadding().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            true));
+
+    // negative
+    // because #1 is greater in byte size then #2
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithoutPadding().getStructDescription(),
+            true));
+
+    // negative
+    // #1 can not be a subset of #2 because there are type changes at "value_middle"
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1WithATypeChange()
+                .getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            true));
+
+    // negative
+    // #1 can not be a subset of #2 because there are type changes at "value_middle"
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1WithATypeChange()
+                .getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1().getStructDescription(),
+            true));
+    // negative
+    // #1 can not be a subset of #2 ... #1 is greater in byte size
+    ASSERT_NE(
+        a_util::result::SUCCESS,
+        DDCompare::isBinaryEqual(
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding2().getStructDescription(),
+            "TestStruct",
+            compare_with_padding::TestStruct::createPartialWithPadding1WithATypeChange()
+                .getStructDescription(),
+            true));
 }
 
 /**

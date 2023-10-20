@@ -5,15 +5,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -65,7 +59,7 @@ public: // methods
 private:
     /**
      * CTOR
-     * @param [in] ddl The DataDefinition information base used for type lookup
+     * @param [in] ddl_datamodel The DataDefinition information base used for type lookup
      */
     MapConfiguration(
         const std::shared_ptr<const ddl::dd::datamodel::DataDefinition>& ddl_datamodel);
@@ -140,7 +134,6 @@ public:
     /**
      * Resets the entire map configuration to its initial, empty state
      * \note The ddl description remains untouched by this
-     * @returns Nothing but doxygen won't shut up if I dont write anything here
      */
     void reset();
 
@@ -502,15 +495,11 @@ private:
     a_util::result::Result merge(const MapConfiguration& other);
 
     /**
-     * find a DataDefinition data type within a struct given a path to the element
+     * Find a DataDefinition data type within a struct given a path to the element
      *
      * @param [in] struct_name Name of the struct type
      * @param [in] path Path to be found
-     * @param [out] type Destination type parameter
-     * @param [out] array_size Destination array size parameter
-     * @retval ERR_NOT_FOUND The path is invalid or the type was not found
-     * @retval ERR_INVALID_TYPE Uses dynamic type
-     * @retval a_util::result::SUCCESS The type was found, type and array_size are filled
+     * @return ddl::dd::StructElementAccess The found type object
      */
     const ddl::dd::StructElementAccess findTypeObject(const std::string& struct_name,
                                                       const std::string& path) const;

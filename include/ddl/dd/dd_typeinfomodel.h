@@ -6,39 +6,26 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
 #ifndef DD_TYPEINFOMODEL_H_INCLUDED
 #define DD_TYPEINFOMODEL_H_INCLUDED
 
+#include <a_util/preprocessor/deprecated.h> // DEV_ESSENTIAL_DEPRECATED()
 #include <ddl/datamodel/datamodel_datadefinition.h>
 #include <ddl/dd/dd_infomodel_type.h>
 
 #include <string>
 
-/**
- * @def DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API
- * @brief defines deprecated warnings on ddl::dd::TypeInfo, it will be removed from
- * public API!
- * @remark disable by defining DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
- */
-
-#ifndef DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+/// @cond INTERNAL_DOCUMENTATION
 #define DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API                                                      \
-    [[deprecated("Use the ddl::dd::StructTypeAccess and ddl::dd::StructElementAccess instead")]]
-#else
-#define DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API /**/
-#endif
+    DEV_ESSENTIAL_DEPRECATED(                                                                      \
+        "Use the ddl::dd::StructTypeAccess and ddl::dd::StructElementAccess instead.")
+/// @endcond
 
 namespace ddl {
 
@@ -47,10 +34,12 @@ namespace dd {
 /**
  * TypeInfo model will check for type.
  * The TypeInfo is needed to:
- * \li set up the byte positions
- * \li set references to the types
- * \li fast calculation of sizes for the coder
- * \li set up dynamic content information
+ * @li set up the byte positions
+ * @li set references to the types
+ * @li fast calculation of sizes for the coder
+ * @li set up dynamic content information
+ * @dev_essential_deprecated Use @ref ddl::dd::StructTypeAccess and
+ *                           @ref ddl::dd::StructElementAccess instead.
  */
 class TypeInfo : public datamodel::Info<TypeInfo> {
 public:
@@ -147,9 +136,10 @@ public:
      * @brief Update type for the struct update.
      */
     enum class UpdateType {
-        only_changed = 0, //!< update only changed elements
-        force_all = 1,    //!< force recaculation of all elements
-        only_last = 2     //!< update the last element only
+        only_changed = 0,  //!< update only changed elements
+        force_all = 1,     //!< force recaculation of all elements
+        only_last = 2,     //!< update the last element only
+        only_reference = 3 //!< update the references only
     };
     /**
      * @brief Updates the content for a struct_type. It will also create or update the @ref
@@ -179,6 +169,8 @@ private:
 /**
  * Element Size Info is important to get the calculate the TypeInfo for StructType.
  * It will only updated by the TypeInfo::update method for StructType.
+ * @dev_essential_deprecated Use @ref ddl::dd::StructTypeAccess and
+ *                           @ref ddl::dd::StructElementAccess instead.
  */
 class ElementTypeInfo : public datamodel::Info<ElementTypeInfo> {
 public:
@@ -330,6 +322,16 @@ public:
                 const std::shared_ptr<datamodel::StructType::Element>& previous_element,
                 const Version& struct_ddl_version,
                 datamodel::DataDefinition& parent_dd);
+
+    /**
+     * @brief Updates the current type reference to the new model.
+     * @param element the element corresponding to the current element type info
+     * @param parent_dd the parent DD to retrieve all dependencies.
+     * @return bool reference update suceeded
+     * @remark This is an optimization to prevent reinit of type info while copying struct_type
+     */
+    bool updateReference(const datamodel::StructType::Element& element,
+                         datamodel::DataDefinition& parent_dd);
 
 private:
     OptionalSize _deserialized_byte_pos = {};

@@ -1,20 +1,28 @@
 <!---
 Copyright @ 2021 VW Group. All rights reserved.
  
-     This Source Code Form is subject to the terms of the Mozilla
-     Public License, v. 2.0. If a copy of the MPL was not distributed
-     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
- 
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -->
-
+<a name="ddl-decoder%2Fcodec"></a>
 # DDL Decoder/Codec
 
-# Accessing Data with a Decoder/Codec
+
+<!-- TOC -->
+
+- [DDL Decoder/Codec](#ddl-decodercodec)
+    - [Accessing Data with a Decoder/Codec](#accessing-data-with-a-decodercodec)
+    - [Decoding](#decoding)
+    - [Encoding](#encoding)
+    - [Selecting the Data Representation](#selecting-the-data-representation)
+    - [Inspection](#inspection)
+    - [Transformation](#transformation)
+
+<!-- /TOC -->
+
+<a name="accessing-data-with-a-decoder%2Fcodec"></a>
+## Accessing Data with a Decoder/Codec
 
 Let's take a look at a basic structure:
 
@@ -39,90 +47,106 @@ Let's take a look at a basic structure:
 </struct>
 ````
 
-# Decoding
+<a name="decoding"></a>
+## Decoding
 
-Read access is handled with the ddl::Decoder class:
+Read access is handled with the ddl::codec::StaticDecoder or ddl::codec::Decoder class:
 
 ````cpp
 tFloat64 readData(const void* const_data, size_t data_size)
 {
     // this should of course be cached (as a member etc.)
-    ddl::CodecFactory factory("tTest", "<adtf:ddl>....");
+    ddl::CodecFactory factory("tTest", "<ddl:ddl>....");
 
+    // retrieve the codec index for a value for fast access
+    auto codec_index_for_fFloat32 = factory.getElement("fFloat32").getIndex();
+
+    // start decoding for data
     auto decoder = factory.makeDecoderFor(const_data, data_size);
+    float value;
 
-    adtf_util::cVariant value;
-
-    // for name based lookup use the access_element namespace
+    // for name based lookup use getElement
     {
-        value = ddl::access_element::get_value(decoder, "fFloat32");
+        value = decoder.getElement("fFloat32").getValue<float>();
     }
 
-    // alternativley you can of course use indexed based lookup
+    // alternativley you can of course use indexed based lookup for fast access
     {
-        decoder.getElementValue(3, value);
+        value = decoder.getElementValue<float>(codec_index_for_fFloat32);
     }
 
     return value;
 }
 ````
 
+The example shows the usage of the ddl::codec::Decoder class with which handling of dynamic elements is possible (see also dynamic arrays within structs). A more efficient decoding initialization is provided via ddl::codec::StaticDecoder, but it allows only access to the static elements.
 
-# Encoding
+<a name="encoding"></a>
+## Encoding
 
-Write access is handled with the ddl::Codec class:
+Write access is handled with the ddl::codec::Codec or ddl::codec::StaticCodec class:
 
 ````cpp
 void writeData(void* data, size_t data_size, tFloat64 value)
 {
     // this should of course be cached (as a member etc.)
-    ddl::CodecFactory factory("tTest", "<adtf:ddl>....");
+    ddl::codec::CodecFactory factory("tTest", "<ddl:ddl>....");
+    // retrieve the codec index for a value for fast access
+    auto codec_index_for_fFloat32 = factory.getElement("fFloat32").getIndex();
 
+    // start decoding / encoding for data
     auto codec = factory.makeCodecFor(data, data_size);
 
     // name based lookup
-    ddl::access_element::set_value(codec, "fFloat32", value);
-    // or index based
-    codec.setElementValue(3, value);
+    codec.getElement("fFloat32").setValue(value);
+    // or codec index based for fast access
+    codec.setElementValue(codec_index_for_fFloat32, value);
 }
 ````
 
-# Selecting the Data Representation
+The example shows the usage of the ddl::codec::Coder class with which handling of dynamic elements is possible (see also dynamic arrays within structs). A more efficient coding initialization is provided via ddl::codec::StaticCodec, but it allows only access to the static elements.
+
+<a name="selecting-the-data-representation"></a>
+## Selecting the Data Representation
 
 By default decoders/codecs are created for the deserialized representation.
-To create them for the serialized representation pass the correct parameters to the make... methods.
+To create them for the serialized representation pass the correct parameters to the "make..." methods.
 
 ````cpp
 auto decoder = factory.makeDecoderFor(const_data, data_size,
-                                        DataRepresentation::serialized);
+                                      DataRepresentation::serialized);
 ````
 
-# Inspection
+<a name="inspection"></a>
+## Inspection
 
-You can inspect the struct handled by a decoder/codec with the help of ddl::StaticDecoder::getElement:
+You can inspect the struct handled by a decoder/codec with the help of forEachLeafElement and ddl::codec::StaticDecoder::getElements:
 
 ````cpp
-void dumstruct_elements(const ddl::StaticDecoder& decoder)
+void dumpStructElements(const ddl::codec::StaticDecoder& decoder)
 {
-    for (size_t element = 0; element < decoder.getElementCount(); ++element)
-    {
-        const ddl::StructElement* struct_element;
-        decoder.GetElement(element, struct_element);
-        std::cout << struct_element->strName << std::endl;
-    }
+    forEachLeafElement(decoder.getElements(),
+                       [](auto& element)
+                       {
+                           std::cout << element.getFullName();
+                       });
 }
 ````
 
-# Transformation
+<a name="transformation"></a>
+## Transformation
 
-Converting between the representations can be done with ddl::serialization::transform:
+Converting between the representations can be done with ddl::codec::transform:
 
 ````cpp
-tSize serialized_size = decoder.getBufferSize(ddl::DataRepresentation::serialized);
-uint8_t* buffer = new uint8_t[serialized_size];
-auto Codec = decoder.makeCodecFor(buffer, serialized_size, ddl::DataRepresentation::serialized);
-ddl::serialization::transform(decoder, codec);
+a_util::memory::MemoryBuffer getSerializedBuffer(const ddl::codec::Decoder& decoder)
+{
+    const auto serialized_size = decoder.getStaticBufferSize(ddl::DataRepresentation::serialized);
+    a_util::memory::MemoryBuffer buffer(serialized_size);
+    auto codec = decoder.makeCodecFor(
+        buffer.getPtr(), buffer.getSize(), ddl::DataRepresentation::serialized);
+    ddl::codec::transform(decoder, codec);
+    return buffer;
+}
 ````
-
-There is also a convienence method ddl::serialization::transform_to_buffer that handles the allocation of memory for you with the help of an adtf_util::cMemoryBlock.
 

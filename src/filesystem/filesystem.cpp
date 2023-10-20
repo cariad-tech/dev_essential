@@ -4,16 +4,15 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif // _WIN32
 
 // for Read/writeTextFile, until File class is available
 #include <a_util/filesystem.h>
@@ -21,22 +20,16 @@
 #include <a_util/strings/strings_functions.h>
 #include <a_util/strings/unicode.h>
 
+#include <cstdio> // rename
+#include <fstream>
+#include <iostream>
+#include <limits> // std::numeric_limits
+
 #if defined(__QNX__) && !defined(_QNX_SOURCE) // scandir, alphasort
 #define _QNX_SOURCE
 #endif
 
-#ifdef _WIN32
-// needed before including "a_util/filesystem.h"
-#define WIN32_LEAN_AND_MEAN
-
-#ifndef __MINGW32__
-#define NOMINMAX
-#endif // __MINGW3__
-
-#include <windows.h>
-
-#else
-
+#ifndef _WIN32
 #include <dirent.h>
 #ifndef __MINGW32__
 #include <fnmatch.h>
@@ -46,11 +39,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif // _WIN32
-
-#include <cstdio> // rename
-#include <fstream>
-#include <iostream>
-#include <limits> // std::numeric_limits
 
 using namespace a_util;
 using namespace a_util::filesystem;
@@ -93,7 +81,7 @@ enum FileAttributeFlag : std::int32_t {
     ATTRIBUTE_BLOCKDEVICE = 1024,
     ATTRIBUTE_CHARDEVICE = 2048,
     ATTRIBUTE_INVALID =
-        std::numeric_limits<typename std::underlying_type<FileAttributeFlag>::type>::max()
+        (std::numeric_limits<typename std::underlying_type<FileAttributeFlag>::type>::max)()
 };
 
 #if defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))

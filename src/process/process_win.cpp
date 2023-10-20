@@ -4,16 +4,15 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif // _WIN32
 
 #include <a_util/filesystem/filesystem.h>
 #include <a_util/process.h>
@@ -21,28 +20,6 @@
 #include <a_util/system/system.h>
 
 #ifdef _WIN32
-
-#ifndef NOMINMAX
-#define UNDEF_NOMINMAX
-#define NOMINMAX
-#endif
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define UNDEF_WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <windows.h>
-
-#ifdef UNDEF_NOMINMAX
-#undef NOMINMAX
-#undef UNDEF_NOMINMAX
-#endif
-
-#ifdef UNDEF_WIN32_LEAN_AND_MEAN
-#undef WIN32_LEAN_AND_MEAN
-#undef UNDEF_WIN32_LEAN_AND_MEAN
-#endif
 
 #include <io.h>
 #include <system_error>
@@ -116,7 +93,7 @@ uint32_t execute(const a_util::filesystem::Path& executable_file,
     if (!bSuccess) {
         CloseHandle(proc_info.hProcess);
         CloseHandle(proc_info.hThread);
-        return (std::uint32_t)-1;
+        return static_cast<std::uint32_t>(-1);
     }
 
     if (fd_pipe) {
@@ -187,7 +164,7 @@ uint32_t execute(const a_util::filesystem::Path& executable_file,
     std::string lasterr = a_util::system::formatSystemError(a_util::system::getLastSystemError());
 
     if (status_ret == FALSE) {
-        return (std::uint32_t)-1;
+        return static_cast<std::uint32_t>(-1);
     }
 
     if (!wait_for_exit) {

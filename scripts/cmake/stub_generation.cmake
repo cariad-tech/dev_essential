@@ -1,20 +1,19 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 if(NOT TARGET jsonrpcstub)
-    add_executable(jsonrpcstub IMPORTED)
-    set_target_properties(jsonrpcstub PROPERTIES
-        IMPORTED_LOCATION ${dev_essential_DIR}/../../../bin/jsonrpcstub
-    )
+    if(CMAKE_CROSSCOMPILING)
+        find_package(JsonStubGenerator REQUIRED)
+    else()
+        get_filename_component(_jsonrpcstub_path "${dev_essential_DIR}/../../../bin/jsonrpcstub"
+                               ABSOLUTE)
+        add_executable(jsonrpcstub IMPORTED GLOBAL)
+        set_target_properties(jsonrpcstub PROPERTIES IMPORTED_LOCATION "${_jsonrpcstub_path}")
+        message(STATUS "Imported jsonrpcstub generator: ${_jsonrpcstub_path}")
+    endif()
 endif(NOT TARGET jsonrpcstub)
 
 macro(jsonrpc_generate_client_stub JSON_RPC_DEFINITION_FILE CLIENT_CLASS_NAME CLIENT_FILE_NAME)

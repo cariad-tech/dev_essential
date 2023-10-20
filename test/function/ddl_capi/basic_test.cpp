@@ -1,15 +1,9 @@
 /**
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "test_fixture.h"
@@ -123,7 +117,7 @@ TEST_F(ddlCapiFixture, getElementData)
     ASSERT_FALSE(res);
     EXPECT_STREQ(type_name, "tUInt8");
     EXPECT_EQ(typeOfType, data_type);
-    EXPECT_EQ(arraysize, 4);
+    EXPECT_EQ(arraysize, 4U);
     EXPECT_EQ(bytepos, 4U);
     EXPECT_EQ(alignment, 1U);
 
@@ -155,7 +149,7 @@ TEST_F(ddlCapiFixture, getElementDataEnum)
     ASSERT_FALSE(res);
     EXPECT_STREQ(type_name, "tFEP_Driver_WiperState");
     EXPECT_EQ(typeOfType, enum_type);
-    EXPECT_EQ(arraysize, 1);
+    EXPECT_EQ(arraysize, 1U);
     EXPECT_EQ(bytepos, 1U);
     EXPECT_EQ(alignment, 1U);
 
@@ -174,7 +168,7 @@ TEST_F(ddlCapiFixture, getTypeData)
     ASSERT_FALSE(res);
     EXPECT_TRUE(predefined);
     EXPECT_EQ(numbits, 8U);
-    EXPECT_EQ(arraysize, 1);
+    EXPECT_EQ(arraysize, 1U);
 }
 
 // get data of a enum by name
@@ -223,7 +217,7 @@ TEST_F(ddlCapiFixture, ddlHandling)
     EXPECT_FALSE(res);
 
     // save ddl to file (saveDDLtoFile)
-    res = ddl_capi_ddl_tofile(ddl_xml, OUTPUT_DIR "type.description");
+    res = ddl_capi_ddl_tofile(ddl_xml, TEST_FILES_WRITE_DIR "type.description");
     EXPECT_FALSE(res);
     // free handle of minimalistic ddl
     res = ddl_capi_free(&ddl_xml);
@@ -341,6 +335,7 @@ TEST_F(ddlCapiCodecFixture, copyCodecData)
     DDL_CAPI_Codec_Handle_T dest;
     int32_t res = ddl_capi_codec_create(
         ddl, "tFEP_Driver_WiperControl", dest_data, data_size, DDL_CAPI_Data_deserialized, &dest);
+    ASSERT_FALSE(res);
 
     // execute the prepared testcase
     const char* testStr = "blahblah";

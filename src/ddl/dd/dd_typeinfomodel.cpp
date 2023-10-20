@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "dd_offset_calculation.h"
@@ -129,6 +123,23 @@ void createOrUpdateElementInfo(
     elem_info->update(element_type, previous_element, struct_ddl_version, parent_dd);
 }
 
+bool updateElementTypeInfoReferences(datamodel::StructType& struct_type,
+                                     datamodel::DataDefinition& parent_dd)
+{
+    for (auto& elem: struct_type.getElements()) {
+        auto element_type_info = elem->getInfo<ElementTypeInfo>();
+        if (element_type_info) {
+            if (!element_type_info->updateReference(*elem, parent_dd)) {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
+
 } // namespace
 
 void TypeInfo::update(datamodel::StructType& struct_type,
@@ -140,6 +151,17 @@ void TypeInfo::update(datamodel::StructType& struct_type,
         throw Error("TypeInfo::update", {struct_type.getName()}, "Recursive use of this type!");
     }
     _already_discovering = true;
+
+    if (update_type == UpdateType::only_reference) {
+        if (updateElementTypeInfoReferences(struct_type, parent_dd)) {
+            _already_discovering = false;
+            // we return immediatelly for this shortcut of updating
+            return;
+        }
+        else {
+            update_type = UpdateType::force_all;
+        }
+    }
 
     // this is a special case, we need to access the element and create elements info, it cant be
     // const then
@@ -213,14 +235,14 @@ void TypeInfo::update(datamodel::StructType& struct_type,
             _type_byte_size = discovered_last_static_byte_offset;
             _type_aligned_byte_size = calculateAlignedSize(_type_byte_size, _type_alignment);
             Version relevant_version = struct_type.getLanguageVersion();
-            if (relevant_version == Version::ddl_version_notset) {
+            if (relevant_version == Version(0, 0)) {
                 relevant_version = parent_dd.getVersion();
-                if (relevant_version == Version::ddl_version_notset) {
-                    relevant_version = Version::ddl_version_current;
+                if (relevant_version == Version(0, 0)) {
+                    relevant_version = Version::getLatestVersion();
                 }
             }
             _type_unaligned_byte_size = _type_byte_size;
-            if (relevant_version >= Version::ddl_version_30) {
+            if (relevant_version >= Version(3, 0)) {
                 // since 3.0 there is no difference between aligned and non aligned
                 _type_byte_size = _type_aligned_byte_size;
             }
@@ -339,6 +361,25 @@ void ElementTypeInfo::update(
     _is_dynamic = deserialized_pos._is_dynamic;
 
     _is_valid = deserialized_pos._valid && serialized_pos._valid;
+}
+
+bool ElementTypeInfo::updateReference(const datamodel::StructType::Element& element,
+                                      datamodel::DataDefinition& parent_dd)
+{
+    const auto& type_name = element.getTypeName();
+    if (_element_type._type_of_type == TypeOfType::data_type) {
+        _element_type._data_type = parent_dd.getDataTypes().access(type_name);
+    }
+    else if (_element_type._type_of_type == TypeOfType::struct_type) {
+        _element_type._struct_type = parent_dd.getStructTypes().access(type_name);
+    }
+    else if (_element_type._type_of_type == TypeOfType::enum_type) {
+        _element_type._enum_type = parent_dd.getEnumTypes().access(type_name);
+    }
+    else {
+        return false;
+    }
+    return true;
 }
 
 std::shared_ptr<const datamodel::StructType> ElementTypeInfo::getStructType() const

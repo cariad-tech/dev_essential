@@ -6,43 +6,27 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
 #ifndef DDL_CODEC_LEGACY_CLASS_HEADER
 #define DDL_CODEC_LEGACY_CLASS_HEADER
 
+#include <a_util/preprocessor/deprecated.h> // DEV_ESSENTIAL_DEPRECATED()
 #include <a_util/result.h>
 #include <ddl/codec/codec.h>
 #include <ddl/codec/legacy/static_codec_legacy.h>
 
-/**
- * @def DEV_ESSENTIAL_DEPRECATED_DECODER
- * @brief defines deprecated warnings on ddl::Decoder, use new one under ddl::codec::Decoder
- * @remark disable by defining DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
- */
+/// @cond INTERNAL_DOCUMENTATION
+#define DEV_ESSENTIAL_DEPRECATED_DECODER                                                           \
+    DEV_ESSENTIAL_DEPRECATED("Use the new ddl::codec::Decoder() instead.")
 
-/**
- * @def DEV_ESSENTIAL_DEPRECATED_CODEC
- * @brief defines deprecated warnings on ddl::Codec, use new one under ddl::codec::Codec
- * @remark disable by defining DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
- */
-#ifndef DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
-#define DEV_ESSENTIAL_DEPRECATED_DECODER [[deprecated("Use the new codec::Decoder() instead.")]]
-#define DEV_ESSENTIAL_DEPRECATED_CODEC [[deprecated("Use the new codec::Codec() instead.")]]
-#else
-#define DEV_ESSENTIAL_DEPRECATED_DECODER /**/
-#define DEV_ESSENTIAL_DEPRECATED_CODEC   /**/
-#endif
+#define DEV_ESSENTIAL_DEPRECATED_CODEC                                                             \
+    DEV_ESSENTIAL_DEPRECATED("Use the new ddl::codec::Codec() instead.")
+/// @endcond
 
 namespace ddl {
 class Codec;
@@ -57,6 +41,7 @@ struct LegacyOffsets {
 
 /**
  * Decoder for dynamic structures defined by a DataDefinition definition.
+ * @dev_essential_deprecated Use the new @ref ddl::codec::Decoder() instead.
  */
 class Decoder : public StaticDecoder {
 public:
@@ -139,6 +124,7 @@ private:
  * Decoder for dynamic structures defined by a DataDefinition definition.
  * Currently the amount of dynamic elements is determined during construction
  * only (by the current values in the structure).
+ * @dev_essential_deprecated Use the new @ref ddl::codec::Codec() instead.
  */
 class Codec : public Decoder {
 public:

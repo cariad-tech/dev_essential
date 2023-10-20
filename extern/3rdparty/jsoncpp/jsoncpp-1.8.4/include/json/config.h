@@ -70,12 +70,6 @@
     // with pragma push/pop).
 #    pragma warning(disable : 4786)
 #  endif // MSVC 6
-
-#  if _MSC_VER >= 1500 // MSVC 2008
-    /// Indicates that the following function is deprecated.
-#    define JSONCPP_DEPRECATED(message) __declspec(deprecated(message))
-#  endif
-
 #endif // defined(_MSC_VER)
 
 // In c++11 the override keyword allows you to explicitly define that a function
@@ -119,7 +113,11 @@
 #define JSON_HAS_RVALUE_REFERENCES 0
 #endif
 
-#ifdef __clang__
+#if !defined(JSONCPP_DISABLE_DEPRECATED_WARNINGS)
+#if defined(_MSC_VER) && (_MSC_VER >= 1500) // MSVC 2008
+   /// Indicates that the following function is deprecated.
+#  define JSONCPP_DEPRECATED(message) __declspec(deprecated(message))
+#elif defined __clang__
 #  if __has_extension(attribute_deprecated_with_message)
 #    define JSONCPP_DEPRECATED(message)  __attribute__ ((deprecated(message)))
 #  endif
@@ -129,7 +127,8 @@
 #  elif (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
 #    define JSONCPP_DEPRECATED(message)  __attribute__((__deprecated__))
 #  endif  // GNUC version
-#endif // __clang__ || __GNUC__
+#endif // _MSC_VER >= 1500 || __clang__ || __GNUC__
+#endif // !defined(JSONCPP_DISABLE_DEPRECATED_WARNINGS)
 
 #if !defined(JSONCPP_DEPRECATED)
 #define JSONCPP_DEPRECATED(message)

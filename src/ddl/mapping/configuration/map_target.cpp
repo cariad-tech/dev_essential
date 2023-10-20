@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/error_def.h>
@@ -115,11 +109,11 @@ a_util::result::Result MapTarget::addAssignment(const MapAssignment& oAssignment
     auto struct_type = _config->getDD()->getStructTypes().get(_type_name);
     // Target is valid, so the type is defined and can be dereferenced
     a_util::result::Result nRes = _config->checkAssignmentType(_name, *struct_type, oAssignment);
-    if (isOk(nRes)) {
+    if (nRes) {
         nRes = checkDoubleAssignments();
     }
     // If assignment not consistent with DataDefinition, remove assignment
-    if (isFailed(nRes)) {
+    if (!nRes) {
         removeAssignmentWithoutClear(oAssignment.getTo());
     }
 
@@ -404,20 +398,20 @@ a_util::result::Result MapTarget::loadFromDOM(const a_util::xml::DOMElement& oTa
         if (name == "assignment") {
             MapAssignment oAssign;
             a_util::result::Result nRes = oAssign.loadFromDOM(oElem, _config->_errors);
-            if (isOk(nRes)) {
+            if (nRes) {
                 nRes = addAssignmentNoTypeCheck(oAssign);
             }
-            if (isFailed(nRes)) {
+            if (!nRes) {
                 nResult = nRes;
             }
         }
         else if (name == "trigger") {
             MapTriggerBase* pTrigger = NULL;
             a_util::result::Result nRes = MapTriggerBase::createFromDOM(_config, oElem, pTrigger);
-            if (isOk(nRes)) {
+            if (nRes) {
                 nRes = addTriggerNoTypeCheck(pTrigger);
             }
-            if (isFailed(nRes)) {
+            if (!nRes) {
                 nResult = nRes;
             }
         }

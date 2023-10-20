@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -69,39 +63,37 @@ namespace unit_prefix {
 } // namespace ddl
 
 /**
- * @brief Base unit template definiton
- * @param _classname_ the classname for the base unit
- * @param _baseunitname_ the name for the base unit
- * @param _baseunitsymbol_ the symbol for the base unit
- * @param _baseunitdescription_ the description for the base unit
- * @see ddl::PredefinedUnits.
+ * Base unit template definiton
+ * @param classname the classname for the base unit
+ * @param baseunitname the name for the base unit
+ * @param baseunitsymbol the symbol for the base unit
+ * @param baseunitdescription the description for the base unit
+ * @see @ref ddl::PredefinedUnits
  */
-#define DDL_BASE_UNIT_DEFINITION(                                                                  \
-    _classname_, _baseunitname_, _baseunitsymbol_, _baseunitdescription_)                          \
+#define DDL_BASE_UNIT_DEFINITION(classname, baseunitname, baseunitsymbol, baseunitdescription)     \
     namespace unit {                                                                               \
-    struct _classname_ {                                                                           \
-        constexpr static const char* const _name = _baseunitname_;                                 \
-        constexpr static const char* const _symbol = _baseunitsymbol_;                             \
-        constexpr static const char* const _description = _baseunitdescription_;                   \
+    struct classname {                                                                             \
+        constexpr static const char* const _name = baseunitname;                                   \
+        constexpr static const char* const _symbol = baseunitsymbol;                               \
+        constexpr static const char* const _description = baseunitdescription;                     \
     };                                                                                             \
     }                                                                                              \
     static_assert(true, "Simply to make sure a closing semicolon ';' is used for the macro")
 
 /**
  * @brief Unit prefix template definiton
- * @param _classname_ the classname for the unit prefix
- * @param _unitprefixname_ the prefix name for the unit prefix
- * @param _unitprefixsymbol_ the symbol for the unit prefix
- * @param _unitprefixpower_ the power for the unit prefix
+ * @param classname the classname for the unit prefix
+ * @param unitprefixname the prefix name for the unit prefix
+ * @param unitprefixsymbol the symbol for the unit prefix
+ * @param unitprefixpower the power for the unit prefix
  * @see ddl::PredefinedUnits
  */
-#define DDL_UNIT_PREFIX_DEFINITION(                                                                \
-    _classname_, _unitprefixname_, _unitprefixsymbol_, _unitprefixpower_)                          \
+#define DDL_UNIT_PREFIX_DEFINITION(classname, unitprefixname, unitprefixsymbol, unitprefixpower)   \
     namespace unit_prefix {                                                                        \
-    struct _classname_ {                                                                           \
-        constexpr static const char* const _name = _unitprefixname_;                               \
-        constexpr static const char* const _symbol = _unitprefixsymbol_;                           \
-        constexpr static const int32_t _power = _unitprefixpower_;                                 \
+    struct classname {                                                                             \
+        constexpr static const char* const _name = unitprefixname;                                 \
+        constexpr static const char* const _symbol = unitprefixsymbol;                             \
+        constexpr static const int32_t _power = unitprefixpower;                                   \
     };                                                                                             \
     }                                                                                              \
     static_assert(true, "Simply to make sure a closing semicolon ';' is used for the macro")
@@ -140,7 +132,7 @@ DDL_UNIT_PREFIX_DEFINITION(femto, "femto", "f", -15);
 DDL_UNIT_PREFIX_DEFINITION(atto, "atto", "a", -18);
 DDL_UNIT_PREFIX_DEFINITION(zepto, "zepto", "z", -21);
 DDL_UNIT_PREFIX_DEFINITION(yocto, "yocto", "y", -24);
-/// @endcond nodoc
+/// @endcond
 
 /**
  * @brief Static class for predefined units

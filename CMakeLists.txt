@@ -1,17 +1,11 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 ################################ Options and general project setup ################################
-cmake_minimum_required(VERSION 3.17.0) # cxx_std_11
+cmake_minimum_required(VERSION 3.20.0) # cmake_path()
 
 cmake_policy(SET CMP0048 NEW)
 
@@ -43,18 +37,20 @@ include(scripts/cmake/enable_multicore_compilation.cmake)
 include(scripts/cmake/use_integrated_debug_symbols.cmake)
 
 # set default symbol visibility for compilers supporting it
-include(scripts/cmake/set_symbol_visibilty.cmake)
+include(scripts/cmake/set_symbol_visibility.cmake)
 
-if("${dev_essential_cmake_include_components}" STREQUAL ".")
-    add_subdirectory(extern/3rdparty/clara)
-endif()
+# Make own find scripts known to CMake
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/modules/")
+
 add_subdirectory(doc)
+add_subdirectory(extern/3rdparty)
 add_subdirectory(src)
 
 # Enable testing if necessary
 option(dev_essential_cmake_enable_integrated_tests
        "Enable tests as integrated build - requires googletest (default: OFF)"
        OFF)
+
 if(dev_essential_cmake_enable_integrated_tests)
     # Generator expressions take 0 as FALSE/OFF and 1 as TRUE/ON
     set(dev_essential_cmake_enable_integrated_tests 1 CACHE BOOL "" FORCE)
@@ -66,10 +62,10 @@ if(dev_essential_cmake_enable_integrated_tests)
         endif()
     endmacro(find_package)
 
-    message(CHECK_START "Checking third-party packages")
+    message(CHECK_START "Checking availability of external packages")
     list(APPEND CMAKE_MESSAGE_INDENT "  ")
     message(CHECK_START "GTest")
-    find_package(GTest)
+    find_package(GTest 1.10.0) # INSTANTIATE_TEST_SUITE_P added in 1.10.0
     if(NOT GTest_FOUND)
         message(CHECK_FAIL "not found. Integrated tests disabled.")
     else()
@@ -78,9 +74,12 @@ if(dev_essential_cmake_enable_integrated_tests)
     list(POP_BACK CMAKE_MESSAGE_INDENT)
     if (GTest_FOUND)
         enable_testing()
+        include(GoogleTest)
         include(scripts/cmake/stub_generation.cmake)
+        include(scripts/cmake/add_test_overwrite.cmake)
         add_subdirectory(test/function)
     endif()
+    add_subdirectory(test/private)
     add_subdirectory(test/sca)
 endif(dev_essential_cmake_enable_integrated_tests)
 

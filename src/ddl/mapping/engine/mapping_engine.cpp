@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/error_def.h>
@@ -34,7 +28,7 @@ _MAKE_RESULT(-42, ERR_INVALID_TYPE);
 using namespace ddl::mapping;
 using namespace ddl::mapping::rt;
 
-MappingEngine::MappingEngine(IMappingEnvironment& oEnv) : _env(oEnv), _map_config(), _running(false)
+MappingEngine::MappingEngine(IMappingEnvironment& oEnv) : _env(oEnv), _running(false), _map_config()
 {
 }
 
@@ -52,88 +46,74 @@ a_util::result::Result MappingEngine::setConfiguration(const MapConfiguration& o
 
 a_util::result::Result MappingEngine::Map(const std::string& strTargetName, handle_t& hMappedSignal)
 {
-    a_util::result::Result nRes = a_util::result::SUCCESS;
-
     // If the target is already in the List, return invalid error
     if (_targets.find(strTargetName) != _targets.end()) {
-        nRes = ERR_INVALID_ARG;
+        return ERR_INVALID_ARG;
     }
 
-    const MapTarget* pMapTarget = NULL;
-    std::string strTargetDesc;
-    if (isOk(nRes)) {
-        pMapTarget = _map_config.getTarget(strTargetName);
-        // If the target is not found in the mapping configuration, return invalid error
-        if (nullptr == pMapTarget) {
-            nRes = ERR_INVALID_ARG;
-        }
-        else {
-            const char* desc = NULL;
-            if (isFailed(_env.resolveType(pMapTarget->getType().c_str(), desc))) {
-                nRes = ERR_INVALID_TYPE;
-            }
-            // save a copy, never know how long the environment holds the memory
-            if (nullptr == desc) {
-                nRes = ERR_POINTER;
-            }
-            else {
-                strTargetDesc = desc;
-            }
-        }
+    const MapTarget* const pMapTarget = _map_config.getTarget(strTargetName);
+    // If the target is not found in the mapping configuration, return invalid error
+    if (nullptr == pMapTarget) {
+        return ERR_INVALID_ARG;
     }
+
+    const char* desc = nullptr;
+    if (!_env.resolveType(pMapTarget->getType().c_str(), desc)) {
+        return ERR_INVALID_TYPE;
+    }
+    if (nullptr == desc) {
+        return ERR_POINTER;
+    }
+    // save a copy, never know how long the environment holds the memory
+    const std::string strTargetDesc = desc;
 
     // Backup storage for error cleanup
     SourceMap oSourceCleanup;
     TriggerMap oTriggerCleanup;
+    a_util::result::Result nRes;
 
-    if (isOk(nRes)) {
-        // Create sources
-        const MapSourceNameList& lstSources = pMapTarget->getReferencedSources();
-        for (MapSourceNameList::const_iterator it = lstSources.begin(); it != lstSources.end();
-             ++it) {
-            const MapSource* pMapSource = _map_config.getSource(*it);
-            if (_sources.find(pMapSource->getName()) == _sources.end()) {
-                const char* strSourceDesc = 0;
-                nRes = _env.resolveType(pMapSource->getType().c_str(), strSourceDesc);
-                if (isFailed(nRes)) {
-                    break;
-                }
-
-                Source* pSrc = new Source(_env);
-                nRes = pSrc->create(*pMapSource, strSourceDesc);
-                if (isFailed(nRes)) {
-                    delete pSrc;
-                    break;
-                }
-
-                _sources[pMapSource->getName()] = pSrc;
-                oSourceCleanup[pMapSource->getName()] = pSrc;
+    // Create sources
+    const MapSourceNameList& lstSources = pMapTarget->getReferencedSources();
+    for (auto it = lstSources.cbegin(); it != lstSources.cend(); ++it) {
+        const MapSource* const pMapSource = _map_config.getSource(*it);
+        if (_sources.find(pMapSource->getName()) == _sources.end()) {
+            const char* strSourceDesc = nullptr;
+            nRes = _env.resolveType(pMapSource->getType().c_str(), strSourceDesc);
+            if (!nRes) {
+                break;
             }
+
+            auto pSrc = std::make_unique<Source>(_env);
+            nRes = pSrc->create(*pMapSource, strSourceDesc);
+            if (!nRes) {
+                break;
+            }
+
+            _sources[pMapSource->getName()] = pSrc.get();
+            oSourceCleanup[pMapSource->getName()] = pSrc.release();
         }
     }
 
-    Target* pTarget = NULL;
-    if (isOk(nRes)) {
+    Target* pTarget = nullptr;
+    if (nRes) {
         // Create Target
-        pTarget = new Target(_env);
-        nRes = pTarget->create(_map_config, *pMapTarget, strTargetDesc, _sources);
-        if (isFailed(nRes)) {
-            delete pTarget;
-            pTarget = NULL;
-        }
-        else {
+        auto tmp_target = std::make_unique<Target>(_env);
+        nRes = tmp_target->create(_map_config, *pMapTarget, strTargetDesc, _sources);
+        if (nRes) {
+            pTarget = tmp_target.release();
             _targets[strTargetName] = pTarget;
         }
     }
 
-    if (isOk(nRes)) {
+    if (nRes) {
         // Create Triggers
         const MapTriggerList& oTriggerList = pMapTarget->getTriggerList();
-        for (MapTriggerList::const_iterator it = oTriggerList.begin(); it != oTriggerList.end();
-             it++) {
-            const MapPeriodicTrigger* pMapPTrigger = dynamic_cast<const MapPeriodicTrigger*>(*it);
-            const MapSignalTrigger* pMapSigTrigger = dynamic_cast<const MapSignalTrigger*>(*it);
-            const MapDataTrigger* pMapDataTrigger = dynamic_cast<const MapDataTrigger*>(*it);
+        for (auto it = oTriggerList.cbegin(); it != oTriggerList.cend(); it++) {
+            const MapPeriodicTrigger* const pMapPTrigger =
+                dynamic_cast<const MapPeriodicTrigger*>(*it);
+            const MapSignalTrigger* const pMapSigTrigger =
+                dynamic_cast<const MapSignalTrigger*>(*it);
+            const MapDataTrigger* const pMapDataTrigger = dynamic_cast<const MapDataTrigger*>(*it);
 
             if (!pMapPTrigger && !pMapSigTrigger && !pMapDataTrigger) {
                 nRes = ERR_NOT_IMPL;
@@ -150,27 +130,26 @@ a_util::result::Result MappingEngine::Map(const std::string& strTargetName, hand
                 }
 
                 if (_triggers.find(strTrigName) == _triggers.end()) {
-                    PeriodicTrigger* pTrigger =
-                        new PeriodicTrigger(_env, strTrigName, pMapPTrigger->getPeriod());
+                    auto pTrigger = std::make_unique<PeriodicTrigger>(
+                        _env, strTrigName, pMapPTrigger->getPeriod());
                     nRes = pTrigger->create();
-                    if (isFailed(nRes)) {
-                        delete pTrigger;
+                    if (!nRes) {
                         break;
                     }
 
-                    _triggers[strTrigName] = pTrigger;
-                    oTriggerCleanup[strTrigName] = pTrigger;
+                    _triggers[strTrigName] = pTrigger.get();
+                    oTriggerCleanup[strTrigName] = pTrigger.release();
                 }
 
                 _triggers[strTrigName]->addTarget(pTarget);
             }
 
             if (pMapSigTrigger) {
-                std::string strSourceName = pMapSigTrigger->getVariable();
+                const std::string strSourceName = pMapSigTrigger->getVariable();
 
                 TriggerMap::iterator iter = _triggers.find(strSourceName);
                 if (iter == _triggers.end()) {
-                    SignalTrigger* pTrigger = new SignalTrigger(_env, strSourceName);
+                    SignalTrigger* const pTrigger = new SignalTrigger(_env, strSourceName);
                     std::pair<TriggerMap::iterator, bool> oNewElem =
                         _triggers.insert(std::make_pair(strSourceName, pTrigger));
                     iter = oNewElem.first;
@@ -208,7 +187,7 @@ a_util::result::Result MappingEngine::Map(const std::string& strTargetName, hand
     }
 
     // cleanup on error
-    if (isFailed(nRes)) {
+    if (!nRes) {
         for (SourceMap::iterator it = oSourceCleanup.begin(); it != oSourceCleanup.end(); ++it) {
             _sources.erase(it->first);
             delete it->second;
@@ -224,8 +203,8 @@ a_util::result::Result MappingEngine::Map(const std::string& strTargetName, hand
         }
     }
 
-    if (isOk(nRes)) {
-        hMappedSignal = reinterpret_cast<handle_t>(pTarget);
+    if (nRes && pTarget) {
+        hMappedSignal = pTarget;
         _env.targetMapped(strTargetName.c_str(),
                           pTarget->getTypeName().c_str(),
                           hMappedSignal,

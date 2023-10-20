@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <ddl/dd/dd_common_types.h>
@@ -156,9 +150,28 @@ const Version Version::ddl_version_20 = Version(2, 0);
 const Version Version::ddl_version_30 = Version(3, 0);
 const Version Version::ddl_version_40 = Version(4, 0);
 const Version Version::ddl_version_41 = Version(4, 1);
-const Version Version::ddl_version_current = ddl_version_41;
+const Version Version::ddl_version_current = Version::ddl_version_41;
 
-Version::Version() : Version(Version::getDefaultVersion())
+class VersionIntializer {
+private:
+    VersionIntializer()
+    {
+    }
+
+public:
+    static const VersionIntializer& getInstance()
+    {
+        static VersionIntializer initializer;
+        return initializer;
+    }
+    Version getLatestVersion() const
+    {
+        return ddl_version_current;
+    }
+    Version ddl_version_current = Version(4, 1);
+};
+
+Version::Version() : Version(getLatestVersion())
 {
 }
 
@@ -190,17 +203,23 @@ std::string Version::toString() const
     outstr << _major << "." << std::string((_minor < 10) ? "0" : "") << _minor;
     return outstr.str();
 }
+
 bool Version::isValidVersion() const
 {
-    if (*this < ddl_version_10) {
+    if (*this < Version(1, 0)) {
         return false;
     }
 
-    if (*this > ddl_version_current) {
+    if (*this > VersionIntializer::getInstance().getLatestVersion()) {
         return false;
     }
 
     return true;
+}
+
+const Version& Version::getLatestVersion()
+{
+    return VersionIntializer::getInstance().ddl_version_current;
 }
 
 bool Version::operator==(const Version& other) const

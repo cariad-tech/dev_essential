@@ -5,15 +5,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  *
  */
@@ -76,10 +70,9 @@ public:
 private:
     /**
      * creates a polymorphic transformation instance from a dom element
-     * @param [in] oConfig The configuration
+     * @param [in] config The configuration
      * @param [in] dom_element The dom element from which to import
      * @param [out] destination The Transformation object to fill
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  Missing name or type
      * @retval a_util::result::SUCCESS      Everything went fine
      */
@@ -89,10 +82,10 @@ private:
 
     /**
      * creates a polymorphic transformation instance from a dom element
-     * @param [in] oConfig The configuration
-     * @param [in] dom_element The dom element from which to import
+     * @param [in] config The mapping configuration
+     * @param [in] name Name of the element
+     * @param [in] type Type of the element
      * @param [out] destination The Transformation object to fill
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  Missing name or type
      * @retval a_util::result::SUCCESS      Everything went fine
      */
@@ -111,8 +104,6 @@ private:
 
     /**
      * Set Float values from Enumeration definition in DataDefinition-File
-     * @param [in] pDDLRef The ddl description
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_TYPE Inconsistency with ddl
      * @retval a_util::result::SUCCESS      Everything went fine
      **/
@@ -188,7 +179,6 @@ private:
     /**
      * Initializes the transformation from a target-dom element
      * @param [in] dom_element The dom element from which to import
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  An attribute is not a float value
      * @retval a_util::result::SUCCESS      Everything went fine
      */
@@ -310,7 +300,6 @@ private:
     /**
      * Initializes the transformation from a target-dom element
      * @param [in] dom_element The dom element from which to import
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  Missing attribute
      * @retval a_util::result::SUCCESS      Everything went fine
      */
@@ -326,10 +315,9 @@ private:
 
     /**
      * Convert string values to integer values
-     *    before were the integer values not filled, as the ddl is necessary for this
      *
-     * @param [in] pDDLRef The ddl description
-     * @param [out] lstErrors The error list for debug
+     * The integer values were not filled before, as the ddl is necessary for this
+     *
      * @retval ERR_INVALID_TYPE Inconsistency with ddl
      * @retval a_util::result::SUCCESS      Everything went fine
      **/

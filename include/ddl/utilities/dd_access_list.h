@@ -6,21 +6,16 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
 #ifndef DD_DD_ACCESS_LIST_H_INCLUDED
 #define DD_DD_ACCESS_LIST_H_INCLUDED
 
+#include <a_util/base/feature_check/library/string_view.h>
 #include <ddl/dd/dd_common_types.h>
 #include <ddl/dd/dd_error.h>
 #include <ddl/utilities/dd_access_observer.h>
@@ -28,11 +23,9 @@ You may add additional accurate notices of copyright ownership.
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
-#if defined(__GNUC__) && (__GNUC__ >= 7)
+#if HAS_STRING_VIEW
 #include <string_view>
-#elif defined(_MSC_VER) && (_MSC_VER >= 1920)
-#include <string_view>
-#endif
+#endif // HAS_STRING_VIEW
 
 namespace ddl {
 namespace dd {
@@ -92,13 +85,11 @@ public:
     /// local definition of the container type
     typedef std::vector<value_type> container_type;
     /// local definition of the container type
-#if defined(__GNUC__) && (__GNUC__ > 7)
-    typedef std::unordered_map<std::string_view, value_type> container_named_type;
-#elif defined(_MSC_VER) && (_MSC_VER >= 1920)
+#if HAS_STRING_VIEW
     typedef std::unordered_map<std::string_view, value_type> container_named_type;
 #else
     typedef std::unordered_map<std::string, value_type> container_named_type;
-#endif
+#endif // HAS_STRING_VIEW
     /// local definition of the container iterator
     typedef typename container_type::iterator iterator;
     /// local definition of the container const_iterator
@@ -551,12 +542,9 @@ public:
      */
     bool operator==(const TypeAccessList& other) const
     {
-        if (getSize() != other.getSize()) {
-            return false;
-        }
-        else {
-            return contains(other);
-        }
+        return std::equal(begin(), end(), other.begin(), [](const auto& local, const auto& other) {
+            return *(local) == *(other);
+        });
     }
 
     /**

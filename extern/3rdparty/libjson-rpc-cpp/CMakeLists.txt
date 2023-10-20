@@ -1,14 +1,8 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 set(jsonrpccpp_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libjson-rpc-cpp-1.1.0)
 
@@ -59,6 +53,7 @@ add_library(libjson-rpc-cpp OBJECT ${jsonrpccpp_SRC})
 # dynamic_cast in jsonrpccpp/server/abstractserver.h
 target_compile_options(libjson-rpc-cpp PRIVATE $<$<AND:$<NOT:$<CXX_COMPILER_ID:MSVC>>,$<COMPILE_LANGUAGE:CXX>>:-frtti -Wno-deprecated-declarations>
                                                $<$<AND:$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>:/GR>)
+target_compile_definitions(libjson-rpc-cpp PRIVATE JSONCPP_DISABLE_DEPRECATED_WARNINGS)
 target_include_directories(libjson-rpc-cpp SYSTEM
                            PRIVATE $<BUILD_INTERFACE:${jsonrpccpp_DIR}/src>
                                    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/configured/>

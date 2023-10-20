@@ -4,16 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
- *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "./../../_common/test_oo_ddl.h"
@@ -152,7 +145,7 @@ TEST(TesterDDLTypeReflection, createTypeManual)
                                .addElement<bool>("bool_value");
 
     codec::CodecFactory decoder_check(test_definition);
-    EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
+    EXPECT_TRUE(decoder_check.isValid()) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test))
         << "The created DDStructure does not have the expected size";
     EXPECT_EQ(test_definition.getDD()
@@ -171,7 +164,6 @@ TEST(TesterDDLTypeReflection, createTypeManual)
     // std::cout << test_definition.getStructDescription();
 }
 
-_MAKE_RESULT(-19, ERR_NOT_SUPPORTED);
 TEST(TesterDDLTypeReflection, createUnknownType)
 {
     // user defined types are supported!
@@ -225,8 +217,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructDefaultAlignment)
         // this is to check the second CTOR possibility
         auto enum_definition_second =
             DDEnumGenerator<test_enum>("test_enum", {{"a", a}, {"b", b}, {"c", c}});
-        EXPECT_TRUE(
-            isOk(DDCompare::isEqual(enum_definition.getDD(), enum_definition_second.getDD())));
+        EXPECT_TRUE(DDCompare::isEqual(enum_definition.getDD(), enum_definition_second.getDD()));
     }
 
     auto test_definition = DDStructureGenerator<test>("test")
@@ -237,7 +228,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructDefaultAlignment)
                                .addElement("bool_value", &test::bool_value);
 
     codec::CodecFactory decoder_check(test_definition);
-    EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
+    EXPECT_TRUE(decoder_check.isValid()) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test))
         << "The created DDStructure does not have the expected size";
     auto struct_access =
@@ -271,8 +262,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructPack1Alignment)
         // this is to check the second CTOR possibility
         auto enum_definition_second =
             DDEnumGenerator<test_enum>("test_enum", {{"a", a}, {"b", b}, {"c", c}});
-        EXPECT_TRUE(
-            isOk(DDCompare::isEqual(enum_definition.getDD(), enum_definition_second.getDD())));
+        EXPECT_TRUE(DDCompare::isEqual(enum_definition.getDD(), enum_definition_second.getDD()));
     }
 
     auto test_definition = DDStructureGenerator<test_pack1>("test")
@@ -283,7 +273,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructPack1Alignment)
                                .addElement("bool_value", &test_pack1::bool_value);
 
     codec::CodecFactory decoder_check(test_definition);
-    EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
+    EXPECT_TRUE(decoder_check.isValid()) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test_pack1))
         << "The created DDStructure does not have the expected size";
     auto struct_access =
@@ -294,7 +284,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructPack1Alignment)
 
     EXPECT_EQ(*struct_access.getStructType().getAlignment(), alignof(test_pack1));
     for (auto& elem: struct_access) {
-        EXPECT_EQ(elem.getElement().getAlignment(), 1);
+        EXPECT_EQ(elem.getElement().getAlignment(), 1U);
     }
 
     std::cout << test_definition.getStructDescription();
@@ -325,8 +315,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructMixedAlignment)
         // this is to check the second CTOR possibility
         auto enum_definition_second =
             DDEnumGenerator<test_enum>("test_enum", {{"a", a}, {"b", b}, {"c", c}});
-        EXPECT_TRUE(
-            isOk(DDCompare::isEqual(enum_definition.getDD(), enum_definition_second.getDD())));
+        EXPECT_TRUE(DDCompare::isEqual(enum_definition.getDD(), enum_definition_second.getDD()));
     }
 
     auto test_definition = DDStructureGenerator<test_mixed>("test")
@@ -339,7 +328,7 @@ TEST(TesterDDLTypeReflection, createTypeFromStructMixedAlignment)
                                .addElement("bool_value", &test_mixed::bool_value);
 
     codec::CodecFactory decoder_check(test_definition);
-    EXPECT_TRUE(isOk(decoder_check.isValid())) << "The created DDStructure is not valid";
+    EXPECT_TRUE(decoder_check.isValid()) << "The created DDStructure is not valid";
     EXPECT_EQ(decoder_check.getStaticBufferSize(), sizeof(test_mixed))
         << "The created DDStructure does not have the expected size";
     auto struct_access =
@@ -535,7 +524,7 @@ TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeCTOR)
         "test_enum_class",
         {{"a", test_enum_class::a}, {"b", test_enum_class::b}, {"c", test_enum_class::c}});
 
-    ASSERT_EQ(enum_class_definition.getEnumType().getElements().getSize(), 3);
+    ASSERT_EQ(enum_class_definition.getEnumType().getElements().getSize(), 3U);
 
     // class but no type
     auto enum_no_type_class_definition =
@@ -543,7 +532,7 @@ TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeCTOR)
                                                         {{"a", test_enum_class_no_typedefined::a},
                                                          {"b", test_enum_class_no_typedefined::b},
                                                          {"c", test_enum_class_no_typedefined::c}});
-    ASSERT_EQ(enum_no_type_class_definition.getEnumType().getElements().getSize(), 3);
+    ASSERT_EQ(enum_no_type_class_definition.getEnumType().getElements().getSize(), 3U);
 }
 
 /**
@@ -558,7 +547,7 @@ TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeAddElement)
                                      .addElement("b", test_enum_class::b)
                                      .addElement("c", test_enum_class::c);
 
-    ASSERT_EQ(enum_class_definition.getEnumType().getElements().getSize(), 3);
+    ASSERT_EQ(enum_class_definition.getEnumType().getElements().getSize(), 3U);
 
     // class but no type
     auto enum_no_type_class_definition =
@@ -566,7 +555,7 @@ TEST(TesterDDLTypeReflection, testForEnumGeneratorWithUnderlyingTypeAddElement)
             .addElement("a", test_enum_class_no_typedefined::a)
             .addElement("b", test_enum_class_no_typedefined::b)
             .addElement("c", test_enum_class_no_typedefined::c);
-    ASSERT_EQ(enum_no_type_class_definition.getEnumType().getElements().getSize(), 3);
+    ASSERT_EQ(enum_no_type_class_definition.getEnumType().getElements().getSize(), 3U);
 }
 
 // we need to disable the "C4324" : structure was padded due to alignment specifier

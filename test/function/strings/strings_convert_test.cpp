@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/strings/strings_convert.h>
@@ -261,12 +255,12 @@ TEST(string_convert_test, TestStringToUInt64)
     const char* const str_max_signed = "+18446744073709551615";
 
     // positive tests (char*)
-    EXPECT_EQ(1, strings::toUInt64("1"));
-    EXPECT_EQ(42, strings::toUInt64("42"));
-    EXPECT_EQ(1, strings::toUInt64("+1"));
-    EXPECT_EQ(42, strings::toUInt64("+42"));
-    EXPECT_EQ(0, strings::toUInt64("+0"));
-    EXPECT_EQ(0, strings::toUInt64("-0"));
+    EXPECT_EQ(1U, strings::toUInt64("1"));
+    EXPECT_EQ(42U, strings::toUInt64("42"));
+    EXPECT_EQ(1U, strings::toUInt64("+1"));
+    EXPECT_EQ(42U, strings::toUInt64("+42"));
+    EXPECT_EQ(0U, strings::toUInt64("+0"));
+    EXPECT_EQ(0U, strings::toUInt64("-0"));
     EXPECT_EQ(std::numeric_limits<std::uint64_t>::min(), strings::toUInt64(str_min));
     EXPECT_EQ(std::numeric_limits<std::uint64_t>::max(), strings::toUInt64(str_max));
     EXPECT_EQ(std::numeric_limits<std::uint64_t>::max(), strings::toUInt64(str_max_signed));
@@ -276,18 +270,18 @@ TEST(string_convert_test, TestStringToUInt64)
     EXPECT_EQ(std::numeric_limits<std::uint64_t>::max(), strings::toUInt64(std::string(str_max)));
 
     // negative tests
-    EXPECT_EQ(0, strings::toUInt64(""));
-    EXPECT_EQ(0, strings::toUInt64(nullptr));
-    EXPECT_EQ(0, strings::toUInt64("+"));
-    EXPECT_EQ(0, strings::toUInt64("++5"));
-    EXPECT_EQ(0, strings::toUInt64("-"));
-    EXPECT_EQ(0, strings::toUInt64("1.0"));
-    EXPECT_EQ(0, strings::toUInt64("-2"));
-    EXPECT_EQ(0, strings::toUInt64("--5"));
-    EXPECT_EQ(0, strings::toUInt64("18446744073709551616"));
-    EXPECT_EQ(0, strings::toUInt64("+18446744073709551616"));
-    EXPECT_EQ(0, strings::toUInt64("18446744073709551630"));
-    EXPECT_EQ(0, strings::toUInt64("+18446744073709551635"));
+    EXPECT_EQ(0U, strings::toUInt64(""));
+    EXPECT_EQ(0U, strings::toUInt64(nullptr));
+    EXPECT_EQ(0U, strings::toUInt64("+"));
+    EXPECT_EQ(0U, strings::toUInt64("++5"));
+    EXPECT_EQ(0U, strings::toUInt64("-"));
+    EXPECT_EQ(0U, strings::toUInt64("1.0"));
+    EXPECT_EQ(0U, strings::toUInt64("-2"));
+    EXPECT_EQ(0U, strings::toUInt64("--5"));
+    EXPECT_EQ(0U, strings::toUInt64("18446744073709551616"));
+    EXPECT_EQ(0U, strings::toUInt64("+18446744073709551616"));
+    EXPECT_EQ(0U, strings::toUInt64("18446744073709551630"));
+    EXPECT_EQ(0U, strings::toUInt64("+18446744073709551635"));
 }
 
 TEST(string_convert_test, TestStringToFloat)

@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "./../codec/codec_elements.h"
@@ -33,14 +27,14 @@ _MAKE_RESULT(-38, ERR_FAILED);
 #define RETURN_DDLERROR_IF_FAILED_DESC(__callterm__, __desc__)                                     \
     {                                                                                              \
         a_util::result::Result ntmpRes = __callterm__;                                             \
-        if (isFailed(ntmpRes)) {                                                                   \
+        if (!ntmpRes) {                                                                            \
             RETURN_ERROR_DESCRIPTION(ntmpRes, __desc__);                                           \
         }                                                                                          \
     }
 #define RETURN_DDLERROR_IF_FAILED(__callterm__)                                                    \
     {                                                                                              \
         a_util::result::Result ntmpRes = __callterm__;                                             \
-        if (isFailed(ntmpRes)) {                                                                   \
+        if (!ntmpRes) {                                                                            \
             return ntmpRes;                                                                        \
         }                                                                                          \
     }
@@ -150,7 +144,19 @@ a_util::result::Result DDCompare::isBinaryEqual(const std::string& type1,
     RETURN_DDLERROR_IF_FAILED(layout2.getInitResult());
 
     if (is_subset) {
-        return layout1.isBinarySubset(layout2);
+        // subset is only allowed if the first is lower or equal the whole size of second
+        if (struct1_access.getStaticStructSize() <= struct2_access.getStaticStructSize()) {
+            return layout1.isBinarySubset(layout2);
+        }
+        else {
+            RETURN_ERROR_DESCRIPTION(ERR_INVALID_ARG,
+                                     ("Struct size of " + type1 + "(" +
+                                      std::to_string(struct1_access.getStaticStructSize()) +
+                                      " bytes)" + " is greater than struct size of " + type2 + "(" +
+                                      std::to_string(struct2_access.getStaticStructSize()) +
+                                      " bytes)")
+                                         .c_str());
+        }
     }
     else {
         return layout1.isBinaryEqual(layout2);

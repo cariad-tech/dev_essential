@@ -6,45 +6,32 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
 #ifndef DDL_CODEC_FACTORY_LEGACY_CLASS_HEADER
 #define DDL_CODEC_FACTORY_LEGACY_CLASS_HEADER
 
+#include <a_util/preprocessor/deprecated.h> // DEV_ESSENTIAL_DEPRECATED()
 #include <ddl/codec/codec_factory.h>
 #include <ddl/codec/legacy/codec_legacy.h>
 #include <ddl/codec/legacy/static_codec_legacy.h>
 #include <ddl/codec/legacy/struct_element.h>
 
-/**
- * @def DEV_ESSENTIAL_DEPRECATED_CODEC_FACTORY
- * @brief defines deprecated warnings on ddl::CodecFactory, use new one under
- * ddl::codec::CodecFactory
- * @remark disable by defining DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
- */
-
-#ifndef DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+/// @cond INTERNAL_DOCUMENTATION
 #define DEV_ESSENTIAL_DEPRECATED_CODEC_FACTORY                                                     \
-    [[deprecated("Use the new codec::CodecFactory() instead.")]]
-#else
-#define DEV_ESSENTIAL_DEPRECATED_CODEC_FACTORY /**/
-#endif
+    DEV_ESSENTIAL_DEPRECATED("Use the new ddl::codec::CodecFactory() instead.")
+/// @endcond
 
 namespace ddl {
 
 class StructLayout;
 /**
  * Factory class for ddl codecs.
+ * @dev_essential_deprecated Use the new @ref ddl::codec::CodecFactory() instead.
  */
 class CodecFactory {
 public:

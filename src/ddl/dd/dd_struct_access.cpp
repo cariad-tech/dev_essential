@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/strings.h>
@@ -34,8 +28,8 @@ StructElementAccess::StructElementAccess(
     OptionalSize array_pos)
     : _element(element),
       _element_type_info(element->getInfo<ElementTypeInfo>()),
-      _serialized_struct_bit_offset(serialized_struct_bit_offset),
       _deserialized_struct_byte_offset(deserialized_struct_byte_offset),
+      _serialized_struct_bit_offset(serialized_struct_bit_offset),
       _array_pos(array_pos)
 {
 }
@@ -67,7 +61,7 @@ std::shared_ptr<const datamodel::DataType> StructElementAccess::getDataType() co
 
 StructTypeAccess StructElementAccess::getStructTypeAccess(size_t array_pos) const
 {
-    if (array_pos == (size_t)-1) {
+    if (array_pos == static_cast<size_t>(-1)) {
         return {_element_type_info->getStructType(), 0, 0};
     }
     else {
@@ -157,9 +151,9 @@ StructElementAccessIterator::StructElementAccessIterator(
     OptionalSize struct_deser)
     : _base_it(base_it),
       _end_it(end_it),
+      _ref(nullptr),
       _struct_ser(struct_ser),
-      _struct_deser(struct_deser),
-      _ref(nullptr)
+      _struct_deser(struct_deser)
 {
     if (base_it != end_it) {
         _ref = {*base_it, struct_ser, struct_deser, 0};
@@ -207,9 +201,9 @@ StructTypeAccess::StructTypeAccess(std::nullptr_t)
 
 StructTypeAccess::StructTypeAccess(const std::shared_ptr<const datamodel::StructType>& struct_type)
     : _struct_type(struct_type),
-      _type_info(static_cast<bool>(struct_type) ? struct_type->getInfo<TypeInfo>() : nullptr),
-      _serialized_struct_as_element_offset(0),
-      _deserialized_struct_as_element_offset(0)
+      _serialized_struct_as_element_offset{0},
+      _deserialized_struct_as_element_offset{0},
+      _type_info(static_cast<bool>(struct_type) ? struct_type->getInfo<TypeInfo>() : nullptr)
 {
 }
 
@@ -217,9 +211,9 @@ StructTypeAccess::StructTypeAccess(const std::shared_ptr<const datamodel::Struct
                                    OptionalSize serialized_struct_offset,
                                    OptionalSize deserialized_struct_offset)
     : _struct_type(struct_type),
-      _type_info(static_cast<bool>(struct_type) ? struct_type->getInfo<TypeInfo>() : nullptr),
       _serialized_struct_as_element_offset(serialized_struct_offset),
-      _deserialized_struct_as_element_offset(deserialized_struct_offset)
+      _deserialized_struct_as_element_offset(deserialized_struct_offset),
+      _type_info(static_cast<bool>(struct_type) ? struct_type->getInfo<TypeInfo>() : nullptr)
 {
 }
 
@@ -236,7 +230,7 @@ void findArrayPos(std::string& elem_name, OptionalSize& array_pos_found)
     if (right_bracket_pos != std::string::npos) {
         auto left_bracket_pos = elem_name.rfind("[");
         if (left_bracket_pos != std::string::npos && left_bracket_pos < right_bracket_pos) {
-            array_pos_found = a_util::strings::toUInt64(
+            array_pos_found = a_util::strings::toNumeric<typename OptionalSize::value_type>(
                 elem_name.substr(left_bracket_pos + 1, right_bracket_pos - left_bracket_pos - 1));
             elem_name = elem_name.substr(0, left_bracket_pos);
         }

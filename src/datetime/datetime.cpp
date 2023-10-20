@@ -4,16 +4,15 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif // _WIN32
 
 #include <a_util/datetime.h>
 #include <a_util/memory/memory.h>
@@ -22,27 +21,16 @@
 #include <a_util/strings/strings_convert_decl.h>
 #include <a_util/strings/strings_functions.h>
 
-#ifdef _WIN32
-
-#define WIN32_LEAN_AND_MEAN
-
-#ifndef __MINGW32__
-#define NOMINMAX
-#endif // __MINGW32__
-#include <windows.h>
-
-#else
-
-#include <sys/time.h>
-
-#endif
-
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <ctime>
 #include <map>
 #include <stdexcept>
+
+#ifndef _WIN32
+#include <sys/time.h>
+#endif // !_WIN32
 
 namespace a_util {
 namespace datetime {

@@ -1,19 +1,13 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 find_package(dev_essential COMPONENTS logging REQUIRED)
 
 ##logging_tests
 add_executable(logging_tests logging_test.cpp)
 target_link_libraries(logging_tests PRIVATE GTest::gtest_main dev_essential::logging)
-add_test(logging_tests logging_tests)
 set_target_properties(logging_tests PROPERTIES FOLDER test/function/a_util/logging)
+gtest_discover_tests(logging_tests)

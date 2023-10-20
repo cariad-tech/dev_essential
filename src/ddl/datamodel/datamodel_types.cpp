@@ -4,29 +4,57 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <ddl/datamodel/datamodel_types.h>
 #include <ddl/dd/dd_infomodel_type.h>
 #include <ddl/utilities/std_to_string.h>
 
+// usually this should not be done here, but this is for optimization
+#include <ddl/dd/dd_typeinfomodel.h>
+
 #include <exception>
 #include <utility>
 
 namespace ddl {
-
 namespace dd {
-
 namespace datamodel {
+
+namespace {
+
+// this for optimization
+// this will prevent a recalculation of typeinfo while copying or moving from
+// one validation model to the other
+// this can be done because of loose coupling the infomodel has NO reference to its parent
+void copyTypeInfoModel(InfoMap& this_info_map, const InfoMap& other_info)
+{
+    const auto type_info = other_info.getInfo<dd::TypeInfo>();
+    if (type_info) {
+        this_info_map.template setInfo<dd::TypeInfo>(std::make_shared<dd::TypeInfo>(*type_info));
+    }
+}
+
+void moveTypeInfoModel(InfoMap& this_info_map, InfoMap&& other_info)
+{
+    auto type_info = other_info.getInfo<dd::TypeInfo>();
+    if (type_info) {
+        this_info_map.template setInfo<dd::TypeInfo>(
+            std::make_shared<dd::TypeInfo>(std::move(*type_info)));
+    }
+}
+
+void copyElementTypeInfo(InfoMap& this_info_map, const InfoMap& other_info)
+{
+    const auto element_type_info = other_info.getInfo<dd::ElementTypeInfo>();
+    if (element_type_info) {
+        this_info_map.template setInfo<dd::ElementTypeInfo>(
+            std::make_shared<dd::ElementTypeInfo>(*element_type_info));
+    }
+}
+} // namespace
 
 /*************************************************************************************************************/
 // TypeBase
@@ -259,20 +287,24 @@ EnumType::EnumType(const std::string& name,
 }
 
 EnumType::EnumType(const EnumType& other)
-    : TypeBase(),
+    : TypeBase(other),
       ModelSubject<EnumType>(),
       utility::TypeAccessMapSubject<EnumType>(),
       InfoMap(),
-      _elements(this, "dd::EnumTypes::Elements")
+      _data_type_name(other._data_type_name),
+      _elements(other._elements)
 {
-    *this = other;
+    _elements._validator = this;
+    copyTypeInfoModel(*this, other);
 }
 
 EnumType& EnumType::operator=(const EnumType& other)
 {
     TypeBase::operator=(other);
     _data_type_name = other._data_type_name;
-    other._elements.deepCopy(_elements, this);
+    _elements = other._elements;
+    _elements._validator = this;
+    copyTypeInfoModel(*this, other);
     return *this;
 }
 
@@ -281,19 +313,20 @@ EnumType::EnumType(EnumType&& other)
       ModelSubject<EnumType>(),
       utility::TypeAccessMapSubject<EnumType>(),
       InfoMap(),
-      _elements(this, "dd::EnumTypes::Elements")
+      _data_type_name(std::move(other._data_type_name)),
+      _elements(std::move(other._elements))
 {
     TypeBase::operator=(other);
-    std::swap(_data_type_name, other._data_type_name);
-    std::swap(_elements, other._elements);
+    moveTypeInfoModel(*this, std::move(other));
     _elements._validator = this;
 }
 
 EnumType& EnumType::operator=(EnumType&& other)
 {
     TypeBase::operator=(other);
-    std::swap(_data_type_name, other._data_type_name);
-    std::swap(_elements, other._elements);
+    moveTypeInfoModel(*this, std::move(other));
+    _data_type_name = std::move(other._data_type_name);
+    _elements = std::move(other._elements);
     _elements._validator = this;
     return *this;
 }
@@ -301,7 +334,7 @@ EnumType& EnumType::operator=(EnumType&& other)
 bool EnumType::operator==(const EnumType& other) const
 {
     return getDataTypeName() == other.getDataTypeName() && getName() == other.getName() &&
-           _elements == other._elements;
+           _elements.getSize() == other._elements.getSize() && _elements.contains(other._elements);
 }
 
 bool EnumType::operator!=(const EnumType& other) const
@@ -414,7 +447,7 @@ StructType::SerializedInfo::SerializedInfo(OptionalSize byte_pos,
                                            ByteOrder byte_order,
                                            OptionalSize bit_pos,
                                            OptionalSize num_bits)
-    : _byte_pos(byte_pos), _byte_order(byte_order), _bit_pos(bit_pos), _num_bits(num_bits)
+    : _byte_pos(byte_pos), _bit_pos(bit_pos), _num_bits(num_bits), _byte_order(byte_order)
 {
 }
 
@@ -556,14 +589,14 @@ StructType::Element::Element(const std::string& name,
                              const std::string& default_value,
                              const std::string& scale,
                              const std::string& offset)
-    : _name(name),
-      _type_name(type_name),
+    : SerializedInfo(serialized_info),
       DeserializedInfo(deserialized_info),
-      SerializedInfo(serialized_info),
-      _array_size(array_size),
+      _name(name),
+      _type_name(type_name),
       _description(description),
-      _comment(comment),
       _unit_name(unit_name),
+      _comment(comment),
+      _array_size(array_size),
       _value(value),
       _minimum_value(minimum_value),
       _maximum_value(maximum_value),
@@ -578,7 +611,9 @@ bool StructType::Element::operator==(const Element& other) const
     return SerializedInfo::operator==(other) && DeserializedInfo::operator==(other) &&
            getArraySize() == other.getArraySize() && getUnitName() == other.getUnitName() &&
            getTypeName() == other.getTypeName() && getScale() == other.getScale() &&
-           getOffset() == other.getOffset();
+           getOffset() == other.getOffset() && getName() == other.getName() &&
+           getMin() == other.getMin() && getMax() == other.getMax() &&
+           getValue() == other.getValue();
 }
 
 bool StructType::Element::operator!=(const Element& other) const
@@ -790,10 +825,10 @@ StructType::StructType(const std::string& name,
       ModelSubject<StructType>(),
       utility::TypeAccessMapSubject<StructType>(),
       InfoMap(),
-      _alignment(alignment),
       _struct_version(struct_version),
-      _comment(comment),
       _ddl_version(ddl_version),
+      _comment(comment),
+      _alignment(alignment),
       _elements(this, "datamodel::StructType::Elements")
 {
     setInfo<NamedContainerInfoStructType>(std::make_shared<NamedContainerInfoStructType>());
@@ -809,53 +844,79 @@ StructType& StructType::operator=(const StructType& other)
     _struct_version = other._struct_version;
     _comment = other._comment;
     _ddl_version = other._ddl_version;
-    other._elements.deepCopy(_elements, this);
+    _elements = other._elements;
+    auto named_list = getNamedItemList();
+    named_list->clear();
+    auto other_element_it = other._elements.begin();
+    for (auto& value: _elements) {
+        (*named_list)[value->getName()] = value;
+        if (other_element_it != other._elements.end()) {
+            copyElementTypeInfo(*value, *(*other_element_it));
+            ++other_element_it;
+        }
+    }
+    copyTypeInfoModel(*this, other);
+    _elements._validator = this;
     return *this;
 }
 
 StructType::StructType(const StructType& other)
-    : TypeBase(),
+    : TypeBase(other),
       ModelSubject<StructType>(),
       utility::TypeAccessMapSubject<StructType>(),
       InfoMap(),
-      _elements(this, "datamodel::StructType::Elements")
+      _alignment(other._alignment),
+      _struct_version(other._struct_version),
+      _comment(other._comment),
+      _ddl_version(other._ddl_version),
+      _elements(other._elements)
 {
     setInfo<NamedContainerInfoStructType>(std::make_shared<NamedContainerInfoStructType>());
-    *this = other;
+    auto named_list = getNamedItemList();
+    auto other_element_it = other._elements.begin();
+    for (auto& value: _elements) {
+        (*named_list)[value->getName()] = value;
+        if (other_element_it != other._elements.end()) {
+            copyElementTypeInfo(*value, *(*other_element_it));
+            ++other_element_it;
+        }
+    }
+    copyTypeInfoModel(*this, other);
+    _elements._validator = this;
 }
 
 StructType::StructType(StructType&& other)
-    : TypeBase(),
+    : TypeBase(std::move(other)),
       ModelSubject<StructType>(),
       utility::TypeAccessMapSubject<StructType>(),
       InfoMap(),
+      _alignment(std::move(other._alignment)),
+      _struct_version(std::move(other._struct_version)),
+      _comment(std::move(other._comment)),
+      _ddl_version(std::move(other._ddl_version)),
       _elements(std::move(other._elements))
 {
     setInfo<NamedContainerInfoStructType>(std::make_shared<NamedContainerInfoStructType>());
-    TypeBase::operator=(other);
-    std::swap(_alignment, other._alignment);
-    std::swap(_struct_version, other._struct_version);
-    std::swap(_comment, other._comment);
-    std::swap(_ddl_version, other._ddl_version);
     _elements.setValidator(this);
 }
 
 StructType& StructType::operator=(StructType&& other)
 {
     TypeBase::operator=(other);
-    std::swap(_alignment, other._alignment);
-    std::swap(_struct_version, other._struct_version);
-    std::swap(_comment, other._comment);
-    std::swap(_ddl_version, other._ddl_version);
-    std::swap(_elements, other._elements);
+    _alignment = std::move(other._alignment);
+    _struct_version = std::move(other._struct_version);
+    _comment = std::move(other._comment);
+    _ddl_version = std::move(other._ddl_version);
+    _elements = std::move(other._elements);
     _elements.setValidator(this);
     return *this;
 }
 
 bool StructType::operator==(const StructType& other) const
 {
-    return _alignment == other.getAlignment() && _struct_version == other.getVersion() &&
-           _ddl_version == other.getLanguageVersion();
+    return _name == other.getName() && _alignment == other.getAlignment() &&
+           _struct_version == other.getVersion() && _ddl_version == other.getLanguageVersion() &&
+           _elements == other._elements;
 }
 
 bool StructType::operator!=(const StructType& other) const
@@ -1084,7 +1145,10 @@ StreamMetaType& StreamMetaType::operator=(StreamMetaType&& other)
 bool StreamMetaType::operator==(const StreamMetaType& other) const
 {
     return getName() == other.getName() && getVersion() == other.getVersion() &&
-           getParent() == other.getParent() && _properties == other._properties;
+           getParent() == other.getParent() &&
+           _properties.getSize() == other._properties.getSize() &&
+           _properties.contains(other._properties);
+    ;
 }
 
 bool StreamMetaType::operator!=(const StreamMetaType& other) const

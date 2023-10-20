@@ -6,24 +6,25 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
 #ifndef DD_TYPES_H_INCLUDED
 #define DD_TYPES_H_INCLUDED
 
+#include <a_util/preprocessor/deprecated.h>
 #include <ddl/utilities/dd_access_optional.h>
 
 #include <string>
+
+/// @cond INTERNAL_DOCUMENTATION
+#define DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(alternative)                                       \
+    DEV_ESSENTIAL_DEPRECATED("Please use ddl::dd::" #alternative                                   \
+                             " directly, due to static intialization problem.")
+/// @endcond
 
 namespace ddl {
 
@@ -249,14 +250,22 @@ public:
     bool isValidVersion() const;
 
     /**
-     * @brief Get the Default Version
+     * @brief Get the Default Version.
+     * @dev_essential_deprecated Use @ref getLatestVersion() instead.
+     * @return const Version&
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version::getLatestVersion())
+    static const Version& getDefaultVersion()
+    {
+        return getLatestVersion();
+    }
+
+    /**
+     * @brief Get the latest DDL version
      *
      * @return const Version&
      */
-    static const Version& getDefaultVersion()
-    {
-        return ddl_version_current;
-    }
+    static const Version& getLatestVersion();
 
     /* ignore patch version for all comparisons */
     /// @cond nodoc
@@ -266,32 +275,72 @@ public:
     bool operator<(const Version& other) const;
     bool operator<=(const Version& other) const;
     bool operator>=(const Version& other) const;
-    /// @endcond nodoc
+    /// @endcond
 
-    /// invalid Version
+    /**
+     * invalid Version.
+     * @dev_essential_deprecated Use @c Version(0, 0)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(0, 0))
     static const Version ddl_version_invalid;
-    /// version not set Version
+    /**
+     * version not set Version.
+     * @dev_essential_deprecated Use @c Version(0, 0)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(0, 0))
     static const Version ddl_version_notset;
-    /// Language Version 1.0
+    /**
+     * Language Version 1.0.
+     * @dev_essential_deprecated Use @c Version(1, 0)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(1, 0))
     static const Version ddl_version_10;
-    /// Language Version 1.0+
+    /**
+     * Language Version 1.0+.
+     * @dev_essential_deprecated Use @c Version(1, 1)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(1, 1))
     static const Version ddl_version_11;
-    /// Language Version 1.2
+    /**
+     * Language Version 1.2.
+     * @dev_essential_deprecated Use @c Version(1, 2)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(1, 2))
     static const Version ddl_version_12;
-    /// Language Version 2.0
+    /**
+     * Language Version 2.0.
+     * @dev_essential_deprecated Use @c Version(2, 0)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(2, 0))
     static const Version ddl_version_20;
-    /// Language Version 3.0
+    /**
+     * Language Version 3.0.
+     * @dev_essential_deprecated Use @c Version(3, 0)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(3, 0))
     static const Version ddl_version_30;
-    /// Language Version 4.0
+    /**
+     * Language Version 4.0.
+     * @dev_essential_deprecated Use @c Version(4, 0)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(4, 0))
     static const Version ddl_version_40;
-    /// Language Version 4.1
+    /**
+     * Language Version 4.1.
+     * @dev_essential_deprecated Use @c Version(4, 1)
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version(4, 1))
     static const Version ddl_version_41;
-    /// the newest version (currently it is @ref ddl_version_41).
+    /**
+     * the newest version (currently it is @ref ddl_version_41).
+     * @dev_essential_deprecated Use @ref Version::getLatestVersion()
+     */
+    DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(Version::getLatestVersion())
     static const Version ddl_version_current;
 
 private:
-    uint32_t _major;
-    uint32_t _minor;
+    uint32_t _major = {};
+    uint32_t _minor = {};
 };
 
 /**
@@ -315,7 +364,7 @@ public:
      * @return Version
      */
     static Version fromString(const std::string& version,
-                              const Version& default_val = Version::ddl_version_notset);
+                              const Version& default_val = Version(0, 0));
 };
 
 /**

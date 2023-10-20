@@ -1,6 +1,10 @@
 #include "streamreader.h"
 #include <stdlib.h>
 #include <unistd.h>
+#ifdef _WIN32
+#include <io.h> // read()
+#define read _read
+#endif // _WIN32
 
 using namespace jsonrpc;
 using namespace std;

@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "../../_common/adtf_compat.h"
@@ -107,7 +101,7 @@ void test_static(CodecFactory& oFactory, const T& sTestData, DataRepresentation 
     ASSERT_EQ(a_util::result::SUCCESS, oDecoder.isValid());
     ASSERT_EQ(a_util::result::SUCCESS, oCodec.isValid());
 
-    ASSERT_EQ(oDecoder.getElementCount(), 10);
+    ASSERT_EQ(oDecoder.getElementCount(), 10U);
     DumpElements(oDecoder);
 
     ASSERT_EQ(access_element::getValue(oDecoder, "child[0].value_dummy").getInt8(), 1);
@@ -133,8 +127,9 @@ void test_static(CodecFactory& oFactory, const T& sTestData, DataRepresentation 
     ASSERT_EQ(a_util::result::SUCCESS, oCodec.setElementValue(1, &nNewData));
     ASSERT_TRUE(0x10 == sTest.sChild[0].nValue[0] || 0x10000000 == sTest.sChild[0].nValue[0]);
 
-    ASSERT_EQ(a_util::result::SUCCESS,
-              access_element::setValue(oCodec, "child[1].value[2]", (int32_t)0x20));
+    ASSERT_EQ(
+        a_util::result::SUCCESS,
+        access_element::setValue(oCodec, "child[1].value[2]", a_util::variant::Variant{0x20}));
     ASSERT_TRUE(0x20 == sTest.sChild[1].nValue[2] || 0x20000000 == sTest.sChild[1].nValue[2]);
 }
 
@@ -151,12 +146,12 @@ TEST(CodecTest, TestStatic)
     size_t nIndex = 200;
     ASSERT_EQ(a_util::result::SUCCESS,
               access_element::findIndex(oFactory, "child[0].after", nIndex));
-    ASSERT_EQ(nIndex, 4);
+    ASSERT_EQ(nIndex, 4U);
     ASSERT_EQ(a_util::result::SUCCESS,
               access_element::findStructIndex(oFactory, "child[1]", nIndex));
-    ASSERT_EQ(nIndex, 5);
+    ASSERT_EQ(nIndex, 5U);
     ASSERT_EQ(a_util::result::SUCCESS, access_element::findArrayIndex(oFactory, "child", nIndex));
-    ASSERT_EQ(nIndex, 0);
+    ASSERT_EQ(nIndex, 0U);
 }
 
 /**
@@ -215,8 +210,8 @@ void TestDynamicSimple(CodecFactory& oFactory, const T& sTestData, DataRepresent
     ASSERT_EQ(a_util::result::SUCCESS, oDecoder.isValid());
 
     ASSERT_EQ(sizeof(T), oDecoder.getBufferSize(eRep));
-    std::cout << a_util::strings::toString((uint64_t)oDecoder.getElementCount()).c_str();
-    ASSERT_EQ(oDecoder.getElementCount(), 6);
+    std::cout << a_util::strings::toString(oDecoder.getElementCount()).c_str();
+    ASSERT_EQ(oDecoder.getElementCount(), 6U);
 
     ASSERT_EQ(access_element::getValue(oDecoder, "array_size").getInt8(), 4);
     ASSERT_EQ(access_element::getValue(oDecoder, "array[0]").getInt32(), 1);
@@ -346,8 +341,8 @@ void TestDynamicComplex(CodecFactory& oFactory, const T& sTestData, DataRepresen
     ASSERT_EQ(a_util::result::SUCCESS, oDecoder.isValid());
 
     ASSERT_EQ(sizeof(T), oDecoder.getBufferSize(eRep));
-    std::cout << a_util::strings::toString((uint64_t)oDecoder.getElementCount()).c_str();
-    ASSERT_EQ(oDecoder.getElementCount(), 23);
+    std::cout << a_util::strings::toString(oDecoder.getElementCount()).c_str();
+    ASSERT_EQ(oDecoder.getElementCount(), 23U);
 
     ASSERT_EQ(access_element::getValue(oDecoder, "before").getInt8(), 4);
     ASSERT_EQ(access_element::getValue(oDecoder, "test.array_size").getInt8(), 2);
@@ -574,7 +569,7 @@ const char* strTestDesc = "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standal
                           "bytepos=\"43\" name=\"nChar\" type=\"tChar\"/>"
                           "</struct>";
 
-const tMain sTestData = {true, 1, 2, 3, 4, 5, 6, 7, 8, (float)3.1415, 2.7182, 'x'};
+const tMain sTestData = {true, 1, 2, 3, 4, 5, 6, 7, 8, 3.1415f, 2.7182, 'x'};
 
 } // namespace all_types
 
@@ -858,8 +853,8 @@ TEST(CodecTest, TestArrayAccessWithStruct)
 
     auto parentvalue = ddl::access_element::getValue(codec, "nParentValue");
 
-    ASSERT_EQ(value1.asUInt8(), 4);
-    ASSERT_EQ(value2.asUInt8(), 5);
-    ASSERT_EQ(value3.asUInt8(), 6);
-    ASSERT_EQ(parentvalue.asUInt8(), 7);
+    ASSERT_EQ(value1.asUInt8(), 4U);
+    ASSERT_EQ(value2.asUInt8(), 5U);
+    ASSERT_EQ(value3.asUInt8(), 6U);
+    ASSERT_EQ(parentvalue.asUInt8(), 7U);
 }

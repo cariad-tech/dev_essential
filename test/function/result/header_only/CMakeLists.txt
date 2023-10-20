@@ -1,26 +1,20 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 find_package(dev_essential COMPONENTS result REQUIRED)
 
 add_executable(result_type_test result_type_test.cpp)
 target_link_libraries(result_type_test PRIVATE GTest::gtest_main dev_essential::result)
-add_test(result_type_test result_type_test)
 set_target_properties(result_type_test PROPERTIES FOLDER test/function/a_util/result)
+gtest_discover_tests(result_type_test)
 
 add_executable(ref_counted_object_test ref_counted_object_test.cpp)
 target_link_libraries(ref_counted_object_test PRIVATE GTest::gtest_main dev_essential::base)
-add_test(ref_counted_object_test ref_counted_object_test)
 set_target_properties(ref_counted_object_test PROPERTIES FOLDER test/function/a_util/result)
+gtest_discover_tests(ref_counted_object_test)
 
 # a_util 5.0.0 library to test backwards binary compatibility
 add_library(a_util_result_legacy_shared
@@ -38,7 +32,8 @@ target_compile_definitions(a_util_result_legacy_shared
                                    A_UTIL_DO_EXPORT)
 # We cannot change the implementation, because we want to test against the old implementation
 # So we have to get rid of the warnings via compiler flags
-target_compile_options(a_util_result_legacy_shared PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-pedantic -Wno-extra>)
+target_compile_options(a_util_result_legacy_shared
+                       PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wno-pedantic -Wno-extra>)
 target_include_directories(a_util_result_legacy_shared SYSTEM PRIVATE lib/a_util_5_0_0)
 target_compile_features(a_util_result_legacy_shared PRIVATE cxx_std_14)
 set_target_properties(a_util_result_legacy_shared
@@ -48,6 +43,6 @@ set_target_properties(a_util_result_legacy_shared
 add_executable(result_type_compat_test result_type_compat_test.cpp)
 target_link_libraries(result_type_compat_test
                       PRIVATE GTest::gtest_main a_util_result_legacy_shared dev_essential::result)
-add_test(result_type_compat_test result_type_compat_test)
 set_target_properties(result_type_compat_test PROPERTIES FOLDER test/function/a_util/result)
 target_compile_definitions(result_type_compat_test PRIVATE A_UTIL_DO_EXPORT)
+gtest_discover_tests(result_type_compat_test)

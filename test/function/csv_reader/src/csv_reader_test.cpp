@@ -4,16 +4,14 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+#ifndef TEST_FILE_PATH
+#error 'TEST_FILE_PATH="path/to/test/files/test.csv"' define must be passed for this test!
+#endif // !TEST_FILE_PATH
 
 #include <a_util/parser/csv_reader.h>
 
@@ -24,7 +22,7 @@ TEST(csv_reader_test, TestGetData)
 {
     using a_util::parser::CSVReader;
     CSVReader reader;
-    reader.readFile("files/test.csv", ';');
+    reader.readFile(TEST_FILE_PATH, ';');
 
     std::vector<std::string> row;
     std::vector<std::vector<std::string>> matrix;
@@ -50,7 +48,7 @@ TEST(csv_reader_test, TestGetColumn)
 {
     using a_util::parser::CSVReader;
     CSVReader reader;
-    reader.readFile("files/test.csv", ';');
+    reader.readFile(TEST_FILE_PATH, ';');
 
     std::vector<std::string> column;
     column.push_back("11.418851944");
@@ -67,7 +65,7 @@ TEST(csv_reader_test, TestGetRow)
 {
     using a_util::parser::CSVReader;
     CSVReader reader;
-    reader.readFile("files/test.csv", ';');
+    reader.readFile(TEST_FILE_PATH, ';');
 
     std::vector<std::string> row;
     row.push_back("11.418851944");
@@ -85,7 +83,7 @@ TEST(csv_reader_test, TestGetElement)
 {
     using a_util::parser::CSVReader;
     CSVReader reader;
-    reader.readFile("files/test.csv", ';');
+    reader.readFile(TEST_FILE_PATH, ';');
 
     std::string element;
     element = "11.418851944";

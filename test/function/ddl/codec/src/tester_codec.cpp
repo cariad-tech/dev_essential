@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "../../_common/adtf_compat.h"
@@ -113,7 +107,7 @@ void test_static(codec::CodecFactory& factory, const T& test_data, DataRepresent
     ASSERT_EQ(a_util::result::SUCCESS, decoder.isValid());
     ASSERT_EQ(a_util::result::SUCCESS, codec.isValid());
 
-    ASSERT_EQ(decoder.getElementCount(), 10);
+    ASSERT_EQ(decoder.getElementCount(), 10U);
     dumpElements(decoder);
 
     ASSERT_EQ(decoder.getElement("child[0].value_dummy").template getValue<uint8_t>(), 1);
@@ -157,30 +151,30 @@ TEST(CodecTest, TestStatic)
     auto found_element_after = factory.getElement("child[0].after");
     auto found_index_after = found_element_after.getIndex();
     // two indices ... 2 level access
-    ASSERT_EQ(found_index_after.getSize(), 2);
+    ASSERT_EQ(found_index_after.getSize(), 2U);
 
-    ASSERT_EQ(found_index_after[0].getIndex(), 0);
-    ASSERT_EQ(found_index_after[0].getArrayPos(), 0);
+    ASSERT_EQ(found_index_after[0].getIndex(), 0U);
+    ASSERT_EQ(found_index_after[0].getArrayPos(), 0U);
 
-    ASSERT_EQ(found_index_after[1].getIndex(), 2);
-    ASSERT_EQ(found_index_after[1].getArrayPos(), 0);
+    ASSERT_EQ(found_index_after[1].getIndex(), 2U);
+    ASSERT_EQ(found_index_after[1].getArrayPos(), 0U);
 
     auto found_element_struct = factory.getElement("child[1]");
     auto found_index_struct = found_element_struct.getIndex();
     // one index ... first level access
-    ASSERT_EQ(found_index_struct.getSize(), 1);
+    ASSERT_EQ(found_index_struct.getSize(), 1U);
 
-    ASSERT_EQ(found_index_struct[0].getIndex(), 0);
-    ASSERT_EQ(found_index_struct[0].getArrayPos(), 1);
+    ASSERT_EQ(found_index_struct[0].getIndex(), 0U);
+    ASSERT_EQ(found_index_struct[0].getArrayPos(), 1U);
 
     // check if no array value within the name gets the arraypos 0
     auto found_element_array_first = factory.getElement("child");
     auto found_index_array_first = found_element_array_first.getIndex();
     // one index ... first level access
-    ASSERT_EQ(found_index_array_first.getSize(), 1);
+    ASSERT_EQ(found_index_array_first.getSize(), 1U);
 
-    ASSERT_EQ(found_index_array_first[0].getIndex(), 0);
-    ASSERT_EQ(found_index_array_first[0].getArrayPos(), 0);
+    ASSERT_EQ(found_index_array_first[0].getIndex(), 0U);
+    ASSERT_EQ(found_index_array_first[0].getArrayPos(), 0U);
 }
 
 /**
@@ -236,8 +230,8 @@ void TestDynamicSimple(codec::CodecFactory& factory, const T& test_data, DataRep
     ASSERT_EQ(a_util::result::SUCCESS, decoder.isValid());
 
     ASSERT_EQ(sizeof(T), decoder.getBufferSize(eRep));
-    std::cout << a_util::strings::toString((uint64_t)decoder.getElementCount()).c_str();
-    ASSERT_EQ(decoder.getElementCount(), 6);
+    std::cout << a_util::strings::toString(decoder.getElementCount()).c_str();
+    ASSERT_EQ(decoder.getElementCount(), 6U);
 
     ASSERT_EQ(decoder.getElement("array_size").getVariantValue().getInt8(), 4);
     ASSERT_EQ(decoder.getElement("array[0]").getVariantValue().getInt32(), 1);
@@ -359,8 +353,8 @@ void TestDynamicComplex(codec::CodecFactory& factory, const T& test_data, DataRe
     ASSERT_EQ(a_util::result::SUCCESS, decoder.isValid());
 
     ASSERT_EQ(sizeof(T), decoder.getBufferSize(eRep));
-    std::cout << a_util::strings::toString((uint64_t)decoder.getElementCount()).c_str();
-    ASSERT_EQ(decoder.getElementCount(), 23);
+    std::cout << a_util::strings::toString(decoder.getElementCount()).c_str();
+    ASSERT_EQ(decoder.getElementCount(), 23U);
 
     ASSERT_EQ(decoder.getElement("before").getVariantValue().getInt8(), 4);
     ASSERT_EQ(decoder.getElement("test.array_size").getVariantValue().getInt8(), 2);
@@ -676,7 +670,7 @@ const char* test_description =
             <element alignment="1" arraysize="1" byteorder="BE" bitpos="1" bytepos="43" name="nChar" type="tChar"/>
         </struct>)";
 
-const MainStruct test_data = {true, 1, 2, 3, 4, 5, 6, 7, 8, (float)3.1415, 2.7182, 'x'};
+const MainStruct test_data = {true, 1, 2, 3, 4, 5, 6, 7, 8, 3.1415f, 2.7182, 'x'};
 
 } // namespace all_types
 
@@ -951,10 +945,10 @@ TEST(CodecTest, TestArrayAccessWithStruct)
 
     auto parentvalue = codec.getElement("nParentValue").getVariantValue();
 
-    ASSERT_EQ(value1.asUInt8(), 4);
-    ASSERT_EQ(value2.asUInt8(), 5);
-    ASSERT_EQ(value3.asUInt8(), 6);
-    ASSERT_EQ(parentvalue.asUInt8(), 7);
+    ASSERT_EQ(value1.asUInt8(), 4U);
+    ASSERT_EQ(value2.asUInt8(), 5U);
+    ASSERT_EQ(value3.asUInt8(), 6U);
+    ASSERT_EQ(parentvalue.asUInt8(), 7U);
 }
 
 namespace static_test_leaf {
@@ -1039,7 +1033,7 @@ TEST(CodecTest, TestDynamicLeafCodecIndex)
     // for this test case we set the array size to 3 elements in test_data
     // and to 3 elements within each child_array
     // the last 7 elements of ArrayTest are not used
-    const ArrayTest test_data{3, {3, {0, 1, 2}, 3, {0, 1, 2}, 3, {0, 1, 2}}};
+    const ArrayTest test_data{3, {{3, {0, 1, 2}}, {3, {0, 1, 2}}, {3, {0, 1, 2}}}};
 
     const auto decoder = factory.makeDecoderFor(&test_data, sizeof(test_data));
     const auto indices = getLeafCodecIndices(decoder, decoder.getRepresentation());
@@ -1077,7 +1071,7 @@ static void testPerformance(const std::function<void()>& test_call,
 
 TEST(CodecTest, TestSampleDecodingPerformanceCodecAccess)
 {
-    const std::string file_to_use = TEST_FILES_DIR "/test_performance.description";
+    const std::string file_to_use = TEST_FILES_DIR "test_performance.description";
 
     size_t test_decoding_count = 100;
 
@@ -1302,7 +1296,7 @@ TEST(CodecTest, GetAndSetFor_is_convertible_types)
 
     EXPECT_EQ(decoder.getElementValue<MyStructWithTypeConversion>(child_value_leaf_index),
               MyStructWithTypeConversion(int32_t(1)));
-#ifdef WIN32
+#ifdef _WIN32
 // to compile this we need to switch off the warning
 // this is if the user ignores this warnings!!
 #pragma warning(push)
@@ -1313,7 +1307,7 @@ TEST(CodecTest, GetAndSetFor_is_convertible_types)
 // MyStructWithNoConversion test2;
 // REQUIRE_THROWS(decoder.GetElementValue<MyStructWithNoConversion>(oChildValue2LeafIndex) ==
 // test2);
-#ifdef WIN32
+#ifdef _WIN32
 #pragma warning(pop)
 #endif
     EXPECT_EQ(decoder.getElementValue<a_util::variant::Variant>(child_value2_leaf_index),
@@ -1366,7 +1360,7 @@ TEST(CodecTest, GetAndSetFor_is_convertible_variant)
     EXPECT_THROW(decoder.getElementValue<variant_bool_double>(child_value_dummy_leaf_index),
                  std::runtime_error);
 
-#ifdef WIN32
+#ifdef _WIN32
 #pragma warning(pop)
 #endif
 
@@ -1390,3 +1384,94 @@ TEST(CodecTest, GetAndSetFor_is_convertible_variant)
 }
 
 #endif // NO_VARIANT_TEST
+
+namespace static_array_access_leaf {
+
+template <typename T>
+void initTestArrayValues(T& test)
+{
+    for (size_t current_index = 0; current_index < sizeof(test.array_value); ++current_index) {
+        test.array_value[current_index] = static_cast<uint8_t>(current_index + 2);
+    }
+}
+
+#pragma pack(push, 4)
+struct TestDeserialized {
+    TestDeserialized()
+    {
+        initTestArrayValues(*this);
+    }
+    uint16_t value_before = 1u;
+    uint8_t array_value[199];
+    uint32_t value_after = 201u;
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+struct TestSerialized {
+    TestSerialized()
+    {
+        initTestArrayValues(*this);
+    }
+    uint16_t value_before = 1u;
+    uint8_t array_value[199];
+    uint32_t value_after = 201u;
+};
+#pragma pack(pop)
+
+const auto test_description =
+    R"(<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<structs>
+    <struct alignment="4" name="test" version="2">
+        <element alignment="2" arraysize="1" byteorder="LE" bytepos="0" name="value_before" type="tUInt16"/>
+        <element alignment="1" arraysize="199" byteorder="LE" bytepos="2" name="array_value" type="tUInt8"/>"
+        <element alignment="4" arraysize="1" byteorder="LE" bytepos="201" name="value_after" type="tInt32"/>"
+    </struct>"
+</structs>)";
+
+TEST(CodecTest, useLeafCodecIndexWithArrays)
+{
+    using namespace static_array_access_leaf;
+
+    const codec::CodecFactory factory("test", test_description);
+
+    codec::Codec codec;
+    TestSerialized serialized_values;
+    TestDeserialized deserialized_values;
+
+    for (auto data_representation:
+         {ddl::DataRepresentation::deserialized, ddl::DataRepresentation::serialized}) {
+        const auto value_before_leaf_index = codec::LeafCodecIndex(
+            factory.getElement("value_before").getIndex(), data_representation);
+        const auto array_value_0_leaf_index = codec::LeafCodecIndex(
+            factory.getElement("array_value[0]").getIndex(), data_representation);
+        const auto array_value_100_leaf_index = codec::LeafCodecIndex(
+            factory.getElement("array_value[100]").getIndex(), data_representation);
+        const auto array_value_198_leaf_index = codec::LeafCodecIndex(
+            factory.getElement("array_value[198]").getIndex(), data_representation);
+        const auto value_after_leaf_index = codec::LeafCodecIndex(
+            factory.getElement("value_after").getIndex(), data_representation);
+
+        if (data_representation == ddl::DataRepresentation::deserialized) {
+            EXPECT_EQ(factory.getStaticBufferSize(data_representation),
+                      sizeof(deserialized_values));
+            codec = factory.makeCodecFor(
+                &deserialized_values, sizeof(deserialized_values), data_representation);
+        }
+        else {
+            EXPECT_EQ(factory.getStaticBufferSize(data_representation), sizeof(serialized_values));
+            codec = factory.makeCodecFor(
+                &serialized_values, sizeof(serialized_values), data_representation);
+        }
+
+        EXPECT_EQ(codec.getElementValue<uint16_t>(value_before_leaf_index), 1u);
+
+        EXPECT_EQ(codec.getElementValue<uint8_t>(array_value_0_leaf_index), 2u);
+        EXPECT_EQ(codec.getElementValue<uint8_t>(array_value_100_leaf_index), 102u);
+        EXPECT_EQ(codec.getElementValue<uint8_t>(array_value_198_leaf_index), 200u);
+
+        EXPECT_EQ(codec.getElementValue<uint32_t>(value_after_leaf_index), 201u);
+    }
+}
+
+} // namespace static_array_access_leaf

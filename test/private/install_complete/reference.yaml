@@ -1,19 +1,14 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 common:
     files:
         - MPL2\.0\.txt
         - README\.md
+        - cmake/modules/Findclipp\.cmake
         - cmake/modules/FindJsonStubGenerator\.cmake
         - cmake/stub_generation\.cmake
         - doc/changelog\.md
@@ -30,9 +25,8 @@ common:
         - doc/html/doc/extern/license/MPL2\.0\.txt
         - doc/html/doc/extern/license/licenses\.txt
         - doc/html/doc\.png
-        - doc/html/doxygen\.png
         - doc/html/extern/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
-        - doc/html/extern/3rdparty/clara/Clara-1\.1\.2/LICENSE\.txt
+        - doc/html/extern/3rdparty/clipp/clipp-1\.2\.3/LICENSE
         - doc/html/extern/3rdparty/pugixml/pugixml-1\.8/readme\.txt
         - doc/html/extern/3rdparty/utfcpp/utf8_v2_3_4/source/utf8\.h
         - doc/html/extern/3rdparty/uuid/uuid-1\.6\.2/license\.txt
@@ -45,8 +39,6 @@ common:
         - doc/html/search/.+\.css
         - doc/html/search/.+\.html
         - doc/html/search/.+\.js
-        - doc/html/search/close\.png
-        - doc/html/search/mag_sel\.png
         - doc/html/search/search_l\.png
         - doc/html/search/search_m\.png
         - doc/html/search/search_r\.png
@@ -60,10 +52,9 @@ common:
         - doc/html/tab_b\.png
         - doc/html/tab_h\.png
         - doc/html/tab_s\.png
-        - doc/license/Clara-1\.1\.2/LICENSE\.txt
-        - doc/license/Clara-1\.1\.2/README\.md
         - doc/license/MPL2\.0\.txt
         - doc/license/boost_1_64_0/boost/current_function\.hpp
+        - doc/license/clipp-1\.2\.3/LICENSE
         - doc/license/licenses\.txt
         - doc/license/pugixml-1\.8/readme\.txt
         - doc/license/utf8_v2_3_4/source/utf8\.h
@@ -72,13 +63,14 @@ common:
         - doc/specification/ddl4\.xsd
         - doc/specification/mapping_configuration\.xsd
         - include/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
-        - include/3rdparty/clara/Clara-1\.1\.2/single_include/clara\.hpp
         - include/a_util/base/delegate\.h
         - include/a_util/base/detail/delegate_decl\.h
         - include/a_util/base/detail/delegate_impl\.h
         - include/a_util/base/detail/error\.inc
         - include/a_util/base/enums\.h
         - include/a_util/base/error\.h
+        - include/a_util/base/feature_check/library/is_enum_v\.h
+        - include/a_util/base/feature_check/library/string_view\.h
         - include/a_util/base/scopeguard\.h
         - include/a_util/base/type_traits\.h
         - include/a_util/base/types\.h
@@ -112,6 +104,7 @@ common:
         - include/a_util/parser/csv_reader\.h
         - include/a_util/parser\.h
         - include/a_util/preprocessor/current_function\.h
+        - include/a_util/preprocessor/deprecated\.h
         - include/a_util/preprocessor/detail/disable_warnings\.h
         - include/a_util/preprocessor/dll_export\.h
         - include/a_util/preprocessor/to_string\.h
@@ -148,6 +141,7 @@ common:
         - include/a_util/strings/strings_numeric_traits_decl\.h
         - include/a_util/strings/unicode\.h
         - include/a_util/strings\.h
+        - include/a_util/system/address_info\.h
         - include/a_util/system/detail/timer_impl\.h
         - include/a_util/system/system\.h
         - include/a_util/system/timer\.h
@@ -280,8 +274,6 @@ common:
         - include/rpc/rpc\.h
         - include/rpc/rpc_object_registry\.h
         - include/rpc/rpc_server\.h
-        - lib/cmake/3rdparty/clara-config-version\.cmake
-        - lib/cmake/3rdparty/clara-config\.cmake
         - lib/cmake/dev_essential/dev_essential-config-version\.cmake
         - lib/cmake/dev_essential/dev_essential-config\.cmake
         - lib/cmake/dev_essential/dev_essential_targets\.cmake

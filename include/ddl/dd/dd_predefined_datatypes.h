@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -69,34 +63,28 @@ public:
 #pragma GCC diagnostic ignored "-Wattributes"
 #endif // defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
 
-#ifdef min
-#undef min
-#endif
-#ifdef max
-#undef max
-#endif
 /**
- * @brief
- * @param _type_ Type to create the specialized template for
- * @param _name_ Name to use for the type by default
+ * Expands to @c DataType<type> inheriting from @c dd::datamodel::DataType
+ * @param type Type to create the specialized template for
+ * @param default_name Name to use for the type by default
  */
-#define DDL_DATA_TYPE_INT(_type_, _name_)                                                          \
+#define DDL_DATA_TYPE_INT(type, default_name)                                                      \
     namespace ddl {                                                                                \
     template <>                                                                                    \
-    class DataType<_type_> : public dd::datamodel::DataType {                                      \
+    class DataType<type> : public dd::datamodel::DataType {                                        \
     public:                                                                                        \
         DataType(const std::string& name)                                                          \
             : dd::datamodel::DataType(name,                                                        \
-                                      sizeof(_type_) * 8,                                          \
+                                      sizeof(type) * 8,                                            \
                                       std::string("Predefined DataType for ") + name,              \
                                       1,                                                           \
                                       "",                                                          \
-                                      std::to_string(std::numeric_limits<_type_>::min()),          \
-                                      std::to_string(std::numeric_limits<_type_>::max()),          \
-                                      alignof(_type_))                                             \
+                                      std::to_string((std::numeric_limits<type>::min)()),          \
+                                      std::to_string((std::numeric_limits<type>::max)()),          \
+                                      alignof(type))                                               \
         {                                                                                          \
         }                                                                                          \
-        DataType() : DataType(_name_)                                                              \
+        DataType() : DataType(default_name)                                                        \
         {                                                                                          \
         }                                                                                          \
     };                                                                                             \
@@ -113,7 +101,7 @@ DDL_DATA_TYPE_INT(int8_t, "tInt8");
 DDL_DATA_TYPE_INT(int16_t, "tInt16");
 DDL_DATA_TYPE_INT(int32_t, "tInt32");
 DDL_DATA_TYPE_INT(int64_t, "tInt64");
-/// @endcond nodoc
+/// @endcond
 
 namespace ddl {
 

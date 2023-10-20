@@ -4,15 +4,9 @@
  *
  * Copyright @ 2022 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/filesystem.h>
@@ -30,36 +24,36 @@ void sortNodes(xml::DOMElement& root, const SortingOrder order)
     // sort all nodes below header by node name
     EXPECT_TRUE(root.sortNodes("header/*", order));
     // sort all nodes named header/ext_declaration by attribute key
-    EXPECT_EQ(root.sortNodes("header/ext_declaration", "key", order), 3);
+    EXPECT_EQ(root.sortNodes("header/ext_declaration", "key", order), 3U);
     // sort all nodes below units by node name
     EXPECT_TRUE(root.sortNodes("units/*", order));
     // sort all nodes named units/baseunit by attribute name
-    EXPECT_EQ(root.sortNodes("units/baseunit", "name", order), 4);
+    EXPECT_EQ(root.sortNodes("units/baseunit", "name", order), 4U);
     // sort all nodes named units/prefixes by attribute name
-    EXPECT_EQ(root.sortNodes("units/prefixes", "name", order), 4);
+    EXPECT_EQ(root.sortNodes("units/prefixes", "name", order), 4U);
     // sort all nodes named units/unit by attribute name
-    EXPECT_EQ(nodes = root.sortNodes("units/unit", "name", order), 2);
+    EXPECT_EQ(nodes = root.sortNodes("units/unit", "name", order), 2U);
     // sort all nodes below all units/unit by node name
     EXPECT_TRUE(root.sortNodes("units/unit[*]/*", order, nodes));
     // sort all nodes refUnit of all units/unit by attribute name
     // expect false, because not all nodes unit contain nodes refUnit
     EXPECT_FALSE(root.sortNodes("units/unit[*]/refUnit", "name", order, nodes));
     // sort all nodes named datatypes/datatype by attribute type
-    EXPECT_EQ(root.sortNodes("datatypes/datatype", "type", order), 4);
+    EXPECT_EQ(root.sortNodes("datatypes/datatype", "type", order), 4U);
     // sort all nodes named enums/enum by attribute name
-    EXPECT_EQ(nodes = root.sortNodes("enums/enum", "name", order), 2);
+    EXPECT_EQ(nodes = root.sortNodes("enums/enum", "name", order), 2U);
     // sort all nodes element of all enums/enum by attribute name
     EXPECT_TRUE(root.sortNodes("enums/enum[*]/element", "name", order, nodes));
     // sort all nodes named structs/struct by attribute name
-    EXPECT_EQ(root.sortNodes("structs/struct", "name", order), 2);
+    EXPECT_EQ(root.sortNodes("structs/struct", "name", order), 2U);
     // sort all nodes named streammetatypes/streammetatype by attribute name
-    EXPECT_EQ(nodes = root.sortNodes("streammetatypes/streammetatype", "name", order), 3);
+    EXPECT_EQ(nodes = root.sortNodes("streammetatypes/streammetatype", "name", order), 3U);
     // sort all nodes property of all streammetatypes/streammetatype by attribute name
     // expect false, because not all nodes streammetatype contain nodes property
     EXPECT_FALSE(
         root.sortNodes("streammetatypes/streammetatype[*]/property", "name", order, nodes));
     // sort all nodes named streams/stream by attribute name
-    EXPECT_EQ(root.sortNodes("streams/stream", "name", order), 2);
+    EXPECT_EQ(root.sortNodes("streams/stream", "name", order), 2U);
 }
 
 TEST(xml_test_sort, TestSortAscending)

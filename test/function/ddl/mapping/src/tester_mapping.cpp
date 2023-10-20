@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "../../_common/adtf_compat.h"
@@ -26,6 +20,7 @@
 #include <ddl/dd/ddstring.h>
 #include <ddl/mapping/engine/mapping_engine.h>
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <memory>
@@ -38,6 +33,7 @@ _MAKE_RESULT(-4, ERR_POINTER);
 _MAKE_RESULT(-5, ERR_INVALID_ARG);
 _MAKE_RESULT(-11, ERR_INVALID_FILE);
 _MAKE_RESULT(-20, ERR_NOT_FOUND);
+_MAKE_RESULT(-38, ERR_FAILED);
 _MAKE_RESULT(-42, ERR_INVALID_TYPE);
 
 ddl::dd::DataDefinition LoadDDL(const std::string& strDDLFile)
@@ -51,7 +47,7 @@ ddl::dd::DataDefinition LoadDDL(const std::string& strDDLFile)
  */
 TEST(cTesterMapping, TestEmptyConfig)
 {
-    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "/test.description"));
+    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "test.description"));
 
     ASSERT_EQ(oConfig.getHeader().getAuthor(), a_util::system::getCurrentUserName());
     ASSERT_EQ(oConfig.getHeader().getCreationDate(), oConfig.getHeader().getModificationDate());
@@ -74,10 +70,10 @@ TEST(cTesterMapping, TestEmptyConfig)
  */
 TEST(cTesterMapping, TestLoadMapSuccessConfig)
 {
-    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "/test.description"));
+    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "test.description"));
 
     a_util::xml::DOM oDom;
-    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "/base.map"));
+    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "base.map"));
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.loadFromDOM(oDom));
 
     // Verify header
@@ -87,7 +83,7 @@ TEST(cTesterMapping, TestLoadMapSuccessConfig)
     ASSERT_EQ(oConfig.getHeader().getModificationDate(), "2016-Mar-22");
 
     // Verify source list
-    ASSERT_EQ(oConfig.getSourceList().size(), 4);
+    ASSERT_EQ(oConfig.getSourceList().size(), 4U);
     ASSERT_NE(oConfig.getSource("Light"), nullptr);
     ASSERT_NE(oConfig.getSource("Wiper"), nullptr);
     ASSERT_NE(oConfig.getSource("AALA"), nullptr);
@@ -98,10 +94,10 @@ TEST(cTesterMapping, TestLoadMapSuccessConfig)
     ASSERT_EQ(oConfig.getSource("Additional")->getType(), "tFEP_Driver_AdditionalControl");
 
     // Verify target list
-    ASSERT_EQ(oConfig.getTargetList().size(), 1);
+    ASSERT_EQ(oConfig.getTargetList().size(), 1U);
     ASSERT_NE(oConfig.getTarget("Signal"), nullptr);
     ASSERT_EQ(oConfig.getTarget("Signal")->getType(), "tFEP_Driver_DriverCtrl");
-    ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList().size(), 13);
+    ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList().size(), 13U);
 
     // Verify assignment list
     ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList()[0].getConstant(), "42");
@@ -187,10 +183,10 @@ TEST(cTesterMapping, TestLoadMapSuccessConfig)
     ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList()[12].getTransformation(), "table1");
 
     // Verify referenced sources list
-    ASSERT_EQ(oConfig.getTarget("Signal")->getReferencedSources().size(), 4);
+    ASSERT_EQ(oConfig.getTarget("Signal")->getReferencedSources().size(), 4U);
 
     // Verify trigger list
-    ASSERT_EQ(oConfig.getTarget("Signal")->getTriggerList().size(), 3);
+    ASSERT_EQ(oConfig.getTarget("Signal")->getTriggerList().size(), 3U);
     ASSERT_NE(oConfig.getTarget("Signal")->getTriggerList()[0], nullptr);
     const MapPeriodicTrigger* p =
         dynamic_cast<const MapPeriodicTrigger*>(oConfig.getTarget("Signal")->getTriggerList()[0]);
@@ -213,7 +209,7 @@ TEST(cTesterMapping, TestLoadMapSuccessConfig)
     ASSERT_EQ(d->getValue(), 2);
 
     // Verify transformation list
-    ASSERT_EQ(oConfig.getTransformationList().size(), 3);
+    ASSERT_EQ(oConfig.getTransformationList().size(), 3U);
     ASSERT_NE(oConfig.getTransformation("polynom1"), nullptr);
     const MapPolynomTransformation* t =
         dynamic_cast<const MapPolynomTransformation*>(oConfig.getTransformation("polynom1"));
@@ -239,7 +235,7 @@ TEST(cTesterMapping, TestLoadMapSuccessConfig)
     ASSERT_NE(tEnum, nullptr);
     ASSERT_EQ(tEnum->getDefault(), 3);
     const auto& oConvList = tEnum->getConversions();
-    ASSERT_EQ(oConvList.size(), 5);
+    ASSERT_EQ(oConvList.size(), 5U);
     ASSERT_EQ(oConvList.at(0), 4);
     ASSERT_EQ(oConvList.at(1), 5);
     ASSERT_EQ(oConvList.at(2), 6);
@@ -253,16 +249,16 @@ TEST(cTesterMapping, TestLoadMapSuccessConfig)
  */
 TEST(cTesterMapping, TestLoadMapFailConfig)
 {
-    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "/test.description"));
+    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "test.description"));
 
     a_util::xml::DOM oDom;
     for (int i = 0; i <= 40; ++i) {
         oDom = a_util::xml::DOM();
-        ASSERT_TRUE(oDom.load(a_util::strings::format(TEST_FILES_DIR "/nok%d.map", i)));
+        ASSERT_TRUE(oDom.load(a_util::strings::format(TEST_FILES_DIR "nok%d.map", i)));
         a_util::result::Result nRes = oConfig.loadFromDOM(oDom);
         // tMapErrorList list = oConfig.getErrorList();
         // LOG_INFO(list.Join(','));
-        ASSERT_TRUE(a_util::result::isFailed(nRes))
+        ASSERT_FALSE(nRes)
             << a_util::strings::format("%d should have failed but didn't", i).c_str();
     }
     // nok0.map -> <from> and <constant> attributes set at the same time for <assignment> to
@@ -317,23 +313,23 @@ TEST(cTesterMapping, TestLoadMapFailConfig)
  */
 TEST(cTesterMapping, TestMergeMapsSuccessConfig)
 {
-    auto my_ddl = LoadDDL(TEST_FILES_DIR "/test.description");
+    auto my_ddl = LoadDDL(TEST_FILES_DIR "test.description");
     MapConfiguration oConfig(my_ddl);
 
     a_util::xml::DOM oDom;
-    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "/base.map"));
+    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "base.map"));
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.loadFromDOM(oDom));
 
     oDom = a_util::xml::DOM();
-    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "/merge.map"));
+    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "merge.map"));
     ASSERT_EQ(a_util::result::SUCCESS,
               oConfig.loadFromDOM(oDom, MapConfiguration::mc_merge_mapping));
 
     // Verify that new signal was added in target list
-    ASSERT_EQ(oConfig.getTargetList().size(), 2);
+    ASSERT_EQ(oConfig.getTargetList().size(), 2U);
     ASSERT_NE(oConfig.getTarget("Signal2"), nullptr);
     ASSERT_EQ(oConfig.getTarget("Signal2")->getType(), "tFEP_Driver_LateralControl");
-    ASSERT_EQ(oConfig.getTarget("Signal2")->getAssignmentList().size(), 2);
+    ASSERT_EQ(oConfig.getTarget("Signal2")->getAssignmentList().size(), 2U);
 
     ASSERT_TRUE(oConfig.getTarget("Signal2")->getAssignmentList()[0].getConstant().empty());
     ASSERT_EQ(oConfig.getTarget("Signal2")->getAssignmentList()[0].getFrom(), "ui32ValidityMask");
@@ -350,14 +346,14 @@ TEST(cTesterMapping, TestMergeMapsSuccessConfig)
     // this tests a regression where setting a ddl description would clear the complete
     // configuration
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.setDD(my_ddl));
-    ASSERT_EQ(oConfig.getTargetList().size(), 2);
+    ASSERT_EQ(oConfig.getTargetList().size(), 2U);
 
     // load ddl that doesn't contain the target signal lateralcontrol
     // so the mapping config should be cleared
     ddl::dd::DataDefinition oBadDDL(
-        LoadDDL(TEST_FILES_DIR "/test_without_lateralcontrol_signal.description"));
+        LoadDDL(TEST_FILES_DIR "test_without_lateralcontrol_signal.description"));
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.setDD(oBadDDL));
-    ASSERT_EQ(oConfig.getTargetList().size(), 0);
+    ASSERT_EQ(oConfig.getTargetList().size(), 0U);
 }
 
 /**
@@ -366,20 +362,20 @@ TEST(cTesterMapping, TestMergeMapsSuccessConfig)
  */
 TEST(cTesterMapping, TestMergeMapsFailConfig)
 {
-    ddl::dd::DataDefinition my_ddl = LoadDDL(TEST_FILES_DIR "/test.description");
+    ddl::dd::DataDefinition my_ddl = LoadDDL(TEST_FILES_DIR "test.description");
     MapConfiguration oConfig(my_ddl);
 
     a_util::xml::DOM oDom;
-    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "/base.map"));
+    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "base.map"));
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.loadFromDOM(oDom));
 
     for (int i = 0; i <= 4; ++i) {
         oDom = a_util::xml::DOM();
-        ASSERT_TRUE(oDom.load(a_util::strings::format(TEST_FILES_DIR "/nok_merge%d.map", i)));
+        ASSERT_TRUE(oDom.load(a_util::strings::format(TEST_FILES_DIR "nok_merge%d.map", i)));
         a_util::result::Result nRes = oConfig.loadFromDOM(oDom, MapConfiguration::mc_merge_mapping);
         // tMapErrorList list = oConfig.getErrorList();
         // LOG_INFO(list.Join(','));
-        ASSERT_TRUE(a_util::result::isFailed(nRes))
+        ASSERT_FALSE(nRes)
             << a_util::strings::format("%d should have failed but didn't", i).c_str();
     }
     // nok_merge0.map -> Trying to merge conflicting source definition for 'Light'
@@ -395,11 +391,11 @@ TEST(cTesterMapping, TestMergeMapsFailConfig)
  */
 TEST(cTesterMapping, TestReadWriteMapFile)
 {
-    ddl::dd::DataDefinition my_ddl = LoadDDL(TEST_FILES_DIR "/test.description");
+    ddl::dd::DataDefinition my_ddl = LoadDDL(TEST_FILES_DIR "test.description");
     MapConfiguration oConfig(my_ddl);
 
     a_util::xml::DOM oDom;
-    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "/base.map"));
+    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "base.map"));
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.loadFromDOM(oDom));
 
     a_util::xml::DOM oNewDom;
@@ -486,8 +482,9 @@ TEST(cTesterMapping, TestReadWriteMapFile)
     }
 
     // Write to file
-    ASSERT_EQ(a_util::result::SUCCESS, oConfig.writeToFile(TEST_FILES_DIR "/generated_base.map"));
-    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_DIR "/generated_base.map"));
+    EXPECT_EQ(a_util::result::SUCCESS,
+              oConfig.writeToFile(TEST_FILES_WRITE_DIR "generated_base.map"));
+    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_WRITE_DIR "generated_base.map"));
 }
 
 /**
@@ -496,7 +493,7 @@ TEST(cTesterMapping, TestReadWriteMapFile)
  */
 TEST(cTesterMapping, TestWriteSimpleMapConfig)
 {
-    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "/test.description"));
+    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "test.description"));
 
     // set header description
     std::string strDesc = "New description";
@@ -590,8 +587,9 @@ TEST(cTesterMapping, TestWriteSimpleMapConfig)
     ASSERT_TRUE(oConfig.getTarget("target1")->getTriggerList()[2]->isEqual(*pDTrigger));
 
     // Write in file
-    ASSERT_EQ(a_util::result::SUCCESS, oConfig.writeToFile(TEST_FILES_DIR "/generated_simple.map"));
-    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_DIR "/generated_simple.map"));
+    EXPECT_EQ(a_util::result::SUCCESS,
+              oConfig.writeToFile(TEST_FILES_WRITE_DIR "generated_simple.map"));
+    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_WRITE_DIR "generated_simple.map"));
 }
 
 /**
@@ -600,7 +598,7 @@ TEST(cTesterMapping, TestWriteSimpleMapConfig)
  */
 TEST(cTesterMapping, TestWriteMapFailConfig)
 {
-    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "/test.description"));
+    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "test.description"));
 
     /**
      * Signals
@@ -608,8 +606,8 @@ TEST(cTesterMapping, TestWriteMapFailConfig)
     ASSERT_EQ(oConfig.addTarget("target", ""), ERR_INVALID_TYPE);
     ASSERT_EQ(oConfig.addSource("source", "nothing"), ERR_INVALID_TYPE);
 
-    ASSERT_EQ(oConfig.getSourceList().size(), 0);
-    ASSERT_EQ(oConfig.getTargetList().size(), 0);
+    ASSERT_EQ(oConfig.getSourceList().size(), 0U);
+    ASSERT_EQ(oConfig.getTargetList().size(), 0U);
 
     /**
      * Create basis mapping
@@ -658,42 +656,42 @@ TEST(cTesterMapping, TestWriteMapFailConfig)
     ASSERT_EQ(oConfig.addSource("target1", "tFEP_Driver_DriverCtrl"), ERR_INVALID_ARG);
     ASSERT_EQ(oConfig.getTarget("target1")->addAssignment(oAssign1), ERR_INVALID_ARG);
 
-    ASSERT_EQ(oConfig.getSourceList().size(), 1);
-    ASSERT_EQ(oConfig.getTargetList().size(), 1);
-    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1);
+    ASSERT_EQ(oConfig.getSourceList().size(), 1U);
+    ASSERT_EQ(oConfig.getTargetList().size(), 1U);
+    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1U);
 
     // set bad assignments
     MapAssignment oAssignEmpty;
     ASSERT_EQ(oConfig.getTarget("target1")->addAssignment(oAssignEmpty), ERR_INVALID_ARG);
-    ASSERT_EQ(oConfig.getErrorList().size(), 1);
-    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1);
+    ASSERT_EQ(oConfig.getErrorList().size(), 1U);
+    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1U);
 
     MapAssignment oAssign2("f32BrakePedal");
     ASSERT_EQ(oConfig.getTarget("target1")->addAssignment(oAssign2), ERR_INVALID_ARG);
-    ASSERT_EQ(oConfig.getErrorList().size(), 1);
-    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1);
+    ASSERT_EQ(oConfig.getErrorList().size(), 1U);
+    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1U);
 
     ASSERT_EQ(a_util::result::SUCCESS, oAssign2.connect("source1.nothing"));
     ASSERT_EQ(oConfig.getTarget("target1")->addAssignment(oAssign2), ERR_INVALID_TYPE);
-    ASSERT_EQ(oConfig.getErrorList().size(), 1);
-    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1);
+    ASSERT_EQ(oConfig.getErrorList().size(), 1U);
+    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1U);
 
     ASSERT_EQ(a_util::result::SUCCESS, oAssign2.setConstant("text"));
     ASSERT_EQ(oConfig.getTarget("target1")->addAssignment(oAssign2), ERR_INVALID_ARG);
-    ASSERT_EQ(oConfig.getErrorList().size(), 1);
-    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1);
+    ASSERT_EQ(oConfig.getErrorList().size(), 1U);
+    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1U);
 
     ASSERT_EQ(a_util::result::SUCCESS, oAssign2.setReceivedFunction("nothing"));
     ASSERT_EQ(oConfig.getTarget("target1")->addAssignment(oAssign2), ERR_INVALID_ARG);
-    ASSERT_EQ(oConfig.getErrorList().size(), 1);
-    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1);
+    ASSERT_EQ(oConfig.getErrorList().size(), 1U);
+    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1U);
 
     // Transformation does not exist
     ASSERT_EQ(a_util::result::SUCCESS, oAssign2.connect("source1.f32SteeringWheel"));
     ASSERT_EQ(a_util::result::SUCCESS, oAssign2.setTransformation("not_a_transformation"));
     ASSERT_EQ(oConfig.getTarget("target1")->addAssignment(oAssign2), ERR_INVALID_ARG);
-    ASSERT_EQ(oConfig.getErrorList().size(), 1);
-    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1);
+    ASSERT_EQ(oConfig.getErrorList().size(), 1U);
+    ASSERT_EQ(oConfig.getTarget("target1")->getAssignmentList().size(), 1U);
 
     /**
      * Triggers
@@ -714,7 +712,7 @@ TEST(cTesterMapping, TestWriteMapFailConfig)
     ASSERT_EQ(oConfig.getTarget("target1")->addTrigger(pDTrigger), ERR_INVALID_TYPE);
 
     // No trigger added
-    ASSERT_EQ(oConfig.getTarget("target1")->getTriggerList().size(), 0);
+    ASSERT_EQ(oConfig.getTarget("target1")->getTriggerList().size(), 0U);
 
     /**
      * Remove dll
@@ -736,11 +734,11 @@ TEST(cTesterMapping, TestLoadMapPartiallyConfig)
     MapConfiguration oConfig;
 
     a_util::xml::DOM oDom;
-    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "/base.map"));
+    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "base.map"));
     ASSERT_NE(a_util::result::SUCCESS, oConfig.loadPartiallyFromDOM(oDom));
 
     // Verify source list
-    ASSERT_EQ(oConfig.getSourceList().size(), 4);
+    ASSERT_EQ(oConfig.getSourceList().size(), 4U);
     ASSERT_NE(oConfig.getSource("Light"), nullptr);
     ASSERT_NE(oConfig.getSource("Wiper"), nullptr);
     ASSERT_NE(oConfig.getSource("AALA"), nullptr);
@@ -755,18 +753,18 @@ TEST(cTesterMapping, TestLoadMapPartiallyConfig)
     ASSERT_FALSE(oConfig.getSource("Additional")->isValid());
 
     // Verify target list
-    ASSERT_EQ(oConfig.getTargetList().size(), 1);
+    ASSERT_EQ(oConfig.getTargetList().size(), 1U);
     ASSERT_NE(oConfig.getTarget("Signal"), nullptr);
     ASSERT_EQ(oConfig.getTarget("Signal")->getType(), "tFEP_Driver_DriverCtrl");
-    ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList().size(), 13);
+    ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList().size(), 13U);
     ASSERT_FALSE(oConfig.getTarget("Signal")->isValid());
 
     // Cannot write incomplete mapping
     ASSERT_NE(a_util::result::SUCCESS,
-              oConfig.writeToFile(TEST_FILES_DIR "/generated_never_base.map"));
+              oConfig.writeToFile(TEST_FILES_WRITE_DIR "generated_never_base.map"));
 
     // set valid DataDefinition
-    auto my_new_ddl = LoadDDL(TEST_FILES_DIR "/test.description");
+    auto my_new_ddl = LoadDDL(TEST_FILES_DIR "test.description");
     oConfig.modifyDD(my_new_ddl);
 
     // Verify source list
@@ -776,15 +774,15 @@ TEST(cTesterMapping, TestLoadMapPartiallyConfig)
     ASSERT_TRUE(oConfig.getSource("Additional")->isValid());
 
     // Verify target list
-    ASSERT_EQ(oConfig.getTargetList().size(), 1);
+    ASSERT_EQ(oConfig.getTargetList().size(), 1U);
     ASSERT_NE(oConfig.getTarget("Signal"), nullptr);
     ASSERT_EQ(oConfig.getTarget("Signal")->getType(), "tFEP_Driver_DriverCtrl");
-    ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList().size(), 13);
+    ASSERT_EQ(oConfig.getTarget("Signal")->getAssignmentList().size(), 13U);
     ASSERT_TRUE(oConfig.getTarget("Signal")->isValid());
 
-    ASSERT_EQ(a_util::result::SUCCESS,
-              oConfig.writeToFile(TEST_FILES_DIR "/generated_partially_base.map"));
-    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_DIR "/generated_partially_base.map"));
+    EXPECT_EQ(a_util::result::SUCCESS,
+              oConfig.writeToFile(TEST_FILES_WRITE_DIR "generated_partially_base.map"));
+    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_WRITE_DIR "generated_partially_base.map"));
 }
 
 /**
@@ -793,10 +791,10 @@ TEST(cTesterMapping, TestLoadMapPartiallyConfig)
  */
 TEST(cTesterMapping, TestModifyMapConfig)
 {
-    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "/test.description"));
+    MapConfiguration oConfig(LoadDDL(TEST_FILES_DIR "test.description"));
 
     a_util::xml::DOM oDom;
-    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "/base.map"));
+    ASSERT_TRUE(oDom.load(TEST_FILES_DIR "base.map"));
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.loadFromDOM(oDom));
 
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.getSource("Light")->setName("new_Light"));
@@ -808,9 +806,9 @@ TEST(cTesterMapping, TestModifyMapConfig)
     ASSERT_EQ(a_util::result::SUCCESS, oConfig.getTarget("Signal")->setName("new_Signal"));
     ASSERT_NE(oConfig.getTarget("new_Signal"), nullptr);
 
-    ASSERT_EQ(a_util::result::SUCCESS,
-              oConfig.writeToFile(TEST_FILES_DIR "/generated_modified_base.map"));
-    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_DIR "/generated_modified_base.map"));
+    EXPECT_EQ(a_util::result::SUCCESS,
+              oConfig.writeToFile(TEST_FILES_WRITE_DIR "generated_modified_base.map"));
+    ASSERT_TRUE(a_util::filesystem::remove(TEST_FILES_WRITE_DIR "generated_modified_base.map"));
 
     // Modify target type, mapping is not valid anymore
     ASSERT_EQ(oConfig.getTarget("new_Signal")->setType("tFEP_Driver_LateralControl"),
@@ -859,7 +857,7 @@ public:
             nRes = ERR_NOT_FOUND;
         }
 
-        if (a_util::result::isOk(nRes)) {
+        if (nRes) {
             // since the DataDefinition resolver searches units, datatypes, structs and streams
             // we need to make sure first that the type is a struct - since only them are supported
             try {
@@ -988,7 +986,7 @@ public:
             a_util::memory::shared_ptr<ddl::codec::StaticCodec>(new ddl::codec::StaticCodec(
                 oFac.makeStaticCodecFor(&oTargetBuffer[0], oTargetBuffer.size())))));
         ddl::codec::StaticCodec& oTargetCoder = *mapTargetCoders[strTarget];
-        ASSERT_TRUE(a_util::result::isOk(oTargetCoder.isValid()));
+        ASSERT_TRUE(oTargetCoder.isValid());
     }
 
     void resetEngine()
@@ -1128,8 +1126,8 @@ private:
  */
 TEST(cTesterMapping, TestDefaultEngine)
 {
-    MappingDriver base_test(TEST_FILES_DIR "/engine.description",
-                            TEST_FILES_DIR "/engine_default.map");
+    MappingDriver base_test(TEST_FILES_DIR "engine.description",
+                            TEST_FILES_DIR "engine_default.map");
     base_test.addTarget("OutSignal");
     base_test.startEngine();
 
@@ -1159,8 +1157,8 @@ TEST(cTesterMapping, TestDefaultEngine)
  */
 TEST(cTesterMapping, TestDirectMappingEngine)
 {
-    MappingDriver base_test(TEST_FILES_DIR "/engine.description",
-                            TEST_FILES_DIR "/engine_directmapping.map");
+    MappingDriver base_test(TEST_FILES_DIR "engine.description",
+                            TEST_FILES_DIR "engine_directmapping.map");
     base_test.addTarget("OutSignal");
     base_test.addTarget("OutSignal2");
     base_test.startEngine();
@@ -1291,8 +1289,8 @@ TEST(cTesterMapping, TestDirectMappingEngine)
  */
 TEST(cTesterMapping, TestTransformationsEngine)
 {
-    MappingDriver base_test(TEST_FILES_DIR "/engine.description",
-                            TEST_FILES_DIR "/engine_transformations.map");
+    MappingDriver base_test(TEST_FILES_DIR "engine.description",
+                            TEST_FILES_DIR "engine_transformations.map");
     base_test.addTarget("OutSignal");
     base_test.addTarget("OutSignal2");
     base_test.startEngine();
@@ -1453,17 +1451,17 @@ TEST(cTesterMapping, TestTransformationsEngine)
  */
 TEST(cTesterMapping, TestMacrosEngine)
 {
-    MappingDriver base_test(TEST_FILES_DIR "/engine.description",
-                            TEST_FILES_DIR "/engine_macros.map");
+    MappingDriver base_test(TEST_FILES_DIR "engine.description",
+                            TEST_FILES_DIR "engine_macros.map");
     base_test.addTarget("OutSignal");
     base_test.startEngine();
 
     ddl::codec::StaticCodec& oTarget = base_test.getTargetCoder("OutSignal");
 
     ddl::codec::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
-    ASSERT_TRUE(a_util::result::isOk(oSource1.isValid()));
+    ASSERT_TRUE(oSource1.isValid());
     ddl::codec::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
-    ASSERT_TRUE(a_util::result::isOk(oSource2.isValid()));
+    ASSERT_TRUE(oSource2.isValid());
 
     // Target in engine_macros.map has triggers
     ASSERT_TRUE(base_test.targetHasTriggers("OutSignal"));
@@ -1472,7 +1470,8 @@ TEST(cTesterMapping, TestMacrosEngine)
     for (int i = 0; i < 10; ++i) {
         timestamp_t tmTime = a_util::system::getCurrentMicroseconds();
         base_test.receiveTargetBuffer("OutSignal");
-        ASSERT_GE(oTarget.getElement("ui64Val").getVariantValue().asUInt64(), (uint64_t)tmTime);
+        ASSERT_GE(oTarget.getElement("ui64Val").getVariantValue().asUInt64(),
+                  static_cast<uint64_t>(tmTime));
     }
 
     // Test mapping with trigger_counter
@@ -1481,7 +1480,7 @@ TEST(cTesterMapping, TestMacrosEngine)
     base_test.sendSourceBuffer("InSignal");
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
-    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)3);
+    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), 3u);
 
     /**
      * Test Reset Engine
@@ -1492,11 +1491,11 @@ TEST(cTesterMapping, TestMacrosEngine)
 
     // Test mapping with trigger_counter
     base_test.receiveTargetBuffer("OutSignal");
-    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)0);
+    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), 0u);
 
     base_test.sendSourceBuffer("InSignal");
     base_test.receiveTargetBuffer("OutSignal");
-    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)1);
+    ASSERT_EQ(oTarget.getElement("ui32Val").getVariantValue().asUInt32(), 1u);
 
     // Test received Boolean
     ASSERT_FALSE(oTarget.getElement("bVal").getVariantValue().asBool());
@@ -1511,8 +1510,8 @@ TEST(cTesterMapping, TestMacrosEngine)
  */
 TEST(cTesterMapping, TestTriggersEngine)
 {
-    MappingDriver base_test(TEST_FILES_DIR "/engine.description",
-                            TEST_FILES_DIR "/engine_triggers.map");
+    MappingDriver base_test(TEST_FILES_DIR "engine.description",
+                            TEST_FILES_DIR "engine_triggers.map");
     base_test.addTarget("OutSignal3");
     base_test.startEngine();
 
@@ -1520,56 +1519,175 @@ TEST(cTesterMapping, TestTriggersEngine)
 
     ddl::codec::StaticCodec& oSource1 = base_test.getSourceCoder("MinimalSignal");
     ddl::codec::StaticCodec& oSource2 = base_test.getSourceCoder("InSignal");
-    ASSERT_TRUE(a_util::result::isOk(oSource2.isValid()));
+    ASSERT_TRUE(oSource2.isValid());
 
     // You can guess if engine_triggers.map contains triggers
     ASSERT_TRUE(base_test.targetHasTriggers("OutSignal3"));
 
     base_test.receiveTargetBuffer("OutSignal3");
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)0 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 0u % 5);
 
     // Test signal Trigger
     base_test.sendSourceBuffer("InSignal");
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)1 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 1u % 5);
 
     // Test data Trigger
     int32_t i32Val = -42;
     ASSERT_NO_THROW(
         oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires not_equal, less_than and less_than_equal
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)4 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 4u % 5);
 
     i32Val = -1;
     ASSERT_NO_THROW(
         oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer(
         "MinimalSignal"); // fires equal, not_equal, less_than and less_than_equal
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)8 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 8u % 5);
 
     i32Val = 42;
     ASSERT_NO_THROW(
         oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer(
         "MinimalSignal"); // fires not_equal, greater_than and greater_than_equal
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)11 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 11u % 5);
 
     i32Val = 3;
     ASSERT_NO_THROW(
         oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires not_equal and less_than_equal
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)13 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 13u % 5);
 
     i32Val = 4;
     ASSERT_NO_THROW(
         oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires not_equal and greater_than_equal
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)15 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 15u % 5);
 
     i32Val = 2;
     ASSERT_NO_THROW(
         oSource1.getElement("i32Val").setVariantValue(a_util::variant::Variant(i32Val)));
     base_test.sendSourceBuffer("MinimalSignal"); // fires less_than and less_than_equal
-    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), (uint32_t)17 % 5);
+    ASSERT_EQ(oTarget3.getElement("ui32Val").getVariantValue().asUInt32(), 17u % 5);
+}
+
+struct TestMappingXmlHeaderParse : public ::testing::Test {
+protected:
+    void SetUp() override
+    {
+        _oConfig = std::make_unique<MapConfiguration>(LoadDDL(TEST_FILES_DIR "test.description"));
+
+        ASSERT_TRUE(_oDom.load(TEST_FILES_DIR "base.map"));
+    }
+
+    void setLanguageVersion(const std::string& header_string)
+    {
+        const a_util::xml::DOMElement oMapping = _oDom.getRoot();
+        const a_util::xml::DOMElement oElement = oMapping.getChild("header");
+        a_util::xml::DOMElement oLang = oElement.getChild("language_version");
+        oLang.setData(header_string.c_str());
+    }
+
+    std::unique_ptr<MapConfiguration> _oConfig;
+    a_util::xml::DOM _oDom;
+};
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_1_dot_00)
+{
+    ASSERT_EQ(a_util::result::SUCCESS, _oConfig->loadFromDOM(_oDom));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_1_dot_00_space_before)
+{
+    setLanguageVersion(" 1.00");
+    ASSERT_EQ(a_util::result::SUCCESS, _oConfig->loadFromDOM(_oDom));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_1_dot_00_space_after)
+{
+    setLanguageVersion("1.00 ");
+    ASSERT_EQ(a_util::result::SUCCESS, _oConfig->loadFromDOM(_oDom));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_1_dot_0)
+{
+    setLanguageVersion("1.0");
+    ASSERT_EQ(a_util::result::SUCCESS, _oConfig->loadFromDOM(_oDom));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_invalid_major_number)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion("x.00");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(), HasSubstr("major version: x invalid"));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_invalid_minor_number)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion("1.abc");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(), HasSubstr("minor version: abc invalid"));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_empty_major_number)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion(".00");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(), HasSubstr("major version is empty"));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_empty_minor_number)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion("1.");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(), HasSubstr("minor version is empty"));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_major_number_2)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion("2.00");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(),
+                HasSubstr("parsed major version: 2, is not 1. No other language version exists."));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_minor_number_22)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion("1.22");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(),
+                HasSubstr("parsed minor version: 22, is not 0. No other language version exists."));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_minor_number_6)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion("1.6");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(),
+                HasSubstr("parsed minor version: 6, is not 0. No other language version exists."));
+}
+
+TEST_F(TestMappingXmlHeaderParse, test_language_version_1_comma_00)
+{
+    using ::testing::HasSubstr;
+
+    setLanguageVersion("1,00");
+    ASSERT_EQ(ERR_FAILED, _oConfig->loadFromDOM(_oDom));
+    ASSERT_THAT(_oConfig->getErrorList().front(), HasSubstr("could not find dot '.' separator"));
 }
 
 /// derived test class that drives the mapping engine in a standalone fashion
@@ -1598,8 +1716,8 @@ public:
  */
 TEST(cTesterMapping, TestDefaultEngineNULL)
 {
-    MappingDriverNULL base_test(TEST_FILES_DIR "/engine.description",
-                                TEST_FILES_DIR "/engine_default.map");
+    MappingDriverNULL base_test(TEST_FILES_DIR "engine.description",
+                                TEST_FILES_DIR "engine_default.map");
     base_test.addTarget("OutSignal");
 }
 
@@ -1610,9 +1728,8 @@ TEST(cTesterMapping, TestDefaultEngineNULL)
 TEST(cTesterMapping, TestInvalidAndWrongMap)
 {
     MapConfiguration config; // we do not set a DDL here
-    ASSERT_FALSE(
-        a_util::result::isOk(config.loadPartiallyFromFile(TEST_FILES_DIR "/wrongDDLMap.map")));
-    ASSERT_FALSE(a_util::result::isOk(config.checkDDLConsistency()));
+    ASSERT_FALSE(config.loadPartiallyFromFile(TEST_FILES_DIR "wrongDDLMap.map"));
+    ASSERT_FALSE(config.checkDDLConsistency());
 
     auto count_valid_triggers = 0;
     auto count_invalid_triggers = 0;

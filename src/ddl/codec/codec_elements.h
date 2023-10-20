@@ -4,15 +4,9 @@
  *
  * Copyright @ 2022 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #ifndef DDL_CODEC_ELEMENTS_CLASS_HEADER
@@ -38,7 +32,7 @@ struct TypeSize {
     size_t deserialized_bytes_aligned = 0;
     size_t deserialized_bytes = 0; // this is the size, aligned or not depends on ddl version
     size_t type_alignment = 0;
-    dd::Version type_ddl_version = dd::Version::ddl_version_notset;
+    dd::Version type_ddl_version = dd::Version(0, 0);
     bool is_dynamic = false;
 };
 
@@ -181,7 +175,7 @@ private:
  * @internal
  * This class is for internal use only.
  */
-class StaticCodecElementAccess : public ChildElementAccess {
+class StaticCodecElementAccess final : public ChildElementAccess {
 public:
     StaticCodecElementAccess() = delete;
     StaticCodecElementAccess(const ddl::dd::StructElementAccess& element_access,
@@ -192,7 +186,7 @@ public:
  * @internal
  * This class is for internal use only.
  */
-class DynamicCodecElementAccess : public ChildElementAccess {
+class DynamicCodecElementAccess final : public ChildElementAccess {
 public:
     DynamicCodecElementAccess() = delete;
     DynamicCodecElementAccess(const ddl::dd::StructElementAccess& element_access,
@@ -231,7 +225,7 @@ public:
     StructAccess& operator=(StructAccess&&) = delete;
 
     StructAccess(const ddl::dd::StructTypeAccess& struct_type_access,
-                 ddl::dd::Version dd_version = ddl::dd::Version::ddl_version_current);
+                 ddl::dd::Version dd_version = ddl::dd::Version::getLatestVersion());
 
     size_t getStaticBufferSize(DataRepresentation representation) const;
     size_t getBufferSize(DataRepresentation representation) const;
@@ -273,7 +267,7 @@ private:
 
     bool _is_dynamic = false;
     a_util::result::Result _init_result;
-    ddl::dd::Version _dd_version = ddl::dd::Version::ddl_version_current;
+    ddl::dd::Version _dd_version = ddl::dd::Version::getLatestVersion();
 
     std::shared_ptr<CodecTypes> _all_types;
     bool _has_enums = false;

@@ -1,5 +1,9 @@
 #include "streamwriter.h"
 #include <unistd.h>
+#ifdef _WIN32
+#include <io.h> // write()
+#define write _write
+#endif // _WIN32
 
 using namespace jsonrpc;
 using namespace std;

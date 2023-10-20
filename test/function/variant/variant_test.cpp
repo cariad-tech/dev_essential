@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/base/types.h> // a_util::maybe_unused
@@ -75,7 +69,7 @@ public:
             Variant moved_to_variant(std::move(moved_from_variant));
             checkEqualToReference(moved_to_variant);
             // destroyable
-            moved_from_variant.~Variant();
+            moved_from_variant.~Variant(); // NOLINT(clang-analyzer-cplusplus.Move)
         }
 
         // move construction - check re-initializeable with copy
@@ -114,7 +108,7 @@ public:
 
             const T val{};
             moved_from_variant.reset(&val, 1);
-            EXPECT_EQ(moved_from_variant.getArraySize(), 1);
+            EXPECT_EQ(moved_from_variant.getArraySize(), 1U);
         }
     }
 
@@ -294,19 +288,19 @@ TEST(variant_test, TestVariantCTORS)
     ASSERT_FALSE(var2.isEmpty());
     ASSERT_EQ(var2.getType(), VT_Bool);
 
-    const Variant var3 = (int8_t)1;
+    const Variant var3 = int8_t{1};
     ASSERT_FALSE(var3.isEmpty());
     ASSERT_EQ(var3.getType(), VT_Int8);
 
-    const Variant var4 = (uint8_t)1;
+    const Variant var4 = uint8_t{1};
     ASSERT_FALSE(var4.isEmpty());
     ASSERT_EQ(var4.getType(), VT_UInt8);
 
-    const Variant var5 = (int16_t)1;
+    const Variant var5 = int16_t{1};
     ASSERT_FALSE(var5.isEmpty());
     ASSERT_EQ(var5.getType(), VT_Int16);
 
-    const Variant var6 = (uint16_t)1;
+    const Variant var6 = uint16_t{1};
     ASSERT_FALSE(var6.isEmpty());
     ASSERT_EQ(var6.getType(), VT_UInt16);
 
@@ -318,11 +312,11 @@ TEST(variant_test, TestVariantCTORS)
     ASSERT_FALSE(var8.isEmpty());
     ASSERT_EQ(var8.getType(), VT_UInt32);
 
-    const Variant var9 = (int64_t)1;
+    const Variant var9 = int64_t{1};
     ASSERT_FALSE(var9.isEmpty());
     ASSERT_EQ(var9.getType(), VT_Int64);
 
-    const Variant var10 = (uint64_t)1;
+    const Variant var10 = uint64_t{1};
     ASSERT_FALSE(var10.isEmpty());
     ASSERT_EQ(var10.getType(), VT_UInt64);
 
@@ -351,7 +345,7 @@ TEST(variant_test, TestVariantCTORS)
     ASSERT_NO_THROW(var15.reset(arr, 3));
 
     const Variant var16 = var15;
-    ASSERT_EQ(var16.getArraySize(), 3);
+    ASSERT_EQ(var16.getArraySize(), 3U);
     ASSERT_TRUE(var16.isArray());
     ASSERT_EQ(var16.getBool(0), true);
     ASSERT_EQ(var16.getBool(1), true);
@@ -532,40 +526,40 @@ TEST(variant_test, TestVariantConversion)
     var = true;
     TestConversion(var, true, 1, 1, 1, 1, 1, 1, 1, 1, 1.0f, 1.0, "true");
 
-    var = (int8_t)0;
+    var = int8_t{0};
     TestConversion(var, false, 0, 0, 0, 0, 0, 0, 0, 0, 0.0f, 0.0, "0");
 
-    var = (uint8_t)1;
+    var = uint8_t{1};
     TestConversion(var, true, 1, 1, 1, 1, 1, 1, 1, 1, 1.0f, 1.0, "1");
 
-    var = (int16_t)-1;
+    var = int16_t{-1};
     TestConversion(var,
                    true,
                    -1,
-                   (uint8_t)-1,
+                   static_cast<uint8_t>(-1),
                    -1,
-                   (uint16_t)-1,
+                   static_cast<uint16_t>(-1),
                    -1,
-                   (uint32_t)-1,
+                   static_cast<uint32_t>(-1),
                    -1,
-                   (uint64_t)-1,
+                   static_cast<uint64_t>(-1),
                    -1.0f,
                    -1.0,
                    "-1");
 
-    var = (uint16_t)1;
+    var = uint16_t{1};
     TestConversion(var, true, 1, 1, 1, 1, 1, 1, 1, 1, 1.0f, 1.0, "1");
 
-    var = (int32_t)1;
+    var = 1;
     TestConversion(var, true, 1, 1, 1, 1, 1, 1, 1, 1, 1.0f, 1.0, "1");
 
-    var = (uint32_t)0;
+    var = 0u;
     TestConversion(var, false, 0, 0, 0, 0, 0, 0, 0, 0, 0.0f, 0.0, "0");
 
-    var = (int64_t)1;
+    var = int64_t{1};
     TestConversion(var, true, 1, 1, 1, 1, 1, 1, 1, 1, 1.0f, 1.0, "1");
 
-    var = (uint64_t)1;
+    var = uint64_t{1};
     TestConversion(var, true, 1, 1, 1, 1, 1, 1, 1, 1, 1.0f, 1.0, "1");
 
     var = 1.0f;
@@ -588,14 +582,14 @@ TEST(variant_test, TestVariantArrays)
 {
     // getArraySize, isArray, reset overloads, Get overloads
     Variant var;
-    ASSERT_EQ(var.getArraySize(), 0);
+    ASSERT_EQ(var.getArraySize(), 0U);
     ASSERT_FALSE(var.isArray());
     var = true;
     ASSERT_FALSE(var.isArray());
 
     bool arr[] = {true, true, false};
     ASSERT_NO_THROW(var.reset(arr, 3));
-    ASSERT_EQ(var.getArraySize(), 3);
+    ASSERT_EQ(var.getArraySize(), 3U);
     ASSERT_TRUE(var.isArray());
     ASSERT_EQ(var.getBool(0), true);
     ASSERT_EQ(var.getBool(1), true);
@@ -606,7 +600,7 @@ TEST(variant_test, TestVariantArrays)
 
     int8_t arr2[] = {1, 2, 3};
     ASSERT_NO_THROW(var.reset(arr2, 3));
-    ASSERT_EQ(var.getArraySize(), 3);
+    ASSERT_EQ(var.getArraySize(), 3U);
     ASSERT_TRUE(var.isArray());
     ASSERT_EQ(var.getInt8(0), 1);
     ASSERT_EQ(var.getInt8(1), 2);
@@ -614,7 +608,7 @@ TEST(variant_test, TestVariantArrays)
 
     double arr3[] = {1.0, 2.0, 3.0};
     ASSERT_NO_THROW(var.reset(arr3, 3));
-    ASSERT_EQ(var.getArraySize(), 3);
+    ASSERT_EQ(var.getArraySize(), 3U);
     ASSERT_TRUE(var.isArray());
     ASSERT_EQ(var.getDouble(0), 1.0);
     ASSERT_EQ(var.getDouble(1), 2.0);
@@ -626,38 +620,38 @@ TEST(variant_test, TestVariantComparison)
     // Comparison operators
     EXPECT_TRUE(Variant(true) == Variant(true));
     EXPECT_TRUE(Variant(true) != Variant(false));
-    EXPECT_TRUE(Variant((int8_t)-42) == Variant((int8_t)-42));
-    EXPECT_TRUE(Variant((int8_t)-42) != Variant((int8_t)-21));
-    EXPECT_TRUE(Variant((uint8_t)42) == Variant((uint8_t)42));
-    EXPECT_TRUE(Variant((uint8_t)42) != Variant((uint8_t)21));
-    EXPECT_TRUE(Variant((int16_t)-42) == Variant((int16_t)-42));
-    EXPECT_TRUE(Variant((int16_t)-42) != Variant((int16_t)-21));
-    EXPECT_TRUE(Variant((uint16_t)42) == Variant((uint16_t)42));
-    EXPECT_TRUE(Variant((uint16_t)42) != Variant((uint16_t)21));
-    EXPECT_TRUE(Variant((int32_t)-42) == Variant((int32_t)-42));
-    EXPECT_TRUE(Variant((int32_t)-42) != Variant((int32_t)-21));
-    EXPECT_TRUE(Variant((uint32_t)42) == Variant((uint32_t)42));
-    EXPECT_TRUE(Variant((uint32_t)42) != Variant((uint32_t)21));
-    EXPECT_TRUE(Variant((int64_t)-42) == Variant((int64_t)-42));
-    EXPECT_TRUE(Variant((int64_t)-42) != Variant((int64_t)-21));
-    EXPECT_TRUE(Variant((uint64_t)42) == Variant((uint64_t)42));
-    EXPECT_TRUE(Variant((uint64_t)42) != Variant((uint64_t)21));
-    EXPECT_TRUE(Variant((float)42.0f) == Variant((float)42.0f));
-    EXPECT_TRUE(Variant((float)42.0f) != Variant((float)21.0f));
-    EXPECT_TRUE(Variant((double)42.0) == Variant((double)42.0));
-    EXPECT_TRUE(Variant((double)42.0) != Variant((double)21.0));
+    EXPECT_TRUE(Variant(int8_t{-42}) == Variant(int8_t{-42}));
+    EXPECT_TRUE(Variant(int8_t{-42}) != Variant(int8_t{-21}));
+    EXPECT_TRUE(Variant(uint8_t{42}) == Variant(uint8_t{42}));
+    EXPECT_TRUE(Variant(uint8_t{42}) != Variant(uint8_t{21}));
+    EXPECT_TRUE(Variant(int16_t{-42}) == Variant(int16_t{-42}));
+    EXPECT_TRUE(Variant(int16_t{-42}) != Variant(int16_t{-21}));
+    EXPECT_TRUE(Variant(uint16_t{42}) == Variant(uint16_t{42}));
+    EXPECT_TRUE(Variant(uint16_t{42}) != Variant(uint16_t{21}));
+    EXPECT_TRUE(Variant(int32_t{-42}) == Variant(int32_t{-42}));
+    EXPECT_TRUE(Variant(int32_t{-42}) != Variant(int32_t{-21}));
+    EXPECT_TRUE(Variant(uint32_t{42}) == Variant(uint32_t{42}));
+    EXPECT_TRUE(Variant(uint32_t{42}) != Variant(uint32_t{21}));
+    EXPECT_TRUE(Variant(int64_t{-42}) == Variant(int64_t{-42}));
+    EXPECT_TRUE(Variant(int64_t{-42}) != Variant(int64_t{-21}));
+    EXPECT_TRUE(Variant(uint64_t{42}) == Variant(uint64_t{42}));
+    EXPECT_TRUE(Variant(uint64_t{42}) != Variant(uint64_t{21}));
+    EXPECT_TRUE(Variant(float{42.0}) == Variant(float{42.0}));
+    EXPECT_TRUE(Variant(float{42.0}) != Variant(float{21.0}));
+    EXPECT_TRUE(Variant(double{42.0}) == Variant(double{42.0}));
+    EXPECT_TRUE(Variant(double{42.0}) != Variant(double{21.0}));
     EXPECT_TRUE(Variant("Hello") == Variant("Hello"));
     EXPECT_TRUE(Variant("Hi") != Variant("Hello"));
 
-    EXPECT_TRUE(Variant(false) != Variant((int8_t)1));
-    EXPECT_TRUE(Variant((int8_t)1) != Variant((uint8_t)1));
-    EXPECT_TRUE(Variant((uint8_t)1) != Variant((int16_t)1));
-    EXPECT_TRUE(Variant((int16_t)1) != Variant((uint16_t)1));
-    EXPECT_TRUE(Variant((uint16_t)1) != Variant((int32_t)1));
-    EXPECT_TRUE(Variant((int32_t)1) != Variant((uint32_t)1));
-    EXPECT_TRUE(Variant((uint32_t)1) != Variant((int64_t)1));
-    EXPECT_TRUE(Variant((int64_t)1) != Variant((uint64_t)1));
-    EXPECT_TRUE(Variant((uint64_t)1) != Variant(1.0f));
+    EXPECT_TRUE(Variant(false) != Variant(int8_t{1}));
+    EXPECT_TRUE(Variant(int8_t{1}) != Variant(uint8_t{1}));
+    EXPECT_TRUE(Variant(uint8_t{1}) != Variant(int16_t{1}));
+    EXPECT_TRUE(Variant(int16_t{1}) != Variant(uint16_t{1}));
+    EXPECT_TRUE(Variant(uint16_t{1}) != Variant(int32_t{1}));
+    EXPECT_TRUE(Variant(int32_t{1}) != Variant(uint32_t{1}));
+    EXPECT_TRUE(Variant(uint32_t{1}) != Variant(int64_t{1}));
+    EXPECT_TRUE(Variant(int64_t{1}) != Variant(uint64_t{1}));
+    EXPECT_TRUE(Variant(uint64_t{1}) != Variant(1.0f));
     EXPECT_TRUE(Variant(1.0f) != Variant(1.0));
     EXPECT_TRUE(Variant(1.0) != Variant(""));
 

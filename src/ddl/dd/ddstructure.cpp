@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "dd_alignment_calculation.h"
@@ -28,8 +22,8 @@ namespace ddl {
 
 DDStructure::DDStructure(DDStructure&& other)
     : _dd(std::move(other._dd)),
-      _initial_alignment(std::move(other._initial_alignment)),
-      _struct_type(std::move(other._struct_type))
+      _struct_type(std::move(other._struct_type)),
+      _initial_alignment(std::move(other._initial_alignment))
 {
 }
 
@@ -95,13 +89,13 @@ std::string DDStructure::getStructName() const
 
 bool DDStructure::isCompatible(const DDStructure& other) const
 {
-    return isOk(
+    return static_cast<bool>(
         DDCompare::isBinaryEqual(getStructName(), getDD(), other.getStructName(), other.getDD()));
 }
 
 bool DDStructure::isEqual(const DDStructure& other) const
 {
-    return isOk(DDCompare::isEqual(
+    return static_cast<bool>(DDCompare::isEqual(
         getStructType(), getDD(), other.getStructType(), other.getDD(), DDCompare::icf_everything));
 }
 
@@ -269,7 +263,7 @@ DDStructure& DDStructure::addElement(const std::string& element_name,
                                      size_t array_size)
 {
     // this will always add the data type given
-    _dd.add(data_type, {});
+    _dd.getDataTypes().add(data_type);
     const auto type_alignment = dd::obtainElementsAlignment(data_type, {});
     addElementBaseType(
         *_struct_type, element_name, data_type.getName(), array_size, type_alignment);
@@ -283,7 +277,7 @@ DDStructure& DDStructure::addElement(const std::string& element_name,
                                      size_t alignment)
 {
     // this will always add the data type given
-    _dd.add(data_type, {});
+    _dd.getDataTypes().add(data_type);
     addElementBaseType(*_struct_type, element_name, data_type.getName(), array_size, alignment);
     checkAndSetAlignment(_initial_alignment, *_struct_type, alignment);
     return *this;
@@ -322,8 +316,11 @@ DDStructure& DDStructure::addElement(const std::string& element_name,
     // this will always add the struct type given
     _dd.add(struct_type.getStructType(), struct_type.getDD());
     const auto type_alignment = dd::obtainElementsAlignment(struct_type.getStructType(), {});
-    addElementBaseType(
-        *_struct_type, element_name, struct_type.getStructName(), array_size, type_alignment);
+    addElementBaseType(*_struct_type,
+                       element_name,
+                       struct_type.getStructType().getName(),
+                       array_size,
+                       type_alignment);
     checkAndSetAlignment(_initial_alignment, *_struct_type, type_alignment);
     return *this;
 }
@@ -336,7 +333,7 @@ DDStructure& DDStructure::addElement(const std::string& element_name,
     // this will always add the struct type given
     _dd.add(struct_type.getStructType(), struct_type.getDD());
     addElementBaseType(
-        *_struct_type, element_name, struct_type.getStructName(), array_size, alignment);
+        *_struct_type, element_name, struct_type.getStructType().getName(), array_size, alignment);
     checkAndSetAlignment(_initial_alignment, *_struct_type, alignment);
     return *this;
 }
@@ -347,7 +344,7 @@ DDStructure& DDStructure::addElement(const std::string& element_name,
                                      const std::string& constant_value)
 {
     if (!constant_value.empty()) {
-        auto found_constant = enum_type.getEnumType().getElements().get(constant_value);
+        const auto found_constant = enum_type.getEnumType().getElements().get(constant_value);
         if (!found_constant) {
             throw dd::Error("DDStructure::addElement",
                             {element_name, enum_type.getEnumType().getName()},

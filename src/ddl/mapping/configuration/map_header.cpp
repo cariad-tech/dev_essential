@@ -3,21 +3,18 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/datetime.h>
 #include <a_util/system.h>
 #include <ddl/mapping/configuration/map_configuration.h>
 #include <ddl/mapping/configuration/map_header.h>
+#include <ddl/utilities/std_to_string.h>
+
+#include <sstream>
 
 namespace ddl {
 namespace mapping {
@@ -85,6 +82,95 @@ a_util::result::Result MapHeader::setDdlPaths(const std::string& strDdlPaths)
     return a_util::result::SUCCESS;
 }
 
+a_util::result::Result MapHeader::parseVersion(const std::string& version, MapErrorList& lstErrors)
+{
+    if (version.empty()) {
+        lstErrors.push_back("DDL mapping <language_version> is empty");
+        return ERR_INVALID_ARG;
+    }
+
+    const auto dotpos = version.find_first_of('.');
+
+    std::string major_token;
+    std::string minor_token;
+    if (dotpos == std::string::npos) {
+        std::stringstream ss;
+        ss << "DDL mapping, error converting <language_version> content: " << version
+           << ", could not find dot '.' separator";
+        lstErrors.push_back(ss.str());
+        return ERR_INVALID_ARG;
+    }
+    else {
+        major_token = version.substr(0, dotpos);
+        if (major_token.empty()) {
+            std::stringstream ss;
+            ss << "DDL mapping, error parsing <language_version> content: " << version
+               << ", major version is empty";
+            lstErrors.push_back(ss.str());
+            return ERR_INVALID_ARG;
+        }
+
+        auto rst = version.size() - (dotpos + 1);
+        if (rst > 0) {
+            minor_token = version.substr(dotpos + 1, version.size() - rst + 1);
+        }
+    }
+
+    uint32_t major = 0;
+
+    try {
+        major = std::stoul(major_token);
+    }
+    catch (const std::exception& ex) {
+        std::stringstream ss;
+        ss << "DDL mapping, error converting <language_version> content: " << version
+           << ", major version: " + major_token + " invalid: " + ex.what() << ".";
+        lstErrors.push_back(ss.str());
+        return ERR_INVALID_ARG;
+    }
+
+    uint32_t minor = 0;
+
+    if (minor_token.empty()) {
+        std::stringstream ss;
+        ss << "DDL mapping, error parsing <language_version> content: " << version
+           << ", minor version is empty";
+        lstErrors.push_back(ss.str());
+        return ERR_INVALID_ARG;
+    }
+    else {
+        try {
+            minor = std::stoul(minor_token);
+        }
+        catch (const std::exception& ex) {
+            std::stringstream ss;
+            ss << "DDL mapping, error converting <language_version> content " << version
+               << ", minor version: " + minor_token + " invalid: " + ex.what() << ".";
+            lstErrors.push_back(ss.str());
+            return ERR_INVALID_ARG;
+        }
+    }
+    if ((major != 1)) {
+        std::stringstream ss;
+        ss << "DDL mapping, error converting <language_version> content " << version
+           << ", parsed major version: " << major
+           << ", is not 1. No other language version exists.";
+        lstErrors.push_back(ss.str());
+        return ERR_INVALID_ARG;
+    }
+    else if (minor != 0) {
+        std::stringstream ss;
+        ss << "DDL mapping, error converting <language_version> content " << version
+           << ", parsed minor version: " << minor
+           << ", is not 0. No other language version exists.";
+        lstErrors.push_back(ss.str());
+        return ERR_INVALID_ARG;
+    }
+    else {
+        return a_util::result::SUCCESS;
+    }
+}
+
 a_util::result::Result MapHeader::loadFromDOM(const a_util::xml::DOMElement& oHeader,
                                               MapErrorList& lstErrors)
 {
@@ -101,13 +187,14 @@ a_util::result::Result MapHeader::loadFromDOM(const a_util::xml::DOMElement& oHe
         return ERR_INVALID_ARG;
     }
 
-    if (!a_util::strings::isDouble(oLang.getData()) ||
-        a_util::strings::toDouble(oLang.getData()) > 1) {
-        lstErrors.push_back("<language_version> is not 1.00. No other language version exists.");
-        return ERR_INVALID_ARG;
+    const auto header_parse_result = parseVersion(oLang.getData(), lstErrors);
+    if (header_parse_result) {
+        _lang_version = oLang.getData();
+    }
+    else {
+        return header_parse_result;
     }
 
-    _lang_version = oLang.getData();
     _author = oAuthor.getData();
     _creation_date = oCreated.getData();
     _mod_date = oModified.getData();

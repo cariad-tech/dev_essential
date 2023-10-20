@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -31,7 +25,7 @@ namespace ddl {
 
 ///@cond nodoc
 class DDElement;
-///@endcond nodoc
+///@endcond
 
 /**
  * @brief Utility class for a complete valid data definition of one StructType and its dependencies.
@@ -101,7 +95,8 @@ public:
      *
      * @param name typename of the new StructType
      * @param struct_version version of the struct
-     * @param alignment optional alignment (otherwise the alignment 1 is default)
+     * @param alignment optional alignment (if not set the alignment will be calculated
+     * automatically)
      * @param comment optional comment
      * @param ddl_version optional DDL language version of this struct (defines the size of the
      * struct by alignment or not!)
@@ -124,10 +119,9 @@ public:
      *                       "good_enough"!
      * @throw ddl::dd::Error if the given \p name is not part of this description.
      */
-    explicit DDStructure(
-        const std::string& name,
-        const std::string& xml_string,
-        const dd::Version& ddl_xml_file_version_to_parse = dd::Version::ddl_version_notset);
+    explicit DDStructure(const std::string& name,
+                         const std::string& xml_string,
+                         const dd::Version& ddl_xml_file_version_to_parse = dd::Version(0, 0));
     /**
      * @brief Adds one element to the struct using a (POD) DataType.
      *
@@ -608,7 +602,7 @@ size_t memberPointerToOffset(MemberType T::*member)
 }
 
 } // namespace detail
-///@endcond nodoc
+///@endcond
 
 /**
  * @brief Creating a valid Structure Data Definition by a existing type and its member types.

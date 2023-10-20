@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/result_type.h> // for Result
@@ -36,5 +30,5 @@ TEST(result_util_tester, TestToString)
     EXPECT_TRUE(strResult.find("<file>") != std::string::npos);
     EXPECT_TRUE(strResult.find("1234") != std::string::npos);
     EXPECT_TRUE(strResult.find("<function>") != std::string::npos);
-    EXPECT_EQ(strResult.size(), 93);
+    EXPECT_EQ(strResult.size(), 93U);
 }

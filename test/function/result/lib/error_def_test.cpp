@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/error_def.h>
@@ -37,7 +31,7 @@ TEST(error_def_test, TestReturnErrorDescription)
     EXPECT_EQ(result.getErrorCode(), 666);
     // this is the line of the above  ... RETURN_ERROR_DESCRIPTION(TEST_ERROR, "Hello World!");
     // statement!
-    EXPECT_EQ(result.getLine(), 27);
+    EXPECT_EQ(result.getLine(), 21);
     EXPECT_STREQ(result.getErrorLabel(), TEST_ERROR.getLabel());
     EXPECT_STREQ(result.getErrorLabel(), "TEST_ERROR");
     EXPECT_STREQ(result.getDescription(), "Hello World!");

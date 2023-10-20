@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 /*************************************************************************
@@ -34,27 +28,37 @@
 #include <jsonrpccpp/version.h>
 #include <server/cppserverstubgenerator.h>
 
-#include <iostream>
-
 using namespace jsonrpc;
-using namespace std;
 
 bool StubGeneratorFactory::createStubGenerators(int argc,
                                                 char** argv,
-                                                vector<Procedure>& procedures,
-                                                vector<StubGenerator*>& stubgenerators,
+                                                std::vector<Procedure>& procedures,
+                                                std::vector<StubGenerator*>& stubgenerators,
                                                 FILE* my_stdout,
                                                 FILE* my_stderr)
 {
-    rpc::cCommandLine oCmd(argc, const_cast<const char**>(argv));
+    // IILF to make the settings const and have the cli removed from memory after parsing is done
+    const auto settings = [argc, argv]() -> Settings {
+        Clipp cli;
+        auto settings = cli.parse(argc, argv);
+        if (settings.mode == Mode::parse_error) {
+            // TODO: Show help or manpage here
+            // Currently not implemented to keep the same output as in previous implementation
+            // cli.printManPage();
+        }
+        if (settings.outfile.empty()) {
+            settings.outfile = CPPHelper::class2Filename(settings.class_name);
+        }
+        return settings;
+    }();
 
-    if (oCmd.GetFlag("help") || oCmd.GetFlag("h")) {
+    if (settings.show_help) {
         fprintf(my_stdout, "Usage: %s ", argv[0]);
         ///@todo
         return true;
     }
 
-    if (oCmd.GetFlag("version")) {
+    if (settings.show_version) {
         fprintf(my_stdout,
                 "jsonrpcstub version %d.%d.%d\n",
                 JSONRPC_CPP_MAJOR_VERSION,
@@ -63,22 +67,20 @@ bool StubGeneratorFactory::createStubGenerators(int argc,
         return true;
     }
 
-    if (oCmd.GetValues().size() < 2) {
+    if (settings.specfile.empty()) {
         fprintf(my_stderr, "Invalid arguments: specfile must be provided.\n");
         return false;
     }
 
-    bool verbose = oCmd.GetFlag("verbose") || oCmd.GetFlag("v");
-
     try {
-        string interface_definition;
-        SpecificationParser::GetFileContent(oCmd.GetValue(1).c_str(), interface_definition);
+        std::string interface_definition;
+        SpecificationParser::GetFileContent(settings.specfile, interface_definition);
         procedures = SpecificationParser::GetProceduresFromString(interface_definition);
-        if (verbose) {
+        if (settings.verbose) {
             fprintf(my_stdout,
                     "Found %zu procedures in %s\n",
                     procedures.size(),
-                    oCmd.GetValue(1).c_str());
+                    settings.specfile.c_str());
             for (unsigned int i = 0; i < procedures.size(); ++i) {
                 if (procedures.at(i).GetProcedureType() == RPC_METHOD) {
                     fprintf(my_stdout, "\t[Method]         ");
@@ -91,43 +93,27 @@ bool StubGeneratorFactory::createStubGenerators(int argc,
             fprintf(my_stdout, "\n");
         }
 
-        if (!oCmd.GetProperty("cpp-server").empty()) {
-            string filename =
-                oCmd.GetProperty(
-                        "cpp-server-file",
-                        CPPHelper::class2Filename(oCmd.GetProperty("cpp-server").c_str()).c_str())
-                    .c_str();
-            if (verbose)
-                fprintf(my_stdout, "Generating C++ Serverstub to: %s\n", filename.c_str());
+        if (settings.mode == Mode::cpp_server) {
+            if (settings.verbose)
+                fprintf(my_stdout, "Generating C++ Serverstub to: %s\n", settings.outfile.c_str());
+            stubgenerators.push_back(new CPPServerStubGenerator(
+                settings.class_name, procedures, settings.outfile, interface_definition));
+        }
+
+        if (settings.mode == Mode::cpp_client) {
+            if (settings.verbose)
+                fprintf(my_stdout, "Generating C++ Clientstub to: %s\n", settings.outfile.c_str());
             stubgenerators.push_back(
-                new CPPServerStubGenerator(oCmd.GetProperty("cpp-server").c_str(),
-                                           procedures,
-                                           filename,
-                                           interface_definition));
+                new CPPClientStubGenerator(settings.class_name, procedures, settings.outfile));
         }
 
-        if (!oCmd.GetProperty("cpp-client").empty()) {
-            string filename =
-                oCmd.GetProperty(
-                        "cpp-client-file",
-                        CPPHelper::class2Filename(oCmd.GetProperty("cpp-client").c_str()).c_str())
-                    .c_str();
-            if (verbose)
-                fprintf(my_stdout, "Generating C++ Clientstub to: %s\n", filename.c_str());
-            stubgenerators.push_back(new CPPClientStubGenerator(
-                oCmd.GetProperty("cpp-client").c_str(), procedures, filename));
-        }
-
-        if (!oCmd.GetProperty("js-client").empty()) {
-            string filename =
-                oCmd.GetProperty(
-                        "js-client-file",
-                        CPPHelper::class2Filename(oCmd.GetProperty("js-client").c_str()).c_str())
-                    .c_str();
-            if (verbose)
-                fprintf(my_stdout, "Generating JavaScript Clientstub to: %s\n", filename.c_str());
-            stubgenerators.push_back(new JSClientStubGenerator(
-                oCmd.GetProperty("js-client").c_str(), procedures, filename));
+        if (settings.mode == Mode::js_client) {
+            if (settings.verbose)
+                fprintf(my_stdout,
+                        "Generating JavaScript Clientstub to: %s\n",
+                        settings.outfile.c_str());
+            stubgenerators.push_back(
+                new JSClientStubGenerator(settings.class_name, procedures, settings.outfile));
         }
     }
     catch (const JsonRpcException& ex) {

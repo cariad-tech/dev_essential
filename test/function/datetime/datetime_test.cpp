@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/datetime.h>
@@ -81,7 +75,7 @@ TEST(datetime_test, TestTimestampConversion)
      *  time when converted to unix time, like the unix time based timestamp we
      *  get with the help of the std::chrono library
      *------------------------------------------------------------------------*/
-    EXPECT_NEAR((double)system_timestamp_ut, (double)now_ut, 2000);
+    EXPECT_NEAR(static_cast<double>(system_timestamp_ut), static_cast<double>(now_ut), 2000);
 
     DateTime now_date_time;
     now_date_time.set(now_ut, TimestampReference::MicroSecondsSinceUnixTimeOrigin);

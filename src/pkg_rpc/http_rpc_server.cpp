@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <rpc/http/http_rpc_server.h>
@@ -22,7 +16,7 @@ namespace http {
 namespace detail {
 
 cRPCServer::cRPCServer(const char* strContentType)
-    : m_strContentType(strContentType), cRPCObjectsRegistry(), cThreadedHttpServer()
+    : cRPCObjectsRegistry(), cThreadedHttpServer(), m_strContentType(strContentType)
 {
 }
 
@@ -49,7 +43,7 @@ public:
 
     virtual void Set(const char* strResponse, size_t nResponseSize)
     {
-        m_strResponse.assign(reinterpret_cast<const char*>(strResponse), nResponseSize);
+        m_strResponse.assign(strResponse, nResponseSize);
     }
 };
 
@@ -65,7 +59,7 @@ bool cRPCServer::HandleRequest(const std::string& strName,
         cResponse oResponse(strResponse);
         a_util::result::Result oRes =
             m_oLockedObject->HandleCall(strRequest.c_str(), strRequest.length(), oResponse);
-        if (a_util::result::isOk(oRes)) {
+        if (oRes) {
             return true;
         }
     }

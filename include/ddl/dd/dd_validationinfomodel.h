@@ -6,20 +6,15 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 #ifndef DD_VALIDATIONINFOMODEL_H_INCLUDED
 #define DD_VALIDATIONINFOMODEL_H_INCLUDED
 
+#include <a_util/preprocessor/deprecated.h> // DEV_ESSENTIAL_DEPRECATED()
 #include <ddl/datamodel/datamodel_datadefinition.h>
 #include <ddl/dd/dd_error.h>
 #include <ddl/dd/dd_infomodel_type.h>
@@ -27,20 +22,13 @@ You may add additional accurate notices of copyright ownership.
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
-/**
- * @def DEV_ESSENTIAL_DEPRECATED_VALIDATION_API
- * @brief defines deprecated warnings on ddl::dd::ValidationServiceInfo, it will be removed from
- * public API!
- * @remark disable by defining DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
- */
-
-#ifndef DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS
+/// @cond INTERNAL_DOCUMENTATION
 #define DEV_ESSENTIAL_DEPRECATED_VALIDATION_API                                                    \
-    [[deprecated("Use the ddl::DataDefinition::isValid() and getValidationProtocol() instead")]]
-#else
-#define DEV_ESSENTIAL_DEPRECATED_VALIDATION_API /**/
-#endif
+    DEV_ESSENTIAL_DEPRECATED("Use the ddl::dd::DataDefinition::isValid() and "                     \
+                             "ddl::dd::DataDefinition::getValidationProtocol() instead.")
+/// @endcond
 
 namespace ddl {
 
@@ -53,6 +41,8 @@ namespace dd {
  * @remark: This internal API is part of the internal infomodel of the ddl::DataDefinition class for
  * Validation. It must not be used by you directly while it is not part of the binary compatibility
  * promise!
+ * @dev_essential_deprecated Use @ref ddl::dd::DataDefinition::isValid() and
+ *                           @ref ddl::dd::DataDefinition::getValidationProtocol() instead.
  */
 class ValidationServiceInfo : public datamodel::Info<ValidationServiceInfo> {
 public:
@@ -302,9 +292,8 @@ public:
     bool validationNeeded() const;
     /**
      * @brief  dependencies are stored in ToFrom maps (not in FromTo maps) to raise performance.
-     *
      */
-    typedef std::unordered_map<std::string, std::vector<std::string>> ToFromMap;
+    typedef std::unordered_map<std::string, std::unordered_set<std::string>> ToFromMap;
 
     /**
      * @brief Return structure for @ref forceRevalidationOfTypeDependencies call.
@@ -425,6 +414,8 @@ private:
  * @remark: This internal API is part of the internal infomodel of the ddl::DataDefinition class for
  * Validation. It must not be used by you directly while it is not part of the binary compatibility
  * promise!
+ * @dev_essential_deprecated Use @ref ddl::dd::DataDefinition::isValid() and
+ *                           @ref ddl::dd::DataDefinition::getValidationProtocol() instead.
  */
 class ValidationInfo : public datamodel::Info<ValidationInfo> {
 public:

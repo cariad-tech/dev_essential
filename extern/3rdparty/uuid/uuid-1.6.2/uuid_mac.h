@@ -36,7 +36,7 @@
 
 /* embedding support */
 #ifdef MAC_PREFIX
-#if defined(__STDC__) || defined(__cplusplus)
+#if defined(__STDC__) || defined(__cplusplus) || defined(_MSC_VER)
 #define __MAC_CONCAT(x,y) x ## y
 #define MAC_CONCAT(x,y) __MAC_CONCAT(x,y)
 #else

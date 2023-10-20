@@ -1,24 +1,20 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 add_subdirectory(../../extern/3rdparty/uuid ${CMAKE_BINARY_DIR}/extern/3rdparty/uuid)
 
 add_library(system STATIC
             ../../include/a_util/system.h
+            ../../include/a_util/system/address_info.h
             ../../include/a_util/system/system.h
             ../../include/a_util/system/timer.h
             ../../include/a_util/system/timer_decl.h
             ../../include/a_util/system/uuid.h
             ../../include/a_util/system/detail/timer_impl.h
+            address_info.cpp
             system.cpp
             timer.cpp
             uuid.cpp
@@ -27,7 +23,8 @@ add_library(system STATIC
 target_include_directories(system PRIVATE $<BUILD_INTERFACE:${UUID_DIR}>)
 target_link_libraries(system PUBLIC base
                              PRIVATE filesystem
-                                     concurrency)
+                                     concurrency
+                                     $<$<PLATFORM_ID:Linux>:${CMAKE_DL_LIBS}>)
 
 if(UNIX AND NOT QNXNTO)
     target_link_libraries(system PUBLIC rt)

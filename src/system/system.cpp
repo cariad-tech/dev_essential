@@ -4,27 +4,20 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+#ifdef _WIN32
+// Sleep, GetUserName, timeBeginPeriod, timeEndPeriod, GetLastError, FormatMessage
+#include <Windows.h>
+#endif // _WIN32
 
 #include <a_util/result/result_info.h>
 #include <a_util/system.h>
 
 #ifdef _WIN32
-
-#ifndef __MINGW32__
-#define NOMINMAX
-#endif // __MINGW32__
-
-#include <Windows.h> // Sleep, GetUserName, timeBeginPeriod, timeEndPeriod, GetLastError, FormatMessage
 // must be after Windows.h
 #include <Lmcons.h> // UNLEN
 #else
@@ -224,13 +217,13 @@ timestamp_t getCurrentMicroseconds()
 
     if (!initialized) {
         if (!::QueryPerformanceFrequency(&frequency)) {
-            return (timestamp_t)-1;
+            return -1;
         }
 
         frequency.QuadPart /= 1000; // avoid overrun
 
         if (!::QueryPerformanceCounter(&ref_time)) {
-            return (timestamp_t)-1;
+            return -1;
         }
 
         initialized = true;
@@ -238,7 +231,7 @@ timestamp_t getCurrentMicroseconds()
 
     LARGE_INTEGER count;
     if (!::QueryPerformanceCounter(&count)) {
-        return (timestamp_t)-1;
+        return -1;
     }
 
     return (timestamp_t)(((count.QuadPart - ref_time.QuadPart) * 1000) / frequency.QuadPart);
@@ -257,7 +250,7 @@ timestamp_t getCurrentMicroseconds()
     time_spec.tv_nsec = tv.tv_usec * 1000;
 #else
     if (0 != clock_gettime(CLOCK_MONOTONIC, &time_spec)) {
-        return (timestamp_t)-1;
+        return -1;
     }
 #endif
 

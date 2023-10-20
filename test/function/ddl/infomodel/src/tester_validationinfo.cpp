@@ -4,18 +4,12 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
- *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include "./../../_common/test_measurement.h"
 #include "./../../_common/test_oo_ddl.h"
 
 #include <ddl/datamodel/xml_datamodel.h>
@@ -231,7 +225,7 @@ TEST(TesterOODDL, checkValidationForAutoRenamingsStreamMetaType)
  * check for detection.
  *
  */
-TEST(TesterDDLFile, readDatamodelWithRecursion)
+TEST(TesterOODDL, readDatamodelWithRecursion)
 {
     using namespace ddl;
     // the Data Model can be read without exception!
@@ -365,7 +359,7 @@ TEST(TesterDDLFile, detectStreamMetaTypesWithRecursion)
     my_ddl.getStreamMetaTypes().add({"smt1", "1", ""});
     my_ddl.getStreamMetaTypes().add({"smt2", "1", "smt1"});
 
-    ASSERT_EQ(my_ddl.getStreamMetaTypes().getSize(), 2);
+    ASSERT_EQ(my_ddl.getStreamMetaTypes().getSize(), 2U);
     ASSERT_TRUE(my_ddl.isValid());
 
     // this invalidates the model because of recursion
@@ -400,7 +394,7 @@ TEST(TesterDDLFile, detectStreamMetaTypesWithRecursionLongWay)
     my_ddl.getStreamMetaTypes().add({"smt5", "1", "smt4"});
     my_ddl.getStreamMetaTypes().add({"smt6", "1", "smt5"});
 
-    ASSERT_EQ(my_ddl.getStreamMetaTypes().getSize(), 6);
+    ASSERT_EQ(my_ddl.getStreamMetaTypes().getSize(), 6U);
     ASSERT_TRUE(my_ddl.isValid());
 
     // this invalidates the model because of recursion
@@ -416,4 +410,44 @@ TEST(TesterDDLFile, detectStreamMetaTypesWithRecursionLongWay)
     }
     ASSERT_TRUE(contains_recursion_keyword)
         << "The keyword 'recursion' was not found in problems, expecting it";
+}
+
+/**
+ * @detail When adding many element to an existing DDStructure with many struct sub structures,
+ *         it inserts the dependency very fast within validation service (usually O(1))
+ */
+TEST(TesterOODDL, checkPerformanceOfValidationTypeDependencies)
+{
+    using namespace ddl;
+
+    Measuremment measurement;
+    auto parent_struct = ddl::DDStructure("main_struct_name");
+    const size_t test_struct_count = 5000;
+    const size_t test_struct_element_count = 20;
+
+    for (size_t struct_count = 0; struct_count < test_struct_count; ++struct_count) {
+        const auto struct_name = "struct_" + std::to_string(struct_count);
+        const auto struct_elem_name = "nested_struct_" + std::to_string(struct_count);
+        auto child_struct = ddl::DDStructure(struct_name);
+        // start measurement
+        measurement.start();
+        for (size_t elem_count = 0; elem_count < test_struct_element_count; ++elem_count) {
+            const auto element_name = "elem_" + std::to_string(elem_count);
+            child_struct.addElement<uint32_t>(element_name);
+        }
+        parent_struct.addElement(struct_elem_name, child_struct, 1, 0);
+        // end measurement
+        measurement.stop();
+    }
+
+    // detect complexity
+    // should be O(1) not above !
+    // its only a guess: the max duration should not be greater than 3 times of min duration
+    // this is more a guess!
+    const auto measurement_result = measurement.getResult();
+    constexpr int64_t factor = 3;
+    std::cout << Measuremment::getResultAsString(measurement_result, factor);
+    ASSERT_LT(measurement_result.average_duration,
+              static_cast<int64_t>(measurement_result.min_duration.count() * factor))
+        << Measuremment::getResultAsString(measurement_result, factor);
 }

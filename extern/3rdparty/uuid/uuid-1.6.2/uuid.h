@@ -113,7 +113,7 @@ extern uuid_rc_t     uuid_import   (      uuid_t  *_uuid, uuid_fmt_t _fmt, const
 extern uuid_rc_t     uuid_export   (const uuid_t  *_uuid, uuid_fmt_t _fmt,       void  *_data_ptr, size_t *_data_len);
 
 /* library utilities */
-extern char         *uuid_error    (uuid_rc_t _rc);
+extern const char   *uuid_error    (uuid_rc_t _rc);
 extern unsigned long uuid_version  (void);
 
 DECLARATION_END

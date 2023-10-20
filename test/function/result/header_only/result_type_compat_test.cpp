@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/preprocessor/dll_export.h> // A_UTIL_DLL_EXPORT in a_util_result_legacy.h
@@ -113,7 +107,7 @@ TEST(ResultABI, isBackwardCompatible)
                                                        "result_type_compat_test.cpp",
                                                        "createWithDetailedERR_FAILED");
         EXPECT_EQ(result.getErrorCode(), ERR_FAILED.getCode());
-        EXPECT_EQ(result.getLine(), 112);
+        EXPECT_EQ(result.getLine(), 106);
         EXPECT_STREQ(result.getErrorLabel(), ERR_FAILED.getLabel());
         EXPECT_STREQ(result.getDescription(), "Error failed");
         EXPECT_STREQ(result.getFile(), "result_type_compat_test.cpp");
@@ -147,7 +141,7 @@ TEST(ResultABI, isForwardCompatible)
                                                   ERR_FAILED.getCode(),
                                                   ERR_FAILED.getLabel(),
                                                   "Error failed",
-                                                  143,
+                                                  137,
                                                   "result_type_compat_test.cpp",
                                                   "createWithDetailedERR_FAILED");
         // result was moved and destroyed in library code
@@ -166,13 +160,13 @@ TEST(ResultABI, isForwardCompatible)
                                                   ERR_FAILED.getCode(),
                                                   ERR_FAILED.getLabel(),
                                                   "Error failed",
-                                                  162,
+                                                  156,
                                                   "result_type_compat_test.cpp",
                                                   "createWithDetailedERR_FAILED");
         // result was copied, so still exists
         EXPECT_NE(result, CurrentResult());
         EXPECT_EQ(ERR_FAILED.getCode(), result.getErrorCode());
-        EXPECT_EQ(162, result.getLine());
+        EXPECT_EQ(156, result.getLine());
         EXPECT_STREQ(ERR_FAILED.getLabel(), result.getErrorLabel());
         EXPECT_STREQ("Error failed", result.getDescription());
         EXPECT_STREQ("result_type_compat_test.cpp", result.getFile());

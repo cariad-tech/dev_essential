@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -105,7 +99,7 @@ inline bool basic_semaphore<Mutex, CondVar>::wait_for(
 
     bool is_timeout = false;
     while (_lock_count == 0 && !is_timeout) {
-        timestamp_t wait_time = until - a_util::system::getCurrentMicroseconds();
+        const timestamp_t wait_time = until - a_util::system::getCurrentMicroseconds();
         is_timeout =
             (wait_time <= 0) ||
             (_cv.wait_for(lock, std::chrono::microseconds(wait_time)) == std::cv_status::timeout);

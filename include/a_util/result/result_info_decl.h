@@ -6,20 +6,16 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
 #ifndef A_UTIL_UTIL_RESULT_RESULT_INFO_DECL_HEADER_INCLUDED
 #define A_UTIL_UTIL_RESULT_RESULT_INFO_DECL_HEADER_INCLUDED
+
+#include <a_util/preprocessor/deprecated.h>
 
 #include <cstdint>
 #include <limits>
@@ -64,18 +60,22 @@ namespace result {
  * Check whether a return value indicates a successful function execution
  * @tparam ResultType Type of the result value
  * @param[in] result Value of the result type
+ * @dev_essential_deprecated Usage of this function template is not type safe.
  * @return @c true if @c result indicates success, @c false otherwise.
  */
 template <typename ResultType>
+DEV_ESSENTIAL_DEPRECATED("Usage of this function template is not type safe.")
 bool isOk(const ResultType& result);
 
 /**
  * Check whether a return value indicates an unsuccessful function execution
  * @tparam ResultType Type of the result value
  * @param[in] result Value of the result type
+ * @dev_essential_deprecated Usage of this function template is not type safe..
  * @return @c true if @c result indicates failure, @c false otherwise.
  */
 template <typename ResultType>
+DEV_ESSENTIAL_DEPRECATED("Usage of this function template is not type safe.")
 bool isFailed(const ResultType& result);
 
 /**

@@ -4,18 +4,12 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
- *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include "../../_common/test_measurement.h"
 #include "../../_common/test_oo_ddl.h"
 
 #include <ddl/dd/dd.h>
@@ -30,7 +24,6 @@
 
 #include <gtest/gtest.h>
 
-#include <chrono>
 #include <iostream>
 
 void dump_deserialized_positions(const ddl::dd::StructTypeAccess& struct_type)
@@ -197,15 +190,15 @@ TEST(TesterOODDL, checkAutoSerializedPosCalculation)
     auto added_struct_type = dd.getStructTypes().get("my_struct");
 
     auto elem_to_check = added_struct_type->getElements().get("elem1");
-    EXPECT_EQ(*elem_to_check->getBytePos(), 0);
+    EXPECT_EQ(*elem_to_check->getBytePos(), 0U);
     elem_to_check = added_struct_type->getElements().get("elem2");
-    EXPECT_EQ(*elem_to_check->getBytePos(), 4);
+    EXPECT_EQ(*elem_to_check->getBytePos(), 4U);
     elem_to_check = added_struct_type->getElements().get("elem3");
-    EXPECT_EQ(*elem_to_check->getBytePos(), 12);
+    EXPECT_EQ(*elem_to_check->getBytePos(), 12U);
     elem_to_check = added_struct_type->getElements().get("elem4");
-    EXPECT_EQ(*elem_to_check->getBytePos(), 13);
+    EXPECT_EQ(*elem_to_check->getBytePos(), 13U);
     elem_to_check = added_struct_type->getElements().get("elem5");
-    EXPECT_EQ(*elem_to_check->getBytePos(), 21);
+    EXPECT_EQ(*elem_to_check->getBytePos(), 21U);
 }
 
 static constexpr const char* const strTestDescDyn =
@@ -253,7 +246,7 @@ TEST(TesterOODDL, checkDynamicDetection)
     using namespace ddl;
     {
         auto dyn_dd = DDString::fromXMLString(strTestDescDyn);
-        size_t detect_dynamic_count = 0;
+        int detect_dynamic_count = 0;
         for (auto struct_type: dyn_dd.getStructTypes()) {
             auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
             if (type_info) {
@@ -268,7 +261,7 @@ TEST(TesterOODDL, checkDynamicDetection)
     // check for false
     {
         auto not_dyn_dd = DDString::fromXMLString(all_types::strTestDesc);
-        size_t detect_dynamic_count = 0;
+        int detect_dynamic_count = 0;
         for (auto struct_type: not_dyn_dd.getStructTypes()) {
             auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
             if (type_info) {
@@ -283,7 +276,7 @@ TEST(TesterOODDL, checkDynamicDetection)
     // check for all types are dynamic also the types using other dynamic types
     {
         auto dyn_dd = DDString::fromXMLString(strTestDescDynWithDyn);
-        size_t detect_dynamic_count = 0;
+        int detect_dynamic_count = 0;
         for (auto struct_type: dyn_dd.getStructTypes()) {
             auto type_info = struct_type.second->getInfo<dd::TypeInfo>();
             if (type_info) {
@@ -343,39 +336,39 @@ TEST(TesterOODDL, checkTypeCalculations)
     ASSERT_TRUE(s1_type_info);
     ASSERT_TRUE(s2_type_info);
 
-    ASSERT_EQ(uint8_type_info->getTypeBitSize(), 8);
-    ASSERT_EQ(uint16_type_info->getTypeBitSize(), 16);
-    ASSERT_EQ(e1_type_info->getTypeBitSize(), 8);
-    ASSERT_EQ(s1_type_info->getTypeBitSize(), 8);
-    ASSERT_EQ(s2_type_info->getTypeBitSize(), 8);
+    ASSERT_EQ(uint8_type_info->getTypeBitSize(), 8U);
+    ASSERT_EQ(uint16_type_info->getTypeBitSize(), 16U);
+    ASSERT_EQ(e1_type_info->getTypeBitSize(), 8U);
+    ASSERT_EQ(s1_type_info->getTypeBitSize(), 8U);
+    ASSERT_EQ(s2_type_info->getTypeBitSize(), 8U);
 
     // change the datatype and check the typeinfo
     uint8_type->setBitSize(32);
 
     // check the sizes
-    ASSERT_EQ(uint8_type_info->getTypeBitSize(), 32);
-    ASSERT_EQ(uint16_type_info->getTypeBitSize(), 16);
-    ASSERT_EQ(e1_type_info->getTypeBitSize(), 32);
-    ASSERT_EQ(s1_type_info->getTypeBitSize(), 32);
-    ASSERT_EQ(s2_type_info->getTypeBitSize(), 32);
+    ASSERT_EQ(uint8_type_info->getTypeBitSize(), 32U);
+    ASSERT_EQ(uint16_type_info->getTypeBitSize(), 16U);
+    ASSERT_EQ(e1_type_info->getTypeBitSize(), 32U);
+    ASSERT_EQ(s1_type_info->getTypeBitSize(), 32U);
+    ASSERT_EQ(s2_type_info->getTypeBitSize(), 32U);
 
     // change the type of the s1 element
     s1_type->getElements().access("elem1_in_s1")->setTypeName("tUInt16");
 
-    ASSERT_EQ(uint8_type_info->getTypeBitSize(), 32);
-    ASSERT_EQ(uint16_type_info->getTypeBitSize(), 16);
-    ASSERT_EQ(e1_type_info->getTypeBitSize(), 32);
-    ASSERT_EQ(s1_type_info->getTypeBitSize(), 16);
-    ASSERT_EQ(s2_type_info->getTypeBitSize(), 16);
+    ASSERT_EQ(uint8_type_info->getTypeBitSize(), 32U);
+    ASSERT_EQ(uint16_type_info->getTypeBitSize(), 16U);
+    ASSERT_EQ(e1_type_info->getTypeBitSize(), 32U);
+    ASSERT_EQ(s1_type_info->getTypeBitSize(), 16U);
+    ASSERT_EQ(s2_type_info->getTypeBitSize(), 16U);
 
-    ASSERT_EQ(s2_type_info->getTypeAlignedByteSize(), 2);
-    ASSERT_EQ(s2_type_info->getTypeUnalignedByteSize(), 2);
+    ASSERT_EQ(s2_type_info->getTypeAlignedByteSize(), 2U);
+    ASSERT_EQ(s2_type_info->getTypeUnalignedByteSize(), 2U);
 
     // change alignment
     s1_type->setAlignment(64);
 
-    ASSERT_EQ(s2_type_info->getTypeAlignedByteSize(), 64);
-    ASSERT_EQ(s2_type_info->getTypeUnalignedByteSize(), 64);
+    ASSERT_EQ(s2_type_info->getTypeAlignedByteSize(), 64U);
+    ASSERT_EQ(s2_type_info->getTypeUnalignedByteSize(), 64U);
 
     // force a recursion
     // this will be invalid and so not result in a endless loop
@@ -413,47 +406,26 @@ TEST(TesterOODDL, checkTypeCalculationPerformance)
     struct_types.add(dd::StructType("test_type"));
     auto test_type = struct_types.access("test_type");
     auto& test_elements = test_type->getElements();
-    std::vector<std::chrono::nanoseconds> measured_durations;
+
+    Measuremment measurement;
     size_t test_count = 50000;
     for (size_t elem_count = 0; elem_count < test_count; ++elem_count) {
-        auto begin_of_measurement = std::chrono::high_resolution_clock::now();
+        measurement.start();
         test_elements.add(
             dd::StructType::Element("elem_" + std::to_string(elem_count), "tInt32", {2}, {}));
-        auto duration_of_measurement =
-            std::chrono::high_resolution_clock::now() - begin_of_measurement;
-        measured_durations.push_back(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(duration_of_measurement));
+        measurement.stop();
     }
 
     // detect complexity
     // should be O(1) not above !
     // its only a guess: the max duration should not be greater than 3 times of min duration
-    dd::utility::Optional<std::chrono::nanoseconds> min_duration;
-    dd::utility::Optional<int64_t> average_duration;
-    for (auto current_duration: measured_durations) {
-        if (min_duration) {
-            if (current_duration < *min_duration) {
-                min_duration = current_duration;
-            }
-        }
-        else {
-            min_duration = current_duration;
-        }
-        if (average_duration) {
-            *average_duration = *average_duration + current_duration.count();
-        }
-        else {
-            average_duration = current_duration.count();
-        }
-    }
-    *average_duration = *average_duration / test_count;
     // this is more a guess!
-    // should be 2, but the times are to small, that there might be many deviations
-    constexpr double factor = 3;
-    std::cout << "average: " << *average_duration << " - min : " << (*min_duration).count()
-              << " - min * " << factor << " : " << ((*min_duration).count() * factor) << std::endl;
-    // the times are so
-    ASSERT_LT(*average_duration, static_cast<int64_t>((*min_duration).count() * factor));
+    const auto measurement_result = measurement.getResult();
+    constexpr int64_t factor = 3;
+    std::cout << Measuremment::getResultAsString(measurement_result, factor);
+    ASSERT_LT(measurement_result.average_duration,
+              static_cast<int64_t>(measurement_result.min_duration.count() * factor))
+        << Measuremment::getResultAsString(measurement_result, factor);
 }
 
 /**
@@ -464,47 +436,25 @@ TEST(TesterOODDL, checkTypeCalculationPerformanceWithStructure)
 {
     using namespace ddl;
     ddl::DDStructure my_structure("test_type");
-    std::vector<std::chrono::nanoseconds> measured_durations;
+
+    Measuremment measurement;
     size_t test_count = 10000;
     for (size_t elem_count = 0; elem_count < test_count; ++elem_count) {
-        auto begin_of_measurement = std::chrono::high_resolution_clock::now();
+        measurement.start();
         my_structure.addElement(
             DDElement("elem_" + std::to_string(elem_count), DataType<int32_t>()));
-        auto duration_of_measurement =
-            std::chrono::high_resolution_clock::now() - begin_of_measurement;
-        measured_durations.push_back(
-            std::chrono::duration_cast<std::chrono::nanoseconds>(duration_of_measurement));
+        measurement.stop();
     }
 
     // detect complexity
     // should be O(1) not above !
     // its only a guess: the max duration should not be greater than 3 times of min duration
-    dd::utility::Optional<std::chrono::nanoseconds> min_duration;
-    dd::utility::Optional<int64_t> average_duration;
-    for (auto current_duration: measured_durations) {
-        if (min_duration) {
-            if (current_duration < *min_duration) {
-                min_duration = current_duration;
-            }
-        }
-        else {
-            min_duration = current_duration;
-        }
-        if (average_duration) {
-            *average_duration = *average_duration + current_duration.count();
-        }
-        else {
-            average_duration = current_duration.count();
-        }
-    }
-    *average_duration = *average_duration / test_count;
-
-    // should be 2, but the times are to small, that there might be many deviations
-    // this is more a guess!
-    constexpr double factor = 3;
-    std::cout << "average: " << *average_duration << " - min : " << (*min_duration).count()
-              << " - min * " << factor << " : " << ((*min_duration).count() * factor) << std::endl;
-    ASSERT_LT(*average_duration, static_cast<int64_t>((*min_duration).count() * factor));
+    const auto measurement_result = measurement.getResult();
+    constexpr int64_t factor = 3;
+    std::cout << Measuremment::getResultAsString(measurement_result, factor);
+    ASSERT_LT(measurement_result.average_duration,
+              static_cast<int64_t>(measurement_result.min_duration.count() * factor))
+        << Measuremment::getResultAsString(measurement_result, factor);
 }
 
 namespace reference_test {

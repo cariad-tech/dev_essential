@@ -5,15 +5,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -85,7 +79,7 @@ private:
 
     /**
      * Initializes the header from a header-dom element
-     * @param [in] dom_element The dom element from which to import
+     * @param [in] header The dom element from which to import
      * @param [out] errors The error list for debug
      * @retval ERR_INVALID_ARG  Field missing
      * @retval a_util::result::SUCCESS      Everything went fine
@@ -113,6 +107,16 @@ private:
      * @retval a_util::result::SUCCESS Everything went fine
      */
     a_util::result::Result setDdlPaths(const std::string& ddl_paths);
+
+    /**
+     * Parses the language version string.
+     * @param [in] version_string The version string
+     * @param [out] minor_version The parsed minor version if conversion was successful
+     * @param [out] major_version The parsed major version if conversion was successful
+     * @param [out] errors The error list for debug
+     * @retval a_util::result::SUCCESS Everything went fine
+     */
+    a_util::result::Result parseVersion(const std::string& version, MapErrorList& lstErrors);
 
 private:
     /// @cond nodoc

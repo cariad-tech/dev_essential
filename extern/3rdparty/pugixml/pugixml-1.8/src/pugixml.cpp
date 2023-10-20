@@ -656,7 +656,7 @@ PUGI__NS_BEGIN
 			assert(header);
 
 			// deallocate
-			size_t page_offset = sizeof(xml_memory_page) + header->page_offset * xml_memory_block_alignment;
+			size_t page_offset = sizeof(xml_memory_page) + header->page_offset * xml_memory_block_alignment; // NOLINT(clang-analyzer-core.NullDereference)
 			xml_memory_page* page = reinterpret_cast<xml_memory_page*>(static_cast<void*>(reinterpret_cast<char*>(header) - page_offset));
 
 			// if full_size == 0 then this string occupies the whole page

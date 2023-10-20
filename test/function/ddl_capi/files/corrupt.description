@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<!--
+Copyright @ 2021 VW Group. All rights reserved.
+
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+<adtf:ddl xmlns:adtf="adtf">
+ <header>
+  <language_version>3.00</language_version>
+  <author>dev_essential team</author>
+  <date_creation>24.06.2014</date_creation>
+  <date_change>31.03.2015</date_change>
+  <description>FEP Driver standard interfaces</description>
+ </header>
+ <units />
+ <datatypes>
+ </datatypes>
+ <enums>
+ </enums>
+ <structs>
+  <struct alignment="1" name="tFEP_Driver_DriverCtrl" version="1">
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="12" name="eGear" type="tFEP_Driver_GearSelections" />
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="16" name="sLongitudinal" type="tFEP_Driver_LongitudinalControl" />
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="40" name="sLateral" type="tFEP_Driver_LateralControl" />
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="56" name="sLightControl" type="tFEP_Driver_LightControl" />
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="72" name="sWiperControl" type="tFEP_Driver_WiperControl" />
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="80" name="sAccControl" type="tFEP_Driver_AccControl" />
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="88" name="sAalaControl" type="tFEP_Driver_AalaControl" />
+   <element alignment="1" arraysize="1" byteorder="LE" bytepos="96" name="sAdditionalControl" type="tFEP_Driver_AdditionalControl" />
+  </struct>
+ </structs>
+ <streams />
+</adtf:ddl>

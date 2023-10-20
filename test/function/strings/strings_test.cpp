@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/memory.h>
@@ -226,9 +220,9 @@ TEST(string_test, TestStringGetLength)
 {
     // getLength
     EXPECT_EQ(strings::getLength(nullptr), std::string::npos);
-    EXPECT_EQ(strings::getLength(""), 0);
-    EXPECT_EQ(strings::getLength("a"), 1);
-    EXPECT_EQ(strings::getLength("abcdef"), 6);
+    EXPECT_EQ(strings::getLength(""), 0U);
+    EXPECT_EQ(strings::getLength("a"), 1U);
+    EXPECT_EQ(strings::getLength("abcdef"), 6U);
 }
 
 TEST(string_test, TestStringSplitToken)
@@ -242,23 +236,23 @@ TEST(string_test, TestStringSplitToken)
     EXPECT_TRUE(vec.empty());
 
     vec = strings::splitToken("abc", "");
-    ASSERT_TRUE(vec.size() == 1);
+    ASSERT_TRUE(vec.size() == 1U);
     EXPECT_TRUE(vec[0] == "abc");
 
     vec = strings::splitToken("  ", strings::white_space, true);
-    ASSERT_TRUE(vec.size() == 3);
+    ASSERT_TRUE(vec.size() == 3U);
     EXPECT_TRUE(vec[0].empty());
     EXPECT_TRUE(vec[1].empty());
     EXPECT_TRUE(vec[2].empty());
 
     vec = strings::splitToken(" a ", strings::white_space, true);
-    ASSERT_TRUE(vec.size() == 3);
+    ASSERT_TRUE(vec.size() == 3U);
     EXPECT_TRUE(vec[0].empty());
     EXPECT_TRUE(vec[1] == "a");
     EXPECT_TRUE(vec[2].empty());
 
     vec = strings::splitToken("a b\tc\nd\r\re ");
-    ASSERT_TRUE(vec.size() == 5);
+    ASSERT_TRUE(vec.size() == 5U);
     EXPECT_TRUE(vec[0] == "a");
     EXPECT_TRUE(vec[1] == "b");
     EXPECT_TRUE(vec[2] == "c");
@@ -266,7 +260,7 @@ TEST(string_test, TestStringSplitToken)
     EXPECT_TRUE(vec[4] == "e");
 
     vec = strings::splitToken("a,b;c", ",;");
-    ASSERT_TRUE(vec.size() == 3);
+    ASSERT_TRUE(vec.size() == 3U);
     EXPECT_TRUE(vec[0] == "a");
     EXPECT_TRUE(vec[1] == "b");
     EXPECT_TRUE(vec[2] == "c");
@@ -278,30 +272,30 @@ TEST(string_test, TestStringSplit)
     std::vector<std::string> vec;
 
     vec = strings::split("abc", "");
-    ASSERT_TRUE(vec.size() == 0);
+    ASSERT_TRUE(vec.size() == 0U);
 
     vec = strings::split("  ", " ", true);
-    ASSERT_TRUE(vec.size() == 3);
+    ASSERT_TRUE(vec.size() == 3U);
     EXPECT_TRUE(vec[0].empty());
     EXPECT_TRUE(vec[1].empty());
     EXPECT_TRUE(vec[2].empty());
 
     vec = strings::split("abcd", "ab", true);
-    ASSERT_TRUE(vec.size() == 2);
+    ASSERT_TRUE(vec.size() == 2U);
     EXPECT_TRUE(vec[0].empty());
     EXPECT_TRUE(vec[1] == "cd");
 
     vec = strings::split("abcd", "ab");
-    ASSERT_TRUE(vec.size() == 1);
+    ASSERT_TRUE(vec.size() == 1U);
     EXPECT_TRUE(vec[0] == "cd");
 
     vec = strings::split("a b\tc\nd\r\re ", "\n");
-    ASSERT_TRUE(vec.size() == 2);
+    ASSERT_TRUE(vec.size() == 2U);
     EXPECT_TRUE(vec[0] == "a b\tc");
     EXPECT_TRUE(vec[1] == "d\r\re ");
 
     vec = strings::split("a,b;c", ",;");
-    ASSERT_TRUE(vec.size() == 1);
+    ASSERT_TRUE(vec.size() == 1U);
     EXPECT_TRUE(vec[0] == "a,b;c");
 }
 
@@ -389,7 +383,7 @@ TEST(string_test, TestStringCopy)
     EXPECT_EQ(ptr[3], 'd');
     EXPECT_EQ(ptr[4], '\0');
 
-    EXPECT_EQ(strings::copy(ptr, 3, str.c_str()), 2);
+    EXPECT_EQ(strings::copy(ptr, 3, str.c_str()), 2U);
     EXPECT_EQ(ptr[0], 'a');
     EXPECT_EQ(ptr[1], 'b');
     EXPECT_EQ(ptr[2], '\0');
@@ -399,12 +393,12 @@ TEST(string_test, TestStringCopy)
     EXPECT_THROW(strings::copy(nullptr, 1, nullptr), std::invalid_argument);
 
     memory::set(buf, 42, 10);
-    EXPECT_EQ(strings::copy(ptr, buf.getSize(), str.c_str(), 2), 2);
+    EXPECT_EQ(strings::copy(ptr, buf.getSize(), str.c_str(), 2), 2U);
     EXPECT_EQ(ptr[0], 'a');
     EXPECT_EQ(ptr[1], 'b');
     EXPECT_EQ(ptr[2], '\0');
 
-    EXPECT_EQ(strings::copy(ptr, 3, str.c_str(), 4), 2);
+    EXPECT_EQ(strings::copy(ptr, 3, str.c_str(), 4), 2U);
     EXPECT_EQ(ptr[0], 'a');
     EXPECT_EQ(ptr[1], 'b');
     EXPECT_EQ(ptr[2], '\0');

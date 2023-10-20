@@ -1,29 +1,23 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
-
-# Doxyfile 1.8.14
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+# Doxyfile 1.9.1
 # From project root run: $ doxygen doc/extern/Doxyfile
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = dev_essential
-PROJECT_NUMBER         = v1.2.0
+PROJECT_NUMBER         = v1.3.1
 PROJECT_BRIEF          = "Documentation for essential C++ libraries and interfaces"
 OUTPUT_DIRECTORY       =
 STRIP_FROM_PATH        = include/
 STRIP_FROM_INC_PATH    = include/
 SHORT_NAMES            = YES
 JAVADOC_AUTOBRIEF      = YES
+ALIASES = dev_essential_deprecated="@deprecated This entity is deprecated and will be removed in the upcoming dev_essential 2.0.0.<br>"
 
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -48,14 +42,12 @@ WARN_AS_ERROR          = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = include doc/extern README.md a_util.md rpc.md ddl.md ddl_capi.md \
-                         include/a_util/base/detail/error.inc
+INPUT                  = doc/extern include include/a_util/base/detail/error.inc README.md
 FILE_PATTERNS          = *.h *.md *.dox
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = *_impl.h
 EXAMPLE_PATH           = .
 USE_MDFILE_AS_MAINPAGE = README.md
-
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
 #---------------------------------------------------------------------------
@@ -105,6 +97,15 @@ GENERATE_LATEX         = NO
 # Configuration options related to the preprocessor
 #---------------------------------------------------------------------------
 MACRO_EXPANSION        = YES
+PREDEFINED             = DEV_ESSENTIAL_DEPRECATED_CODEC= \
+                         DEV_ESSENTIAL_DEPRECATED_CODEC_FACTORY= \
+                         DEV_ESSENTIAL_DEPRECATED_DECODER= \
+                         DEV_ESSENTIAL_DEPRECATED_STATIC_CODEC= \
+                         DEV_ESSENTIAL_DEPRECATED_STATIC_DECODER= \
+                         DEV_ESSENTIAL_DEPRECATED_STATIC_VERSION(x)= \
+                         DEV_ESSENTIAL_DEPRECATED_TYPEINFO_API= \
+                         DEV_ESSENTIAL_DEPRECATED_VALIDATION_API= \
+                         __cplusplus=201703L
 
 #---------------------------------------------------------------------------
 # Configuration options related to external references
@@ -114,5 +115,6 @@ MACRO_EXPANSION        = YES
 # Configuration options related to the dot tool
 #---------------------------------------------------------------------------
 HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
 DOT_PATH               =
 DOT_MULTI_TARGETS      = YES

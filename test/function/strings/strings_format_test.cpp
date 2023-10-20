@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/strings/strings_convert.h>
@@ -67,11 +61,11 @@ TEST(string_format_test, TestStringFormat)
     EXPECT_EQ(std::string("Hello World!").size(), strings::format("Hello World!").size());
 
     EXPECT_EQ(str_128_formatted, strings::format(str_128.c_str(), 128));
-    EXPECT_EQ(128, strings::format(str_128.c_str(), 128).size());
+    EXPECT_EQ(128U, strings::format(str_128.c_str(), 128).size());
     EXPECT_EQ(str_237_formatted,
               strings::format(str_237.c_str(), 237, "format", "specifiers", 1337, -28000, -64000));
     EXPECT_EQ(
-        237,
+        237U,
         strings::format(str_237.c_str(), 237, "format", "specifiers", 1337, -28000, -64000).size());
 
     // with given buffer size
@@ -83,7 +77,8 @@ TEST(string_format_test, TestStringFormat)
     EXPECT_EQ(std::string("Hello World!").size(), strings::format(10, "Hello World!").size());
 
     EXPECT_EQ(str_128_formatted, strings::format(129, str_128.c_str(), 128));
-    EXPECT_EQ(128, strings::format(42, str_128.c_str(), 128).size()); // force resize, buffer to low
+    // force resize, buffer to low
+    EXPECT_EQ(128U, strings::format(42, str_128.c_str(), 128).size());
     EXPECT_EQ(
         str_237_formatted,
         strings::format(1, str_237.c_str(), 237, "format", "specifiers", 1337, -28000, -64000));
@@ -96,14 +91,14 @@ TEST(string_format_test, TestStringFormatExistingBuffer)
     std::string& ref_buffer = buffer;
     std::size_t pos = 0;
     ref_buffer = strings::format(buffer, pos, str_128.c_str(), 128);
-    EXPECT_GT(buffer.size(), 128);
+    EXPECT_GT(buffer.size(), 128U);
     ref_buffer.resize(pos);
     EXPECT_EQ(buffer, str_128_formatted);
 
     // no reallocation shall happen when preallocated buffer is large enough
     pos = 0;
     ref_buffer = strings::format(buffer, pos, str_127.c_str(), 127);
-    EXPECT_EQ(buffer.size(), 128); // still the same size, no realloc!
+    EXPECT_EQ(buffer.size(), 128U); // still the same size, no realloc!
     EXPECT_NE(buffer, str_127_formatted);
     ref_buffer.resize(pos);
     EXPECT_EQ(buffer, str_127_formatted);
@@ -111,7 +106,7 @@ TEST(string_format_test, TestStringFormatExistingBuffer)
     // use current position to add new stuff - must not overwrite the already existing content
     ref_buffer = strings::format(
         buffer, pos, str_237.c_str(), 237, "format", "specifiers", 1337, -28000, -64000);
-    EXPECT_GT(buffer.size(), 364);
+    EXPECT_GT(buffer.size(), 364U);
     buffer.resize(pos);
     EXPECT_EQ(buffer, str_127_formatted + str_237_formatted);
 }

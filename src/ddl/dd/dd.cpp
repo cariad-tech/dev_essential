@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <ddl/dd/dd.h>
@@ -26,7 +20,7 @@ namespace ddl {
 
 namespace dd {
 
-DataDefinition::DataDefinition() : DataDefinition(Version::getDefaultVersion())
+DataDefinition::DataDefinition() : DataDefinition(Version::getLatestVersion())
 {
 }
 
@@ -616,7 +610,12 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
                                   const std::string& additional_info)
 {
     if (event_code == datamodel::ModelEventCode::item_added) {
-        changed_subject.setInfo<TypeInfo>(std::make_shared<TypeInfo>(changed_subject, *_datamodel));
+        // check if a valid typeinfo was copied
+        auto existing_type_info = changed_subject.getInfo<TypeInfo>();
+        if (!existing_type_info) {
+            changed_subject.setInfo<TypeInfo>(
+                std::make_shared<TypeInfo>(changed_subject, *_datamodel));
+        }
         changed_subject.setInfo<ValidationInfo>(
             std::make_shared<ValidationInfo>(changed_subject, *_datamodel));
         _datamodel->getInfo<ValidationServiceInfo>()->renamed(
@@ -666,7 +665,12 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
                                   const std::string& additional_info)
 {
     if (event_code == datamodel::ModelEventCode::item_added) {
-        changed_subject.setInfo<TypeInfo>(std::make_shared<TypeInfo>(changed_subject, *_datamodel));
+        // check if a valid typeinfo was copied
+        auto existing_type_info = changed_subject.getInfo<TypeInfo>();
+        if (!existing_type_info) {
+            changed_subject.setInfo<TypeInfo>(
+                std::make_shared<TypeInfo>(changed_subject, *_datamodel));
+        }
         changed_subject.setInfo<ValidationInfo>(
             std::make_shared<ValidationInfo>(changed_subject, *_datamodel));
         _datamodel->getInfo<ValidationServiceInfo>()->renamed(
@@ -713,18 +717,28 @@ void DataDefinition::modelChanged(datamodel::ModelEventCode event_code,
                                   const std::string& additional_info)
 {
     switch (event_code) {
-    case datamodel::ModelEventCode::item_added:
+    case datamodel::ModelEventCode::item_added: {
         // struct may have recursion, thats why we have no CTOR on that, first we set it, then we
         // update it
         changed_subject.setInfo<ValidationInfo>(std::make_shared<ValidationInfo>());
         changed_subject.getInfo<ValidationInfo>()->update(changed_subject, *_datamodel);
         // struct may have recursion, thats why we have no CTOR on that, first we set it, then we
         // update it
-        changed_subject.setInfo<TypeInfo>(std::make_shared<TypeInfo>());
-        changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
+        // check if a valid typeinfo was copied
+        auto existing_type_info = changed_subject.getInfo<TypeInfo>();
+        if (!existing_type_info) {
+            changed_subject.setInfo<TypeInfo>(std::make_shared<TypeInfo>());
+            changed_subject.getInfo<TypeInfo>()->update(changed_subject, *_datamodel);
+        }
+        else {
+            // if this was copied we ned onl to fix the references
+            // if this does not work the implementation will revalidate all
+            existing_type_info->update(
+                changed_subject, *_datamodel, TypeInfo::UpdateType::only_reference);
+        }
         _datamodel->getInfo<ValidationServiceInfo>()->renamed(
             changed_subject, changed_subject.getName(), *_datamodel);
-        break;
+    } break;
     case datamodel::ModelEventCode::item_removed:
         _datamodel->getInfo<ValidationServiceInfo>()->removed(changed_subject, *_datamodel);
         removeAllValidations(changed_subject, *_datamodel);
@@ -921,7 +935,7 @@ void DataDefinition::add(const Unit& unit, const DataDefinition& source_ddl)
 
 void DataDefinition::add(const DataType& data_type, const DataDefinition& source_dd)
 {
-    auto unit_name = data_type.getUnitName();
+    const auto& unit_name = data_type.getUnitName();
     if (!unit_name.empty()) {
         if (!addUnitByName(unit_name, source_dd, *this)) {
             throw dd::Error("DataDefinition::add",
@@ -971,12 +985,13 @@ void DataDefinition::add(const StructType& struct_type, const DataDefinition& so
         _recursion_detection_struct[struct_type.getName()] = struct_type.getName();
         for (auto current_elem = struct_type.getElements().cbegin();
              current_elem != struct_type.getElements().cend();
-             current_elem++) {
+             ++current_elem) {
             const auto& unit_name = (*current_elem)->getUnitName();
             if (!unit_name.empty()) {
                 addUnitByName(unit_name, source_ddl, *this);
             }
-            addTypeByName((*current_elem)->getTypeName(), source_ddl, *this);
+            const auto& type_name_to_add = (*current_elem)->getTypeName();
+            addTypeByName(type_name_to_add, source_ddl, *this);
         }
         getStructTypes().add(struct_type);
     }

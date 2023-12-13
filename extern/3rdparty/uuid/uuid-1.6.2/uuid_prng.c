@@ -45,6 +45,8 @@
 #define WINVER 0x0500
 #include <windows.h>
 #include <wincrypt.h>
+#include <process.h> // getpid()
+#include <io.h>      // read(), close()
 #endif
 
 /* own headers (part 2/2) */
@@ -54,6 +56,9 @@
 
 #if defined(WIN32) && !defined(__MINGW32__)
 typedef int pid_t;
+#define getpid _getpid
+#define read _read
+#define close _close
 #endif
 
 struct prng_st {

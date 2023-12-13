@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -189,7 +183,7 @@ struct DDToXMLFactory {
         // changes between 2.0 and 3.0
         // attribute name changed to "name" from "type"
         // mandatory
-        if (file_ddl_version >= Version::ddl_version_30) {
+        if (file_ddl_version >= Version(3, 0)) {
             sub_node.setAttribute("name", data_type.getName());
         }
         else {
@@ -201,7 +195,7 @@ struct DDToXMLFactory {
         setOptionalAttribute<size_t>(sub_node, "arraysize", data_type.getArraySize());
         setOptionalAttribute(sub_node, "unit", data_type.getUnitName());
         // min / max introduced in DataDefinition 3.0
-        if (file_ddl_version >= Version::ddl_version_30) {
+        if (file_ddl_version >= Version(3, 0)) {
             setOptionalAttribute(sub_node, "min", data_type.getMin());
             setOptionalAttribute(sub_node, "max", data_type.getMax());
         }
@@ -244,7 +238,7 @@ struct DDToXMLFactory {
         // From version 4.0 on this information is specified within the <deserialized> tag.
         DOM_NODE_TYPE* serialized_node = &sub_node;
         DOM_NODE_TYPE serialized_node_version_40;
-        if (file_ddl_version >= Version::ddl_version_40) {
+        if (file_ddl_version >= Version(4, 0)) {
             serialized_node_version_40 = sub_node.createChild("serialized");
             serialized_node = &serialized_node_version_40;
         }
@@ -256,7 +250,7 @@ struct DDToXMLFactory {
         // From version 4.0 on this information is specified within the <serialized> tag.
         DOM_NODE_TYPE* deserialized_node = &sub_node;
         DOM_NODE_TYPE deserialized_node_version_40;
-        if (file_ddl_version >= Version::ddl_version_40) {
+        if (file_ddl_version >= Version(4, 0)) {
             deserialized_node_version_40 = sub_node.createChild("deserialized");
             deserialized_node = &deserialized_node_version_40;
         }
@@ -267,8 +261,7 @@ struct DDToXMLFactory {
         setOptionalAttribute(sub_node, "comment", element.getComment());
 
         // in DataDefinition 2.0 dynamic arrays are introduced
-        if (file_ddl_version >= Version::ddl_version_20 &&
-            element.getArraySize().isDynamicArraySize()) {
+        if (file_ddl_version >= Version(2, 0) && element.getArraySize().isDynamicArraySize()) {
             setOptionalAttribute(
                 sub_node, "arraysize", element.getArraySize().getArraySizeElementName());
         }
@@ -280,11 +273,11 @@ struct DDToXMLFactory {
             sub_node.setAttribute("arraysize", std::to_string(array_size));
         }
         // introduced in DataDefinition 2.0
-        if (file_ddl_version >= Version::ddl_version_20) {
+        if (file_ddl_version >= Version(2, 0)) {
             setOptionalAttribute(sub_node, "value", element.getValue());
         }
         // introduced in DataDefinition 3.0
-        if (file_ddl_version >= Version::ddl_version_30) {
+        if (file_ddl_version >= Version(3, 0)) {
             setOptionalAttribute(sub_node, "min", element.getMin());
             setOptionalAttribute(sub_node, "max", element.getMax());
             setOptionalAttribute(sub_node, "default", element.getDefault());
@@ -309,7 +302,7 @@ struct DDToXMLFactory {
 
         setOptionalAttribute<size_t>(sub_node, "alignment", struct_type.getAlignment());
         setOptionalAttribute(sub_node, "comment", struct_type.getComment());
-        if (struct_type.getLanguageVersion() != Version::ddl_version_notset) {
+        if (struct_type.getLanguageVersion() != Version(0, 0)) {
             sub_node.setAttribute("ddlversion",
                                   VersionConversion::toString(struct_type.getLanguageVersion()));
         }
@@ -417,7 +410,7 @@ struct DDToXMLFactory {
         }
 
         // write stream meta types types
-        if (dd.getVersion() >= dd::Version::ddl_version_40) {
+        if (dd.getVersion() >= dd::Version(4, 0)) {
             DOM_NODE_TYPE stream_meta_types_node = parent_node.createChild("streammetatypes");
             const auto& stream_meta_types_types = dd.getStreamMetaTypes();
             for (auto stream_meta_type = stream_meta_types_types.cbegin();

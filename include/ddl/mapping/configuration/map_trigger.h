@@ -5,15 +5,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -81,10 +75,9 @@ protected:
 private:
     /**
      * creates a polymorphic trigger instance from a trigger-dom element
-     * @param [in] oConfig The configuration
+     * @param [in] config The configuration
      * @param [in] dom_element The dom element from which to import
      * @param [out] destination The Trigger object to fill
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  Missing attribute
      * @retval a_util::result::SUCCESS      Everything went fine
      */
@@ -102,7 +95,8 @@ private:
 
     /**
      * Change name for source signal
-     **/
+     * @param[in] new_name The new name for the source signal
+     */
     a_util::result::Result setSourceDependency(const std::string& new_name);
 
 protected:
@@ -150,7 +144,6 @@ private:
     /**
      * creates a trigger instance from a trigger-dom element
      * @param [in] dom_element The dom element from which to import
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  Missing attribute
      * @retval a_util::result::SUCCESS      Everything went fine
      */
@@ -213,7 +206,6 @@ private:
     /**
      * creates a trigger instance from a trigger-dom element
      * @param [in] dom_element The dom element from which to import
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  Missing attribute
      * @retval a_util::result::SUCCESS      Everything went fine
      */
@@ -307,7 +299,6 @@ private:
     /**
      * creates a trigger instance from a trigger-dom element
      * @param [in] trigger_element The dom element from which to import
-     * @param [out] lstErrors The error list for debug
      * @retval ERR_INVALID_ARG  Missing attribute
      * @retval a_util::result::SUCCESS      Everything went fine
      */

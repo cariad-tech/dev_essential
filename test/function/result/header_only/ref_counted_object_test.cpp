@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/detail/reference_counted_object.h>
@@ -86,6 +80,7 @@ TEST(ref_counted_object_test, TestReferenceCountedObject)
     self_deleting_ref_counter->removeReference(); // 1
     ASSERT_EQ(ReferencedObjectInterface::instances(), 1);
 
+    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDelete)
     self_deleting_ref_counter->removeReference(); // 0
     ASSERT_EQ(ReferencedObjectInterface::instances(), 0);
 }

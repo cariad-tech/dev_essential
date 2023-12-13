@@ -2,20 +2,11 @@
  * @file
  * Definition of a legacy binary compatible Codec Access class for old Codec API.
  *
- * @copyright
- * @verbatim
-Copyright @ 2021 VW Group. All rights reserved.
-
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
-@endverbatim
+ * Copyright @ 2021 VW Group. All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #ifndef DDL_CODEC_ACCESS_LEGACY_CLASS_HEADER
@@ -64,7 +55,7 @@ struct LegacyCodecAccessImpl : LegacyCodecAccess {
     {
         return static_cast<const codec::StaticDecoder*>(&_codec_or_decoder);
     }
-    void* getImplPtr()
+    void* getImplPtr() override
     {
         return static_cast<void*>(&_codec_or_decoder);
     }

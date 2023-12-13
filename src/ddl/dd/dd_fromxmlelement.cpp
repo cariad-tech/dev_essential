@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 #include "dd_fromxmlelement.h"
 
@@ -31,8 +25,8 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
 {
     using namespace a_util::xml;
     auto version_to_init = ddl_language_version;
-    if (version_to_init == dd::Version::ddl_version_notset) {
-        version_to_init = dd::Version::ddl_version_current;
+    if (version_to_init == dd::Version(0, 0)) {
+        version_to_init = dd::Version::getLatestVersion();
     }
     ddl::dd::datamodel::DataDefinition new_ddl(version_to_init);
     bool error_while_reading = false;
@@ -162,8 +156,8 @@ bool fromXMLElement(ddl::dd::datamodel::DataDefinition& dd,
         }
     }
     // read streammetatypes
-    if (file_version_to_use >= dd::Version::ddl_version_40 ||
-        file_version_to_use == dd::Version::ddl_version_notset || !strict) {
+    if (file_version_to_use >= dd::Version(4, 0) || file_version_to_use == dd::Version(0, 0) ||
+        !strict) {
         DOMElementList stream_meta_type_nodes;
         if (root_element.findNodes("//streammetatypes/streammetatype", stream_meta_type_nodes)) {
             for (const auto& current_smt_node: stream_meta_type_nodes) {

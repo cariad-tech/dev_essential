@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -78,41 +72,40 @@ public:
     /**
      * @brief Retrieve if the StructElementAccess is valid or not!
      *
-     * @return true is valid
-     * @return false is not valid
+     * @retval true is valid
+     * @retval false is not valid
      */
     operator bool() const;
     /**
      * @brief Get the Type Of the type. Retrieves the infomation of the elements type.
      *
-     *
-     * @return TypeOfType
+     * @retval TypeOfType
      */
     TypeOfType getTypeOfType() const;
     /**
      * @brief Gets the Struct Type if the element is dependent on a structtype.
      *
-     * @retval const std::shared_ptr<const datamodel::StructType> with a valid structtype if type of
+     * @return std::shared_ptr<const datamodel::StructType> with a valid structtype if type of
      * element is a structtype
-     * @retval empty const std::shared_ptr<const datamodel::StructType>() if element does not depend
+     * @return std::shared_ptr<const datamodel::StructType>() (empty) if element does not depend
      * on a structtype
      */
     std::shared_ptr<const datamodel::StructType> getStructType() const;
     /**
      * @brief Gets the Enum Type if the element is dependent on a enumtype.
      *
-     * @retval const std::shared_ptr<const datamodel::EnumType> with a valid enumtype if type of
+     * @return std::shared_ptr<const datamodel::EnumType> with a valid enumtype if type of
      * element is a enumtype
-     * @retval empty const std::shared_ptr<const datamodel::EnumType>() if element does not depend
+     * @return std::shared_ptr<const datamodel::EnumType>() (empty) if element does not depend
      * on a enumtype
      */
     std::shared_ptr<const datamodel::EnumType> getEnumType() const;
     /**
      * @brief Gets the Data Type if the element is dependent on a datatype.
      *
-     * @retval const std::shared_ptr<const datamodel::DataType> with a valid datatype if type of
+     * @return std::shared_ptr<const datamodel::DataType> with a valid datatype if type of
      * element is a datatype
-     * @retval empty const std::shared_ptr<const datamodel::DataType>() if element does not depend
+     * @return std::shared_ptr<const datamodel::DataType>() (empty) if element does not depend
      * on a datatype
      */
     std::shared_ptr<const datamodel::DataType> getDataType() const;
@@ -122,7 +115,7 @@ public:
      * All byte positions within the returned StructTypeAccess are relativ to the elements
      * StructTypeAccess parent.
      *
-     * @return const StructTypeAccess of the struct can also retrieved by getStructType.
+     * @return StructTypeAccess of the struct can also retrieved by getStructType.
      * @see getStructType
      */
     StructTypeAccess getStructTypeAccess(size_t array_pos = 0) const;
@@ -136,16 +129,16 @@ public:
     /**
      * @brief Retieve information if this element is a dynamic array
      *
-     * @return true the element is dynamic or it contains dynamic content.
-     * @return false the element is not dynamic.
+     * @retval true the element is dynamic or it contains dynamic content.
+     * @retval false the element is not dynamic.
      */
     bool isDynamic() const;
     /**
      * @brief The element is on a byte position after a dynamic element, the byte position can not
      * be calculated until it is instanciated.
      *
-     * @return true the element is after a dynamic content.
-     * @return false  the element is not after dynamic content
+     * @retval true the element is after a dynamic content.
+     * @retval false  the element is not after dynamic content
      * @see isDynamic
      */
     bool isAfterDynamic() const;
@@ -153,8 +146,8 @@ public:
      * @brief Get the Array Pos, if this element was retrieved via
      * StructTypeAccess::getElementByPath and the operator[]
      *
-     * @retval valid OptionalSize if it was a array position
-     * @retval invalid OptionalSize if it was not a array position or the array position was not
+     * @return valid OptionalSize if it was a array position
+     * @return invalid OptionalSize if it was not a array position or the array position was not
      * valid.
      */
     OptionalSize getArrayPos() const;
@@ -162,53 +155,53 @@ public:
      * @brief Get the Deserialized Byte Pos relative to the first byte position of the struct
      * obtained by dd::DataDefinition::getStructTypeAccess.
      *
-     * @retval a valid OptionalSize with a byte position
-     * @retval a invalid OptionalSize if is after a dynamic content.
+     * @return valid OptionalSize with a byte position
+     * @return invalid OptionalSize if is after a dynamic content.
      */
     size_t getDeserializedBytePos(size_t array_size = 0) const;
     /**
      * @brief Get the Byte size (depends on alignments, ddlversion and arraysize)
      *
-     * @retval a valid OptionalSize with a size position
-     * @retval a invalid OptionalSize if it is a dynamic content.
+     * @return valid OptionalSize with a size position
+     * @return invalid OptionalSize if it is a dynamic content.
      */
     size_t getDeserializedByteSize() const;
 
     /**
      * @brief Get the Serialized Type Byte size
      *
-     * @retval a valid OptionalSize with a size position
-     * @retval a invalid OptionalSize if it has a dynamic
+     * @return valid OptionalSize with a size position
+     * @return invalid OptionalSize if it has a dynamic
      */
     size_t getDeserializedTypeByteSize() const;
     /**
      * @brief Get SerializedBytePos
      * obtained by dd::DataDefinition::getStructTypeAccess.
      *
-     * @retval a valid OptionalSize with a byte position
-     * @retval a invalid OptionalSize if is after a dynamic content.
+     * @return valid OptionalSize with a byte position
+     * @return invalid OptionalSize if is after a dynamic content.
      */
     size_t getSerializedBytePos(size_t array_size = 0) const;
     /**
      * @brief Get SerializedBitOsset
      * obtained by dd::DataDefinition::getStructTypeAccess.
      *
-     * @retval a valid OptionalSize with a byte position
-     * @retval a invalid OptionalSize if is after a dynamic content.
+     * @return valid OptionalSize with a byte position
+     * @return invalid OptionalSize if is after a dynamic content.
      */
     size_t getSerializedBitOffset(size_t array_size = 0) const;
     /**
      * @brief Get the serialized Bit size of the value
      *
-     * @retval a valid OptionalSize with a size position
-     * @retval a invalid OptionalSize if it is a dynamic content.
+     * @return valid OptionalSize with a size position
+     * @return invalid OptionalSize if it is a dynamic content.
      */
     size_t getSerializedBitSize() const;
     /**
      * @brief Get the serialized bit size of one element
      *
-     * @retval a valid OptionalSize with a size position
-     * @retval a invalid OptionalSize if it is a dynamic content.
+     * @return valid OptionalSize with a size position
+     * @return invalid OptionalSize if it is a dynamic content.
      */
     size_t getSerializedTypeBitSize() const;
 
@@ -360,8 +353,6 @@ public:
     StructTypeAccess& operator=(StructTypeAccess&&) = default;
     /**
      * @brief copy assignment operator
-     *
-     * @return StructTypeAccess&
      */
     StructTypeAccess(const StructTypeAccess&) = default;
     /**

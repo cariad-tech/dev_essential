@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/error_def.h>
@@ -160,7 +154,7 @@ a_util::result::Result MapConfiguration::loadFromDOM(a_util::xml::DOM& oDom, uin
     // overwriting/resetting the current configuration
     MapConfiguration oTmp(_ddl_ref);
 
-    if (isFailed(MapConfiguration::loadMappingFromDOM(oDom, oTmp))) {
+    if (!MapConfiguration::loadMappingFromDOM(oDom, oTmp)) {
         // preserve errors
         std::swap(_errors, oTmp._errors);
         return ERR_FAILED;
@@ -168,12 +162,12 @@ a_util::result::Result MapConfiguration::loadFromDOM(a_util::xml::DOM& oDom, uin
 
     if (bLoad) {
         // check for consistency
-        if (isFailed(oTmp.checkMappingConsistency())) {
+        if (!oTmp.checkMappingConsistency()) {
             // preserve errors
             std::swap(_errors, oTmp._errors);
             return ERR_FAILED;
         }
-        if (isFailed(oTmp.checkDDLConsistency())) {
+        if (!oTmp.checkDDLConsistency()) {
             // preserve errors
             std::swap(_errors, oTmp._errors);
             return ERR_INVALID_TYPE;
@@ -186,15 +180,15 @@ a_util::result::Result MapConfiguration::loadFromDOM(a_util::xml::DOM& oDom, uin
         // we need to merge before checking consistency
         MapConfiguration oCopy(*this);
         a_util::result::Result nResult = oCopy.merge(oTmp);
-        if (isOk(nResult)) {
+        if (nResult) {
             nResult = oCopy.checkMappingConsistency();
         }
-        if (isFailed(nResult)) {
+        if (!nResult) {
             // preserve errors
             std::swap(_errors, oCopy._errors);
             return ERR_FAILED;
         }
-        if (isFailed(oCopy.checkDDLConsistency())) {
+        if (!oCopy.checkDDLConsistency()) {
             // preserve errors
             std::swap(_errors, oCopy._errors);
             return ERR_INVALID_TYPE;
@@ -223,7 +217,7 @@ a_util::result::Result MapConfiguration::loadFromDOMWithoutDDLConsistency(a_util
     // overwriting/resetting the current configuration
     MapConfiguration oTmp(_ddl_ref);
 
-    if (isFailed(MapConfiguration::loadMappingFromDOM(oDom, oTmp))) {
+    if (!MapConfiguration::loadMappingFromDOM(oDom, oTmp)) {
         // preserve errors
         std::swap(_errors, oTmp._errors);
         return ERR_FAILED;
@@ -231,7 +225,7 @@ a_util::result::Result MapConfiguration::loadFromDOMWithoutDDLConsistency(a_util
 
     if (bLoad) {
         // check for consistency
-        if (isFailed(oTmp.checkMappingConsistency())) {
+        if (!oTmp.checkMappingConsistency()) {
             // preserve errors
             std::swap(_errors, oTmp._errors);
             return ERR_FAILED;
@@ -244,10 +238,10 @@ a_util::result::Result MapConfiguration::loadFromDOMWithoutDDLConsistency(a_util
         // we need to merge before checking consistency
         MapConfiguration oCopy(*this);
         a_util::result::Result nResult = oCopy.merge(oTmp);
-        if (isOk(nResult)) {
+        if (nResult) {
             nResult = oCopy.checkMappingConsistency();
         }
-        if (isFailed(nResult)) {
+        if (!nResult) {
             // preserve errors
             std::swap(_errors, oCopy._errors);
             return ERR_FAILED;
@@ -287,7 +281,7 @@ a_util::result::Result MapConfiguration::loadPartiallyFromDOM(a_util::xml::DOM& 
     // overwriting/resetting the current configuration
     MapConfiguration oTmp(_ddl_ref);
     // IF is failed, map-file is corrupted
-    if (isFailed(MapConfiguration::loadMappingFromDOM(oDom, oTmp))) {
+    if (!MapConfiguration::loadMappingFromDOM(oDom, oTmp)) {
         // preserve errors
         std::swap(_errors, oTmp._errors);
         return ERR_FAILED;
@@ -296,7 +290,7 @@ a_util::result::Result MapConfiguration::loadPartiallyFromDOM(a_util::xml::DOM& 
     a_util::result::Result nResult = a_util::result::SUCCESS;
     if (bLoad) {
         // check for consistency
-        if (isFailed(oTmp.checkMappingConsistency())) {
+        if (!oTmp.checkMappingConsistency()) {
             std::swap(_errors, oTmp._errors);
             return ERR_FAILED;
         }
@@ -310,10 +304,10 @@ a_util::result::Result MapConfiguration::loadPartiallyFromDOM(a_util::xml::DOM& 
         // we need to merge before checking consistency
         MapConfiguration oCopy(*this);
         nResult = oCopy.merge(oTmp);
-        if (isOk(nResult)) {
+        if (nResult) {
             nResult = oCopy.checkMappingConsistency();
         }
-        if (isFailed(nResult)) {
+        if (!nResult) {
             // preserve errors
             std::swap(_errors, oCopy._errors);
             return ERR_FAILED;
@@ -333,7 +327,7 @@ a_util::result::Result MapConfiguration::writeToFile(const std::string& strFileP
     oDom.fromString("<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"no\"?>");
 
     a_util::result::Result nRes = writeToDOM(oDom);
-    if (isOk(nRes)) {
+    if (nRes) {
         if (!oDom.save(strFilePath)) {
             appendError(oDom.getLastError());
             nRes = ERR_INVALID_FILE;
@@ -603,7 +597,7 @@ a_util::result::Result MapConfiguration::setDD(const ddl::dd::DataDefinition& dd
     MapConfiguration oCopy = *this;
     oCopy._ddl_ref = ddl.getModel();
     // reset mapping configuration if we got a ddl that doesn't fit to the current mapping config
-    if (isFailed(oCopy.checkDDLConsistency())) {
+    if (!oCopy.checkDDLConsistency()) {
         reset();
     }
     return a_util::result::SUCCESS;
@@ -615,7 +609,7 @@ a_util::result::Result MapConfiguration::resetDD()
     MapConfiguration oCopy = *this;
     oCopy._ddl_ref = _ddl_ref;
     // reset mapping configuration if we got a ddl that doesn't fit to the current mapping config
-    if (isFailed(oCopy.checkDDLConsistency())) {
+    if (!oCopy.checkDDLConsistency()) {
         reset();
     }
     return a_util::result::SUCCESS;
@@ -798,10 +792,10 @@ a_util::result::Result MapConfiguration::loadMappingFromDOM(a_util::xml::DOM& oD
             if (it->getName() == "source") {
                 MapSource oSrc(&oTmpConfig);
                 a_util::result::Result nRes = oSrc.loadFromDOM(*it);
-                if (isOk(nRes)) {
+                if (nRes) {
                     nRes = oTmpConfig.addSource(oSrc);
                 }
-                if (isFailed(nRes)) {
+                if (!nRes) {
                     nResult = nRes;
                 }
             }
@@ -820,10 +814,10 @@ a_util::result::Result MapConfiguration::loadMappingFromDOM(a_util::xml::DOM& oD
              ++it) {
             MapTarget oTarget(&oTmpConfig);
             a_util::result::Result nRes = oTarget.loadFromDOM(*it);
-            if (isOk(nRes)) {
+            if (nRes) {
                 nRes = oTmpConfig.addTarget(oTarget);
             }
-            if (isFailed(nRes)) {
+            if (!nRes) {
                 nResult = nRes;
             }
         }
@@ -842,7 +836,7 @@ a_util::result::Result MapConfiguration::loadMappingFromDOM(a_util::xml::DOM& oD
             MapTransformationBase* pTrans = NULL;
             a_util::result::Result nRes =
                 MapTransformationBase::createFromDOM(&oTmpConfig, *it, pTrans);
-            if (isOk(nRes)) {
+            if (nRes) {
                 oTmpConfig._transforms.push_back(pTrans);
             }
             else {
@@ -859,24 +853,20 @@ a_util::result::Result MapConfiguration::loadMappingFromDOM(a_util::xml::DOM& oD
 a_util::result::Result MapConfiguration::checkMappingConsistency()
 {
     a_util::result::Result nResult = a_util::result::SUCCESS;
-    // If import was succesful, check if the mapping is consistent
-    // All referenced Sources and Transformations must exist in Mapping
-    if (isOk(nResult)) {
-        for (MapTargetList::const_iterator itTrg = _targets.begin(); itTrg != _targets.end();
-             itTrg++) {
-            for (MapTriggerList::const_iterator itTrigger = itTrg->getTriggerList().begin();
-                 itTrigger != itTrg->getTriggerList().end();
-                 itTrigger++) {
-                if (isFailed((*itTrigger)->checkTriggerReferences())) {
-                    nResult = ERR_INVALID_ARG;
-                }
+
+    for (MapTargetList::const_iterator itTrg = _targets.begin(); itTrg != _targets.end(); itTrg++) {
+        for (MapTriggerList::const_iterator itTrigger = itTrg->getTriggerList().begin();
+             itTrigger != itTrg->getTriggerList().end();
+             itTrigger++) {
+            if (!(*itTrigger)->checkTriggerReferences()) {
+                nResult = ERR_INVALID_ARG;
             }
-            for (MapAssignmentList::const_iterator itAssign = itTrg->getAssignmentList().begin();
-                 itAssign != itTrg->getAssignmentList().end();
-                 itAssign++) {
-                if (isFailed(checkAssignmentReferences(*itAssign))) {
-                    nResult = ERR_INVALID_ARG;
-                }
+        }
+        for (MapAssignmentList::const_iterator itAssign = itTrg->getAssignmentList().begin();
+             itAssign != itTrg->getAssignmentList().end();
+             itAssign++) {
+            if (!checkAssignmentReferences(*itAssign)) {
+                nResult = ERR_INVALID_ARG;
             }
         }
     }
@@ -890,7 +880,7 @@ a_util::result::Result MapConfiguration::checkDDLConsistency()
     // Sources
     for (MapSourceList::iterator itSource = _sources.begin(); itSource != _sources.end();
          ++itSource) {
-        if (isOk(checkSignalType(itSource->getType()))) {
+        if (checkSignalType(itSource->getType())) {
             itSource->_is_valid = true;
         }
         else {
@@ -902,7 +892,7 @@ a_util::result::Result MapConfiguration::checkDDLConsistency()
     // Targets
     for (MapTargetList::iterator itTarget = _targets.begin(); itTarget != _targets.end();
          ++itTarget) {
-        if (isOk(checkSignalType(itTarget->getType()))) {
+        if (checkSignalType(itTarget->getType())) {
             itTarget->_is_valid = true;
 
             // Check Assignments type
@@ -911,7 +901,7 @@ a_util::result::Result MapConfiguration::checkDDLConsistency()
                  itAssign != itTarget->_assignments.end();
                  ++itAssign) {
                 // Signal type was checked before, so pTargetStruct can be derefenrenced
-                if (isOk(checkAssignmentType(itTarget->getName(), *pTargetStruct, *itAssign))) {
+                if (checkAssignmentType(itTarget->getName(), *pTargetStruct, *itAssign)) {
                     itAssign->_is_valid = true;
                 }
                 else {
@@ -922,7 +912,7 @@ a_util::result::Result MapConfiguration::checkDDLConsistency()
 
             // Set overlapping assignments to invalid
             a_util::result::Result nResDouble = itTarget->checkDoubleAssignments();
-            if (isFailed(nResDouble)) {
+            if (!nResDouble) {
                 nRes = nResDouble;
             }
 
@@ -930,7 +920,7 @@ a_util::result::Result MapConfiguration::checkDDLConsistency()
             MapTriggerList& lstTrg = itTarget->_triggers;
             for (MapTriggerList::iterator itTriggers = lstTrg.begin(); itTriggers != lstTrg.end();
                  ++itTriggers) {
-                if (isOk(checkTriggerType(*itTriggers))) {
+                if (checkTriggerType(*itTriggers)) {
                     (*itTriggers)->_is_valid = true;
                 }
                 else {
@@ -949,7 +939,7 @@ a_util::result::Result MapConfiguration::checkDDLConsistency()
     for (MapTransformationList::iterator itTrf = _transforms.begin(); itTrf != _transforms.end();
          itTrf++) {
         a_util::result::Result nResTrf = (*itTrf)->setTypeFromDDL();
-        if (isOk(nResTrf)) {
+        if (nResTrf) {
             (*itTrf)->_is_valid = true;
         }
         else {
@@ -957,7 +947,7 @@ a_util::result::Result MapConfiguration::checkDDLConsistency()
             nRes = nResTrf;
         }
     }
-    if (isOk(nRes)) {
+    if (nRes) {
         _is_consistent = true;
     }
     _checked_for_consistency = true;

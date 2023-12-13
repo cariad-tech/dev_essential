@@ -36,7 +36,7 @@
 
 /* embedding support */
 #ifdef UI128_PREFIX
-#if defined(__STDC__) || defined(__cplusplus)
+#if defined(__STDC__) || defined(__cplusplus) || defined(_MSC_VER)
 #define __UI128_CONCAT(x,y) x ## y
 #define UI128_CONCAT(x,y) __UI128_CONCAT(x,y)
 #else

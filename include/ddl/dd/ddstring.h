@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -59,6 +53,15 @@ public:
      * contains a header or it guesses.
      * @param strict set to true to load the datamodel exactly like defined (no mixture of DDL tag
      * definitions allowed).
+     *
+     * @remark Usually, the xml string contains a header with a ddl version.
+     *         If no header is found (yes this is possible), the default version for reading a DD
+     *         with DDString is always the current latest ddl version (@see
+     * ddl::dd::Version::getLatestVersion), but the parser will detect the "struct" layout and
+     * will set the "ddl_version" of the struct! <br> You may force a version with the help of @p
+     * ddl_language_version, which is taken into account if no header and so no ddl version is set
+     * within the string.
+     *
      * @throw ddl::dd::Error if the xml string is not valid against the xsd definition! (depending
      * on the DDL Version).
      * @throw ddl::dd::Error if the validation level of the created DataDefinition is not at least
@@ -67,7 +70,7 @@ public:
      */
     static dd::DataDefinition fromXMLString(
         const std::string& xml_string,
-        const dd::Version& ddl_language_version = dd::Version::ddl_version_notset,
+        const dd::Version& ddl_language_version = dd::Version(0, 0),
         bool strict = false);
     /**
      * @brief Read a string containing a data definiton in XML.
@@ -79,6 +82,15 @@ public:
      * contains a header or it guesses.
      * @param strict set to true to load the datamodel exactly like defined (no mixture of DDL tag
      * definitions allowed).
+     *
+     * @remark Usually, the xml string contains a header with a ddl version.
+     *         If no header is found (yes this is possible), the default version for reading a DD
+     *         with DDString is always the current latest ddl version (@see
+     * ddl::dd::Version::getLatestVersion), but the parser will detect the "struct" layout and
+     * will set the "ddl_version" of the struct! <br> You may force a version with the help of @p
+     * ddl_language_version, which is taken into account if no header and so no ddl version is set
+     * within the string.
+     *
      * @throw ddl::dd::Error if the xml string is not valid against the xsd definition! (depending
      * on the DDL Version).
      * @throw ddl::dd::Error if the validation level of the created DataDefinition is not at least
@@ -89,7 +101,7 @@ public:
     static dd::DataDefinition fromXMLString(
         const std::string& struct_name,
         const std::string& xml_string,
-        const dd::Version& ddl_language_version = dd::Version::ddl_version_notset,
+        const dd::Version& ddl_language_version = dd::Version(0, 0),
         bool strict = false);
     /**
      * @brief This will write the given valid Data Definiton into a string as xml.

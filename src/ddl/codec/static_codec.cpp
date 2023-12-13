@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "codec_elements.h"
@@ -123,7 +117,7 @@ void StaticDecoder::getElementVariantValue(const CodecIndex& codec_index,
         ElementLayout element_layout = _codec_access->getCodecElementLayout(codec_index);
         result = _element_accessor->getValue(element_layout, _data, _data_size, value);
     }
-    if (isFailed(result)) {
+    if (!result) {
         throw std::runtime_error(result.getDescription());
     }
 }
@@ -151,7 +145,7 @@ std::string StaticDecoder::getElementStringValue(const CodecIndex& codec_index) 
     a_util::variant::Variant variant_value;
     const ElementLayout element_layout = _codec_access->getCodecElementLayout(codec_index);
     auto result = _element_accessor->getValue(element_layout, _data, _data_size, variant_value);
-    if (isOk(result)) {
+    if (result) {
         if (element_layout.type_info->isEnum()) {
             switch (variant_value.getType()) {
                 GET_ENUM_CASE(Bool)
@@ -182,7 +176,7 @@ void StaticDecoder::getElementRawValue(const CodecIndex& index,
 {
     const ElementLayout element_layout = _codec_access->getCodecElementLayout(index);
     auto result = _element_accessor->getValue(element_layout, _data, _data_size, value, value_size);
-    if (isFailed(result)) {
+    if (!result) {
         throw std::runtime_error(result.getDescription());
     }
 }
@@ -347,7 +341,7 @@ void StaticCodec::setElementVariantValue(const CodecIndex& codec_index,
         result = _element_accessor->setValue(
             element_layout, const_cast<void*>(_data), _data_size, value);
     }
-    if (isFailed(result)) {
+    if (!result) {
         throw std::runtime_error(result.getDescription());
     }
 }
@@ -390,7 +384,7 @@ void StaticCodec::setElementRawValue(const CodecIndex& index, const void* value,
     }
     const auto result =
         _element_accessor->setValue(element_layout, const_cast<void*>(_data), _data_size, value);
-    if (isFailed(result)) {
+    if (!result) {
         throw std::runtime_error(result.getDescription());
     }
 }

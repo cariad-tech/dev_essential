@@ -122,7 +122,6 @@ JSONCPP_STRING valueToString(double value, bool useSpecialFloats, unsigned int p
   // Allocate a buffer that is more than large enough to store the 16 digits of
   // precision requested below.
   char buffer[36];
-  int len = -1;
 
   char formatString[15];
   snprintf(formatString, sizeof(formatString), "%%.%ug", precision);
@@ -131,25 +130,30 @@ JSONCPP_STRING valueToString(double value, bool useSpecialFloats, unsigned int p
   // that always has a decimal point because JSON doesn't distinguish the
   // concepts of reals and integers.
   if (isfinite(value)) {
-    len = snprintf(buffer, sizeof(buffer), formatString, value);
+    const int len = snprintf(buffer, sizeof(buffer), formatString, value);
+    assert(len >= 0);
     fixNumericLocale(buffer, buffer + len);
 
     // try to ensure we preserve the fact that this was given to us as a double on input
     if (!strchr(buffer, '.') && !strchr(buffer, 'e')) {
-      strcat(buffer, ".0");
+#ifdef _MSC_VER
+      strncat_s(buffer, sizeof(buffer), ".0", 2);
+#else
+      strncat(buffer, ".0", 2);
+#endif // _MSC_VER
     }
 
   } else {
     // IEEE standard states that NaN values will not compare to themselves
     if (value != value) {
-      len = snprintf(buffer, sizeof(buffer), useSpecialFloats ? "NaN" : "null");
+      snprintf(buffer, sizeof(buffer), useSpecialFloats ? "NaN" : "null");
     } else if (value < 0) {
-      len = snprintf(buffer, sizeof(buffer), useSpecialFloats ? "-Infinity" : "-1e+9999");
+      snprintf(buffer, sizeof(buffer), useSpecialFloats ? "-Infinity" : "-1e+9999");
     } else {
-      len = snprintf(buffer, sizeof(buffer), useSpecialFloats ? "Infinity" : "1e+9999");
+      snprintf(buffer, sizeof(buffer), useSpecialFloats ? "Infinity" : "1e+9999");
     }
   }
-  assert(len >= 0);
+
   return buffer;
 }
 }

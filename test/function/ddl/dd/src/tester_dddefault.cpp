@@ -4,16 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
- *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "./../../_common/test_oo_ddl.h"
@@ -81,8 +74,8 @@ void checkForStdTypes(const ddl::dd::DataDefinition& dd)
 void checkForBaseUnitsAndPrefixes(const ddl::dd::DataDefinition& dd)
 {
     using namespace ddl;
-    EXPECT_EQ(dd.getBaseUnits().getSize(), 11);
-    EXPECT_EQ(dd.getUnitPrefixes().getSize(), 20);
+    EXPECT_EQ(dd.getBaseUnits().getSize(), 11U);
+    EXPECT_EQ(dd.getUnitPrefixes().getSize(), 20U);
 
     test_ddl::containsBaseUnit(dd, BaseUnit<unit::Metre>());
     test_ddl::containsBaseUnit(dd, BaseUnit<unit::Kilogram>());
@@ -128,19 +121,19 @@ TEST(TesterDDDefault, createAllPredefinedTypes)
 
     ASSERT_NO_THROW(created_dd = ddl::DDDefault::create());
 
-    EXPECT_EQ(created_dd.getDataTypes().getSize(), 24);
+    EXPECT_EQ(created_dd.getDataTypes().getSize(), 24U);
 
     checkForDDLTypes(created_dd);
     checkForStdTypes(created_dd);
 
-    EXPECT_EQ(created_dd.getStructTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getStreamMetaTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getEnumTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getStreams().getSize(), 0);
+    EXPECT_EQ(created_dd.getStructTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getStreamMetaTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getEnumTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getStreams().getSize(), 0U);
 
     checkForBaseUnitsAndPrefixes(created_dd);
 
-    EXPECT_EQ(created_dd.getUnits().getSize(), 0);
+    EXPECT_EQ(created_dd.getUnits().getSize(), 0U);
 }
 
 /**
@@ -154,8 +147,8 @@ TEST(TesterDDDefault, createAllPredefinedTypesAndCheckFileExpected)
 
     ASSERT_NO_THROW(created_dd = ddl::DDDefault::create());
 
-    std::string default_file_created = TEST_FILES_WRITE_DIR "/default_created.description";
-    std::string default_file_expected = TEST_FILES_DIR "/default_expected.description";
+    std::string default_file_created = TEST_FILES_WRITE_DIR "default_created.description";
+    std::string default_file_expected = TEST_FILES_DIR "default_expected.description";
 
     std::remove(default_file_created.c_str());
     ASSERT_NO_THROW(ddl::DDFile::toXMLFile(created_dd, default_file_created);)
@@ -176,18 +169,18 @@ TEST(TesterDDDefault, createStdPredefinedTypes)
     ASSERT_NO_THROW(created_dd =
                         ddl::DDDefault::create(ddl::DDDefault::CreateOption::use_std_types_only));
 
-    EXPECT_EQ(created_dd.getDataTypes().getSize(), 12);
+    EXPECT_EQ(created_dd.getDataTypes().getSize(), 12U);
 
     checkForStdTypes(created_dd);
 
-    EXPECT_EQ(created_dd.getStructTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getStreamMetaTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getEnumTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getStreams().getSize(), 0);
+    EXPECT_EQ(created_dd.getStructTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getStreamMetaTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getEnumTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getStreams().getSize(), 0U);
 
     checkForBaseUnitsAndPrefixes(created_dd);
 
-    EXPECT_EQ(created_dd.getUnits().getSize(), 0);
+    EXPECT_EQ(created_dd.getUnits().getSize(), 0U);
 }
 
 /**
@@ -201,16 +194,16 @@ TEST(TesterDDDefault, createDDLPredefinedTypes)
     ASSERT_NO_THROW(created_dd =
                         ddl::DDDefault::create(ddl::DDDefault::CreateOption::use_ddl_types_only));
 
-    EXPECT_EQ(created_dd.getDataTypes().getSize(), 12);
+    EXPECT_EQ(created_dd.getDataTypes().getSize(), 12U);
 
     checkForDDLTypes(created_dd);
 
-    EXPECT_EQ(created_dd.getStructTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getStreamMetaTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getEnumTypes().getSize(), 0);
-    EXPECT_EQ(created_dd.getStreams().getSize(), 0);
+    EXPECT_EQ(created_dd.getStructTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getStreamMetaTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getEnumTypes().getSize(), 0U);
+    EXPECT_EQ(created_dd.getStreams().getSize(), 0U);
 
     checkForBaseUnitsAndPrefixes(created_dd);
 
-    EXPECT_EQ(created_dd.getUnits().getSize(), 0);
+    EXPECT_EQ(created_dd.getUnits().getSize(), 0U);
 }

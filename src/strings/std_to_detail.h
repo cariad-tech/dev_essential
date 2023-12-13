@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #ifndef A_UTIL_UTIL_DETAIL_STD_TO_DETAIL_HEADER_INCLUDED
@@ -24,9 +18,9 @@
 
 #if (defined(_MSC_VER) && (_MSC_VER >= 1800)) ||                                                   \
     (defined(__clang_major__) && (__cplusplus != 201103L)) ||                                      \
-    (defined(__GNUC__) && (__cplusplus >= 201103L) && (__GNUC__ > 5)) ||                           \
+    (defined(__GNUC__) && (__GNUC__ >= 5) && (__cplusplus >= 201103L) && !defined(__QNX__)) ||     \
     (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 7) &&                               \
-     (defined(__GXX_EXPERIMENTAL_CXX0X__)))
+     defined(__GXX_EXPERIMENTAL_CXX0X__))
 
 inline std::int64_t a_util_strtoll(const char* str, char** str_end, int base)
 {
@@ -37,6 +31,9 @@ inline std::uint64_t a_util_strtoull(const char* str, char** str_end, int base)
 {
     return std::strtoull(str, str_end, base);
 }
+
+#define HAS_STD_STRTOULL 1
+#define HAS_STD_STRTOLL 1
 
 #elif (defined(_MSC_VER) && (_MSC_VER < 1800))
 
@@ -80,6 +77,14 @@ inline std::uint64_t a_util_strtoull(const char* str, char** str_end, int base)
 #error Compiler not supported
 
 #endif
+
+#ifndef HAS_STD_STRTOLL
+#define HAS_STD_STRTOLL 0
+#endif // !HAS_STD_STRTOLL
+
+#ifndef HAS_STD_STRTOULL
+#define HAS_STD_STRTOULL 0
+#endif // !HAS_STD_STRTOULL
 
 namespace a_util {
 namespace strings {

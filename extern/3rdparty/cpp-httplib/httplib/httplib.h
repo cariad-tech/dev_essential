@@ -163,9 +163,9 @@ inline bool socket_read(socket_t sock, char* ptr, size_t size)
     return true;
 }
 
-inline void socket_write(socket_t sock, const char* ptr, size_t size = -1)
+inline void socket_write(socket_t sock, const char* ptr, size_t size = static_cast<size_t>(-1))
 {
-    if (size == -1) {
+    if (size == static_cast<size_t>(-1)) {
         size = strlen(ptr);
     }
 
@@ -827,7 +827,7 @@ struct ProcessFunctor
 inline bool Server::listen(const char* host, int port, int reuse)
 {
     svr_sock_ = detail::create_server_socket(host, port, reuse);
-    if (svr_sock_ == -1) {
+    if (svr_sock_ == static_cast<socket_t>(-1)) {
         return false;
     }
     keep_accepting = true;
@@ -841,8 +841,8 @@ inline void Server::accept(ProcessFunctor& processor)
         if (detail::wait_for_socket_readable(svr_sock_, 100000)) {
             socket_t sock = ::accept(svr_sock_, NULL, NULL);
 
-            if (sock == -1) {
-                if (svr_sock_ != -1) {
+            if (sock == static_cast<socket_t>(-1)) {
+                if (svr_sock_ != static_cast<socket_t>(-1)) {
                     detail::close_socket(svr_sock_);
                 } else {
                     ; // The server socket was closed by user.

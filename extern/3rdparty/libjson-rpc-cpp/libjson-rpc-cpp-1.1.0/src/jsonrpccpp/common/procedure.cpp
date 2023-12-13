@@ -23,7 +23,7 @@ Procedure::Procedure()
 Procedure::Procedure(const string &name, parameterDeclaration_t paramType,
                      jsontype_t returntype, ...) {
   va_list parameters;
-  va_start(parameters, returntype);
+  va_start(parameters, returntype); // NOLINT(clang-diagnostic-varargs)
   const char *paramname = va_arg(parameters, const char *);
   jsontype_t type;
   while (paramname != NULL) {
@@ -40,7 +40,7 @@ Procedure::Procedure(const string &name, parameterDeclaration_t paramType,
 Procedure::Procedure(const string &name, parameterDeclaration_t paramType,
                      ...) {
   va_list parameters;
-  va_start(parameters, paramType);
+  va_start(parameters, paramType); // NOLINT(clang-diagnostic-varargs)
   const char *paramname = va_arg(parameters, const char *);
   jsontype_t type;
   while (paramname != NULL) {

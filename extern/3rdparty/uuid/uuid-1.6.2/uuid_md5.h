@@ -36,7 +36,7 @@
 
 /* embedding support */
 #ifdef MD5_PREFIX
-#if defined(__STDC__) || defined(__cplusplus)
+#if defined(__STDC__) || defined(__cplusplus)  || defined(_MSC_VER)
 #define __MD5_CONCAT(x,y) x ## y
 #define MD5_CONCAT(x,y) __MD5_CONCAT(x,y)
 #else

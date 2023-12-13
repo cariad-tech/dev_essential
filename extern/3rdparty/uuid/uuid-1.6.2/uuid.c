@@ -351,6 +351,9 @@ static uuid_rc_t uuid_export_bin(const uuid_t *uuid, void *_data_ptr, size_t *da
 
     /* optionally allocate octet data buffer */
     if (*data_ptr == NULL) {
+        // warning: Result of 'malloc' is converted to a pointer of type 'uuid_uint8_t', which is
+        // incompatible with sizeof operand type 'uuid_t' [clang-analyzer-unix.MallocSizeof]
+        // NOLINTNEXTLINE
         if ((*data_ptr = (uuid_uint8_t *)malloc(sizeof(uuid_t))) == NULL)
             return UUID_RC_MEM;
         if (data_len != NULL)
@@ -946,7 +949,7 @@ static uuid_rc_t uuid_make_v1(uuid_t *uuid, unsigned int mode, va_list ap)
     t = ui64_rol(t, 16, &ov);
     uuid->obj.time_mid =
         (uuid_uint16_t)(ui64_i2n(ov) & 0x0000ffff); /* all 16 bit */
-    t = ui64_rol(t, 32, &ov);
+    ui64_rol(t, 32, &ov);
     uuid->obj.time_low =
         (uuid_uint32_t)(ui64_i2n(ov) & 0xffffffff); /* all 32 bit */
 
@@ -1029,7 +1032,7 @@ static uuid_rc_t uuid_make_v1(uuid_t *uuid, unsigned int mode, va_list ap)
       (uuid_uint8_t)(a9),  (uuid_uint8_t)(a10), (uuid_uint8_t)(a11), (uuid_uint8_t)(a12), \
       (uuid_uint8_t)(a13), (uuid_uint8_t)(a14), (uuid_uint8_t)(a15), (uuid_uint8_t)(a16) }
 static struct {
-    char *name;
+    const char *name;
     uuid_uint8_t uuid[UUID_LEN_BIN];
 } uuid_value_table[] = {
     { "nil",     /* 00000000-0000-0000-0000-000000000000 ("Nil UUID") */
@@ -1221,20 +1224,17 @@ uuid_rc_t uuid_make(uuid_t *uuid, unsigned int mode, ...)
 }
 
 /* translate UUID API error code into corresponding error string */
-char *uuid_error(uuid_rc_t rc)
+const char *uuid_error(uuid_rc_t rc)
 {
-    char *str;
-
     switch (rc) {
-        case UUID_RC_OK:  str = "everything ok";    break;
-        case UUID_RC_ARG: str = "invalid argument"; break;
-        case UUID_RC_MEM: str = "out of memory";    break;
-        case UUID_RC_SYS: str = "system error";     break;
-        case UUID_RC_INT: str = "internal error";   break;
-        case UUID_RC_IMP: str = "not implemented";  break;
-        default:          str = NULL;               break;
+        case UUID_RC_OK:  return "everything ok";
+        case UUID_RC_ARG: return "invalid argument";
+        case UUID_RC_MEM: return "out of memory";
+        case UUID_RC_SYS: return "system error";
+        case UUID_RC_INT: return "internal error";
+        case UUID_RC_IMP: return "not implemented";
+        default:          return NULL;
     }
-    return str;
 }
 
 /* OSSP uuid version (link-time information) */

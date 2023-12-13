@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <ddl/dd/dd_predefined_datatypes.h>
@@ -47,14 +41,7 @@ void addDependencyToMap(const std::string& from,
 {
     // the map will save wich one is by which items
     // the "to" -> many "used from"
-    // but only if it does not exist already
-    for (auto& current_from: the_map[to]) {
-        if (current_from == from) {
-            // is already in there
-            return;
-        }
-    }
-    the_map[to].push_back(from);
+    the_map[to].insert(from);
 }
 
 void removeInMapFrom(const std::string& from, ValidationServiceInfo::ToFromMap& the_map)
@@ -69,12 +56,12 @@ void removeInMapFrom(const std::string& from, ValidationServiceInfo::ToFromMap& 
     }
 }
 
-std::vector<std::string> removeInMapTo(const std::string& old_to_name,
-                                       const std::string& new_to_name,
-                                       ValidationServiceInfo::ToFromMap& the_map)
+std::unordered_set<std::string> removeInMapTo(const std::string& old_to_name,
+                                              const std::string& new_to_name,
+                                              ValidationServiceInfo::ToFromMap& the_map)
 {
     if (old_to_name != new_to_name) {
-        std::vector<std::string> result = {};
+        std::unordered_set<std::string> result = {};
         auto it = the_map.find(old_to_name);
         if (it != the_map.end()) {
             std::swap(it->second, result);
@@ -97,12 +84,9 @@ void renameInMapFrom(const std::string& from_old,
 {
     if (from_old != from_new) {
         for (auto& current_to: the_map) {
-            for (auto it = current_to.second.begin(); it != current_to.second.end(); ++it) {
-                if (*it == from_old) {
-                    *it = from_new;
-                    break;
-                }
-            }
+            auto& from_set = current_to.second;
+            from_set.erase(from_old);
+            from_set.insert(from_new);
         }
     }
 }
@@ -903,18 +887,18 @@ void ValidationInfo::update(datamodel::DataType& data_type, datamodel::DataDefin
 {
     if (!_is_validated) {
         removeProblems(parent_dd);
-        auto unit_name = data_type.getUnitName();
+        const auto& unit_name = data_type.getUnitName();
         if (!unit_name.empty()) {
             // we do not care about the return value here
             getOrCreateBaseUnit(unit_name, parent_dd);
-            auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
+            const auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
             if (type_of_unit == base_unit) {
                 addDependency(
                     {ValidationServiceInfo::data_type_to_base_unit, data_type.getName(), unit_name},
                     parent_dd);
             }
             else if (type_of_unit == unit) {
-                auto found_unit = parent_dd.getUnits().access(unit_name);
+                const auto found_unit = parent_dd.getUnits().access(unit_name);
                 auto validation_info = found_unit->getInfo<ValidationInfo>();
                 if (validation_info == nullptr) {
                     found_unit->setInfo<ValidationInfo>(
@@ -991,7 +975,7 @@ void ValidationInfo::update(datamodel::EnumType& enum_type, datamodel::DataDefin
 {
     if (!_is_validated) {
         removeProblems(parent_dd);
-        auto data_type_name = enum_type.getDataTypeName();
+        const auto& data_type_name = enum_type.getDataTypeName();
         if (data_type_name.empty()) {
             addProblem(generateProblemMessage(
                 "EnumType", enum_type.getName(), "The used data_type is not defined"));
@@ -1001,7 +985,7 @@ void ValidationInfo::update(datamodel::EnumType& enum_type, datamodel::DataDefin
                            enum_type.getName(),
                            data_type_name},
                           parent_dd);
-            auto data_type = getOrCreateDataType(data_type_name, parent_dd);
+            const auto data_type = getOrCreateDataType(data_type_name, parent_dd);
             if (!data_type) {
                 addProblem(generateProblemMessage("EnumType",
                                                   enum_type.getName(),
@@ -1009,7 +993,7 @@ void ValidationInfo::update(datamodel::EnumType& enum_type, datamodel::DataDefin
                                                       "' is not defined"));
             }
             else {
-                auto info = data_type->getInfo<ValidationInfo>();
+                const auto info = data_type->getInfo<ValidationInfo>();
                 if (info) {
                     if (data_type->getInfo<ValidationInfo>()->getValidationLevel() !=
                         ValidationLevel::valid) {
@@ -1175,11 +1159,11 @@ void updateValidationForElement(datamodel::StructType& parent_struct_type,
         }
     }
     // now we check the unit
-    auto unit_name = element.getUnitName();
+    const auto& unit_name = element.getUnitName();
     if (!unit_name.empty()) {
         // we do not check the return value, this is just to add if it is a base unit
         getOrCreateBaseUnit(unit_name, parent_dd);
-        auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
+        const auto type_of_unit = parent_dd.getTypeOfUnit(unit_name);
         if (type_of_unit == base_unit) {
             addDependency({ValidationServiceInfo::struct_type_to_base_unit,
                            parent_struct_type.getName(),
@@ -1241,7 +1225,7 @@ void updateValidationForElement(datamodel::StructType& parent_struct_type,
                                    "The array_size with 0 is invalid!"));
     }
     if (!element.getValue().empty()) {
-        auto enum_type = parent_dd.getEnumTypes().get(element.getTypeName());
+        const auto enum_type = parent_dd.getEnumTypes().get(element.getTypeName());
         if (enum_type) {
             if (!static_cast<bool>(enum_type->getElements().get(element.getValue()))) {
                 validation_info->addProblem(generateProblemMessage(
@@ -1332,7 +1316,7 @@ void ValidationInfo::update(datamodel::StreamMetaType& stream_meta_type,
         }
         _currently_on_validation = true;
         removeProblems(parent_dd);
-        auto parent = stream_meta_type.getParent();
+        const auto& parent = stream_meta_type.getParent();
         if (!parent.empty()) {
             addDependency({ValidationServiceInfo::stream_meta_type_to_stream_meta_type,
                            stream_meta_type.getName(),
@@ -1439,7 +1423,7 @@ void ValidationInfo::update(datamodel::Stream& stream, datamodel::DataDefinition
     if (!_is_validated) {
         removeProblems(parent_dd);
 
-        auto stream_type_name = stream.getStreamTypeName();
+        const auto& stream_type_name = stream.getStreamTypeName();
         TypeOfType type_of_stream_type = invalid_type;
         auto stream_type_info =
             getOrCreateValidationInfo(stream_type_name, type_of_stream_type, parent_dd, true);
@@ -1487,14 +1471,14 @@ void ValidationInfo::update(datamodel::Stream& stream, datamodel::DataDefinition
 }
 
 namespace {
-std::vector<std::string> findInMapTo(const std::string& find_to_type,
-                                     const ValidationServiceInfo::ToFromMap& the_map)
+const std::unordered_set<std::string>* findInMapTo(const std::string& find_to_type,
+                                                   const ValidationServiceInfo::ToFromMap& the_map)
 {
     const auto& found_type_map = the_map.find(find_to_type);
     if (found_type_map != the_map.end()) {
-        return found_type_map->second;
+        return &found_type_map->second;
     }
-    return {};
+    return nullptr;
 }
 } // namespace
 
@@ -1504,8 +1488,8 @@ void ValidationServiceInfo::forceRevalidationOfTypeDependencies(
     datamodel::DataDefinition& parent_dd,
     ValidationServiceInfo::InvalidatedTypes& invalidated_types_to_return) const
 {
-    std::vector<std::string> invalidated_structs;
-    std::vector<std::string> invalidated_enums;
+    const std::unordered_set<std::string>* invalidated_structs = nullptr;
+    const std::unordered_set<std::string>* invalidated_enums = nullptr;
     if (type == struct_type) {
         const auto& to_struct_type_map = _dependencies.find(struct_type_to_struct_type);
         if (to_struct_type_map != _dependencies.end()) {
@@ -1529,41 +1513,45 @@ void ValidationServiceInfo::forceRevalidationOfTypeDependencies(
         }
     }
 
-    // set force invalid to the structs
-    for (const auto& current: invalidated_structs) {
-        auto struct_type = parent_dd.getStructTypes().access(current);
-        if (struct_type) {
-            auto info = struct_type->getInfo<ValidationInfo>();
-            // if struct type already added find it and detect recursuin with that
-            if (std::find(invalidated_types_to_return._struct_type_names.begin(),
-                          invalidated_types_to_return._struct_type_names.end(),
-                          struct_type->getName()) ==
-                invalidated_types_to_return._struct_type_names.end()) {
-                // we insert the value here to ensure recursion detection
-                invalidated_types_to_return._struct_type_names.push_back(current);
-                if (info) {
-                    info->forceRevalidation();
-                    forceRevalidationOfTypeDependencies(struct_type->getName(),
-                                                        struct_type->getTypeOfType(),
-                                                        parent_dd,
-                                                        invalidated_types_to_return);
+    if (invalidated_structs != nullptr) {
+        // set force invalid to the structs
+        for (const auto& current: *invalidated_structs) {
+            auto struct_type = parent_dd.getStructTypes().access(current);
+            if (struct_type) {
+                auto info = struct_type->getInfo<ValidationInfo>();
+                // if struct type already added find it and detect recursuin with that
+                if (std::find(invalidated_types_to_return._struct_type_names.begin(),
+                              invalidated_types_to_return._struct_type_names.end(),
+                              struct_type->getName()) ==
+                    invalidated_types_to_return._struct_type_names.end()) {
+                    // we insert the value here to ensure recursion detection
+                    invalidated_types_to_return._struct_type_names.push_back(current);
+                    if (info) {
+                        info->forceRevalidation();
+                        forceRevalidationOfTypeDependencies(struct_type->getName(),
+                                                            struct_type->getTypeOfType(),
+                                                            parent_dd,
+                                                            invalidated_types_to_return);
+                    }
                 }
             }
         }
     }
 
     // set force invalid to the enums
-    for (const auto& current: invalidated_enums) {
-        auto enum_type = parent_dd.getEnumTypes().access(current);
-        if (enum_type) {
-            auto info = enum_type->getInfo<ValidationInfo>();
-            invalidated_types_to_return._enum_type_names.push_back(current);
-            if (info) {
-                info->forceRevalidation();
-                forceRevalidationOfTypeDependencies(enum_type->getName(),
-                                                    enum_type->getTypeOfType(),
-                                                    parent_dd,
-                                                    invalidated_types_to_return);
+    if (invalidated_enums != nullptr) {
+        for (const auto& current: *invalidated_enums) {
+            auto enum_type = parent_dd.getEnumTypes().access(current);
+            if (enum_type) {
+                auto info = enum_type->getInfo<ValidationInfo>();
+                invalidated_types_to_return._enum_type_names.push_back(current);
+                if (info) {
+                    info->forceRevalidation();
+                    forceRevalidationOfTypeDependencies(enum_type->getName(),
+                                                        enum_type->getTypeOfType(),
+                                                        parent_dd,
+                                                        invalidated_types_to_return);
+                }
             }
         }
     }

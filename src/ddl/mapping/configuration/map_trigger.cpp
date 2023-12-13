@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/error_def.h>
@@ -48,7 +42,7 @@ bool MapTriggerBase::isValid() const
 
 bool MapTriggerBase::checkValidity()
 {
-    if (isOk(_config->checkTriggerType(this))) {
+    if (_config->checkTriggerType(this)) {
         _is_valid = true;
     }
     else {
@@ -89,7 +83,7 @@ a_util::result::Result MapTriggerBase::createFromDOM(MapConfiguration* pConfig,
 
     if (it->second == "periodic") {
         MapPeriodicTrigger* pTrig = new MapPeriodicTrigger(pConfig);
-        if (isFailed(pTrig->loadFromDom(oTrigger))) {
+        if (!pTrig->loadFromDom(oTrigger)) {
             delete pTrig;
             return ERR_INVALID_ARG;
         }
@@ -100,7 +94,7 @@ a_util::result::Result MapTriggerBase::createFromDOM(MapConfiguration* pConfig,
 
     if (it->second == "signal") {
         MapSignalTrigger* pTrig = new MapSignalTrigger(pConfig);
-        if (isFailed(pTrig->loadFromDom(oTrigger))) {
+        if (!pTrig->loadFromDom(oTrigger)) {
             delete pTrig;
             return ERR_INVALID_ARG;
         }
@@ -111,7 +105,7 @@ a_util::result::Result MapTriggerBase::createFromDOM(MapConfiguration* pConfig,
 
     if (it->second == "data") {
         MapDataTrigger* pTrig = new MapDataTrigger(pConfig);
-        if (isFailed(pTrig->loadFromDom(oTrigger))) {
+        if (!pTrig->loadFromDom(oTrigger)) {
             delete pTrig;
             return ERR_INVALID_ARG;
         }
@@ -200,7 +194,7 @@ a_util::result::Result MapPeriodicTrigger::setPeriod(const std::string& strPerio
         res = ERR_INVALID_ARG;
     }
 
-    if (isOk(res)) {
+    if (res) {
         uint32_t nPeriod = a_util::strings::toUInt32(strPeriod);
 
         if (strUnit == "us") {
@@ -232,7 +226,7 @@ a_util::result::Result MapPeriodicTrigger::loadFromDom(const a_util::xml::DOMEle
         res = ERR_INVALID_ARG;
     }
 
-    if (isOk(res)) {
+    if (res) {
         std::string strUnit = itUnit->second;
         a_util::strings::trim(strUnit);
         res = setPeriod(itPeriod->second, strUnit);
@@ -303,7 +297,7 @@ a_util::result::Result MapSignalTrigger::setVariable(const std::string& strSigna
         return ERR_INVALID_STATE;
     }
     setVariableNoTypeCheck(strSignalName);
-    if (isFailed(_config->resetErrors())) {
+    if (!_config->resetErrors()) {
         _is_valid = false;
         return ERR_INVALID_STATE;
     }
@@ -419,7 +413,7 @@ a_util::result::Result MapDataTrigger::loadFromDom(const a_util::xml::DOMElement
         res = ERR_INVALID_ARG;
     }
 
-    if (isOk(res)) {
+    if (res) {
         res = setComparisonNoTypeCheck(itVariable->second, itOperator->second, itValue->second);
     }
 
@@ -518,10 +512,10 @@ a_util::result::Result MapDataTrigger::setComparison(const std::string& strSourc
         return ERR_INVALID_ARG;
     }
     a_util::result::Result nRes = _config->checkTriggerType(this);
-    if (isFailed(nRes)) {
+    if (!nRes) {
         _is_valid = false;
     }
-    if (isOk(nRes)) {
+    if (nRes) {
         _is_valid = true;
     }
     return nRes;

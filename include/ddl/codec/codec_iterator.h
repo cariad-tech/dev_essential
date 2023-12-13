@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2022 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -1125,7 +1119,6 @@ public:
      * @param[in] access The access type
      * @param[in] index The codec index of the value
      * @param[in] value The value in type \p T
-     * @return value in type T (supported types: all int types, bool, float, double, std::string)
      * @remark for T = std::string the value can be set as valid element name in case of enum type
      * otherwise the string is converted
      * @see @ref StaticCodec::setElementValue
@@ -1240,7 +1233,6 @@ public:
      * @brief Sets the value from \p value of type \p T
      * @tparam T Type of the \p value
      * @param[in] value The value in type \p T
-     * @return value in type T (supported types: all int types, bool, float, double, std::string)
      * @remark for T = std::string the value can be set as valid element name in case of enum type
      * otherwise the string is converted
      * @see @ref StaticCodec::setElementValue

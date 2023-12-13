@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "dd_offset_calculation.h"
@@ -79,7 +73,7 @@ const TypeInfo* getOrCreateTypeInfo(const datamodel::StructType::Element& curren
                                     datamodel::ElementType& elem_type_return)
 {
     elem_type_return = {};
-    auto type_name = current.getTypeName();
+    const auto& type_name = current.getTypeName();
     if (type_name.empty()) {
         // invalid! caller will mark it as invalid!
         return nullptr;
@@ -318,10 +312,10 @@ CalculatedDeserializedPos calculateDeserializedPosSize(
     // my size depending on the struct/fileversion
     // is both versions not set we use the newest
     Version relevant_version =
-        (struct_ddl_version != Version::ddl_version_notset) ? struct_ddl_version : file_ddl_version;
-    if (relevant_version == Version::ddl_version_notset) {
+        (struct_ddl_version != Version(0, 0)) ? struct_ddl_version : file_ddl_version;
+    if (relevant_version == Version(0, 0)) {
         // We take the newest if not set
-        relevant_version = dd::Version::ddl_version_current;
+        relevant_version = dd::Version::getLatestVersion();
     }
 
     size_t array_size_used = current.getArraySize().getArraySizeValue();
@@ -329,7 +323,7 @@ CalculatedDeserializedPos calculateDeserializedPosSize(
         array_size_used = 1;
     }
 
-    if (relevant_version >= Version::ddl_version_30) {
+    if (relevant_version >= Version(3, 0)) {
         // if array and version is 3.0 and higher -> then we use the aligned size for all array
         // elements
         size_t calculated_byte_size = array_size_used * type_info->getTypeAlignedByteSize();

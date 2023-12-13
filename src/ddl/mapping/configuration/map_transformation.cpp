@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/result/error_def.h>
@@ -58,7 +52,7 @@ a_util::result::Result MapTransformationBase::createFromDOM(MapConfiguration* pC
 
     if (oTrans.getName() == "polynomial") {
         MapPolynomTransformation* pPoly = new MapPolynomTransformation(pConfig, name);
-        if (isFailed(pPoly->loadFromDom(oTrans))) {
+        if (!pPoly->loadFromDom(oTrans)) {
             delete pPoly;
             return ERR_INVALID_ARG;
         }
@@ -69,7 +63,7 @@ a_util::result::Result MapTransformationBase::createFromDOM(MapConfiguration* pC
 
     if (oTrans.getName() == "enum_table") {
         MapEnumTableTransformation* pPoly = new MapEnumTableTransformation(pConfig, name);
-        if (isFailed(pPoly->loadFromDom(oTrans))) {
+        if (!pPoly->loadFromDom(oTrans)) {
             delete pPoly;
             return ERR_INVALID_ARG;
         }
@@ -265,7 +259,7 @@ double MapPolynomTransformation::evaluate(double value) const
 
 MapEnumTableTransformation::MapEnumTableTransformation(MapConfiguration* pConfig,
                                                        const std::string& name)
-    : MapTransformationBase(pConfig, name), _default_int(0), _default_value("0")
+    : MapTransformationBase(pConfig, name), _default_value("0"), _default_int(0)
 {
 }
 
@@ -310,7 +304,7 @@ a_util::result::Result MapEnumTableTransformation::loadFromDom(
         nRes = ERR_INVALID_ARG;
     }
 
-    if (isOk(nRes)) {
+    if (nRes) {
         setEnumsStr(itAttrFrom->second, itAttrTo->second);
 
         // Read <default> attribute
@@ -346,8 +340,8 @@ a_util::result::Result MapEnumTableTransformation::loadFromDom(
                 res = ERR_INVALID_ARG;
             }
 
-            if (a_util::result::isOk(res)) {
-                if (isFailed(addConversionStr(itConvAttrFrom->second, itConvAttrTo->second))) {
+            if (res) {
+                if (!addConversionStr(itConvAttrFrom->second, itConvAttrTo->second)) {
                     _config->appendError(a_util::strings::format(
                         "<from> attribute '%s' appears more than once in <transformation> '%s'",
                         itConvAttrFrom->second.c_str(),
@@ -356,7 +350,7 @@ a_util::result::Result MapEnumTableTransformation::loadFromDom(
                 }
             }
 
-            if (a_util::result::isFailed(res)) {
+            if (!res) {
                 nRes = res;
             }
         }
@@ -397,7 +391,7 @@ a_util::result::Result ddl::mapping::MapEnumTableTransformation::setEnums(
 {
     RETURN_IF_FAILED(setEnumsStr(strEnumFrom, strEnumTo));
     a_util::result::Result nRes = convertValuesWithDDL();
-    if (isFailed(nRes)) {
+    if (!nRes) {
         _enum_from.clear();
         _enum_to.clear();
     }
@@ -419,7 +413,7 @@ a_util::result::Result ddl::mapping::MapEnumTableTransformation::setDefault(
 {
     RETURN_IF_FAILED(setDefaultStr(strDefault));
     a_util::result::Result nRes = convertValuesWithDDL();
-    if (isFailed(nRes)) {
+    if (!nRes) {
         _default_value.clear();
     }
     return nRes;
@@ -440,7 +434,7 @@ a_util::result::Result ddl::mapping::MapEnumTableTransformation::addConversion(
 {
     RETURN_IF_FAILED(addConversionStr(strFrom, strTo));
     a_util::result::Result nRes = convertValuesWithDDL();
-    if (isFailed(nRes)) {
+    if (!nRes) {
         _conversions.erase(strFrom);
     }
     return nRes;
@@ -569,7 +563,7 @@ a_util::result::Result MapEnumTableTransformation::convertValuesWithDDL()
             strToVal = value_found->getValue();
         }
 
-        if (isOk(res)) {
+        if (res) {
             _is_valid = true;
             _conversions_int[a_util::strings::toInt64(strFromVal)] =
                 a_util::strings::toInt64(strToVal);

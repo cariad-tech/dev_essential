@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "codec_elements.h"
@@ -25,6 +19,32 @@
 #include <ddl/codec/codec.h>
 #include <ddl/legacy_error_macros.h>
 #include <ddl/utilities/std_to_string.h>
+
+#include <type_traits>
+
+// hack: Helper for different size_t types in x86_64 and x86 builds
+namespace {
+
+template <typename IntegralT, std::int8_t sizeof_numeric = sizeof(IntegralT)>
+struct ToNumeric;
+
+template <>
+struct ToNumeric<size_t, /*sizeof(IntegralT)==*/4> {
+    static auto convert(const a_util::variant::Variant& v)
+    {
+        return v.asUInt32();
+    }
+};
+
+template <>
+struct ToNumeric<size_t, /*sizeof(IntegralT)==*/8> {
+    static auto convert(const a_util::variant::Variant& v)
+    {
+        return v.asUInt64();
+    }
+};
+
+} // namespace
 
 namespace ddl {
 namespace codec {
@@ -55,7 +75,7 @@ Decoder::Decoder(std::shared_ptr<const StructAccess> codec_access,
     _codec_access = copied_codec_access;
     copied_codec_access->resolveDynamic([&](const NamedCodecIndex& index) -> size_t {
         auto codec_index = copied_codec_access->resolve(index);
-        return this->getElementVariantValue(codec_index).asUInt64();
+        return ToNumeric<size_t>::convert(this->getElementVariantValue(codec_index));
     });
     _first_element.resetIndex(CodecIndex());
 }
@@ -177,7 +197,7 @@ void setElementValueAsVariant(const StructAccess& access,
 {
     ElementLayout element_layout = access.getCodecElementLayout(index);
     auto result = accessor.setValue(element_layout, data, data_size, value);
-    if (isFailed(result)) {
+    if (!result) {
         throw std::runtime_error(result.getDescription());
     }
 }
@@ -234,7 +254,7 @@ void Codec::setElementRawValue(const CodecIndex& index, const void* value, size_
     }
     auto result =
         _element_accessor->setValue(element_layout, const_cast<void*>(_data), _data_size, value);
-    if (isFailed(result)) {
+    if (!result) {
         throw std::runtime_error(result.getDescription());
     }
 }

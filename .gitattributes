@@ -1,14 +1,8 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 * text=auto
 * whitespace=space-before-tab,tab-in-indent,trailing-space
@@ -16,3 +10,4 @@
 # Needed by conan to calculate the same recipe hash on every os
 # Further information in the conan docs: https://tinyurl.com/y27nm4q4
 conanfile*.py text eol=lf
+version       text eol=lf

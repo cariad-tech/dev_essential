@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/strings/strings_functions.h>
@@ -233,7 +227,7 @@ a_util::result::Result MapAssignment::loadFromDOM(const a_util::xml::DOMElement&
         connect(itAttrFrom->second);
     }
     else if (itAttrConst != mapAttrs.end()) {
-        if (isFailed(setConstant(itAttrConst->second))) {
+        if (!setConstant(itAttrConst->second)) {
             lstErrors.push_back(
                 a_util::strings::format("<constant> attribute empty for <assignment> \
                                               to '%s'",
@@ -277,7 +271,7 @@ a_util::result::Result MapAssignment::loadFromDOM(const a_util::xml::DOMElement&
             setSimulationTimeFunction();
         }
         if (_function.find("trigger_counter") == 0) {
-            if (isFailed(setTriggerCounterFunction(_function.substr(nIdx1 + 1, (size_t)nLength)))) {
+            if (!setTriggerCounterFunction(_function.substr(nIdx1 + 1, (size_t)nLength))) {
                 lstErrors.push_back(a_util::strings::format(
                     "<function> of type 'trigger_counter()' takes a positive Integer as argument for <assignment> \
                                                      to '%s'",
@@ -286,7 +280,7 @@ a_util::result::Result MapAssignment::loadFromDOM(const a_util::xml::DOMElement&
             }
         }
         else if (_function.find("received") == 0) {
-            if (isFailed(setReceivedFunction(_function.substr(nIdx1 + 1, (size_t)nLength)))) {
+            if (!setReceivedFunction(_function.substr(nIdx1 + 1, (size_t)nLength))) {
                 lstErrors.push_back(a_util::strings::format(
                     "<function> of type'received([Signal])' has no argument for <assignment> \
                                                   to '%s'",
@@ -298,7 +292,7 @@ a_util::result::Result MapAssignment::loadFromDOM(const a_util::xml::DOMElement&
 
     a_util::xml::DOMAttributes::const_iterator itAttr = mapAttrs.find("transformation");
     if (itAttr != mapAttrs.end() && !itAttr->second.empty()) {
-        if (isFailed(setTransformation(itAttr->second))) {
+        if (!setTransformation(itAttr->second)) {
             lstErrors.push_back(a_util::strings::format(
                 "<transformation> is only accepted for connection for <assignment> \
                                              to '%s'",

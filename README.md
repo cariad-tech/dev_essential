@@ -1,25 +1,35 @@
 <!---
 Copyright @ 2021 VW Group. All rights reserved.
 
-     This Source Code Form is subject to the terms of the Mozilla
-     Public License, v. 2.0. If a copy of the MPL was not distributed
-     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -->
+<a name="dev-essential"></a>
 # Dev essential
+
+
+<!-- TOC -->
+
+- [Dev essential](#dev-essential)
+    - [Introduction](#introduction)
+    - [How to build](#how-to-build)
+    - [How to use](#how-to-use)
+    - [Supported platforms](#supported-platforms)
+    - [Portation guide](#portation-guide)
+    - [Changelog](#changelog)
+    - [License Information](#license-information)
+
+<!-- /TOC -->
 
 <a name="introduction"></a>
 ## Introduction
+
 The dev_essential project is the successor of the following projects:
-* Utility library aka [a_util](a_util.md)
-* Package Remote Procedure Call aka [pkg_rpc](rpc.md)
-* Data Definition Language Library aka [ddl](ddl.md)
-* DDL C Application Programming Interface aka [ddl_capi](ddl_capi.md)
+* Utility library aka [a_util](doc/extern/a_util.md)
+* Package Remote Procedure Call aka [pkg_rpc](doc/extern/rpc.md)
+* Data Definition Language Library aka [ddl](doc/extern/ddl.md)
+* DDL C Application Programming Interface aka [ddl_capi](doc/extern/ddl_capi.md)
 * ...
 
 The dev_essential project strives for backwards compatibility with the latest versions of these
@@ -35,19 +45,11 @@ projects. The following table provides an overview of the versions and the compa
 However, for downstream projects already using one of the aforementioned projects and porting to the
 dev_essential project, the [portation guide](#portation-guide) shall be consulted.
 
-Table of contents:
-
-1. [How to build](#how-to-build)
-2. [How to use](#how-to-use)
-3. [Supported platforms](#supported-platforms)
-4. [Portation guide](#portation-guide)
-5. [Changelog](#changelog)
-6. [License Information](#license-information)
-
 <a name="how-to-build"></a>
 ## How to build
+
 ### Build with CMake
-- Download [CMake](https://cmake.org/) at least in version 3.17.0
+- Download [CMake](https://cmake.org/) at least in version 3.20.0
 - Using [git](https://git-scm.com/), clone the repository and checkout the desired branch (e.g. `master`)
 - Use CMake with *CMakeLists.txt* within the root directory
 - Do not forget to set `CMAKE_INSTALL_PREFIX`
@@ -63,6 +65,10 @@ Table of contents:
 * Whether or not to enable tests checking for self contained header files
 * Requires `dev_essential_cmake_enable_integrated_tests=ON`
 
+**dev_essential_cmake_enable_third_party_tests (default: OFF)**
+* Enable tests of 3rdparty dependencies
+* Requires `dev_essential_cmake_enable_integrated_tests=ON`
+
 **dev_essential_cmake_enable_position_independent_code (Default: ON)**
 * Enable position independent code for static libraries
 
@@ -75,8 +81,14 @@ Table of contents:
 **dev_essential_cmake_enable_warn_on_default_cmake_install_prefix (Default: ON)**
 * Warn if `CMAKE_INSTALL_PREFIX` is set to default
 
+**dev_essential_cmake_enable_add_test_command (Default: OFF)**
+* If OFF, a fatal error is emitted when using `add_test()` command in subfolder test/. Instead
+  `gtest_discover_tests()` shall be used.
+* Requires `dev_essential_cmake_enable_integrated_tests=ON`
+
 <a name="how-to-use"></a>
 ## How to use
+
 ### Use with CMake
 To simply use *all components* in your project, use
 - [`find_package(dev_essential)`][] with `dev_essential_DIR=<dev_essential_root>/lib/cmake/dev_essential`,
@@ -113,6 +125,7 @@ Those files are meant for implementation specific functionalilty and might chang
 
 <a name="supported-platforms"></a>
 ## Supported platforms
+
 The libraries are currently built and tested using the following compilers and operating systems:
 
 ### Windows
@@ -127,6 +140,7 @@ The libraries are currently built and tested using the following compilers and o
 
 <a name="portation-guide"></a>
 ## Portation guide
+
 The following changes have to be done.
 
 ### a_util
@@ -201,17 +215,20 @@ Become respectively:
 
 <a name="changelog"></a>
 ## Changelog
+
 The changelog can be found [here](doc/extern/changelog.md).
 
-## License Information <a name="license-information"></a>
+<a name="license-information"></a>
+## License Information
+
 ### Dev essential libraries - License
 The dev essential libraries are delivered under the
 [MPL - Mozilla Public License - Version 2.0](doc/extern/license/MPL2.0.txt).
 
 ### Used software license information
 The dev essential libraries are delivered with the following 3rdparty dependencies:
-- [Clara 1.1.2](https://github.com/catchorg/Clara/tree/v1.1.2)
-  ([License](extern/3rdparty/clara/Clara-1.1.2/LICENSE.txt))
+- [clipp 1.2.3](https://github.com/muellan/clipp/tree/v1.2.3)
+  ([License](extern/3rdparty/clipp/clipp-1.2.3/LICENSE))
 - [current_function of Boost 1.64.0](http://www.boost.org/doc/libs/1_64_0/boost/current_function.hpp)
   ([License](extern/3rdparty/boost/boost_1_64_0/boost/current_function.hpp))
 - [pugixml 1.8](https://github.com/zeux/pugixml/tree/v1.8)

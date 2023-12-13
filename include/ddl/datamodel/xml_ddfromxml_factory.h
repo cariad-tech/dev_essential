@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -365,7 +359,7 @@ struct DDFromXMLFactory {
         // attribute name changed to "name" from "type"
         std::string name;
         // mandatory
-        if (strict && (file_ddl_version >= Version::ddl_version_30)) {
+        if (strict && (file_ddl_version >= Version(3, 0))) {
             auto name_attrib = getAttribute<std::string>(
                 dom_node, "name", {}, true, "datatype tag has no mandatory 'name' attribute");
             name = *name_attrib;
@@ -415,8 +409,7 @@ struct DDFromXMLFactory {
             created_type.setUnitName(unit);
         }
         // min / max introduced in DataDefinition 3.0
-        if (file_ddl_version >= Version::ddl_version_30 ||
-            file_ddl_version == Version::ddl_version_notset) {
+        if (file_ddl_version >= Version(3, 0) || file_ddl_version == Version(0, 0)) {
             auto min_val = getAttribute<std::string>(dom_node, "min");
             if (min_val) {
                 created_type.setMin(*min_val);
@@ -498,22 +491,22 @@ struct DDFromXMLFactory {
         Alignment alignment_to_set = Alignment::e0;
 
         Version used_file_version = file_ddl_version;
-        if (file_ddl_version == Version::ddl_version_notset || !strict) {
+        if (file_ddl_version == Version(0, 0) || !strict) {
             // we need to figure out the version because it i.e. a string parsing where no header is
             // set
             DOM_NODE_TYPE serialized_node;
             if (dom_node.findNode("serialized", serialized_node)) {
-                used_file_version = Version::ddl_version_40;
+                used_file_version = Version(4, 0);
             }
             else {
                 // this is a guess!
-                used_file_version = Version::ddl_version_30;
+                used_file_version = Version(3, 0);
             }
         }
 
         // From version 4.0 on this information is specified within the <serialized> tag.
         // From version 4.0 on this information is specified within the <deserialized> tag.
-        if (used_file_version >= Version::ddl_version_40) {
+        if (used_file_version >= Version(4, 0)) {
             DOM_NODE_TYPE serialized_node;
             if (dom_node.findNode("serialized", serialized_node)) {
                 // mandatory serialized info
@@ -632,22 +625,19 @@ struct DDFromXMLFactory {
         else if (arraysize_attrib) // array size is set to a string (or an invalid value) and
                                    // introduced in DataDefinition 2.0 //Dynamic array support
         {
-            if (file_ddl_version >= Version::ddl_version_20 ||
-                file_ddl_version == Version::ddl_version_notset || !strict) {
+            if (file_ddl_version >= Version(2, 0) || file_ddl_version == Version(0, 0) || !strict) {
                 created_element.setArraySize(*arraysize_attrib);
             }
         }
         // introduced in DataDefinition 2.0
-        if (used_file_version >= Version::ddl_version_20 ||
-            file_ddl_version == Version::ddl_version_notset || !strict) {
+        if (used_file_version >= Version(2, 0) || file_ddl_version == Version(0, 0) || !strict) {
             auto value_attrib = getAttribute<std::string>(dom_node, "value");
             if (value_attrib) {
                 created_element.setValue(*value_attrib);
             }
         }
         // introduced in DataDefinition 3.0
-        if (used_file_version >= Version::ddl_version_30 ||
-            file_ddl_version == Version::ddl_version_notset || !strict) {
+        if (used_file_version >= Version(3, 0) || file_ddl_version == Version(0, 0) || !strict) {
             auto min_attrib = getAttribute<std::string>(dom_node, "min");
             if (min_attrib) {
                 created_element.setMin(*min_attrib);
@@ -717,7 +707,7 @@ struct DDFromXMLFactory {
             comment_to_set = *comment_attrib;
         }
         auto ddl_version_attrib = getAttribute<std::string>(dom_node, "ddlversion", {});
-        auto ddl_version_to_set = Version::ddl_version_notset;
+        auto ddl_version_to_set = Version(0, 0);
         if (ddl_version_attrib) {
             ddl_version_to_set = VersionConversion::fromString(*ddl_version_attrib);
         }
@@ -917,7 +907,7 @@ struct DDFromXMLFactory {
                 createStructType(dom_node, new_ddl.getVersion(), strict));
         }
         // read streammetatypes
-        if ((new_ddl.getVersion() >= dd::Version::ddl_version_40) || !strict) {
+        if ((new_ddl.getVersion() >= dd::Version(4, 0)) || !strict) {
             std::list<DOM_NODE_TYPE> stream_meta_type_nodes;
             if (dom_node.findNodes("//streammetatypes/streammetatype", stream_meta_type_nodes)) {
                 for (const auto& current_smt_node: stream_meta_type_nodes) {

@@ -1,14 +1,8 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 common:
   files:
@@ -17,6 +11,7 @@ common:
   - doc/changelog\.md
   - doc/license/MPL2\.0\.txt
   - doc/license/boost_1_64_0/boost/current_function\.hpp
+  - doc/license/clipp-1\.2\.3/LICENSE
   - doc/license/licenses\.txt
   - include/3rdparty/boost/boost_1_64_0/boost/current_function\.hpp
   - include/a_util/base/delegate\.h
@@ -25,11 +20,14 @@ common:
   - include/a_util/base/detail/error\.inc
   - include/a_util/base/enums\.h
   - include/a_util/base/error\.h
+  - include/a_util/base/feature_check/library/is_enum_v\.h
+  - include/a_util/base/feature_check/library/string_view\.h
   - include/a_util/base/scopeguard\.h
   - include/a_util/base/type_traits\.h
   - include/a_util/base/types\.h
   - include/a_util/base\.h
   - include/a_util/preprocessor/current_function\.h
+  - include/a_util/preprocessor/deprecated\.h
   - include/a_util/preprocessor/detail/disable_warnings\.h
   - include/a_util/preprocessor/dll_export\.h
   - include/a_util/preprocessor/to_string\.h

@@ -7,15 +7,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -28,6 +22,7 @@ You may add additional accurate notices of copyright ownership.
 #include <a_util/result/detail/error_description.h>
 #include <a_util/result/detail/reference_counted_object.h>
 
+#include <cassert>
 #include <new>
 
 namespace a_util {
@@ -93,9 +88,9 @@ inline ResultDescriptionTraits<DescriptionIntf>::~ResultDescriptionTraits()
 #pragma GCC diagnostic ignored "-Wattributes"
 #endif // defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
     constexpr auto min_val_representation =
-        toInternalErrorCode(numeric_limits<std::int32_t>::min());
+        toInternalErrorCode((numeric_limits<std::int32_t>::min)());
     constexpr auto max_val_representation =
-        toInternalErrorCode(numeric_limits<std::int32_t>::max());
+        toInternalErrorCode((numeric_limits<std::int32_t>::max)());
 #if defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
 #pragma GCC diagnostic pop
 #endif // defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
@@ -194,11 +189,12 @@ ResultDescription<DescriptionIntf>::makeResultDescription(std::int32_t error_cod
         const auto reference_counted_error_object =
             new ReferenceCountedErrorType(error_code, std::forward<Args>(args)...);
         SelfType result_description(*reference_counted_error_object);
-        // The address of the pointer must not occupy the MSB of the internal error, because the
-        // MSB is used to set the error code bit. In reality this should never happen.
         if (TraitsType::isErrorCodeSet(result_description._pointer_to_result_or_error_code)) {
-            // not allowed, only create the error code
+            // not allowed, only create the error code (no assert in production code, only in debug)
             reference_counted_error_object->removeReference();
+            assert((false) && "The MSB of the pointer to the heap allocated memory is set to 1, "
+                              "but it is reserved for the error code bit. This is inplausible and "
+                              "must not happen.");
         }
         else {
             return result_description;
@@ -267,8 +263,13 @@ constexpr inline ResultDescription<DescriptionIntf>::ResultDescription(
 template <typename DescriptionIntf>
 constexpr inline ResultDescription<DescriptionIntf>::ResultDescription(
     const ReferenceCountedObjectInterface<DescriptionIntf>& error_object) noexcept
-    : _pointer_to_result_or_error_code(reinterpret_cast<std::uint64_t>(&error_object))
+    : _pointer_to_result_or_error_code(reinterpret_cast<std::uintptr_t>(&error_object))
 {
+    static_assert(sizeof(std::uintptr_t) == sizeof(decltype(&error_object)),
+                  "ResultDescription pointers must match the size of std::uintptr_t!");
+    assert((!TraitsType::isErrorCodeSet(_pointer_to_result_or_error_code)) &&
+           "The cast of the pointer to the internal error code set the MSB to 1, but it is "
+           "reserved for the error code bit. This is inplausible and must not happen.");
     error_object.addReference();
 }
 

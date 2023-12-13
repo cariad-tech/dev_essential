@@ -90,7 +90,7 @@ class uuid_error_t {
                      ~uuid_error_t ()                     { };
         void          code         (uuid_rc_t _code)      { rc = _code; };
         uuid_rc_t     code         (void)                 { return rc; };
-        char         *string       (void)                 { return uuid_error(rc); };
+        const char   *string       (void)                 { return uuid_error(rc); };
 
     private:
         uuid_rc_t rc;

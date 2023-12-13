@@ -36,7 +36,7 @@
 
 /* embedding support */
 #ifdef SHA1_PREFIX
-#if defined(__STDC__) || defined(__cplusplus)
+#if defined(__STDC__) || defined(__cplusplus) || defined(_MSC_VER)
 #define __SHA1_CONCAT(x,y) x ## y
 #define SHA1_CONCAT(x,y) __SHA1_CONCAT(x,y)
 #else

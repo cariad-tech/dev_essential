@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -154,7 +148,7 @@ inline const char* Result::getErrorLabel() const
         return _result_handle.getDetailedDescription()->getErrorCodeLabel();
     }
 
-    return isOk(*this) ? "SUCCESS" : "(unknown)";
+    return *this ? "SUCCESS" : "(unknown)";
 }
 
 inline const char* Result::getDescription() const
@@ -196,6 +190,11 @@ inline const char* Result::getFunction() const
     }
 
     return "";
+}
+
+inline Result::operator bool() const noexcept
+{
+    return getErrorCode() == 0;
 }
 
 inline Result::Result(std::int32_t error_code,

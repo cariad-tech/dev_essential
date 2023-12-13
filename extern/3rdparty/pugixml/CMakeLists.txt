@@ -1,14 +1,8 @@
 # Copyright @ 2021 VW Group. All rights reserved.
 #
-#     This Source Code Form is subject to the terms of the Mozilla
-#     Public License, v. 2.0. If a copy of the MPL was not distributed
-#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-#
-# If it is not possible or desirable to put the notice in a particular file, then
-# You may include the notice in a location (such as a LICENSE file in a
-# relevant directory) where a recipient would be likely to look for such a notice.
-#
-# You may add additional accurate notices of copyright ownership.
+# This Source Code Form is subject to the terms of the Mozilla
+# Public License, v. 2.0. If a copy of the MPL was not distributed
+# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 set(PUGI_DIR ${CMAKE_CURRENT_LIST_DIR}/pugixml-1.8 CACHE INTERNAL "Path to the pugi directory")
 install(FILES pugixml-1.8/readme.txt DESTINATION doc/license/pugixml-1.8)
@@ -16,4 +10,5 @@ add_library(pugixml INTERFACE)
 target_include_directories(pugixml SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_definitions(pugixml INTERFACE PUGIXML_HEADER_ONLY
                                              pugi= #defines namespace pugi to an anonymous namespace
+                                             $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
                           )

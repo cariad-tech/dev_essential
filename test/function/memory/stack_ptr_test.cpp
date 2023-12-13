@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/memory/memory.h> //compare
@@ -95,7 +89,7 @@ public:
     ~TestClassNonCopyable() = default;
 
     TestClassNonCopyable(std::int32_t val1, const std::string& val2)
-        : _val_int{val1}, _val_string{val2}
+        : _val_string{val2}, _val_int{val1}
     {
     }
 
@@ -288,7 +282,8 @@ TEST(memory_test, TestStackPtrMoveConstructor)
         EXPECT_EQ(2, TestClass::instances());
         EXPECT_EQ("1", test_object4->instanceAsString());
         // moved from object in valid but unspecified state
-        EXPECT_TRUE(test_object3);
+        EXPECT_TRUE(test_object3); // NOLINT(clang-analyzer-cplusplus.Move)
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
         EXPECT_TRUE(test_object3->getCurrentString().empty());
     }
     EXPECT_EQ(0, TestClass::instances());
@@ -322,7 +317,8 @@ TEST(memory_test, TestStackPtrMoveAssignmentOperator)
         EXPECT_EQ(2, TestClass::instances());
         EXPECT_EQ("2", test_object2->instanceAsString()); // moved from test_object1
         // Moved from object in valid but unspecified state
-        EXPECT_TRUE(test_object1);
+        EXPECT_TRUE(test_object1); // NOLINT(clang-analyzer-cplusplus.Move)
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
         EXPECT_TRUE(test_object1->getCurrentString().empty());
     }
     EXPECT_EQ(0, TestClass::instances());
@@ -373,13 +369,13 @@ TEST(memory_test, TestStackPtrAlignment)
     using TestStruct4 = AlignmentTestStruct<double*, dbl_ptr_align>;
 
     TestStruct1 s1;
-    EXPECT_EQ(misalignment(&*s1.obj, char_align), 0);
+    EXPECT_EQ(misalignment(&*s1.obj, char_align), 0U);
     TestStruct2 s2; // Alignment on larger than required intervals should be ok, too.
-    EXPECT_EQ(misalignment(&*s2.obj, 4 * char_align), 0);
+    EXPECT_EQ(misalignment(&*s2.obj, 4 * char_align), 0U);
     TestStruct3 s3;
-    EXPECT_EQ(misalignment(&*s3.obj, float_align), 0);
+    EXPECT_EQ(misalignment(&*s3.obj, float_align), 0U);
     TestStruct4 s4;
-    EXPECT_EQ(misalignment(&*s4.obj, dbl_ptr_align), 0);
+    EXPECT_EQ(misalignment(&*s4.obj, dbl_ptr_align), 0U);
 
     // using TestStruct5 = AlignmentTestStruct<float, 2>;  // Bad! Alignment too small!
     // TestStruct5 s5; // Static assert correctly triggering!
@@ -388,15 +384,15 @@ TEST(memory_test, TestStackPtrAlignment)
     // Within these 128 byte "buckets", the StackPtr instances
     // are shifted around to have the proper offsets. They cannot start
     // right at the 128 byte boundary because of the padding char.
-    EXPECT_EQ(misalignment(&s1, 128), 0);
-    EXPECT_EQ(misalignment(&s2, 128), 0);
-    EXPECT_EQ(misalignment(&s3, 128), 0);
-    EXPECT_EQ(misalignment(&s4, 128), 0);
+    EXPECT_EQ(misalignment(&s1, 128), 0U);
+    EXPECT_EQ(misalignment(&s2, 128), 0U);
+    EXPECT_EQ(misalignment(&s3, 128), 0U);
+    EXPECT_EQ(misalignment(&s4, 128), 0U);
 
-    EXPECT_GT(offsetof(TestStruct1, obj), 0);
-    EXPECT_GT(offsetof(TestStruct2, obj), 0);
-    EXPECT_GT(offsetof(TestStruct3, obj), 0);
-    EXPECT_GT(offsetof(TestStruct4, obj), 0);
+    EXPECT_GT(offsetof(TestStruct1, obj), 0U);
+    EXPECT_GT(offsetof(TestStruct2, obj), 0U);
+    EXPECT_GT(offsetof(TestStruct3, obj), 0U);
+    EXPECT_GT(offsetof(TestStruct4, obj), 0U);
 }
 
 /**

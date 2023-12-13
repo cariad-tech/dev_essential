@@ -36,7 +36,7 @@
 
 /* embedding support */
 #ifdef PRNG_PREFIX
-#if defined(__STDC__) || defined(__cplusplus)
+#if defined(__STDC__) || defined(__cplusplus) || defined(_MSC_VER)
 #define __PRNG_CONCAT(x,y) x ## y
 #define PRNG_CONCAT(x,y) __PRNG_CONCAT(x,y)
 #else

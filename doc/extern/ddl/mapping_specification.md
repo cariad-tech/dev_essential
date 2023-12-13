@@ -1,30 +1,43 @@
 <!---
 Copyright @ 2021 VW Group. All rights reserved.
  
-     This Source Code Form is subject to the terms of the Mozilla
-     Public License, v. 2.0. If a copy of the MPL was not distributed
-     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
- 
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -->
 
+<a name="signal-mapping-format-specification"></a>
 # Signal Mapping Format Specification
 
+<!-- TOC -->
+
+- [Signal Mapping Format Specification](#signal-mapping-format-specification)
+- [Configuration format](#configuration-format)
+    - [Overview](#overview)
+    - [Specification](#specification)
+    - [Example](#example)
+- [Features](#features)
+    - [Constants and Macros](#constants-and-macros)
+    - [Transformations](#transformations)
+    - [Supported types and cross-type assignments](#supported-types-and-cross-type-assignments)
+
+<!-- /TOC -->
+
+<a name="configuration-format"></a>
 # Configuration format
 
 The actual mapping of signals is configured using a xml-based configuration format.
 
+<a name="overview"></a>
 ## Overview
+
 A mapping configuration file contains a header with meta information about the file, source signal declarations, target signal definitions and transformation definitions. A source signal consists of a name and a signal type. Target signals also consist of a name and a signal type. They define any number of signal element assignments as well as any trigger conditions.
 
 Conceptionally, signal element assignments define how the target signal is assembled while triggers define when the target signal buffer is submitted to the user.
 
 A target signal element can be assigned a constant numeric value or a source signal element. In the later case, a transformation can be used to alter the source signal element value during assignment. Trigger conditions are optional, since it is always possible to actively get the current target signal buffer. For now, only periodic triggers can be defined, using a period and a unit of time.
 
+<a name="specification"></a>
 ## Specification
 
 This specification contains the following parts:
@@ -151,8 +164,9 @@ The tag `<conversion>` supports the following attributes:
 |from|String|mandatory|Element from the enumeration type used as transformation source|
 |to|String|mandatory|Element from the enumeration type used as transformation target|
 
-
+<a name="example"></a>
 ## Example
+
 The following example shows the mapping of the target signals `LightSource` and `Object`.
 `LightSource` elements are mapped from two source signals, `LightOrientation` and `LightPos`, as well as some constants.
 
@@ -210,8 +224,10 @@ The following example shows the mapping of the target signals `LightSource` and 
 </mapping>
 ````
 
+<a name="features"></a>
 # Features
 
+<a name="constants-and-macros"></a>
 ## Constants and Macros
 
 A target signal element can be assigned a constant numeric value. This value will be parsed as a floating point number and casted to the target element type.
@@ -221,6 +237,7 @@ A target signal element can also be assigned the simulation time, a trigger coun
 > _**Note:**_ Constants and Macros can only be used to initialize scalar as well as arrays of scalar elements
 Any unassigned target elements will be assigned the default value configured in the DDL definition of the target signal type
 
+<a name="transformations"></a>
 ## Transformations
 
 Transformations can be used to alter the value of an assignment during runtime.
@@ -237,6 +254,7 @@ Any undefined coefficients are set to 0.
 
 > _**Note:**_ Transformations are only supported for scalar as well as arrays of scalar elements
 
+<a name="supported-types-and-cross-type-assignments"></a>
 ## Supported types and cross-type assignments
 
 Assignments from one type to another are supported in the following way

@@ -6,20 +6,16 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
 #ifndef _A_UTILS_UTIL_FILESYSTEM_PATH_INCLUDED_
 #define _A_UTILS_UTIL_FILESYSTEM_PATH_INCLUDED_
+
+#include <a_util/preprocessor/deprecated.h>
 
 #include <memory>
 #include <stdexcept>
@@ -124,10 +120,11 @@ public:
      * @note: For network paths, the host is returned (e.g. "\\netdrive\test" returns "\\netdrive")
      * @details Usually "C:" or "D:" on Windows, on Unix-like systems usually "/".
      *          e.g.: "/dir/subdir/file.txt" returns "/", "C:/dir" returns "C:"
+     * @dev_essential_deprecated Use @ref getRootName() instead.
      * @return A path instance pointing to the root directory
      */
-    [[deprecated("Use Path::getRootName() instead.")]] Path getRoot()
-        const; // expected-note {{'getRoot' has been explicitly marked deprecated here}}
+    DEV_ESSENTIAL_DEPRECATED("Use Path::getRootName() instead.")
+    Path getRoot() const; // expected-note {{'getRoot' has been explicitly marked deprecated here}}
 
     /**
      * Get the root name of the directory/file

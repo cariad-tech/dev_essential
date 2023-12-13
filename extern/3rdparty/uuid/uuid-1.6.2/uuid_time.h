@@ -50,7 +50,7 @@
 
 /* embedding support */
 #ifdef TIME_PREFIX
-#if defined(__STDC__) || defined(__cplusplus)
+#if defined(__STDC__) || defined(__cplusplus) || defined(_MSC_VER)
 #define __TIME_CONCAT(x,y) x ## y
 #define TIME_CONCAT(x,y) __TIME_CONCAT(x,y)
 #else

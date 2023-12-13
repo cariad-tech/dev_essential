@@ -5,15 +5,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/filesystem/filesystem.h>
@@ -101,7 +95,7 @@ TEST(filesystem_test, TestReadTextLines)
 
     std::vector<std::string> lines;
     EXPECT_EQ(filesystem::readTextLines(path, lines), filesystem::OK);
-    ASSERT_EQ(lines.size(), 6);
+    ASSERT_EQ(lines.size(), 6U);
     EXPECT_EQ(lines[0], "");
     EXPECT_EQ(lines[1], "line1");
     EXPECT_EQ(lines[2], "line2");
@@ -111,7 +105,7 @@ TEST(filesystem_test, TestReadTextLines)
 
     EXPECT_EQ(filesystem::writeTextFile(path, ""), filesystem::OK);
     EXPECT_EQ(filesystem::readTextLines(path, lines), filesystem::OK);
-    ASSERT_EQ(lines.size(), 0);
+    ASSERT_EQ(lines.size(), 0U);
 
     EXPECT_TRUE(filesystem::remove(path));
     EXPECT_EQ(filesystem::readTextLines(path, lines), filesystem::OPEN_FAILED);
@@ -134,12 +128,12 @@ TEST(filesystem_test, TestEnumDirectory)
 
     EXPECT_TRUE(filesystem::createDirectory(base + "SubDir"));
     EXPECT_EQ(filesystem::enumDirectory(base, entries), filesystem::OK);
-    ASSERT_EQ(entries.size(), 1);
+    ASSERT_EQ(entries.size(), 1U);
     EXPECT_EQ(entries[0], base + "SubDir");
 
     EXPECT_EQ(filesystem::writeTextFile(base + "file.txt", ""), filesystem::OK);
     EXPECT_EQ(filesystem::enumDirectory(base, entries), filesystem::OK);
-    ASSERT_EQ(entries.size(), 2);
+    ASSERT_EQ(entries.size(), 2U);
 
     // use sorted string vector to compare, since order of filesystem entries is OS dependant
     std::vector<std::string> strings;

@@ -4,148 +4,146 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/concurrency/semaphore.h>
-#include <a_util/concurrency/thread.h>
 #include <a_util/system.h>
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
-using namespace a_util;
 
-struct SemaphoreTestStruct {
-    concurrency::semaphore sema;
-    bool done;
+#include <atomic>
+#include <thread>
 
-    SemaphoreTestStruct() : done(false)
+class SemaphoreTestFixture : public ::testing::Test {
+protected:
+    a_util::concurrency::semaphore _sema;
+    std::atomic<bool> _done = {};
+
+public:
+    void work()
     {
-    }
-
-    void Work()
-    {
-        if (sema.wait_for(std::chrono::seconds(1))) {
-            done = true;
+        if (_sema.wait_for(std::chrono::milliseconds(100))) {
+            _done = true;
         }
     }
 };
 
-TEST(semaphore_test, TestSemaphore)
+TEST_F(SemaphoreTestFixture, notifyWaitForInWorkerThreadSucceeds)
 {
-    SemaphoreTestStruct test;
-    concurrency::thread th(&SemaphoreTestStruct::Work, &test);
-    system::sleepMilliseconds(500);
-
-    ASSERT_EQ(test.done, false);
-    test.sema.notify();
+    std::thread th(&SemaphoreTestFixture::work, this);
+    ASSERT_EQ(_done, false);
+    _sema.notify();
     th.join();
-    ASSERT_EQ(test.done, true);
-    ASSERT_FALSE(test.sema.is_set());
-    ASSERT_FALSE(test.sema.wait_for(std::chrono::milliseconds(50)));
-    ASSERT_FALSE(test.sema.is_set());
-    test.sema.notify();
-    ASSERT_TRUE(test.sema.is_set());
-    test.sema.reset();
-    ASSERT_FALSE(test.sema.is_set());
-    ASSERT_FALSE(test.sema.try_wait());
-    ASSERT_FALSE(test.sema.is_set());
-    test.sema.notify();
-    ASSERT_TRUE(test.sema.try_wait());
-    ASSERT_FALSE(test.sema.is_set());
+    ASSERT_EQ(_done, true);
+    ASSERT_FALSE(_sema.is_set());
 }
 
-template <int TIMEOUT>
-static void DoTestSemaphoreForDeadlock()
+TEST_F(SemaphoreTestFixture, waitForThrowsForNegativeTimeout)
 {
-    a_util::system::Timer timer;
-    timer.setPeriod(100 * 1000); // every 100ms
-    timer.start();
-
-    a_util::concurrency::semaphore _semaphore;
-
-    const timestamp_t start_time = a_util::system::getCurrentMicroseconds();
-    _semaphore.wait_for(std::chrono::seconds(TIMEOUT));
-    const timestamp_t running_time = a_util::system::getCurrentMicroseconds() - start_time;
-
-    timer.stop();
-
-    // Semaphore wait should last about 30 s
-    ASSERT_GT(running_time, (TIMEOUT - 1) * 1000 * 1000);
-    ASSERT_LT(running_time, (TIMEOUT + 1) * 1000 * 1000);
+    EXPECT_THROW(_sema.wait_for(std::chrono::milliseconds(-50)), std::invalid_argument);
+    EXPECT_FALSE(_sema.is_set());
 }
 
-// ATTENTION: On Failure this Test will loop forever !!!
-TEST(semaphore_test, TestSemaphoreForDeadlock)
+TEST_F(SemaphoreTestFixture, waitFor__successful)
 {
-    DoTestSemaphoreForDeadlock<1>();
-    DoTestSemaphoreForDeadlock<2>();
-    DoTestSemaphoreForDeadlock<5>();
-    DoTestSemaphoreForDeadlock<10>();
-    DoTestSemaphoreForDeadlock<20>();
+    _sema.notify();
+    ASSERT_TRUE(_sema.wait_for(std::chrono::milliseconds(50)));
+}
+TEST_F(SemaphoreTestFixture, waitFor__failing)
+{
+    ASSERT_FALSE(_sema.wait_for(std::chrono::milliseconds(50)));
 }
 
-template <int TIMEOUT>
-class UnlockSemaphoreThread {
+TEST_F(SemaphoreTestFixture, resetLockCountSucceeds)
+{
+    _sema.notify();
+    ASSERT_TRUE(_sema.is_set());
+    _sema.reset();
+    ASSERT_FALSE(_sema.is_set());
+}
+
+TEST_F(SemaphoreTestFixture, tryWaitSucceeds)
+{
+    ASSERT_FALSE(_sema.try_wait());
+    ASSERT_FALSE(_sema.is_set());
+    _sema.notify();
+    ASSERT_TRUE(_sema.try_wait());
+    ASSERT_FALSE(_sema.is_set());
+}
+
+TEST_F(SemaphoreTestFixture, waitForReturnsAfterSpecifiedTime)
+{
+    using namespace ::testing; // gmocks AllOf(), Ge() and Le()
+
+    const auto start_time = a_util::system::getCurrentMilliseconds();
+    ASSERT_FALSE(_sema.wait_for(std::chrono::milliseconds(50)));
+    const auto running_time = a_util::system::getCurrentMilliseconds() - start_time;
+
+    // Taking the lag of the time measurement into account, the running time is estimated ...
+    EXPECT_THAT(running_time, AllOf(Ge(30), Le(150)));
+}
+
+class NotifySemaphoreThread {
 public:
-    UnlockSemaphoreThread(a_util::concurrency::semaphore& a_semaphore)
-        : _semaphore(a_semaphore), _thread(&UnlockSemaphoreThread::ThreadFunc, this)
+    NotifySemaphoreThread(a_util::concurrency::semaphore& semaphore)
+        : _semaphore(semaphore), _thread(&NotifySemaphoreThread::threadFunc, this)
     {
     }
 
-public:
-    void join()
+    ~NotifySemaphoreThread()
     {
         _thread.join();
     }
 
 private:
-    void ThreadFunc()
+    void threadFunc()
     {
-        a_util::system::sleepMilliseconds(TIMEOUT * 1000);
+        a_util::system::sleepMilliseconds(50);
         _semaphore.notify();
     }
 
 private:
     a_util::concurrency::semaphore& _semaphore;
-    a_util::concurrency::thread _thread;
+    std::thread _thread;
 };
 
-template <int TIMEOUT>
-static void DoTestSemaphoreForUnlock()
+TEST_F(SemaphoreTestFixture, notifyFromWorkerThreadSucceeds)
 {
-    a_util::system::Timer timer;
-    timer.setPeriod(100 * 1000);
-    timer.start();
+    using namespace ::testing; // gmocks AllOf(), Ge() and Le()
 
-    a_util::concurrency::semaphore _semaphore;
-    UnlockSemaphoreThread<TIMEOUT> unlock_sempahore_thread(_semaphore);
+    NotifySemaphoreThread unlock_sempahore_thread(_sema);
+    const auto start_time = a_util::system::getCurrentMilliseconds();
+    // notify() fires after ~50ms, so this should return after ~50ms, not 1s
+    // test timeout is set by ctest to 1s, so this test would abort for this waiting time
+    EXPECT_TRUE(_sema.wait_for(std::chrono::seconds(1)));
+    const auto running_time = a_util::system::getCurrentMilliseconds() - start_time;
 
-    const timestamp_t start_time = a_util::system::getCurrentMicroseconds();
-    _semaphore.wait_for(std::chrono::seconds(TIMEOUT * 2));
-    const timestamp_t runtime = a_util::system::getCurrentMicroseconds() - start_time;
-
-    timer.stop();
-    unlock_sempahore_thread.join();
-
-    // Semaphore wait should last about 30 s
-    ASSERT_GT(runtime, (TIMEOUT - 1) * 1000 * 1000);
-    ASSERT_LT(runtime, (TIMEOUT + 1) * 1000 * 1000);
+    // Taking the lag of the time measurement into account, the running time is estimated ...
+    EXPECT_THAT(running_time, AllOf(Ge(30), Le(150)));
 }
 
-// ATTENTION: On Failure this Test will loop forever !!!
-TEST(semaphore_test, TestSemaphoreForUnlock)
+TEST_F(SemaphoreTestFixture, waitAfterNotifySucceeds)
 {
-    DoTestSemaphoreForUnlock<1>();
-    DoTestSemaphoreForUnlock<2>();
-    DoTestSemaphoreForUnlock<5>();
-    DoTestSemaphoreForUnlock<10>();
-    DoTestSemaphoreForUnlock<20>();
+    _sema.notify();
+    _sema.wait();
+    ASSERT_FALSE(_sema.is_set());
+}
+
+TEST_F(SemaphoreTestFixture, waitBlocksUntilNotify)
+{
+    std::atomic<bool> wait_stopped{false};
+    std::thread t{[&]() {
+        _sema.wait();
+        wait_stopped = true;
+    }};
+
+    ASSERT_FALSE(wait_stopped);
+    _sema.notify();
+    t.join();
+    ASSERT_TRUE(wait_stopped);
+    ASSERT_FALSE(_sema.is_set());
 }

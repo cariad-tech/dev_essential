@@ -4,16 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
- *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "./../../_common/test_oo_ddl.h"
@@ -98,8 +91,8 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
         elems.emplace(StructType::Element("elem4", "some_type", {}, {}));
         elems.emplace(StructType::Element("elem5", "some_type", {}, {}));
 
-        EXPECT_EQ(elems.getSize(), 5);
-        ASSERT_EQ(test_validator._change_events.size(), 5);
+        EXPECT_EQ(elems.getSize(), 5U);
+        ASSERT_EQ(test_validator._change_events.size(), 5U);
 
         EXPECT_EQ(test_validator._change_events[0],
                   decltype(test_validator._change_events)::value_type(
@@ -125,7 +118,7 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
         check_elem5_access->setName("elem6");
 
         // check the events
-        ASSERT_EQ(test_validator._change_events.size(), 7);
+        ASSERT_EQ(test_validator._change_events.size(), 7U);
         EXPECT_EQ(test_validator._change_events[5],
                   decltype(test_validator._change_events)::value_type(
                       {utility::TypeAccessListEventCode::list_item_renamed, "elem5"}));
@@ -139,7 +132,7 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
         EXPECT_FALSE(check_elem5_access_after_remove);
 
         // check the events
-        EXPECT_EQ(test_validator._change_events.size(), 8);
+        EXPECT_EQ(test_validator._change_events.size(), 8U);
         EXPECT_EQ(test_validator._change_events[7],
                   decltype(test_validator._change_events)::value_type(
                       {utility::TypeAccessListEventCode::list_item_removed, "elem6"}));
@@ -149,13 +142,13 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
 
         // but no event is given to the list
         check_elem5_access->setName("back_to_elem5");
-        EXPECT_EQ(test_validator._change_events.size(), 8);
+        EXPECT_EQ(test_validator._change_events.size(), 8U);
 
         elems_copy = elems;
     }
 
     // we copied everything
-    EXPECT_EQ(elems_copy.getSize(), 4);
+    EXPECT_EQ(elems_copy.getSize(), 4U);
     auto check_elem1_access = elems_copy.access("elem1");
     EXPECT_TRUE(check_elem1_access);
     check_elem1_access->setName("new_name_elem1");
@@ -168,25 +161,25 @@ TEST(TesterUtilityDataStructureList, createAccessRemove)
 
     // we insert in the mid
     elems_copy.insert(2, StructType::Element("elem_pos2", "some_type", {}, {}));
-    EXPECT_EQ(*elems_copy.getPosOf("elem_pos2"), 2);
-    EXPECT_EQ(*elems_copy.getPosOf("elem3"), 3);
-    EXPECT_EQ(*elems_copy.getPosOf("elem4"), 4);
-    EXPECT_EQ(elems_copy.getSize(), 5);
+    EXPECT_EQ(*elems_copy.getPosOf("elem_pos2"), 2U);
+    EXPECT_EQ(*elems_copy.getPosOf("elem3"), 3U);
+    EXPECT_EQ(*elems_copy.getPosOf("elem4"), 4U);
+    EXPECT_EQ(elems_copy.getSize(), 5U);
 
     // we insert at the end
     elems_copy.insert(5, StructType::Element("elem_pos5", "some_type", {}, {}));
-    EXPECT_EQ(*elems_copy.getPosOf("elem_pos5"), 5);
-    EXPECT_EQ(*elems_copy.getPosOf("elem3"), 3);
-    EXPECT_EQ(*elems_copy.getPosOf("elem4"), 4);
-    EXPECT_EQ(elems_copy.getSize(), 6);
+    EXPECT_EQ(*elems_copy.getPosOf("elem_pos5"), 5U);
+    EXPECT_EQ(*elems_copy.getPosOf("elem3"), 3U);
+    EXPECT_EQ(*elems_copy.getPosOf("elem4"), 4U);
+    EXPECT_EQ(elems_copy.getSize(), 6U);
 
     // we insert in front
     elems_copy.insert(0, StructType::Element("elem_pos0", "some_type", {}, {}));
-    EXPECT_EQ(*elems_copy.getPosOf("elem_pos0"), 0);
-    EXPECT_EQ(*elems_copy.getPosOf("elem3"), 4);
-    EXPECT_EQ(*elems_copy.getPosOf("elem4"), 5);
-    EXPECT_EQ(*elems_copy.getPosOf("elem_pos5"), 6);
-    EXPECT_EQ(elems_copy.getSize(), 7);
+    EXPECT_EQ(*elems_copy.getPosOf("elem_pos0"), 0U);
+    EXPECT_EQ(*elems_copy.getPosOf("elem3"), 4U);
+    EXPECT_EQ(*elems_copy.getPosOf("elem4"), 5U);
+    EXPECT_EQ(*elems_copy.getPosOf("elem_pos5"), 6U);
+    EXPECT_EQ(elems_copy.getSize(), 7U);
 }
 
 /*****************************************************************************************
@@ -244,8 +237,8 @@ TEST(TesterUtilityDataStructureMap, createAccessRemoveInMap)
         enums.emplace(EnumType("enum4", "some_type", {{"test_val1", "1"}, {"test_val2", "2"}}));
         enums.emplace(EnumType("enum5", "some_type", {{"test_val1", "1"}, {"test_val2", "2"}}));
 
-        EXPECT_EQ(enums.getSize(), 5);
-        ASSERT_EQ(test_validator._change_events.size(), 5);
+        EXPECT_EQ(enums.getSize(), 5U);
+        ASSERT_EQ(test_validator._change_events.size(), 5U);
 
         EXPECT_EQ(test_validator._change_events[0],
                   decltype(test_validator._change_events)::value_type(
@@ -271,7 +264,7 @@ TEST(TesterUtilityDataStructureMap, createAccessRemoveInMap)
         check_enum5_access->setName("new_name_enum5");
 
         // check the events
-        ASSERT_EQ(test_validator._change_events.size(), 7);
+        ASSERT_EQ(test_validator._change_events.size(), 7U);
         EXPECT_EQ(test_validator._change_events[5],
                   decltype(test_validator._change_events)::value_type(
                       {utility::TypeAccessMapEventCode::map_item_renamed, "enum5"}));
@@ -285,7 +278,7 @@ TEST(TesterUtilityDataStructureMap, createAccessRemoveInMap)
         EXPECT_FALSE(check_enum5_access_after_remove);
 
         // check the events
-        EXPECT_EQ(test_validator._change_events.size(), 8);
+        EXPECT_EQ(test_validator._change_events.size(), 8U);
         EXPECT_EQ(test_validator._change_events[7],
                   decltype(test_validator._change_events)::value_type(
                       {utility::TypeAccessMapEventCode::map_item_removed, "new_name_enum5"}));
@@ -295,13 +288,13 @@ TEST(TesterUtilityDataStructureMap, createAccessRemoveInMap)
 
         // but no event is given to the list
         check_enum5_access->setName("back_to_enum5");
-        EXPECT_EQ(test_validator._change_events.size(), 8);
+        EXPECT_EQ(test_validator._change_events.size(), 8U);
 
         enums_copy = enums;
     }
 
     // we copied everything
-    EXPECT_EQ(enums_copy.getSize(), 4);
+    EXPECT_EQ(enums_copy.getSize(), 4U);
     auto check_enum1_access = enums_copy.access("enum1");
     EXPECT_TRUE(check_enum1_access);
     check_enum1_access->setName("new_name_enum1");

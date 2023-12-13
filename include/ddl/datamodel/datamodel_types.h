@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -338,7 +332,7 @@ public: // types
     using Elements = utility::TypeAccessMap<Element, EnumType>;
     /// @cond nodoc
     friend Elements;
-    /// @endcond nodoc
+    /// @endcond
 
 public:
     /**
@@ -1035,7 +1029,7 @@ public:
                const std::string& struct_version = "1",
                OptionalSize alignment = {},
                const std::string& comment = {},
-               dd::Version ddl_version = dd::Version::ddl_version_notset,
+               dd::Version ddl_version = dd::Version(0, 0),
                const std::vector<Element>& elements = {});
     /**
      * @brief equality operator.
@@ -1100,7 +1094,6 @@ public:
     /**
      * @brief Get the Version (the struct version! Not the DDL Version!)
      *
-     * @return const std::string&
      * @remark This is observable.
      */
     void setVersion(const std::string& struct_version);
@@ -1109,7 +1102,7 @@ public:
      * @brief Get the set language Version
      *
      * @return Version
-     * @retval dd::Version::ddl_version_notset if it was not set
+     * @retval dd::Version(0, 0) if it was not set
      */
     Version getLanguageVersion() const;
     /**
@@ -1127,7 +1120,7 @@ public:
     using Elements = utility::TypeAccessList<Element, StructType>;
     /// @cond nodoc
     friend Elements;
-    /// @endcond nodoc
+    /// @endcond
     /**
      * @brief Get the Elements object
      *
@@ -1180,7 +1173,7 @@ public: // types
     using Properties = utility::TypeAccessMap<Property, StreamMetaType>;
     /// @cond nodoc
     friend Properties;
-    /// @endcond nodoc
+    /// @endcond
 
 public:
     /**

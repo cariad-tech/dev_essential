@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/memory/memory.h>
@@ -150,19 +144,19 @@ TEST(memory_test, TestEndianess)
     EXPECT_EQ(a_util::memory::swapEndianess(u8), u8);
 
     const int16_t i16 = 0x5566;
-    EXPECT_EQ(a_util::memory::swapEndianess(i16), (int16_t)0x6655);
+    EXPECT_EQ(a_util::memory::swapEndianess(i16), int16_t{0x6655});
 
     const uint16_t u16 = 0xAABB;
     EXPECT_EQ(a_util::memory::swapEndianess(u16), 0xBBAA);
 
     const int32_t i32 = 0x778899AA;
-    EXPECT_EQ(a_util::memory::swapEndianess(i32), (int32_t)0xAA998877);
+    EXPECT_EQ(a_util::memory::swapEndianess(i32), static_cast<int32_t>(0xAA998877));
 
     const uint32_t u32 = 0xAABBCCDD;
     EXPECT_EQ(a_util::memory::swapEndianess(u32), 0xDDCCBBAA);
 
     const int64_t i64 = 0x778899AABBCCDDEE;
-    EXPECT_EQ(a_util::memory::swapEndianess(i64), (int64_t)0xEEDDCCBBAA998877LL);
+    EXPECT_EQ(a_util::memory::swapEndianess(i64), static_cast<int64_t>(0xEEDDCCBBAA998877));
 
     const uint64_t u64 = 0xBBAAFFEEDDCCBBAA;
     EXPECT_EQ(a_util::memory::swapEndianess(u64), 0xAABBCCDDEEFFAABBULL);

@@ -4,39 +4,31 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
+#ifdef _WIN32
+#include <winsock2.h>
+#endif // _WIN32
 
 #include <a_util/strings/strings_functions.h>
 #include <rpc/rpc.h>
 
+#include <gtest/gtest.h>
 #include <testclientstub.h>
 #include <testserverstub.h>
-
-#ifdef _WIN32
-#ifndef __MINGW32__
-#define NOMINMAX
-#endif // __MINGW32__
-#include <winsock2.h>
-#else
-#include <netinet/in.h>
-#include <sys/socket.h>
-#endif // _WIN32
-
-#include <gtest/gtest.h>
 
 #include <array>
 #include <cstdint>
 #include <future>
 #include <limits>
+
+#ifndef _WIN32
+#include <netinet/in.h>
+#include <sys/socket.h>
+#endif // !_WIN32
 
 typedef rpc::
     jsonrpc_remote_object<rpc_stubs::cTestClientStub, rpc::http::cJSONClientConnector, std::string>
@@ -102,8 +94,8 @@ TEST(cTesterPkgRpc, TestCalls)
 {
     rpc::http::cJSONRPCServer rpc_server;
     cTestServer oTestServer(rpc_server);
-    ASSERT_TRUE(a_util::result::isOk(rpc_server.RegisterRPCObject("test", &oTestServer)));
-    ASSERT_TRUE(a_util::result::isOk(rpc_server.StartListening("http://127.0.0.1:1234")));
+    ASSERT_TRUE(rpc_server.RegisterRPCObject("test", &oTestServer));
+    ASSERT_TRUE(rpc_server.StartListening("http://127.0.0.1:1234"));
 
     cTestClient oClient("http://127.0.0.1:1234/test");
 
@@ -115,7 +107,7 @@ TEST(cTesterPkgRpc, TestCalls)
 #pragma GCC diagnostic ignored "-Wattributes"
 #endif // defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
     const std::string strValue =
-        rpc::cJSONConversions::to_string(std::numeric_limits<std::int64_t>::max());
+        rpc::cJSONConversions::to_string((std::numeric_limits<std::int64_t>::max)());
 #if defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
 #pragma GCC diagnostic pop
 #endif // defined(__GNUC__) && ((__GNUC__ == 5) && (__GNUC_MINOR__ == 2))
@@ -132,14 +124,14 @@ TEST(cTesterPkgRpc, TestCalls)
     ASSERT_TRUE(a_util::strings::isEqual(nResult.getFile(), __FILE__));
     ASSERT_TRUE(nResult.getLine() > 0 && nResult.getLine() < __LINE__);
 
-    ASSERT_TRUE(isOk(rpc::cJSONConversions::json_to_result(oClient.RegisterObject())));
+    ASSERT_TRUE(rpc::cJSONConversions::json_to_result(oClient.RegisterObject()));
     {
         cTestClient oRegisteredObjectClient("http://127.0.0.1:1234/test_register");
         ASSERT_TRUE(oRegisteredObjectClient.GetInteger(1234) == 1234);
     }
-    ASSERT_TRUE(isOk(rpc::cJSONConversions::json_to_result(oClient.UnregisterObject())));
+    ASSERT_TRUE(rpc::cJSONConversions::json_to_result(oClient.UnregisterObject()));
 
-    ASSERT_TRUE(isOk(rpc_server.UnregisterRPCObject("test")));
+    ASSERT_TRUE(rpc_server.UnregisterRPCObject("test"));
 }
 
 /**
@@ -150,8 +142,8 @@ TEST(cTesterPkgRpc, TestObjectNameWithSpaces)
 #define TEST_OBJ_STRING "test with spaces/and even more spaces"
     rpc::http::cJSONRPCServer rpc_server;
     cTestServer oTestServer(rpc_server);
-    ASSERT_TRUE(isOk(rpc_server.RegisterRPCObject(TEST_OBJ_STRING, &oTestServer)));
-    ASSERT_TRUE(isOk(rpc_server.StartListening("http://127.0.0.1:1234")));
+    ASSERT_TRUE(rpc_server.RegisterRPCObject(TEST_OBJ_STRING, &oTestServer));
+    ASSERT_TRUE(rpc_server.StartListening("http://127.0.0.1:1234"));
 
     cTestClient oClient("http://127.0.0.1:1234/" TEST_OBJ_STRING);
     ASSERT_TRUE(oClient.GetInteger(1234) == 1234);
@@ -165,12 +157,12 @@ TEST(HttpServer, TestPortBindingNoReuse)
 {
     rpc::http::cJSONRPCServer rpc_server_1, rpc_server_2, rpc_server_3;
 
-    ASSERT_TRUE(isOk(rpc_server_1.StartListening("http://0.0.0.0:9090", 0)));
-    ASSERT_FALSE(isOk(rpc_server_2.StartListening("http://0.0.0.0:9090", 0)));
-    ASSERT_TRUE(isOk(rpc_server_3.StartListening("http://0.0.0.0:9091", 0)));
+    ASSERT_TRUE(rpc_server_1.StartListening("http://0.0.0.0:9090", 0));
+    ASSERT_FALSE(rpc_server_2.StartListening("http://0.0.0.0:9090", 0));
+    ASSERT_TRUE(rpc_server_3.StartListening("http://0.0.0.0:9091", 0));
+    ASSERT_TRUE(rpc_server_1.StopListening());
 
-    ASSERT_TRUE(isOk(rpc_server_1.StopListening()));
-    ASSERT_TRUE(isOk(rpc_server_3.StopListening()));
+    ASSERT_TRUE(rpc_server_3.StopListening());
 }
 
 /**
@@ -180,7 +172,7 @@ TEST(HttpServer, TestPortBindingNoReuse)
 TEST(HttpServer, TestPortBindingReuse)
 {
     auto sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-    ASSERT_NE(sock_fd, -1);
+    ASSERT_NE(sock_fd, (decltype(sock_fd)) - 1);
 
     // Make 'reuse address' option available
     int reuse = 1;
@@ -207,8 +199,8 @@ TEST(HttpServer, TestPortBindingReuse)
 #endif
 
     rpc::http::cJSONRPCServer rpc_server;
-    ASSERT_TRUE(isOk(rpc_server.StartListening("http://0.0.0.0:9090")));
-    ASSERT_TRUE(isOk(rpc_server.StopListening()));
+    ASSERT_TRUE(rpc_server.StartListening("http://0.0.0.0:9090"));
+    ASSERT_TRUE(rpc_server.StopListening());
 
 #ifdef _WIN32
     closesocket(sock_fd);
@@ -247,54 +239,52 @@ public:
  */
 TEST(HttpServer, WaitDetachedThreads)
 {
-    std::unique_ptr<rpc::http::cJSONRPCServer> rpc_server =
-        std::make_unique<rpc::http::cJSONRPCServer>();
     constexpr size_t server_size = 10;
-
     std::array<bool, server_size> _function_returned{false};
-    std::array<std::unique_ptr<cTestServerWithDelay>, server_size> _server_array;
-    std::array<std::unique_ptr<cTestClient>, server_size> _client_array;
-    std::promise<void> _destructor_called;
-    std::shared_future<void> _destructor_called_future = _destructor_called.get_future();
-    std::array<std::future<void>, server_size> _rpc_called;
-
-    for (size_t i = 0; i < server_size; ++i) {
-        _server_array[i] =
-            std::make_unique<cTestServerWithDelay>(*rpc_server, _function_returned[i]);
-        const std::string service_name = "test" + a_util::strings::toString(i);
-
-        _server_array[i]->_destructor_called = _destructor_called_future;
-        _rpc_called[i] = _server_array[i]->_rpc_called.get_future();
-
-        ASSERT_TRUE(a_util::result::isOk(
-            rpc_server->RegisterRPCObject(service_name.c_str(), _server_array[i].get())));
-
-        const std::string client_url = "http://127.0.0.1:1234/" + service_name;
-        _client_array[i] = std::make_unique<cTestClient>(client_url.c_str());
-    }
-
-    ASSERT_TRUE(a_util::result::isOk(rpc_server->StartListening("http://127.0.0.1:1234")));
-
     std::array<std::thread, server_size> _thread_array;
 
-    // launch threads each calling a separate client
-    for (size_t i = 0; i < server_size; ++i) {
-        _thread_array[i] = std::thread([&, i]() { _client_array[i]->GetInteger(1234); });
+    {
+        rpc::http::cJSONRPCServer rpc_server;
+        std::array<std::unique_ptr<cTestServerWithDelay>, server_size> _server_array;
+        std::array<std::unique_ptr<cTestClient>, server_size> _client_array;
+        std::promise<void> _destructor_called;
+        std::shared_future<void> _destructor_called_future = _destructor_called.get_future();
+        std::array<std::future<void>, server_size> _rpc_called;
+
+        for (size_t i = 0; i < server_size; ++i) {
+            _server_array[i] =
+                std::make_unique<cTestServerWithDelay>(rpc_server, _function_returned[i]);
+            const std::string service_name = "test" + a_util::strings::toString(i);
+
+            _server_array[i]->_destructor_called = _destructor_called_future;
+            _rpc_called[i] = _server_array[i]->_rpc_called.get_future();
+
+            ASSERT_TRUE(rpc_server.RegisterRPCObject(service_name.c_str(), _server_array[i].get()));
+
+            const std::string client_url = "http://127.0.0.1:1234/" + service_name;
+            _client_array[i] = std::make_unique<cTestClient>(client_url.c_str());
+        }
+
+        ASSERT_TRUE(rpc_server.StartListening("http://127.0.0.1:1234"));
+
+        // launch threads each calling a separate client
+        for (size_t i = 0; i < server_size; ++i) {
+            _thread_array[i] = std::thread([&, i]() { _client_array[i]->GetInteger(1234); });
+        }
+
+        // wait that all clients are inside the callback function
+        for (size_t i = 0; i < server_size; ++i) {
+            _rpc_called[i].wait();
+        }
+        // inform clients to unblock the callback
+        _destructor_called.set_value();
+
+        for (size_t i = 0; i < server_size; ++i) {
+            const std::string service_name = "test" + a_util::strings::toString(i);
+            rpc_server.UnregisterRPCObject(service_name.c_str());
+        }
     }
 
-    // wait that all clients are inside the callback function
-    for (size_t i = 0; i < server_size; ++i) {
-        _rpc_called[i].wait();
-    }
-    // inform clients to unblock the callback
-    _destructor_called.set_value();
-
-    for (size_t i = 0; i < server_size; ++i) {
-        const std::string service_name = "test" + a_util::strings::toString(i);
-        rpc_server->UnregisterRPCObject(service_name.c_str());
-    }
-
-    rpc_server.reset();
     // all client callback funtions should return (not really return but continue)
     for (size_t i = 0; i < server_size; ++i) {
         ASSERT_TRUE(_function_returned[i]);

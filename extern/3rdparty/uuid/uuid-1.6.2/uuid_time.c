@@ -106,7 +106,7 @@ int time_usleep(long usec)
     Sleep(usec / 1000);
 #elif defined(WIN32)
     /* Win32 older _sleep(3) variant */
-    _sleep(usec / 1000);
+    Sleep(usec / 1000);
 #elif defined(HAVE_NANOSLEEP)
     /* POSIX newer nanosleep(3) variant */
     struct timespec ts;

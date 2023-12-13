@@ -2,20 +2,11 @@
  * @file
  * Implementation of Named Coding index parser
  *
- * @copyright
- * @verbatim
-Copyright @ 2022 VW Group. All rights reserved.
-
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
-@endverbatim
+ * Copyright @ 2022 VW Group. All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "named_codec_index.h"
@@ -42,7 +33,7 @@ NamedCodecIndex::NamedElementIndex::NamedElementIndex(const std::string& access_
         auto array_end_pos = access_name.length() - 1;
         auto array_end_char = access_name[array_end_pos];
         if (array_end_char == ']' && array_end_pos > array_begin_pos) {
-            _array_pos = a_util::strings::toUInt64(
+            _array_pos = a_util::strings::toNumeric<decltype(_array_pos)>(
                 access_name.substr(array_begin_pos + 1, array_end_pos - array_begin_pos - 1));
             _name = access_name.substr(0, array_begin_pos);
             _resolved_with_array_pos = true;

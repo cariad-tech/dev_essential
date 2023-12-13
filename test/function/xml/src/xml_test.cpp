@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/xml.h>
@@ -39,7 +33,7 @@ TEST(xml_test, TestDOM)
     EXPECT_TRUE(dom.fromString(test_xml));
 
     EXPECT_EQ(dom.getRoot().getName(), "root");
-    EXPECT_TRUE(dom.getRoot().getChildren().size() == 1);
+    EXPECT_EQ(dom.getRoot().getChildren().size(), 1U);
     EXPECT_EQ(dom.getRoot().getAttribute("attr"), "value");
     EXPECT_EQ("blub", dom.getRoot().getChild("blub").getName());
     EXPECT_EQ(dom.getRoot().getChild("blub").getName(), "blub");
@@ -137,11 +131,11 @@ TEST(xml_test, TestDOMCreate)
     EXPECT_FALSE(child01.removeChild(""));
     EXPECT_TRUE(child01.removeChild("Child12"));
     EXPECT_EQ(DOMElement(), child01.getChild("Child12"));
-    EXPECT_EQ(child01.getChildren().size(), 1);
+    EXPECT_EQ(child01.getChildren().size(), 1U);
 
     EXPECT_TRUE(root.removeChild("Child01"));
     EXPECT_EQ(DOMElement(), root.getChild("Child01"));
-    EXPECT_EQ(root.getChildren().size(), 1);
+    EXPECT_EQ(root.getChildren().size(), 1U);
     EXPECT_EQ(root.getChild("Child02"), child02);
 }
 
@@ -210,66 +204,66 @@ TEST(xml_test, TestQueries)
 
         EXPECT_TRUE(dom.findNode("level_1/level_2[@l1id='3']/trueunique", element));
         EXPECT_TRUE(dom.findNodes("level_1/level_2[@l1id='3']/trueunique", node_list));
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
         node_list.clear();
 
         EXPECT_FALSE(dom.findNode("level_1/level_2[@l1id='2']/trueunique", element));
         EXPECT_FALSE(dom.findNodes("level_1/level_2[@l1id='2']/trueunique", node_list));
         EXPECT_EQ(DOMElement(), element);
-        EXPECT_TRUE(node_list.size() == 0);
+        EXPECT_EQ(node_list.size(), 0U);
 
         ASSERT_TRUE(dom.findNode("level_1[@id='1']/level_2[@id='2']", element));
         EXPECT_TRUE(dom.findNodes("level_1[@id='1']/level_2[@id='2']", node_list));
         EXPECT_EQ(element.getAttribute("name"), "beta");
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
 
         ASSERT_TRUE(dom.findNode("level_1/level_2[@id='2'][@name='beta']", element));
         EXPECT_TRUE(dom.findNodes("level_1/level_2[@id='2'][@l1id='1']", node_list));
         EXPECT_EQ(element.getAttribute("name"), "beta");
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
 
         EXPECT_TRUE(dom.findNode("level_1/*[@l1id='1']", element));
         EXPECT_TRUE(dom.findNodes("level_1/*[@l1id='1']", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
 
         EXPECT_FALSE(dom.findNode("level_1/*[@l1id='7']", element));
         EXPECT_FALSE(dom.findNodes("level_1/*[@l1id='7']", node_list));
-        EXPECT_TRUE(0 == node_list.size());
+        EXPECT_EQ(0U, node_list.size());
         EXPECT_EQ(DOMElement(), element);
 
         ASSERT_TRUE(dom.findNode("level_1/*[@id='3'][@l1id='1']", element));
         EXPECT_TRUE(dom.findNodes("level_1/*[@id='3'][@l1id='1']", node_list));
-        EXPECT_TRUE(1 == node_list.size());
+        EXPECT_EQ(1U, node_list.size());
         EXPECT_EQ(element.getAttribute("name"), "gamma");
 
         EXPECT_FALSE(dom.findNode("level_1/*[@id='3'][@l1id='7']", element));
         EXPECT_FALSE(dom.findNodes("level_1/*[@id='3'][@l1id='7']", node_list));
-        EXPECT_TRUE(0 == node_list.size());
+        EXPECT_EQ(0U, node_list.size());
         EXPECT_EQ(DOMElement(), element);
 
         ASSERT_TRUE(dom.findNode("*", element));
         EXPECT_TRUE(dom.findNodes("*", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
         EXPECT_EQ(element.getAttribute("id"), "1");
 
         ASSERT_TRUE(dom.findNode("level_1[@id='3']/*/unique", element));
         EXPECT_TRUE(dom.findNodes("level_1[@id='3']/*/unique", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
         EXPECT_EQ(element.getAttribute("description"), "unique_3");
 
         ASSERT_TRUE(dom.findNode("level_1[@id='3']/*", element));
         EXPECT_TRUE(dom.findNodes("level_1[@id='3']/*", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
         EXPECT_EQ(element.getAttribute("id"), "1");
 
         ASSERT_TRUE(dom.findNode("/root/*/*/*", element));
         EXPECT_TRUE(dom.findNodes("/root/*/*/*", node_list));
-        EXPECT_TRUE(10 == node_list.size());
+        EXPECT_EQ(10U, node_list.size());
         EXPECT_EQ(element.getAttribute("description"), "unique");
 
         ASSERT_TRUE(dom.findNode("/root/*/level_2[@id='2']/*", element));
         EXPECT_TRUE(dom.findNodes("/root/*/level_2[@id='2']/*", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
         EXPECT_EQ(element.getAttribute("description"), "unique");
     }
     {
@@ -281,41 +275,41 @@ TEST(xml_test, TestQueries)
 
         EXPECT_TRUE(root_element.findNode("level_1/level_2[@l1id='3']/trueunique", element));
         EXPECT_TRUE(root_element.findNodes("level_1/level_2[@l1id='3']/trueunique", node_list));
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
         node_list.clear();
 
         EXPECT_FALSE(root_element.findNode("level_1/level_2[@l1id='2']/trueunique", element));
         EXPECT_FALSE(root_element.findNodes("level_1/level_2[@l1id='2']/trueunique", node_list));
         EXPECT_EQ(DOMElement(), element);
-        EXPECT_TRUE(node_list.size() == 0);
+        EXPECT_EQ(node_list.size(), 0U);
 
         ASSERT_TRUE(root_element.findNode("level_1[@id='1']/level_2[@id='2']", element));
         EXPECT_TRUE(root_element.findNodes("level_1[@id='1']/level_2[@id='2']", node_list));
         EXPECT_EQ(element.getAttribute("name"), "beta");
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
 
         ASSERT_TRUE(root_element.findNode("level_1/level_2[@id='2'][@name='beta']", element));
         EXPECT_TRUE(root_element.findNodes("level_1/level_2[@id='2'][@l1id='1']", node_list));
         EXPECT_EQ(element.getAttribute("name"), "beta");
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
 
         EXPECT_TRUE(root_element.findNode("level_1/*[@l1id='1']", element));
         EXPECT_TRUE(root_element.findNodes("level_1/*[@l1id='1']", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
 
         EXPECT_FALSE(root_element.findNode("level_1/*[@l1id='7']", element));
         EXPECT_FALSE(root_element.findNodes("level_1/*[@l1id='7']", node_list));
-        EXPECT_TRUE(0 == node_list.size());
+        EXPECT_EQ(0U, node_list.size());
         EXPECT_EQ(DOMElement(), element);
 
         ASSERT_TRUE(root_element.findNode("level_1/*[@id='3'][@l1id='1']", element));
         EXPECT_TRUE(root_element.findNodes("level_1/*[@id='3'][@l1id='1']", node_list));
-        EXPECT_TRUE(1 == node_list.size());
+        EXPECT_EQ(1U, node_list.size());
         EXPECT_EQ(element.getAttribute("name"), "gamma");
 
         EXPECT_FALSE(root_element.findNode("level_1/*[@id='3'][@l1id='7']", element));
         EXPECT_FALSE(root_element.findNodes("level_1/*[@id='3'][@l1id='7']", node_list));
-        EXPECT_TRUE(0 == node_list.size());
+        EXPECT_EQ(0U, node_list.size());
         EXPECT_EQ(DOMElement(), element);
     }
     {
@@ -329,42 +323,42 @@ TEST(xml_test, TestQueries)
         EXPECT_TRUE(root_element.findNode("/root/level_1/level_2[@l1id='3']/trueunique", element));
         EXPECT_TRUE(
             root_element.findNodes("/root/level_1/level_2[@l1id='3']/trueunique", node_list));
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
         node_list.clear();
 
         EXPECT_FALSE(root_element.findNode("/root/level_1/level_2[@l1id='2']/trueunique", element));
         EXPECT_FALSE(
             root_element.findNodes("/root/level_1/level_2[@l1id='2']/trueunique", node_list));
         EXPECT_EQ(DOMElement(), element);
-        EXPECT_TRUE(node_list.size() == 0);
+        EXPECT_EQ(node_list.size(), 0U);
 
         ASSERT_TRUE(root_element.findNode("/root/level_1[@id='1']/level_2[@id='2']", element));
         EXPECT_TRUE(root_element.findNodes("/root/level_1[@id='1']/level_2[@id='2']", node_list));
         EXPECT_EQ(element.getAttribute("name"), "beta");
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
 
         ASSERT_TRUE(root_element.findNode("/root/level_1/level_2[@id='2'][@name='beta']", element));
         EXPECT_TRUE(root_element.findNodes("/root/level_1/level_2[@id='2'][@l1id='1']", node_list));
         EXPECT_EQ(element.getAttribute("name"), "beta");
-        EXPECT_TRUE(node_list.size() == 1);
+        EXPECT_EQ(node_list.size(), 1U);
 
         EXPECT_TRUE(root_element.findNode("/root/level_1/*[@l1id='1']", element));
         EXPECT_TRUE(root_element.findNodes("/root/level_1/*[@l1id='1']", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
 
         EXPECT_FALSE(root_element.findNode("/root/level_1/*[@l1id='7']", element));
         EXPECT_FALSE(root_element.findNodes("/root/level_1/*[@l1id='7']", node_list));
-        EXPECT_TRUE(0 == node_list.size());
+        EXPECT_EQ(0U, node_list.size());
         EXPECT_EQ(DOMElement(), element);
 
         ASSERT_TRUE(root_element.findNode("/root/level_1/*[@id='3'][@l1id='1']", element));
         EXPECT_TRUE(root_element.findNodes("/root/level_1/*[@id='3'][@l1id='1']", node_list));
-        EXPECT_TRUE(1 == node_list.size());
+        EXPECT_EQ(1U, node_list.size());
         EXPECT_EQ(element.getAttribute("name"), "gamma");
 
         EXPECT_FALSE(root_element.findNode("/root/level_1/*[@id='3'][@l1id='7']", element));
         EXPECT_FALSE(root_element.findNodes("/root/level_1/*[@id='3'][@l1id='7']", node_list));
-        EXPECT_TRUE(0 == node_list.size());
+        EXPECT_EQ(0U, node_list.size());
         EXPECT_EQ(DOMElement(), element);
     }
     {
@@ -378,12 +372,12 @@ TEST(xml_test, TestQueries)
 
         ASSERT_TRUE(dom.findNode("//level_1", dom_element));
         EXPECT_TRUE(dom.findNodes("//level_1", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
         EXPECT_EQ(dom_element.getAttribute("id"), "1");
 
         ASSERT_TRUE(dom.findNode("//level_2", dom_element));
         EXPECT_TRUE(dom.findNodes("//level_2", node_list));
-        EXPECT_TRUE(9 == node_list.size());
+        EXPECT_EQ(9U, node_list.size());
         EXPECT_EQ(dom_element.getAttribute("id"), "1");
 
         DOMAttributes level2_first_node_expected_attributes;
@@ -395,35 +389,35 @@ TEST(xml_test, TestQueries)
 
         ASSERT_TRUE(dom.findNode("/root//level_2/unique[@description='unique_2']", dom_element));
         EXPECT_TRUE(dom.findNodes("/root//level_2/unique[@description='unique_2']", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
         EXPECT_EQ(dom_element.getAttribute("description"), "unique_2");
 
         DOMElement node;
         ASSERT_TRUE(dom.findNode("level_1", node));
         ASSERT_TRUE(node.findNode(".//unique", dom_element));
         EXPECT_TRUE(node.findNodes(".//unique", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
         EXPECT_EQ(dom_element.getAttribute("description"), "unique");
 
         ASSERT_TRUE(dom.findNode("//root", dom_element));
         EXPECT_TRUE(dom.findNodes("//root", node_list));
-        EXPECT_TRUE(1 == node_list.size());
+        EXPECT_EQ(1U, node_list.size());
         EXPECT_EQ(dom_element.getName(), "root");
 
         ASSERT_TRUE(dom.findNode("//*", dom_element));
         EXPECT_TRUE(dom.findNodes("//*", node_list));
 
-        EXPECT_TRUE(23 == node_list.size());
+        EXPECT_EQ(23U, node_list.size());
         EXPECT_EQ(dom_element.getName(), "root");
 
         ASSERT_TRUE(dom.findNode(".//*", dom_element));
         EXPECT_TRUE(dom.findNodes(".//*", node_list));
-        EXPECT_TRUE(22 == node_list.size());
+        EXPECT_EQ(22U, node_list.size());
         EXPECT_EQ(dom_element.getName(), "level_1");
 
         ASSERT_TRUE(dom.findNode("/*//*", dom_element));
         EXPECT_TRUE(dom.findNodes("/*//*", node_list));
-        EXPECT_TRUE(22 == node_list.size());
+        EXPECT_EQ(22U, node_list.size());
         EXPECT_EQ(dom_element.getName(), "level_1");
     }
     {
@@ -435,18 +429,18 @@ TEST(xml_test, TestQueries)
 
         EXPECT_TRUE(dom.findNode("/root/*/*[@id='2' and @name='epsilon']/unique", dom_element));
         EXPECT_TRUE(dom.findNodes("/root/*/*[@id='2' and @name='epsilon']/unique", node_list));
-        EXPECT_TRUE(1 == node_list.size());
+        EXPECT_EQ(1U, node_list.size());
         ASSERT_TRUE(dom.findNode("/root/*/*[@id='2' and @name='epsilon']/unique", dom_element));
         EXPECT_TRUE(dom.findNodes("/root/*/*[@id='2' and @name='epsilon']/unique", node_list));
-        EXPECT_TRUE(1 == node_list.size());
+        EXPECT_EQ(1U, node_list.size());
         EXPECT_EQ(dom_element.getAttribute("description"), "unique_2");
 
         EXPECT_TRUE(dom.findNode("/root/*/*[@id='3' or @name='epsilon']/unique", dom_element));
         EXPECT_TRUE(dom.findNodes("/root/*/*[@id='3' or @name='epsilon']/unique", node_list));
-        EXPECT_TRUE(4 == node_list.size());
+        EXPECT_EQ(4U, node_list.size());
         ASSERT_TRUE(dom.findNode("/root/*/*[@id='3' or @name='epsilon']/unique", dom_element));
         EXPECT_TRUE(dom.findNodes("/root/*/*[@id='3' or @name='epsilon']/unique", node_list));
-        EXPECT_TRUE(4 == node_list.size());
+        EXPECT_EQ(4U, node_list.size());
         EXPECT_EQ(dom_element.getAttribute("description"), "unique");
     }
 
@@ -459,19 +453,19 @@ TEST(xml_test, TestQueries)
 
         EXPECT_TRUE(dom.findNode(".//*[@id and @level and @l1id and @name]", dom_element));
         EXPECT_TRUE(dom.findNodes(".//*[@id and @level and @l1id and @name]", node_list));
-        EXPECT_TRUE(9 == node_list.size());
+        EXPECT_EQ(9U, node_list.size());
 
         EXPECT_TRUE(dom.findNode(".//*[@id]", dom_element));
         EXPECT_TRUE(dom.findNodes(".//*[@id]", node_list));
-        EXPECT_TRUE(12 == node_list.size());
+        EXPECT_EQ(12U, node_list.size());
 
         EXPECT_TRUE(dom.findNode(".//*[@description]", dom_element));
         EXPECT_TRUE(dom.findNodes(".//*[@description]", node_list));
-        EXPECT_TRUE(9 == node_list.size());
+        EXPECT_EQ(9U, node_list.size());
 
         EXPECT_TRUE(dom.findNode(".//*[@id='3' and @l1id and @level and @name]", dom_element));
         EXPECT_TRUE(dom.findNodes(".//*[@id='3' and @l1id and @level and @name]", node_list));
-        EXPECT_TRUE(3 == node_list.size());
+        EXPECT_EQ(3U, node_list.size());
     }
 }
 

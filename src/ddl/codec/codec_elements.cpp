@@ -4,15 +4,9 @@
  *
  * Copyright @ 2022 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "codec_elements.h"
@@ -58,7 +52,7 @@ TypeSize getTypeSizes(const dd::TypeInfo& info) noexcept
         info.getTypeAlignedByteSize(),   // deserialized_bytes_aligned
         info.getTypeByteSize(),          // deserialized_bytes
         info.getTypeAlignment(),         // type_alignment
-        dd::Version::ddl_version_notset, // type_ddl_version
+        dd::Version(0, 0),               // type_ddl_version
         info.isDynamic()                 // is_dynamic
     };
 }
@@ -68,14 +62,14 @@ void calculateDeserializedTypeSize(const ElementLayoutBase& base_layout_last,
                                    const dd::Version& file_dd_version)
 {
     const auto& relevant_version = [&type_sizes, &file_dd_version]() {
-        if (type_sizes.type_ddl_version != dd::Version::ddl_version_notset) {
+        if (type_sizes.type_ddl_version != dd::Version(0, 0)) {
             return type_sizes.type_ddl_version;
         }
-        else if (file_dd_version != dd::Version::ddl_version_notset) {
+        else if (file_dd_version != dd::Version(0, 0)) {
             return file_dd_version;
         }
         else {
-            return dd::Version::ddl_version_current;
+            return dd::Version::getLatestVersion();
         }
     }();
 
@@ -86,7 +80,7 @@ void calculateDeserializedTypeSize(const ElementLayoutBase& base_layout_last,
         (base_layout_last.deserialized.bit_size / byte_size_in_bits);
     type_sizes.deserialized_bytes_aligned = calculateAlignedSizeOrPos(
         type_sizes.deserialized_bytes_unaligned, type_sizes.type_alignment);
-    if (relevant_version >= dd::Version::ddl_version_30) {
+    if (relevant_version >= dd::Version(3, 0)) {
         // since 3.0 there is no difference between aligned and non aligned
         type_sizes.deserialized_bytes = type_sizes.deserialized_bytes_aligned;
     }
@@ -881,8 +875,21 @@ std::vector<std::pair<ElementLayout, CodecIndex>> getAllStaticLayouts(
 
 bool isLayoutBinarySubset(const ElementLayout& layout_left, const ElementLayout& layout_right)
 {
+    // padding bytes are defined as an array of uint8_t elements
     if (layout_left.type_info->getType() != layout_right.type_info->getType()) {
-        return false;
+        if (layout_right.type_info->getType() == ElementType::cet_uint8) {
+            // this might be a padding byte
+            // we go ahead within the padding bytes until we find the current position left
+            if (layout_left.deserialized.bit_offset != layout_right.deserialized.bit_offset) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            return false;
+        }
     }
     if (layout_left.deserialized.bit_offset != layout_right.deserialized.bit_offset) {
         return false;
@@ -933,7 +940,7 @@ a_util::result::Result ChildElementAccess::isBinaryEqual(const ChildElementAcces
         for (const auto& current_value: layouts_left) {
             auto result =
                 isLayoutBinaryEqual(current_value.first, layouts_right[current_leaf_index].first);
-            if (a_util::result::isFailed(result)) {
+            if (!result) {
                 RETURN_ERROR_DESCRIPTION(
                     result.getErrorCode(),
                     "%s in element '%s' and element '%s'",
@@ -979,7 +986,7 @@ a_util::result::Result ChildElementAccess::isBinarySubset(const ChildElementAcce
     size_t current_leaf_index_right = 0;
     // try to find a leaf for each left non padding element
     for (const auto& current_value: layouts_left) {
-        if (getBaseName(current_value.second, 0) != "_padding") {
+        if (current_value.first.type_info->getType() != ElementType::cet_uint8) {
             current_leaf_index_right =
                 findEqualLeafLayout(current_value.first, current_leaf_index_right, layouts_right);
             if (current_leaf_index_right == static_cast<size_t>(-1)) {
@@ -1163,14 +1170,14 @@ StructAccess::StructAccess()
 
 StructAccess::StructAccess(const ddl::dd::StructTypeAccess& struct_type_access,
                            ddl::dd::Version dd_version)
-    : _init_result(ERR_NOT_INITIALIZED),
+    : _is_dynamic(struct_type_access.isDynamic()),
+      _init_result(ERR_NOT_INITIALIZED),
       _dd_version(dd_version),
       _all_types(std::make_shared<CodecTypes>()),
       _all_constants(std::make_shared<CodecConstants>()),
       _empty_constant(new CodecConstantInfo(nullptr, nullptr)),
       _all_default_values(std::make_shared<CodecDefaultValues>()),
-      _empty_default(new CodecDefaultValueInfo(a_util::variant::Variant())),
-      _is_dynamic(struct_type_access.isDynamic())
+      _empty_default(new CodecDefaultValueInfo(a_util::variant::Variant()))
 {
     try {
         _single_codec_access_element.initializeStatic(nullptr, struct_type_access, *this);
@@ -1287,7 +1294,7 @@ void StructAccess::resolveDynamic(ArraySizeResolverFunction array_resolver)
 {
     _resolved_dynamics = true;
     try {
-        if (a_util::result::isOk(_init_result)) {
+        if (_init_result) {
             _single_codec_access_element.resolveDynamics(
                 NamedCodecIndex(), array_resolver, _dd_version);
             resolveDynamicStructSize();

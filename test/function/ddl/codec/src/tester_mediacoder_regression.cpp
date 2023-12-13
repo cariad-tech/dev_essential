@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "../../_common/adtf_compat.h"
@@ -24,8 +18,6 @@
 #include <gtest/gtest.h>
 
 #define PLATFORM_BYTEORDER __get_platform_byteorder()
-
-_MAKE_RESULT(-20, ERR_NOT_FOUND);
 
 /**
  * This function retrieves the platform dependent byte order.
@@ -71,9 +63,9 @@ TEST(cTesterMediaCoder, TestParseStructureSimple)
     ASSERT_NO_THROW(oCodec.getElement("ui32SubType").setValue(ui32SubType));
     ASSERT_NO_THROW(oCodec.getElement("ui32Flags").setValue(ui32Flags));
 
-    ASSERT_EQ(sInfo.ui32Flags, (uint32_t)3);
-    ASSERT_EQ(sInfo.ui32SubType, (uint32_t)2);
-    ASSERT_EQ(sInfo.ui32MajorType, (uint32_t)1);
+    ASSERT_EQ(sInfo.ui32Flags, 3u);
+    ASSERT_EQ(sInfo.ui32SubType, 2u);
+    ASSERT_EQ(sInfo.ui32MajorType, 1u);
 }
 
 /**
@@ -114,13 +106,13 @@ TEST(cTesterMediaCoder, TestParseNotSoVerySimple)
     ASSERT_NO_THROW(oCodec.getElement("value2.ui32SubType").setValue(ui32SubType));
     ASSERT_NO_THROW(oCodec.getElement("value2.ui32Flags").setValue(ui32Flags));
 
-    ASSERT_EQ(sMyType.sInfo1.ui32Flags, (uint32_t)3);
-    ASSERT_EQ(sMyType.sInfo1.ui32SubType, (uint32_t)2);
-    ASSERT_EQ(sMyType.sInfo1.ui32MajorType, (uint32_t)1);
+    ASSERT_EQ(sMyType.sInfo1.ui32Flags, 3u);
+    ASSERT_EQ(sMyType.sInfo1.ui32SubType, 2u);
+    ASSERT_EQ(sMyType.sInfo1.ui32MajorType, 1u);
 
-    ASSERT_EQ(sMyType.sInfo2.ui32Flags, (uint32_t)3);
-    ASSERT_EQ(sMyType.sInfo2.ui32SubType, (uint32_t)2);
-    ASSERT_EQ(sMyType.sInfo2.ui32MajorType, (uint32_t)1);
+    ASSERT_EQ(sMyType.sInfo2.ui32Flags, 3u);
+    ASSERT_EQ(sMyType.sInfo2.ui32SubType, 2u);
+    ASSERT_EQ(sMyType.sInfo2.ui32MajorType, 1u);
 }
 
 /**
@@ -163,13 +155,13 @@ TEST(cTesterMediaCoder, TestParseALittleBitDifficult)
     ASSERT_NO_THROW(
         oCodec.getElement("value2").setRawValue(&sMyType.sInfo1, sizeof(sMyType.sInfo1)));
 
-    ASSERT_EQ(sMyType.sInfo1.ui32MajorType, (uint32_t)1);
-    ASSERT_EQ(sMyType.sInfo1.ui32SubType, (uint32_t)2);
-    ASSERT_EQ(sMyType.sInfo1.ui32Flags, (uint32_t)3);
+    ASSERT_EQ(sMyType.sInfo1.ui32MajorType, 1u);
+    ASSERT_EQ(sMyType.sInfo1.ui32SubType, 2u);
+    ASSERT_EQ(sMyType.sInfo1.ui32Flags, 3u);
 
-    ASSERT_EQ(sMyType.sInfo2.ui32MajorType, (uint32_t)1);
-    ASSERT_EQ(sMyType.sInfo2.ui32SubType, (uint32_t)2);
-    ASSERT_EQ(sMyType.sInfo2.ui32Flags, (uint32_t)3);
+    ASSERT_EQ(sMyType.sInfo2.ui32MajorType, 1u);
+    ASSERT_EQ(sMyType.sInfo2.ui32SubType, 2u);
+    ASSERT_EQ(sMyType.sInfo2.ui32Flags, 3u);
 }
 
 /**
@@ -184,7 +176,7 @@ TEST(cTesterMediaCoder, TestParseOnlyDataTypes)
         strDataTypeToParse.append("</datatype>");
         codec::CodecFactory oFactory("tMyType", strDataTypeToParse.c_str());
         ASSERT_NE(a_util::result::SUCCESS, oFactory.isValid());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 0);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 0U);
     }
 
     {
@@ -193,7 +185,7 @@ TEST(cTesterMediaCoder, TestParseOnlyDataTypes)
 
         codec::CodecFactory oFactory("tMyType", strDataTypeToParse.c_str());
         ASSERT_NE(a_util::result::SUCCESS, oFactory.isValid());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 0);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 0U);
     }
 
     {
@@ -202,7 +194,7 @@ TEST(cTesterMediaCoder, TestParseOnlyDataTypes)
         strDataTypeToParse.append("</datatype></datatypes></test>");
         codec::CodecFactory oFactory("tMyType", strDataTypeToParse.c_str());
         ASSERT_NE(a_util::result::SUCCESS, oFactory.isValid());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 0);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 0U);
     }
 
     {
@@ -212,7 +204,7 @@ TEST(cTesterMediaCoder, TestParseOnlyDataTypes)
         strDataTypeToParse.append("</datatype></datatypes></test>");
         codec::CodecFactory oFactory("tMyType", strDataTypeToParse.c_str());
         ASSERT_NE(a_util::result::SUCCESS, oFactory.isValid());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 0);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 0U);
     }
 }
 
@@ -229,7 +221,7 @@ TEST(cTesterMediaCoder, TestParseOnlyStruct)
         strStructToParse.append("</struct>");
         codec::CodecFactory oFactory("mystruct", strStructToParse.c_str());
         ASSERT_EQ(a_util::result::SUCCESS, oFactory.isValid());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 0);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 0U);
     }
 
     {
@@ -238,7 +230,7 @@ TEST(cTesterMediaCoder, TestParseOnlyStruct)
         strStructToParse.append("</struct>");
         codec::CodecFactory oFactory("mystruct", strStructToParse.c_str());
         ASSERT_EQ(a_util::result::SUCCESS, oFactory.isValid());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 0);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 0U);
     }
 
     {
@@ -250,7 +242,7 @@ TEST(cTesterMediaCoder, TestParseOnlyStruct)
                                 "arraysize=\"1\" byteorder=\"LE\" alignment=\"1\"/>");
         strStructToParse.append("</struct>");
         codec::CodecFactory oFactory("tMyType", strStructToParse.c_str());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 2);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 2U);
     }
 
     {
@@ -263,7 +255,7 @@ TEST(cTesterMediaCoder, TestParseOnlyStruct)
                                 "arraysize=\"1\" byteorder=\"LE\" alignment=\"1\"/>");
         strStructToParse.append("</struct></structs>");
         codec::CodecFactory oFactory("tMyType", strStructToParse.c_str());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 2);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 2U);
     }
 
     {
@@ -276,7 +268,7 @@ TEST(cTesterMediaCoder, TestParseOnlyStruct)
                                 "arraysize=\"1\" byteorder=\"LE\" alignment=\"1\"/>");
         strStructToParse.append("</struct></structs></test>");
         codec::CodecFactory oFactory("tMyType", strStructToParse.c_str());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 2);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 2U);
     }
 
     {
@@ -289,7 +281,7 @@ TEST(cTesterMediaCoder, TestParseOnlyStruct)
         strStructToParse.append("</struct></test>");
         codec::CodecFactory oFactory("tMyType", strStructToParse.c_str());
         ASSERT_NE(a_util::result::SUCCESS, oFactory.isValid());
-        ASSERT_EQ(oFactory.getStaticElementCount(), 0);
+        ASSERT_EQ(oFactory.getStaticElementCount(), 0U);
     }
 }
 
@@ -351,8 +343,11 @@ void CheckAlignedStructElementCoderAccess(codec::Codec& oCodec,
                                           const S* pReference,
                                           const char* strPrefix = "")
 {
-    uint16_t ui16Value;
-    uint8_t ui8Value;
+    auto ui16Value = static_cast<uint16_t>(-1);
+    auto ui8Value = static_cast<uint8_t>(-1);
+    ASSERT_NE(ui16Value, pReference->firstvalue);
+    ASSERT_NE(ui8Value, pReference->secondvalue);
+
     std::string strFmt = a_util::strings::format("%sfirstvalue", strPrefix);
     ASSERT_NO_THROW(oCodec.getElement(strFmt).getRawValue((void*)&ui16Value, 0));
     ASSERT_EQ(ui16Value, pReference->firstvalue);
@@ -538,6 +533,7 @@ void CheckAlignedStructArrayCoderAccess(codec::Codec& oCodec, const A* pReferenc
 
     // Ref check
     delete pValCheck;
+    pValCheck = nullptr;
 
     ASSERT_NO_THROW(pValCheck = static_cast<A*>(oCodec.getElement("").getAddress()));
     ASSERT_NE(pValCheck, nullptr);
@@ -1191,15 +1187,15 @@ TEST(cTesterMediaCoder, TestCoderForEverySerializationPathDifferentPositionToget
     ASSERT_EQ(ui16Value, 0x01);
     ui32Value = 0x01;
     ASSERT_NO_THROW(oCodec.getElement("value11bits3").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
     ui32Value = 0x00;
     ASSERT_NO_THROW(oCodec.getElement("value14bits25").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x01FFFFFF);
+    ASSERT_EQ(ui32Value, 0x01FFFFFFu);
     ui32Value = 0xFFFF;
     ASSERT_NO_THROW(oCodec.getElement("value45bits32").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
     ASSERT_NO_THROW(oCodec.getElement("value85bits3").getRawValue(&ui8Value, 0));
-    ASSERT_EQ(ui8Value, (uint8_t)0x07);
+    ASSERT_EQ(ui8Value, uint8_t{0x07});
 }
 
 /**
@@ -1273,16 +1269,16 @@ TEST(cTesterMediaCoder, TestCoderForEverySerializationPathDifferentPositionToget
     ASSERT_EQ(ui16Value, 0x00);
     ui32Value = 0x01;
     ASSERT_NO_THROW(oCodec.getElement("value11bits3").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x07);
+    ASSERT_EQ(ui32Value, 0x07u);
     ui32Value = 0xFEFE;
     ASSERT_NO_THROW(oCodec.getElement("value14bits25").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
     ui32Value = 0xFFFF;
     ASSERT_NO_THROW(oCodec.getElement("value45bits32").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0xFFFFFFFF);
+    ASSERT_EQ(ui32Value, 0xFFFFFFFFu);
     ASSERT_NO_THROW(oCodec.getElement("value85bits3").getRawValue(&ui8Value, 0));
     // this is because only 1 byte is changed by the get function
-    ASSERT_EQ(ui8Value, (uint8_t)0x00);
+    ASSERT_EQ(ui8Value, uint8_t{0x00});
 }
 
 /**
@@ -1355,16 +1351,16 @@ TEST(cTesterMediaCoder, TestCoderForEverySerializationPathDifferentPositionToget
     ASSERT_EQ(ui16Value, 0x00);
     ui32Value = 0x01;
     ASSERT_NO_THROW(oCodec.getElement("value11bits3").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x07);
+    ASSERT_EQ(ui32Value, 0x07u);
     ui32Value = 0xFEFE;
     ASSERT_NO_THROW(oCodec.getElement("value14bits25").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
     ui32Value = 0xFFFF;
     ASSERT_NO_THROW(oCodec.getElement("value45bits32").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0xFFFFFFFF);
+    ASSERT_EQ(ui32Value, 0xFFFFFFFFu);
     ASSERT_NO_THROW(oCodec.getElement("value85bits3").getRawValue(&ui8Value, 0));
     // this is because only 1 byte is changed by the get function
-    ASSERT_EQ(ui8Value, (uint8_t)0x00);
+    ASSERT_EQ(ui8Value, uint8_t{0x00});
 }
 
 /**
@@ -1437,15 +1433,15 @@ TEST(cTesterMediaCoder, TestCoderForEverySerializationPathDifferentPositionToget
     ASSERT_EQ(ui16Value, 0x01);
     ui32Value = 0x01;
     ASSERT_NO_THROW(oCodec.getElement("value11bits3").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
     ui32Value = 0x00;
     ASSERT_NO_THROW(oCodec.getElement("value14bits25").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x01FFFFFF);
+    ASSERT_EQ(ui32Value, 0x01FFFFFFu);
     ui32Value = 0xFFFF;
     ASSERT_NO_THROW(oCodec.getElement("value45bits32").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
     ASSERT_NO_THROW(oCodec.getElement("value85bits3").getRawValue(&ui8Value, 0));
-    ASSERT_EQ(ui8Value, (uint8_t)0x07);
+    ASSERT_EQ(ui8Value, uint8_t{0x07});
 }
 
 /**
@@ -1539,21 +1535,21 @@ TEST(cTesterMediaCoder,
     ASSERT_EQ(ui16Value, 0x01);
     ui32Value = 0x01;
     ASSERT_NO_THROW(oCodec.getElement("value11bits3").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
     ASSERT_NO_THROW(oCodec.getElement("value14bits25_0").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x01FFFFFF);
+    ASSERT_EQ(ui32Value, 0x01FFFFFFu);
 
     ASSERT_NO_THROW(oCodec.getElement("value14bits25_1").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
 
     ASSERT_NO_THROW(oCodec.getElement("value14bits25_2").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x01FFFFFF);
+    ASSERT_EQ(ui32Value, 0x01FFFFFFu);
 
     ASSERT_NO_THROW(oCodec.getElement("value14bits25_3").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x00);
+    ASSERT_EQ(ui32Value, 0x00u);
 
     ASSERT_NO_THROW(oCodec.getElement("value14bits25_4").getRawValue(&ui32Value, 0));
-    ASSERT_EQ(ui32Value, (uint32_t)0x01FF0FFF);
+    ASSERT_EQ(ui32Value, 0x01FF0FFFu);
 }
 
 /**
@@ -1724,7 +1720,7 @@ TEST(cTesterMediaCoder, TestCheckRightSizeEvaluation)
     size_t nSerSize = oFactory.getStaticBufferSize(serialized);
     size_t nDeSerSize = oFactory.getStaticBufferSize(deserialized);
     size_t nDeserSizeFromStruct = sizeof(tscHCADataAlignedSize);
-    ASSERT_EQ(nDeserSizeFromStruct, 504);
+    ASSERT_EQ(nDeserSizeFromStruct, 504U);
     ASSERT_EQ(nSerSize, nDeSerSize);
     ASSERT_EQ(nDeSerSize, nDeserSizeFromStruct);
 }
@@ -2034,8 +2030,8 @@ TEST(cTesterMediaCoder, TestCoderWithDynamicArraysAlignmentNotOne)
     vecCompare_v20.push_back(ui32Offset_v20);
     vecCompare_v30.push_back(ui32Offset_v30);
 
-    ExecuteTest(sReference_v20, vecCompare_v20, ddl::dd::Version::ddl_version_20);
-    ExecuteTest(sReference_v30, vecCompare_v30, ddl::dd::Version::ddl_version_30);
+    ExecuteTest(sReference_v20, vecCompare_v20, ddl::dd::Version(2, 0));
+    ExecuteTest(sReference_v30, vecCompare_v30, ddl::dd::Version(3, 0));
 }
 
 template <class S>
@@ -2069,7 +2065,7 @@ void ExecuteTest(S sReference,
     strStructure.append("</structs>");
 
     std::string strDDL;
-    if (eVersion == ddl::dd::Version::ddl_version_20) {
+    if (eVersion == ddl::dd::Version(2, 0)) {
         strDDL = strDDLv20Header + strStructure + "</adtf:ddl>";
     }
     else {
@@ -2412,6 +2408,6 @@ TEST(cTesterMediaCoder, TestCoderWithDynamicArraysSizeZero3)
 
     oCodec = oCodec.makeCodecFor(oReadBuffer.getPtr(), oReadBuffer.getSize(), deserialized);
 
-    ASSERT_EQ(oReadBuffer.getSize(), 1);
-    ASSERT_EQ(((uint8_t*)oReadBuffer.getPtr())[0], 0);
+    ASSERT_EQ(oReadBuffer.getSize(), 1U);
+    ASSERT_EQ(((uint8_t*)oReadBuffer.getPtr())[0], 0U);
 }

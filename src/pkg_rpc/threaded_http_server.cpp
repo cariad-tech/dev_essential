@@ -4,15 +4,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "url.h"
@@ -132,11 +126,10 @@ public:
 protected:
     bool handle_request(const httplib::Request& oRequest, httplib::Response& oResponse) override
     {
-        std::string strContentType;
-        bool bResult =
-            m_oServer.HandleRequest(oRequest.url, oRequest.body, oResponse.body, strContentType);
-        oResponse.set_header("Content-Type", strContentType.c_str());
-        return bResult;
+        const auto request = tRequest{
+            oRequest.method, oRequest.url, oRequest.headers, oRequest.body, oRequest.params};
+        auto response = tResponse{oResponse.status, oResponse.headers, oResponse.body};
+        return m_oServer.HandleRequest(request, response);
     }
 
 protected:
@@ -159,6 +152,17 @@ a_util::result::Result cThreadedHttpServer::StartListening(const char* strURL, i
 a_util::result::Result cThreadedHttpServer::StopListening()
 {
     return m_pImplementation->StopListening();
+}
+
+bool cThreadedHttpServer::HandleRequest(const tRequest& sRequest, tResponse& sResponse)
+{
+    std::string strContentType;
+    const bool request_handled =
+        HandleRequest(sRequest.url, sRequest.body, sResponse.body, strContentType);
+    if (request_handled) {
+        sResponse.headers.emplace("Content-Type", strContentType);
+    }
+    return request_handled;
 }
 
 } // namespace detail

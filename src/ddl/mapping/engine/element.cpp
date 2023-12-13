@@ -3,15 +3,9 @@
  *
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include <a_util/memory.h>
@@ -137,36 +131,35 @@ static inline void SetValueImpl(const void* pData,
 TargetElement::TargetElement(Target* pTarget)
     : _target(pTarget),
       _element_ptr(nullptr),
+      _type_map{{"tUInt8", static_cast<uint8_t>(e_uint8)},
+                {"tUInt16", static_cast<uint8_t>(e_uint16)},
+                {"tUInt32", static_cast<uint8_t>(e_uint32)},
+                {"tUInt64", static_cast<uint8_t>(e_uint64)},
+                {"tInt8", static_cast<uint8_t>(e_int8)},
+                {"tInt16", static_cast<uint8_t>(e_int16)},
+                {"tInt32", static_cast<uint8_t>(e_int32)},
+                {"tInt64", static_cast<uint8_t>(e_int64)},
+                {"tFloat32", static_cast<uint8_t>(e_float32)},
+                {"tFloat64", static_cast<uint8_t>(e_float64)},
+                {"tBool", static_cast<uint8_t>(e_bool)},
+                {"tChar", static_cast<uint8_t>(e_char)},
+                {"uint8_t", static_cast<uint8_t>(e_uint8)},
+                {"uint16_t", static_cast<uint8_t>(e_uint16)},
+                {"uint32_t", static_cast<uint8_t>(e_uint32)},
+                {"uint64_t", static_cast<uint8_t>(e_uint64)},
+                {"int8_t", static_cast<uint8_t>(e_int8)},
+                {"int16_t", static_cast<uint8_t>(e_int16)},
+                {"int32_t", static_cast<uint8_t>(e_int32)},
+                {"int64_t", static_cast<uint8_t>(e_int64)},
+                {"float", static_cast<uint8_t>(e_float32)},
+                {"double", static_cast<uint8_t>(e_float64)},
+                {"bool", static_cast<uint8_t>(e_bool)},
+                {"char", static_cast<uint8_t>(e_char)}},
       _type_int(0),
+      _element_access(nullptr),
       _array_size(0),
-      _transformation(nullptr),
-      _element_access(nullptr)
+      _transformation(nullptr)
 {
-    _type_map["tUInt8"] = e_uint8;
-    _type_map["tUInt16"] = e_uint16;
-    _type_map["tUInt32"] = e_uint32;
-    _type_map["tUInt64"] = e_uint64;
-    _type_map["tInt8"] = e_int8;
-    _type_map["tInt16"] = e_int16;
-    _type_map["tInt32"] = e_int32;
-    _type_map["tInt64"] = e_int64;
-    _type_map["tFloat32"] = e_float32;
-    _type_map["tFloat64"] = e_float64;
-    _type_map["tBool"] = e_bool;
-    _type_map["tChar"] = e_char;
-
-    _type_map["uint8_t"] = e_uint8;
-    _type_map["uint16_t"] = e_uint16;
-    _type_map["uint32_t"] = e_uint32;
-    _type_map["uint64_t"] = e_uint64;
-    _type_map["int8_t"] = e_int8;
-    _type_map["int16_t"] = e_int16;
-    _type_map["int32_t"] = e_int32;
-    _type_map["int64_t"] = e_int64;
-    _type_map["float"] = e_float32;
-    _type_map["double"] = e_float64;
-    _type_map["bool"] = e_bool;
-    _type_map["char"] = e_char;
 }
 
 TargetElement::~TargetElement()

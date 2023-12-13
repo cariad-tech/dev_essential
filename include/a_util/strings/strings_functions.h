@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -191,7 +185,7 @@ bool isEqualNoCase(const char* left, const char* right, std::size_t pos, std::si
 std::size_t getLength(const char* str);
 
 /**
- * Copies up to dest_size-1 characters from dest to source, ensuring null termination
+ * Copies up to dest_size-1 characters from source to dest, ensuring null termination
  *
  * @param dest [in] Destination buffer
  * @param dest_size [in] Destination buffer size
@@ -202,7 +196,7 @@ std::size_t getLength(const char* str);
 std::size_t copy(char* dest, std::size_t dest_size, const char* source);
 
 /**
- * Copies up to count characters from dest to source, ensuring null termination
+ * Copies up to count characters from source to dest, ensuring null termination
  *
  * @param dest [in] Destination buffer
  * @param dest_size [in] Destination buffer size

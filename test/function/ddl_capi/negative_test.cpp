@@ -1,15 +1,9 @@
 /**
  * Copyright @ 2021 VW Group. All rights reserved.
  *
- *     This Source Code Form is subject to the terms of the Mozilla
- *     Public License, v. 2.0. If a copy of the MPL was not distributed
- *     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * If it is not possible or desirable to put the notice in a particular file, then
- * You may include the notice in a location (such as a LICENSE file in a
- * relevant directory) where a recipient would be likely to look for such a notice.
- *
- * You may add additional accurate notices of copyright ownership.
+ * This Source Code Form is subject to the terms of the Mozilla
+ * Public License, v. 2.0. If a copy of the MPL was not distributed
+ * with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 #include "test_fixture.h"
@@ -20,7 +14,7 @@
 TEST(negative_tests, loadDDLfromMissingFile)
 {
     DDL_CAPI_Handle_T ddl;
-    int32_t res = ddl_capi_load_from_file(INPUT_DIR "missing.description", &ddl);
+    int32_t res = ddl_capi_load_from_file(TEST_FILES_DIR "missing.description", &ddl);
     ASSERT_TRUE(res);
     const char* error = ddl_capi_last_error(ddl);
     EXPECT_THAT(error, testing::HasSubstr("File was not found")); //
@@ -30,7 +24,7 @@ TEST(negative_tests, loadDDLfromMissingFile)
 TEST(negative_tests, loadDDLfromCorruptFile)
 {
     DDL_CAPI_Handle_T ddl;
-    int32_t res = ddl_capi_load_from_file(INPUT_DIR "corrupt.description", &ddl);
+    int32_t res = ddl_capi_load_from_file(TEST_FILES_DIR "corrupt.description", &ddl);
     ASSERT_TRUE(res);
     const char* error = ddl_capi_last_error(ddl);
     EXPECT_THAT(error, testing::HasSubstr("See validation protocol!"));

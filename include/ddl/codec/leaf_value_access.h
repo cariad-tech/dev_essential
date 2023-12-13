@@ -7,15 +7,9 @@
  * @verbatim
 Copyright @ 2022 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -183,7 +177,7 @@ private:
         if (rep == DataRepresentation::deserialized) {
             leaf_layout.data_flags = static_cast<uint8_t>(LeafDataRepresentation::deserialized);
             leaf_layout.byte_pos = static_cast<uint32_t>(layout.deserialized.bit_offset / 8);
-            if (layout.deserialized.bit_size > std::numeric_limits<uint8_t>::max()) {
+            if (layout.deserialized.type_bit_size > (std::numeric_limits<uint8_t>::max)()) {
                 return false;
             }
             // no bitpos in serialized representation
@@ -197,7 +191,7 @@ private:
             leaf_layout.bit_pos = layout.serialized.bit_offset % 8;
             leaf_layout.byte_pos = static_cast<uint32_t>(layout.serialized.bit_offset / 8 +
                                                          ((leaf_layout.bit_pos == 0) ? 0 : 1));
-            if (layout.deserialized.bit_size > std::numeric_limits<uint8_t>::max()) {
+            if (layout.serialized.type_bit_size_used > (std::numeric_limits<uint8_t>::max)()) {
                 return false;
             }
             leaf_layout.bit_size = static_cast<uint8_t>(layout.serialized.type_bit_size_used);
@@ -222,7 +216,7 @@ private:
         if (!convertToLeafLayout(codec_index, leaf_layout, rep, throw_error<false>{})) {
             throw std::runtime_error(
                 "element size exceeds maximal bit size for small leaf layout of" +
-                std::to_string(std::numeric_limits<uint8_t>::max()));
+                std::to_string((std::numeric_limits<uint8_t>::max)()));
         }
         return true;
     }
@@ -560,10 +554,10 @@ TargetValueType readBits(const void* data,
                          size_t bit_size,
                          a_util::memory::Endianess byte_order)
 {
-    ElementValueType value;
+    ElementValueType value{};
     a_util::memory::BitSerializer bit_reader(const_cast<void*>(data), data_size);
     auto res = bit_reader.read<ElementValueType>(bit_offset, bit_size, &value, byte_order);
-    if (a_util::result::isOk(res)) {
+    if (res) {
         return TargetValueConverter<ElementValueType, TargetValueType>::convert(value);
     }
     throw std::runtime_error(res.getDescription());
@@ -590,11 +584,12 @@ void writeBits(void* data,
                a_util::memory::Endianess byte_order,
                const SourceValueType& source_value)
 {
-    ElementValueType value;
+    ElementValueType value{};
     if (SourceValueConverter<ElementValueType, SourceValueType>::convert(value, source_value)) {
         a_util::memory::BitSerializer bit_reader(data, data_size);
-        auto res = bit_reader.write<ElementValueType>(bit_offset, bit_size, value, byte_order);
-        if (a_util::result::isFailed(res)) {
+        const auto res =
+            bit_reader.write<ElementValueType>(bit_offset, bit_size, value, byte_order);
+        if (!res) {
             throw std::runtime_error(res.getDescription());
         }
     }

@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 
@@ -53,8 +47,8 @@ public: // construction
     /**
      * Construct from bool
      * @param[in] val Bool value to construct with
-     * @post <tt>true == a_util::result::isOk(a_util::result::Result(true))</tt>
-     * @post <tt>true == a_util::result::isFailed(a_util::result::Result(false))</tt>
+     * @post <tt>true == a_util::result::Result(true);</tt>
+     * @post <tt>false == a_util::result::Result(false);</tt>
      * @post No dynamic memory is allocated
      */
     Result(bool val);
@@ -218,6 +212,12 @@ public: // access
     const char* getFunction() const;
 
     /**
+     * Convert result to bool
+     * @return If error code equals 0, @c true, otherwise @c false
+     */
+    explicit operator bool() const noexcept;
+
+    /**
      * Specialized friend swap function to enable ADL in std::swap later.
      * @param[in,out] lhs Left hand side result object.
      * @param[in,out] rhs Right hand side result object.
@@ -321,9 +321,11 @@ bool operator!=(const ResultInfo<T>& error_code, const Result& result);
 /**
  * Specialization of @c a_util::result::isOk<typename ResultType>() for correct lookup
  * @param[in] result Result instance to check for error
+ * @dev_essential_deprecated Please use @ref Result::operator bool().
  * @return If error code equals 0, @c true, otherwise @c false
  */
 template <>
+DEV_ESSENTIAL_DEPRECATED("Please use the conversion Result::operator bool().")
 bool isOk<Result>(const Result& result);
 
 } // namespace result

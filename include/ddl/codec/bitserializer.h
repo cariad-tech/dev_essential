@@ -6,15 +6,9 @@
  * @verbatim
 Copyright @ 2021 VW Group. All rights reserved.
 
-    This Source Code Form is subject to the terms of the Mozilla
-    Public License, v. 2.0. If a copy of the MPL was not distributed
-    with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
-
-If it is not possible or desirable to put the notice in a particular file, then
-You may include the notice in a location (such as a LICENSE file in a
-relevant directory) where a recipient would be likely to look for such a notice.
-
-You may add additional accurate notices of copyright ownership.
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 @endverbatim
  */
 #ifndef A_UTILS_UTIL_MEMORY_BITSERIALIZER_INCLUDED
@@ -31,7 +25,7 @@ namespace memory {
 /// @cond nodoc
 _MAKE_RESULT(-4, ERR_POINTER);
 _MAKE_RESULT(-5, ERR_INVALID_ARG);
-/// @endcond nodoc
+/// @endcond
 
 /// Enum describing the endianess
 typedef enum {
@@ -274,7 +268,7 @@ protected:
 
         // Copy the resulting value to the target variable. No Casting! Data might be lost
         // otherwise.
-        size_t sz = std::min(sizeof(*value), sizeof(result));
+        size_t sz = (std::min)(sizeof(*value), sizeof(result));
         a_util::memory::copy(value, sz, &result, sz);
 
         return a_util::result::SUCCESS;
@@ -368,7 +362,7 @@ protected:
         // 7) Write bytes with integrated signal back to the buffer.
         buffer_copy |= signal;
 
-        size_t sz = std::min(bytes_to_read, sizeof(signal));
+        size_t sz = (std::min)(bytes_to_read, sizeof(signal));
         a_util::memory::copy(buffer + (start_bit / 8), sz, &buffer_copy, sz);
 
         // Eventually copy ninth byte back to buffer
@@ -652,18 +646,12 @@ public:
                                 T* value,
                                 Endianess endianess = get_platform_endianess())
     {
+        using Converter =
+            detail::Converter<T, std::is_signed<T>::value, std::is_floating_point<T>::value>;
         // Check if in range
-        a_util::result::Result result_code =
-            checkForInvalidArguments(start_bit, bit_length, sizeof(T));
-        if (result_code != a_util::result::SUCCESS) {
-            return result_code;
-        }
-
-        // Call template function
-        detail::Converter<T, std::is_signed<T>::value, std::is_floating_point<T>::value>::read(
-            _buffer, start_bit, bit_length, value, endianess);
-
-        return a_util::result::SUCCESS;
+        const auto result_code = checkForInvalidArguments(start_bit, bit_length, sizeof(T));
+        return !result_code ? result_code :
+                              Converter::read(_buffer, start_bit, bit_length, value, endianess);
     }
 
     /**
@@ -689,18 +677,12 @@ public:
                                  T value,
                                  Endianess endianess = get_platform_endianess())
     {
+        using Converter =
+            detail::Converter<T, std::is_signed<T>::value, std::is_floating_point<T>::value>;
         // Check if in range
-        a_util::result::Result result_code =
-            checkForInvalidArguments(start_bit, bit_length, sizeof(T));
-        if (result_code != a_util::result::SUCCESS) {
-            return result_code;
-        }
-
-        // Call template function
-        detail::Converter<T, std::is_signed<T>::value, std::is_floating_point<T>::value>::write(
-            _buffer, start_bit, bit_length, value, endianess);
-
-        return a_util::result::SUCCESS;
+        const auto result_code = checkForInvalidArguments(start_bit, bit_length, sizeof(T));
+        return !result_code ? result_code :
+                              Converter::write(_buffer, start_bit, bit_length, value, endianess);
     }
 
 private:

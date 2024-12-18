@@ -1,12 +1,12 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-add_subdirectory(../../extern/3rdparty/cpp-httplib ${CMAKE_BINARY_DIR}/extern/3rdparty/cpp-httplib)
-add_subdirectory(../../extern/3rdparty/jsoncpp ${CMAKE_BINARY_DIR}/extern/3rdparty/jsoncpp)
-add_subdirectory(../../extern/3rdparty/libjson-rpc-cpp ${CMAKE_BINARY_DIR}/extern/3rdparty/libjson-rpc-cpp)
+add_subdirectory(../../3rdparty/cpp-httplib ${CMAKE_BINARY_DIR}/3rdparty/cpp-httplib)
+add_subdirectory(../../3rdparty/jsoncpp ${CMAKE_BINARY_DIR}/3rdparty/jsoncpp)
+add_subdirectory(../../3rdparty/libjson-rpc-cpp ${CMAKE_BINARY_DIR}/3rdparty/libjson-rpc-cpp)
 
 set(PROJECT_NAME pkg_rpc)
 add_library(${PROJECT_NAME} STATIC ../../include/rpc/rpc.h
@@ -38,8 +38,34 @@ target_link_libraries(${PROJECT_NAME} PUBLIC result
                                       PRIVATE regex concurrency
                                               $<$<PLATFORM_ID:Windows>:ws2_32>
                                               $<BUILD_INTERFACE:httplib>)
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER rpc/pkg_rpc
-                                                 OUTPUT_NAME pkg_rpc)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES 
+    FOLDER rpc/pkg_rpc
+    OUTPUT_NAME pkg_rpc
+    DEBUG_POSTFIX "d"
+    COMPILE_PDB_NAME_DEBUG "pkg_rpcd"
+    COMPILE_PDB_NAME_RELWITHDEBINFO "pkg_rpc"
+    COMPILE_PDB_NAME_RELEASE "pkg_rpc"
+    COMPILE_PDB_NAME_MINSIZEREL "pkg_rpc"
+)
+
+if(MSVC)
+    get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if (is_multi_config)
+        set(pdb_file_name "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/pkg_rpc$<$<CONFIG:Debug>:d>.pdb")
+    else()
+        set(pdb_file_name "${CMAKE_CURRENT_BINARY_DIR}/pkg_rpc$<$<CONFIG:Debug>:d>.pdb")
+    endif()
+
+    install(
+        FILES
+                "${pdb_file_name}"
+        DESTINATION
+                "lib"
+        CONFIGURATIONS
+                "Debug" "RelWithDebInfo"
+        )
+    endif()
 install(TARGETS ${PROJECT_NAME})
 install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/rpc DESTINATION include)
 

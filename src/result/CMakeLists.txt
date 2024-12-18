@@ -1,10 +1,10 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-add_subdirectory(../../extern/3rdparty/boost ${CMAKE_BINARY_DIR}/extern/3rdparty/boost)
+add_subdirectory(../../3rdparty/boost ${CMAKE_BINARY_DIR}/3rdparty/boost)
 
 option(dev_essential_cmake_enable_result_header_only "Whether or not to build header only version\
  of dev_essential_result library (default: OFF)" OFF)
@@ -38,8 +38,33 @@ if (NOT ${dev_essential_cmake_enable_result_header_only})
     target_compile_definitions(result PRIVATE
                                $<$<STREQUAL:${dev_essential_cmake_enable_dynamic_error_description},ON>:A_UTIL_ENABLE_DYNAMIC_ERROR_DESCRIPTION>)
 
-    set_target_properties(result PROPERTIES FOLDER a_util
-                                            OUTPUT_NAME a_util_result)
+    set_target_properties(result PROPERTIES 
+        FOLDER a_util
+        OUTPUT_NAME a_util_result
+        DEBUG_POSTFIX "d"
+        COMPILE_PDB_NAME_DEBUG "a_util_resultd"
+        COMPILE_PDB_NAME_RELWITHDEBINFO "a_util_result"
+        COMPILE_PDB_NAME_RELEASE "a_util_result"
+        COMPILE_PDB_NAME_MINSIZEREL "a_util_result"
+    )
+
+    if(MSVC)
+        get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+        if (is_multi_config)
+            set(pdb_file_name "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/a_util_result$<$<CONFIG:Debug>:d>.pdb")
+        else()
+            set(pdb_file_name "${CMAKE_CURRENT_BINARY_DIR}/a_util_result$<$<CONFIG:Debug>:d>.pdb")
+        endif()
+
+        install(
+                FILES
+                        "${pdb_file_name}"
+                DESTINATION
+                        "lib"
+                CONFIGURATIONS
+                        "Debug" "RelWithDebInfo"
+        )
+    endif()
     target_link_libraries(result PRIVATE strings)
     install(TARGETS result)
     install(DIRECTORY ${dev_essential_SOURCE_DIR}/include/a_util/result DESTINATION include/a_util)
@@ -57,7 +82,7 @@ else()
 endif()
 
 target_include_directories(result SYSTEM
-                           INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extern>) # 3rdparty
+                           INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>) # 3rdparty
 target_link_libraries(result INTERFACE base)
 install(FILES ${dev_essential_SOURCE_DIR}/include/a_util/result.h DESTINATION include/a_util)
 install(FILES ${dev_essential_SOURCE_DIR}/scripts/debugging/result.natvis

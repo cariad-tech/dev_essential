@@ -59,18 +59,30 @@ struct TestValidatorList : utility::TypeAccessListObserver<StructType::Element> 
     {
         _list_to_check = list_to_check;
     }
-    const TestElementList::container_named_type* getNamedItemList() const
+    const TestElementList::container_named_compatibility_type* getNamedItemList() const
+    {
+        return &_container_comp;
+    }
+
+    TestElementList::container_named_compatibility_type* getNamedItemList()
+    {
+        return &_container_comp;
+    }
+
+    const TestElementList::container_named_type* getNamedItemViewList() const
     {
         return &_container;
     }
 
-    TestElementList::container_named_type* getNamedItemList()
+    TestElementList::container_named_type* getNamedItemViewList()
     {
         return &_container;
     }
+
 
     std::vector<std::pair<utility::TypeAccessListEventCode, std::string>> _change_events;
     TestElementList* _list_to_check = {};
+    TestElementList::container_named_compatibility_type _container_comp;
     TestElementList::container_named_type _container;
 };
 

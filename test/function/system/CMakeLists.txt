@@ -1,4 +1,4 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -8,7 +8,7 @@ find_package(dev_essential COMPONENTS system filesystem REQUIRED)
 
 #system_tests
 add_executable(system_tests system_test.cpp)
-target_link_libraries(system_tests PRIVATE GTest::gtest_main
+target_link_libraries(system_tests PRIVATE gtest::gtest
                                            dev_essential::system
                                            dev_essential::filesystem) #Path
 set_target_properties(system_tests PROPERTIES FOLDER test/function/a_util/system)
@@ -17,13 +17,13 @@ gtest_discover_tests(system_tests)
 
 #timer tests
 add_executable(timer_tests timer_test.cpp)
-target_link_libraries(timer_tests PRIVATE GTest::gtest_main dev_essential::system)
+target_link_libraries(timer_tests PRIVATE gtest::gtest dev_essential::system)
 set_target_properties(timer_tests PROPERTIES FOLDER test/function/a_util/system)
 gtest_discover_tests(timer_tests)
 
 #uuid tests
 add_executable(uuid_tests uuid_test.cpp)
-target_link_libraries(uuid_tests PRIVATE GTest::gtest_main
+target_link_libraries(uuid_tests PRIVATE gtest::gtest
                                          dev_essential::system
                                          $<$<BOOL:${QNXNTO}>:socket>)
 set_target_properties(uuid_tests PROPERTIES FOLDER test/function/a_util/system)
@@ -40,7 +40,7 @@ target_link_libraries(test_shared_library PRIVATE dev_essential::system)
 set_target_properties(test_shared_library PROPERTIES FOLDER test/function/a_util/system/dependencies)
 
 add_executable(address_info_tests address_info_test.cpp)
-target_link_libraries(address_info_tests PRIVATE GTest::gtest_main
+target_link_libraries(address_info_tests PRIVATE gtest::gtest
                                                  dev_essential::system
                                                  test_static_library)
 set_target_properties(address_info_tests PROPERTIES FOLDER test/function/a_util/system)

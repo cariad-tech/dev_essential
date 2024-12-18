@@ -2,7 +2,7 @@
  * @file
  * Test implementation.
  *
- * Copyright @ 2021 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -16,9 +16,11 @@
 #include <a_util/system.h>
 #include <ddl/codec/codec_factory.h>
 #include <ddl/dd/ddfile.h>
+#include <ddl/dd/ddstring.h>
 #include <ddl/serialization/serialization.h>
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <chrono>
 #include <list>
@@ -1475,3 +1477,18 @@ TEST(CodecTest, useLeafCodecIndexWithArrays)
 }
 
 } // namespace static_array_access_leaf
+
+/**
+ * Create a CodecFactory with uninititalized variables will invalidate the factory.
+ * @details Create a codes with an uninitialized variable and check valid state
+ */
+TEST(CodecTest, useInvalidArgumentForCTOR)
+{
+    const auto dd = ddl::DDString::fromXMLString(static_struct::test_description);
+    // check that codec factory can handle it without valid struct access
+    ddl::codec::CodecFactory oFactory;
+    oFactory = ddl::codec::CodecFactory(dd.getStructTypeAccess("doeas_not_exists"));
+    ASSERT_FALSE(oFactory.isValid());
+    EXPECT_THAT(oFactory.isValid().getDescription(),
+                testing::HasSubstr("invalid call to initializeStatic"));
+}

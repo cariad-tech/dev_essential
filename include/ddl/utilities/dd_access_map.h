@@ -4,7 +4,7 @@
  *
  * @copyright
  * @verbatim
-Copyright @ 2021 VW Group. All rights reserved.
+Copyright @ 2023 VW Group. All rights reserved.
 
 This Source Code Form is subject to the terms of the Mozilla
 Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -169,7 +169,7 @@ public:
      * @brief copies (deepcopy!) and overwrite the current content.
      *
      * @param other the other list
-     * @return TypeAccessList&
+     * @return TypeAccessMap&
      */
     TypeAccessMap& operator=(const TypeAccessMap& other)
     {

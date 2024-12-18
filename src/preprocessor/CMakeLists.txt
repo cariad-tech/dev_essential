@@ -1,4 +1,4 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -9,7 +9,7 @@ add_library(preprocessor INTERFACE)
 target_link_libraries(preprocessor INTERFACE base)
 
 # 3rdparty include
-cmake_path(CONVERT "${CMAKE_CURRENT_LIST_DIR}/../../extern"
+cmake_path(CONVERT "${CMAKE_CURRENT_LIST_DIR}/../.."
            TO_CMAKE_PATH_LIST _third_party_path
            NORMALIZE)
 target_include_directories(preprocessor

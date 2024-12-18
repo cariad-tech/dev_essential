@@ -2,7 +2,7 @@
  * @file
  * Command line processing wrapper for clipp
  *
- * Copyright @ 2022 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <string>
+#include <cstdint>
 
 namespace clipp {
 class group; // forward declaration for unique_ptr

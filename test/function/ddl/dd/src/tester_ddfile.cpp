@@ -2,7 +2,7 @@
  * @file
  * Implementation of the tester for the DataDefinition representation.
  *
- * Copyright @ 2021 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -14,6 +14,7 @@
 #include <ddl/dd/ddfile.h>
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <cstdio>
 
@@ -707,4 +708,23 @@ TEST(TesterDDFile, writeSorted)
     EXPECT_EQ(
         0,
         compareFiles(description_v4_sorted_descending, description_v4_sorted_descending_expected));
+}
+
+/**
+ * Test description file with invalid description.
+ * @details Read a description file that is incomplete in type, but has also good_enough validation entries!
+ *          Check error result expected.
+ */
+TEST(TesterDDFile, readInvalidDDLNotPossible)
+{
+    constexpr auto description_file = TEST_FILES_DIR "invalid_ddl_description_objects.xml";
+    try
+    {
+        auto dd_read = ddl::DDFile::fromXMLFile(description_file);
+        ASSERT_TRUE(false);
+    }
+    catch (const std::exception& except) {
+        
+        EXPECT_THAT(except.what(), testing::HasSubstr("is not valid. See validation protocol"));
+    }
 }

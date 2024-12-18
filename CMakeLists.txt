@@ -1,49 +1,112 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
-# This Source Code Form is subject to the terms of the Mozilla
-# Public License, v. 2.0. If a copy of the MPL was not distributed
-# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#     This Source Code Form is subject to the terms of the Mozilla
+#     Public License, v. 2.0. If a copy of the MPL was not distributed
+#     with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# If it is not possible or desirable to put the notice in a particular file, then
+# You may include the notice in a location (such as a LICENSE file in a
+# relevant directory) where a recipient would be likely to look for such a notice.
+#
+# You may add additional accurate notices of copyright ownership.
 
-################################ Options and general project setup ################################
-cmake_minimum_required(VERSION 3.20.0) # cmake_path()
+cmake_minimum_required(VERSION 3.23)
 
 cmake_policy(SET CMP0048 NEW)
 
-# Start project() now, since any include checks will use the correct compiler flags
-file(STRINGS version VERSION LIMIT_COUNT 1)
-project(dev_essential VERSION ${VERSION})
+set(LABEL_NAME "dev_essential" CACHE STRING "The name for the project")
+set(BUILD_VERSION "1.99.99" CACHE STRING "The version used for the build")
+set(GIT_COMMIT "local" CACHE STRING "SHA-1 commit hash.")
 
-# Disable extensions here and require the chosen CMAKE_CXX_STANDARD
+string(TOLOWER "${LABEL_NAME}" PRJ_NAME)
+string(MAKE_C_IDENTIFIER "${PRJ_NAME}" PRJ_NAME)
+
+project(${PRJ_NAME} VERSION ${BUILD_VERSION})
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+enable_testing()
+
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# minimum is currently C++14, but default is C++17
-if (NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
+
+# Strict validation and debug symbols in all build types
+if(MSVC)
+    # Enable inlining in RelWithDebInfo - no good  reason to disable it just because we want debug symbols?!
+    STRING (REGEX REPLACE "[/|-]Ob1" "/Ob3" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+
+    STRING (REGEX REPLACE "[/|-]RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    STRING (REGEX REPLACE "[/|-]RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+
+    foreach(c ${CMAKE_CONFIGURATION_TYPES} ${CMAKE_BUILD_TYPE})
+        foreach(t EXE SHARED MODULE)
+            # Remove /INCREMENTAL:NO from all build types, we don't want PDBs and binaries blow up by factor x2 just so they could be re-built faster!
+            STRING (REGEX REPLACE "[/|-]INCREMENTAL(:YES)?" "" CMAKE_${t}_LINKER_FLAGS_${c} "${CMAKE_${t}_LINKER_FLAGS_${c}}")
+        endforeach()
+    endforeach()
+
+    add_compile_options(
+        # Symbols in all build types, since the lib is getting exported
+        /Zi
+        # Maximum warnings
+        /W4
+        # Disable compatibility mode in type system, no functional changes in conformant code
+        # Not covered by CMAKE_CXX_EXTENSIONS....
+        /permissive-
+        /Zc:rvalueCast
+        /Zc:ternary
+        /Zc:inline
+        /Zc:throwingNew
+        /Zc:strictStrings
+        /Zc:lambda
+        /Zc:__cplusplus
+        /Zc:referenceBinding
+        # Enable selective data linkage.
+        /Gw
+        # Enable selective code linkage.
+        /Gy
+        # Allow redundant string pooling.
+        /GF
+        # Enable compilation units with more than 65k symbols.
+        /bigobj
+        # Disable aggressive stack zeroing.
+        /GS-
+    )
+    add_link_options(
+        /DEBUG
+        /INCREMENTAL:NO
+        /OPT:ICF=4
+        /OPT:REF
+    )
+else()
+    add_compile_options(
+        -g -ggdb3
+        -O3
+        -Wall -Wextra -Wpedantic
+        -ffunction-sections
+        -fdata-sections
+    )
+    add_link_options(
+        -Wl,-Bsymbolic
+        -Wl,--no-undefined
+        -Wl,--gc-sections
+    )
+    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 endif()
 
-set(dev_essential_cmake_include_components "." CACHE STRING "List of components to build, separated\
- by whitespace or semicolon (default: '.', meaning all components are built).")
+# this option is necessary if you do not build with gcc 7, but want to check the binary compatibility
+set(dev_essential_force_type_access_list_compatibility OFF CACHE BOOL "Switch of the auto identification of ddl::dd::utility::TypeAccessList compatibilities and force compatibility")
 
 include(scripts/cmake/set_position_independent_code.cmake)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-##check for default install prefix and cmake build type
-include(scripts/cmake/check_cmake_install_prefix.cmake)
-include(scripts/cmake/check_cmake_build_type.cmake)
 
-# Enable multicore compilation on Windows
-include(scripts/cmake/enable_multicore_compilation.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/scripts/cmake/modules/")
+set(dev_essential_cmake_include_components "." CACHE STRING "List of components to test, separated\
+ by whitespace or semicolon (default: '.', meaning all components are tested).")
 
-# Use integrated debug symbols on Windows (avoiding PDBs)
-include(scripts/cmake/use_integrated_debug_symbols.cmake)
-
-# set default symbol visibility for compilers supporting it
-include(scripts/cmake/set_symbol_visibility.cmake)
-
-# Make own find scripts known to CMake
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake/modules/")
-
+add_subdirectory(3rdparty)
 add_subdirectory(doc)
-add_subdirectory(extern/3rdparty)
 add_subdirectory(src)
 
 # Enable testing if necessary
@@ -79,9 +142,6 @@ if(dev_essential_cmake_enable_integrated_tests)
         include(scripts/cmake/add_test_overwrite.cmake)
         add_subdirectory(test/function)
     endif()
-    add_subdirectory(test/private)
-    add_subdirectory(test/sca)
-endif(dev_essential_cmake_enable_integrated_tests)
+endif()
 
-# License Information must be delivered anyway!
-install(FILES README.md DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(FILES LICENSE README.md RELEASENOTES.md DESTINATION .)

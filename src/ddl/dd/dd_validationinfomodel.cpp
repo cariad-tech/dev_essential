@@ -2,7 +2,7 @@
  * @file
  * OO DataDefinition Redesign
  *
- * Copyright @ 2021 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -651,7 +651,7 @@ ValidationLevel ValidationServiceInfo::getValidationLevel() const
         return ValidationLevel::valid;
     }
     else {
-        return static_cast<ValidationLevel>(_validation_problems.rbegin()->first);
+        return static_cast<ValidationLevel>(_validation_problems.begin()->first);
     }
 }
 

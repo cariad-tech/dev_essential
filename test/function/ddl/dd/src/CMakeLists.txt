@@ -1,10 +1,12 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #ddl_dd_create_tests
+find_package(Threads REQUIRED)
+
 cmake_path(CONVERT "${CMAKE_CURRENT_LIST_DIR}/../files/"
            TO_CMAKE_PATH_LIST test_files_dir
            NORMALIZE)
@@ -25,8 +27,7 @@ add_executable(ddl_dd_create_tests
 set_source_files_properties(tester_dddefault.cpp tester_ddfile.cpp PROPERTIES COMPILE_DEFINITIONS
     "TEST_FILES_DIR=\"${test_files_dir}\";TEST_FILES_WRITE_DIR=\"${test_files_write_dir}\"")
 target_link_libraries(ddl_dd_create_tests PRIVATE dev_essential::ddl
-                                                  GTest::gtest_main
-                                                  $<$<PLATFORM_ID:Linux>:Threads::Threads>)
+                                                  gtest::gtest)
 set_target_properties(ddl_dd_create_tests PROPERTIES FOLDER test/function/ddl
                                                      TIMEOUT 10)
 gtest_discover_tests(ddl_dd_create_tests)
@@ -42,8 +43,7 @@ target_link_libraries(ddl_version_test_lib PRIVATE dev_essential::ddl)
 add_executable(ddl_dd_create_version_tests tester_ddl_version.cpp)
 target_link_libraries(ddl_dd_create_version_tests PRIVATE ddl_version_test_lib
                                                           dev_essential::ddl
-                                                          GTest::gtest_main
-                                                          $<$<PLATFORM_ID:Linux>:Threads::Threads>)
+                                                          gtest::gtest)
 set_target_properties(ddl_dd_create_version_tests PROPERTIES FOLDER test/function/ddl)
 gtest_discover_tests(ddl_dd_create_version_tests)
 
@@ -52,6 +52,5 @@ add_executable(ddl_dd_datastructures_tests tester_dd_datastructures.cpp)
 set_target_properties(ddl_dd_datastructures_tests PROPERTIES FOLDER test/function/ddl
                                                              TIMEOUT 5)
 target_link_libraries(ddl_dd_datastructures_tests PRIVATE dev_essential::ddl
-                                                          GTest::gtest_main
-                                                          $<$<PLATFORM_ID:Linux>:Threads::Threads>)
+                                                          gtest::gtest)
 gtest_discover_tests(ddl_dd_datastructures_tests)

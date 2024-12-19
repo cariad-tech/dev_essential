@@ -103,6 +103,21 @@ public:
 
 private:
     Stream::Structs::container_named_type _named_container;
+
+#ifdef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+public:
+    const Stream::Structs::container_named_compatibility_type* getCompatibleContainer() const
+    {
+        return &_named_compatible_container;
+    }
+    Stream::Structs::container_named_compatibility_type* getCompatibleContainer()
+    {
+        return &_named_compatible_container;
+    }
+
+private:
+    Stream::Structs::container_named_compatibility_type _named_compatible_container;
+#endif
 };
 /**
  * @brief Stream
@@ -292,15 +307,35 @@ void Stream::notify(ModelEventCode code,
     utility::TypeAccessMapSubject<Stream>::notifyChanged(map_code, *this, additional_info);
 }
 
-const Stream::Structs::container_named_type* Stream::getNamedItemList() const
+const Stream::Structs::container_named_compatibility_type* Stream::getNamedItemList() const
+{
+#ifdef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+    return getInfo<NamedContainerInfoStream>()->getCompatibleContainer();
+#else
+    return getInfo<NamedContainerInfoStream>()->getContainer();
+#endif
+}
+
+Stream::Structs::container_named_compatibility_type* Stream::getNamedItemList()
+{
+#ifdef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+    return getInfo<NamedContainerInfoStream>()->getCompatibleContainer();
+#else
+    return getInfo<NamedContainerInfoStream>()->getContainer();
+#endif
+}
+
+#ifdef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+const Stream::Structs::container_named_type* Stream::getNamedItemViewList() const
 {
     return getInfo<NamedContainerInfoStream>()->getContainer();
 }
 
-Stream::Structs::container_named_type* Stream::getNamedItemList()
+Stream::Structs::container_named_type* Stream::getNamedItemViewList()
 {
     return getInfo<NamedContainerInfoStream>()->getContainer();
 }
+#endif
 
 } // namespace datamodel
 } // namespace dd

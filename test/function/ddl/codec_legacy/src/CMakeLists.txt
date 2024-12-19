@@ -1,16 +1,17 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 # codec_legacy tests
+find_package(Threads REQUIRED)
+
 add_executable(ddl_codec_legacy_tests tester_codec_legacy.cpp)
 set_target_properties(ddl_codec_legacy_tests PROPERTIES FOLDER test/function/ddl
                                                         TIMEOUT 300)
 target_link_libraries(ddl_codec_legacy_tests PRIVATE dev_essential::ddl
-                                                     GTest::gtest_main
-                                                     $<$<PLATFORM_ID:Linux>:Threads::Threads>)
+                                                     gtest::gtest)
 target_compile_definitions(ddl_codec_legacy_tests PRIVATE DEV_ESSENTIAL_DISABLE_DEPRECATED_WARNINGS)
 gtest_discover_tests(ddl_codec_legacy_tests)
 
@@ -27,6 +28,5 @@ set_target_properties(ddl_mediacoder_regression_legacy_tests PROPERTIES FOLDER t
 target_link_libraries(ddl_mediacoder_regression_legacy_tests
                       PRIVATE ddl_test_compat
                               dev_essential::ddl
-                              GTest::gtest_main
-                              $<$<PLATFORM_ID:Linux>:Threads::Threads>)
+                              gtest::gtest)
 gtest_discover_tests(ddl_mediacoder_regression_legacy_tests)

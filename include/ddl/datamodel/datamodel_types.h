@@ -4,7 +4,7 @@
  *
  * @copyright
  * @verbatim
-Copyright @ 2021 VW Group. All rights reserved.
+Copyright @ 2023 VW Group. All rights reserved.
 
 This Source Code Form is subject to the terms of the Mozilla
 Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -1142,8 +1142,13 @@ private:
     void notifyChangedListContent(utility::TypeAccessListEventCode code,
                                   Elements::access_type& element,
                                   const std::string& additional_info);
-    const Elements::container_named_type* getNamedItemList() const;
-    Elements::container_named_type* getNamedItemList();
+    [[deprecated]]
+    const Elements::container_named_compatibility_type* getNamedItemList() const;
+    [[deprecated]]
+    Elements::container_named_compatibility_type* getNamedItemList();
+
+    const Elements::container_named_type* getNamedItemViewList() const;
+    Elements::container_named_type* getNamedItemViewList();
 
     std::string _struct_version;
     dd::Version _ddl_version;

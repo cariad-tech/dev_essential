@@ -2,7 +2,7 @@
  * @file
  * Class for file system access. This class wraps all function calls for file system access.
  *
- * Copyright @ 2021 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed

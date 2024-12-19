@@ -1,4 +1,4 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -60,6 +60,11 @@ foreach(_target ${_targets})
 
     ## Add target to export set
     install(TARGETS ${_target} EXPORT dev_essential_targets)
+
+    if (${_target} STREQUAL "pkg_rpc")
+        add_executable(dev_essential::jsonrpcstub ALIAS jsonrpcstub)
+        install(TARGETS jsonrpcstub EXPORT dev_essential_targets)
+    endif()
 endforeach()
 
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/dev_essential-config-version.cmake

@@ -4,7 +4,7 @@
  *
  * @copyright
  * @verbatim
-Copyright @ 2021 VW Group. All rights reserved.
+Copyright @ 2023 VW Group. All rights reserved.
 
 This Source Code Form is subject to the terms of the Mozilla
 Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -84,12 +84,36 @@ public:
     typedef std::shared_ptr<DDL_TYPE_TO_ACCESS> value_type;
     /// local definition of the container type
     typedef std::vector<value_type> container_type;
-    /// local definition of the container type
+    /// local definition of the container type for getNamedItemViewList
 #if HAS_STRING_VIEW
     typedef std::unordered_map<std::string_view, value_type> container_named_type;
+    /// auto detection of compatibility if not set by a 
+    /// target comile definition
+    #ifndef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+        #if defined(__GNUC__) && (__GNUC__ > 7)
+            #define dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY 0
+        #elif defined(_MSC_VER) && (_MSC_VER >= 1920)
+            #define dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY 0
+        #else
+            #define dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY 1
+        #endif
+    #endif
 #else
     typedef std::unordered_map<std::string, value_type> container_named_type;
+    #ifndef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+        #define dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY 0
+    #endif
 #endif // HAS_STRING_VIEW
+    /// local definition of the container type for getNamedItemList, which was had incompatible changes within dev_essential 1.3.0 and 1.3.1
+    #if dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+        typedef std::unordered_map<std::string, value_type> container_named_compatibility_type;
+    #else
+        #ifdef HAS_STRING_VIEW
+            typedef std::unordered_map<std::string_view, value_type> container_named_compatibility_type;
+        #else
+            typedef std::unordered_map<std::string, value_type> container_named_compatibility_type;
+        #endif
+    #endif
     /// local definition of the container iterator
     typedef typename container_type::iterator iterator;
     /// local definition of the container const_iterator
@@ -208,7 +232,7 @@ public:
     std::shared_ptr<const DDL_TYPE_TO_ACCESS> get(const std::string& type_name) const
     {
         if (_validator) {
-            const container_named_type* named_items = _validator->getNamedItemList();
+            const auto named_items = getNamedContainer();
             const auto found = named_items->find(type_name);
             if (found != named_items->end()) {
                 return found->second;
@@ -255,7 +279,7 @@ public:
     bool contains(const std::string& type_name) const
     {
         if (_validator) {
-            const container_named_type* named_items = _validator->getNamedItemList();
+            const auto named_items = getNamedContainer();
             const auto found = named_items->find(type_name);
             if (found != named_items->end()) {
                 return true;
@@ -324,7 +348,7 @@ public:
             ->attachObserver(static_cast<observer_type*>(this));
         _types.push_back(new_type_value);
         if (_validator) {
-            container_named_type* named_items = _validator->getNamedItemList();
+            const auto named_items = getNamedContainer();
             (*named_items)[new_type_value->getName()] = new_type_value;
         }
         if (_validator) {
@@ -365,7 +389,7 @@ public:
             std::advance(cit, pos_idx);
             _types.insert(cit, new_type_value);
             if (_validator) {
-                container_named_type* named_items = _validator->getNamedItemList();
+                const auto named_items = getNamedContainer();
                 (*named_items)[new_type_value->getName()] = new_type_value;
             }
             if (_validator) {
@@ -395,7 +419,7 @@ public:
             ->attachObserver(static_cast<observer_type*>(this));
         _types.push_back(new_type_value);
         if (_validator) {
-            container_named_type* named_items = _validator->getNamedItemList();
+            const auto named_items = getNamedContainer();
             (*named_items)[new_type_value->getName()] = new_type_value;
         }
         if (_validator) {
@@ -423,7 +447,7 @@ public:
         if (removed_value) {
             _types.erase(current_it);
             if (_validator) {
-                container_named_type* named_items = _validator->getNamedItemList();
+                const auto named_items = getNamedContainer();
                 named_items->erase(type_name);
             }
             (static_cast<subject_type*>(removed_value.get()))
@@ -447,7 +471,7 @@ public:
     std::shared_ptr<DDL_TYPE_TO_ACCESS> access(const std::string& type_name)
     {
         if (_validator) {
-            container_named_type* named_items = _validator->getNamedItemList();
+            const auto named_items = getNamedContainer();
             auto value_found = named_items->find(type_name);
             if (value_found != named_items->end()) {
                 return value_found->second;
@@ -571,7 +595,7 @@ public:
                 ->detachObserver(static_cast<observer_type*>(this));
         }
         if (_validator) {
-            container_named_type* named_items = _validator->getNamedItemList();
+            const auto named_items = getNamedContainer();
             named_items->clear();
         }
         _types.clear();
@@ -590,7 +614,7 @@ public:
                 ->detachObserver(static_cast<observer_type*>(this));
             // pop last element
             if (_validator) {
-                container_named_type* named_items = _validator->getNamedItemList();
+                const auto named_items = getNamedContainer();
                 named_items->erase(last_element->getName());
             }
             _types.pop_back();
@@ -633,8 +657,8 @@ public:
             }
             else {
                 if (_validator) {
-                    container_named_type* named_items = _validator->getNamedItemList();
-                    typename container_named_type::iterator found_in_names = named_items->begin();
+                    const auto named_items = getNamedContainer();
+                    auto found_in_names = named_items->begin();
                     for (; found_in_names != named_items->end(); ++found_in_names) {
                         // we need to search it to reset the stringview
                         if (found_in_names->second->getName() == subject_changed.getName()) {
@@ -718,12 +742,25 @@ private:
     {
         _validator = validator;
         if (_validator) {
-            container_named_type* named_items = _validator->getNamedItemList();
-            named_items->clear();
+            auto named_items = getNamedContainer();            named_items->clear();
             for (auto& value: _types) {
                 (*named_items)[value->getName()] = value;
             }
         }
+    }
+
+    const container_named_type* getNamedContainer() const
+    {
+        // getNamedItemList is dead, but it must be implemented within the _validator for
+        // binary compatibility reason
+        return _validator->getNamedItemViewList();
+    }
+
+    container_named_type* getNamedContainer()
+    {
+        // getNamedItemList is dead, but it must be implemented within the _validator for
+        // binary compatibility reason
+        return _validator->getNamedItemViewList();
     }
 
     container_type _types;

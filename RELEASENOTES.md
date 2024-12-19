@@ -1,0 +1,182 @@
+# Release Notes
+
+## New Features & Changes
+
+- **1.3.3**
+  - Ensure default visibility of symbols is hidden
+- **1.3.2**
+  - none (pure patch version)
+- **1.3.1**
+  - none (pure patch version)
+- **1.3.0**
+  - Adds explicit bool conversion operator with `a_util::result::Result::operator bool()`
+  - Deprecates `a_util::result::isOk()` and `a_util::result::isFailed()`
+  - Added `a_util::system::AddressInfo` class to query the file path of the binary the memory address is located in
+  - Adapt `ddl::DDCompare::isBinaryEqual()` for padding bytes
+  - Add clipp 1.2.3 to 3rdparty components
+  - Add macro to enable/disable deprecated warnings
+  - Added new virtual function that is passed all relevant HTTP request and response data
+  - Append _cmake/modules_ path to CMAKE_MODULE_PATH for downstream projects
+- **1.2.2**
+  - none (pure patch version)
+- **1.2.1**
+  - none (pure patch version)
+- **1.2.0**
+  - Use clang-tidy as static code analyzer
+  - Adds scope guards based on Andrei Alexandrescu's talk &quot;Declarative Control Flow&quot;
+  - Enable TCP_NODELAY in httplib for faster RPC
+  - Merge StructLayout (of Codec API) and StructTypeAccess
+  - Refactor `a_util::filesystem::Path::getRoot()` to be consistent with std naming
+    - Deprecates `a_util::filesystem::Path::getRoot()` and adds
+      - `a_util::filesystem::Path::getRootName()` and
+      - `a_util::filesystem::Path::getRootPath()`
+  - Decouple conan and CMake
+  - Provide common error codes and types
+    - Introduces `enum a_util::errc`
+  - Extend type reflection API to support all optional DDL struct and element information
+    - Extends `ddl::DDStructure` with methods
+      - `ddl::DDStructure::setStructInfo()`
+      - `ddl::DDStructure::setElementInfo()`
+      - `ddl::DDStructure::setElementUnit()`
+  - Add `a_util::memory::makeStackPtr()` function equivalent to `std::make_unique`
+  - Description files saved by the xml writer always follow the same pattern
+  - Add possibility to sort xml nodes
+    - Adds function overload `a_util::strings::replace()` and new methods
+      `a_util::xml::DOMElement::sortNodes()`
+  - Add a small LeafCodecIndex to raise performance for default decoding
+    - Introduces `ddl::codec::LeafCodecIndex` class for high performant ddl coder/decoder access
+    - Introduces type traits file with the following function/types:
+      - `std::is_enum_v` and `std::void_t` as std backports only for non C++17 compliant compilers
+      - `a_util::underlying_type_or_type` and `a_util::underlying_type_or_type_t`
+      - `a_util::is_explicitly_convertible_to` and `a_util::is_explicitly_convertible_to_v`
+- **1.1.4**
+  - none (pure patch version)
+- **1.1.3**
+  - none (pure patch version)
+- **1.1.2**
+  - none (pure patch version)
+- **1.1.1**
+  - none (pure patch version)
+- **1.1.0**
+  - Move DDL C-API to fep dev_essential
+  - Comply to C++ Core Guidelines
+  - Extend detection of missing elements by adding padding bytes automatically
+  - Integrate ddl-c-api into top level directory of a_util
+  - Support alignment specification for `a_util::memory::StackPtr`
+  - Possibility to create a description only with pre-defined data types
+  - Provide single source of truth for product version
+  - DDL Mapping Engine does not forward the correct time while using "data" or "signal" as trigger type
+  - Use `std::regex` for implementation of `a_util::regex` functionality
+  - Add a dedicated validate function to the `DDStructureGenerator`
+- **1.0.0**
+  - Enable usage of error description objects with static storage
+  - Enable position independent code and position independent executables
+  - Elevate compiler warning levels for all util components
+  - Fix all compiler warnings and set compiler warnings as errors
+  - Integrate cdpkgrpc master and tags into a_util repository
+  - Integrate cdddl master and tags into a_util repository
+  - Move or copy DDL description generation code from ADTF 3 to DDL Library
+  - Add type reflection API to the DDL Library
+  - Improve XML Data Model and DDL Parser
+  - Redesign OO DDL Description API (Data Model + API)
+  - **Breaking change:** The deprecated `ddl::DDLDescription` API has been replaced with the
+    DDL DataDefinition. Customer code using the deprecated `ddl::DDLDescription` needs
+    to be rewritten accordingly.
+    - Integrate cdpkgrpc into top level directory of a_util
+    - Provide ddl, pkg_rpc and a_util as dev_essential package version 1.0.0
+    - Integrate cdddl into top level directory of a_util
+    - Update license disclaimers to MPL2.0 and VW Group copyright
+    - Add Linux_x64_gcc7, Linux_armv8_gcc7, and Windows_x64_vc142_VS2019 profile
+    - Provide Release builds for additional platforms
+    - Provide updated build information in README.md
+    - Remove ddl2header and header2ddl
+      - The successors of those tools will be available as part of the DDL Utilities.
+
+---
+
+## Bugfixes
+
+- **1.3.3**
+  - none (only technical dept)
+- **1.3.2**
+  - Restore binary compatibility with 1.3.x
+  - Handles incomplete DDL descriptions correctly
+- **1.3.1**
+  - Fixes sporadically crashing timer
+  - Fixes timer in case of ONESHOT
+  - Fixes timer test for repeatedly calls
+  - Fixes min/max macro expansion from &quot;Windows.h&quot; using parenthesis around the min/max function calls
+  - Mapping language version interpreted as double
+  - Execution of `a_util::concurrency::semaphore` tests takes a long time
+  - Fixes reference count for module handle
+- **1.3.0**
+  - DDL specification documentation contains information about ADTF but not about streams
+  - Fixed merging of different and incompatible StructTypes with the same name
+  - Fixes feature check for `std::is_enum_v`
+  - Different symbol visibility between standalone and integrated tests
+  - Adds library feature check for `std::string_view`
+- **1.2.2**
+  - DDL has performance problems within dependency management if many dependencies added
+    - changed the datastructure within (hidden - deprecated) validationmodel to std::unordered_set<>
+    - more time is "wasted" within typeinfo model while copying a StructType/DataType/EnumType from one DD to another DD
+- **1.2.1**
+  - Static intializing order problem for all `ddl::dd::Version::ddl_version_*` used within other static variables
+  - Wrong bit_size by `ddl::codec::CodecIndex::getIndexForArrayPos()`
+- **1.2.0**
+  - Construction with `ResultInfo<void>` doesn't call desired constructor
+    - **Please note:** This change might lead to compile time errors when using `_MAKE_RESULT()`
+      with a value of `0` in customer code. For hints how to fix/deactivate this behavior, consult
+      the resulting compiler message.
+  - `ddl::getType()` does not return a meaningful error message
+  - dev_essential cannot be built with clang 10.0.0 and mingw32 frontend
+  - compare for enums does not check for equivalence
+  - threaded_http_server doesn't wait for detached threads on call to StopListening
+- **1.1.4**
+  - TypeAccessList within 1.1.3 is not compatible with 1.1.2
+- **1.1.3**
+  - ElementTypeInfo will not be updated if add is used and has performance problem
+  - ove construction and move assignment very slow
+  - If a predefined type is used in enum the ValidationInfo will not be created
+- **1.1.2**
+  - Performance collapse due to DDFromXMLFactory::isInteger change
+- **1.1.1**
+  - httplib crashes when it receives an https request
+  - Loading of description file leads to Segfault error on Linux
+  - GCC default symbol visibility might lead to multiple defined symbols in shared libraries
+  - static constexpr variables might violate the ODR if linked by C++17 built downstream project
+  - httpclient does not read full response body
+  - Static Singleton factory in header leads to problem in gcc 7
+- **1.1.0**
+  - `a_util/concurency.h` brings windows includes in scope and destroys APIs
+  - Leftover ADTF include emits compiler error under `__APPLE__`
+  - Typo in _dd_predefined_datatypes.h_ prevents creating DataType int8_t
+  - pugixml in a_util_xml causes linker problems when using a pugixml in a derivated work
+  - The CTOR with elements of `DDEnumGenerator<T>` has a problem if type is not arithmetic
+- **1.0.0**
+  - `a_util::filesytem::Path::makeRelative()` fails if any path contains ".."
+  - remove / access for DDL internal datastructures type_access_list, type_access_map are not working
+    correctly
+  - If removing a struct_type which is used in another type the validation model will crash
+  - Mapping Configuration for invalid file will crash
+  - Codec: serialized and deserialized offsets of structures in array elements are not evaluated right
+
+---
+
+## Known Issues
+
+- `ddl::codec::transform` uses wrong layout to write values
+- C-Api error msg if DDL could not be parsed
+- Order of elements in DDEnum is not stable when serialized to xml
+- `<cSocket::GetHandle()` has return type int on Linux and void* on Windows
+- ReadAll allways returns `ERR_IO_INCOMPLETE`
+- `GetSize` returns old buffer size after smaller buffer assignment
+- Invalid close_socket call and caught invalid handle exception on stopping cpp-httplib
+- Exception messages generated from a_util::result::Result objects might be empty
+- `a_util::filesystem::createDirectory()` crashes when called with a `file://` prefix
+- `process::execute` handles path wrong
+- httplib triggers `SIGPIPE` on Linux
+- Case-sensitivity for windows drive letters
+- Minimum char is zero on armv8
+- `getEnvVar()` throws exception if variable does not exist
+- Wrong hardcoded return values in Linux version of process `execute()`
+- `getLastSystemError` doesn't contain the correct messages

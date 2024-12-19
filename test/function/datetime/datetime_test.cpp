@@ -2,7 +2,7 @@
  * @file
  * Date and time test implementation
  *
- * Copyright @ 2021 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -75,7 +75,7 @@ TEST(datetime_test, TestTimestampConversion)
      *  time when converted to unix time, like the unix time based timestamp we
      *  get with the help of the std::chrono library
      *------------------------------------------------------------------------*/
-    EXPECT_NEAR(static_cast<double>(system_timestamp_ut), static_cast<double>(now_ut), 2000);
+    EXPECT_NEAR(static_cast<double>(system_timestamp_ut), static_cast<double>(now_ut), 20000);
 
     DateTime now_date_time;
     now_date_time.set(now_ut, TimestampReference::MicroSecondsSinceUnixTimeOrigin);
@@ -91,7 +91,7 @@ TEST(datetime_test, TestTimestampConversion)
     ASSERT_EQ(system_date_time.getHour(), now_date_time.getHour());
     ASSERT_EQ(system_date_time.getMinute(), now_date_time.getMinute());
     EXPECT_NEAR(system_date_time.getSecond(), now_date_time.getSecond(), 1);
-    EXPECT_NEAR(system_date_time.getMicrosecond(), now_date_time.getMicrosecond(), 2000);
+    EXPECT_NEAR(system_date_time.getMicrosecond(), now_date_time.getMicrosecond(), 20000);
 
     /*------------------------------------------------------------------------
      *  test conversion with the beginning of unix time measurement

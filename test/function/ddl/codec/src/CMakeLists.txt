@@ -1,10 +1,12 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 # codec tests
+find_package(Threads REQUIRED)
+
 cmake_path(CONVERT "${CMAKE_CURRENT_LIST_DIR}/../files/"
            TO_CMAKE_PATH_LIST test_files_dir
            NORMALIZE)
@@ -16,8 +18,7 @@ target_compile_definitions(ddl_codec_tests
                                    $<$<CONFIG:Debug>:BUILD_TYPE="DEBUG">
                                    $<$<NOT:$<CONFIG:Debug>>:BUILD_TYPE="RELEASE">)
 target_link_libraries(ddl_codec_tests PRIVATE dev_essential::ddl
-                                              GTest::gtest_main
-                                              $<$<PLATFORM_ID:Linux>:Threads::Threads>)
+                                              gtest::gtest)
 gtest_discover_tests(ddl_codec_tests)
 
 # mediacoder_regression tests
@@ -29,6 +30,5 @@ set_target_properties(ddl_mediacoder_regression_tests PROPERTIES FOLDER test/fun
 target_link_libraries(ddl_mediacoder_regression_tests
                       PRIVATE ddl_test_compat
                               dev_essential::ddl
-                              GTest::gtest_main
-                              $<$<PLATFORM_ID:Linux>:Threads::Threads>)
+                              gtest::gtest)
 gtest_discover_tests(ddl_mediacoder_regression_tests)

@@ -1,22 +1,41 @@
-# Copyright @ 2021 VW Group. All rights reserved.
-#
-# This Source Code Form is subject to the terms of the Mozilla
-# Public License, v. 2.0. If a copy of the MPL was not distributed
-# with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+find_package(Doxygen REQUIRED dot)
 
-##installation of documentation related files
-install(FILES extern/changelog.md DESTINATION doc)
-install(FILES extern/license/MPL2.0.txt DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(DIRECTORY extern/license DESTINATION doc)
+configure_file(doxygen/footer.html ${CMAKE_CURRENT_BINARY_DIR}/doxygen/footer.html)
 
-# check for valid version string
-string(REGEX MATCH "^[0-9]+\.[0-9]+\.[0-9]+$" VER ${VERSION})
-if(NOT VER)
-    message(FATAL_ERROR "${VERSION} is not a valid semver espression for version")
-endif()
+set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
+set(DOXYGEN_EXTENSION_MAPPING "no_extension=md")
+set(DOXYGEN_HTML_EXTRA_STYLESHEET "${CMAKE_CURRENT_SOURCE_DIR}/doxygen/dw.css")
+set(DOXYGEN_HTML_FOOTER "${CMAKE_CURRENT_BINARY_DIR}/doxygen/footer.html")
+set(DOXYGEN_LAYOUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/doxygen/DoxygenLayout.xml")
+set(DOXYGEN_HTML_COLORSTYLE_HUE 142)
+set(DOXYGEN_HTML_COLORSTYLE_SAT 58)
+set(DOXYGEN_IMAGE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/images")
+set(DOXYGEN_DOT_IMAGE_FORMAT "svg")
+set(DOXYGEN_EXAMPLE_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
-# check for valid entry in doxyfile
-file(STRINGS extern/Doxyfile RES REGEX "^PROJECT_NUMBER += v${VER}$")
-if(NOT RES)
-    message(FATAL_ERROR "Doxyfile does not contain the current version ${VER}")
-endif()
+file(GLOB STATIC_MARKDOWN_PAGES
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/*.md"
+    "${CMAKE_CURRENT_SOURCE_DIR}/html/ddl/*.md"
+)
+
+file(GLOB_RECURSE PACKAGE_HEADERS
+    "${CMAKE_SOURCE_DIR}/include/*.h"
+)
+
+doxygen_add_docs(${PROJECT_NAME}_doc
+    ${CMAKE_SOURCE_DIR}/LICENSE
+    ${CMAKE_SOURCE_DIR}/README.md
+    ${CMAKE_SOURCE_DIR}/RELEASENOTES.md
+    ${CMAKE_CURRENT_SOURCE_DIR}/license/3rd_party_licenses.md
+    ${STATIC_MARKDOWN_PAGES}
+    ${PACKAGE_HEADERS}
+    ALL
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating Doxygen Documentation"
+)
+
+set_property(TARGET ${PROJECT_NAME}_doc PROPERTY FOLDER doc)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mainpage.html DESTINATION doc/)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION doc/html)
+install(DIRECTORY images/ DESTINATION doc/images)

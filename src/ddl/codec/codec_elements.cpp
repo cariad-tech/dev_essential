@@ -2,7 +2,7 @@
  * @file
  * Implementation of CodecFactory
  *
- * Copyright @ 2022 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -200,6 +200,9 @@ void ChildElementAccess::initializeStatic(const ddl::dd::StructElementAccess& el
                                           const ddl::dd::StructTypeAccess& struct_type_access,
                                           StructAccess& struct_access)
 {
+    if (!element_access && !struct_type_access) {
+        throw std::runtime_error("invalid call to initializeStatic() check validation state of given description");
+    }
     // if an element access is set this is a member of the struct
     if (element_access) {
         _base_name = element_access.getElement().getName();

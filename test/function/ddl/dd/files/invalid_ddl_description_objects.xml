@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<!--
+Copyright @ 2023 VW Group. All rights reserved.
+
+This Source Code Form is subject to the terms of the Mozilla
+Public License, v. 2.0. If a copy of the MPL was not distributed
+with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-->
+<adtf:ddl xmlns:adtf="adtf">
+    <header>
+        <language_version>3.00</language_version>
+        <author>adsc5zg</author>
+        <last_editor>fnt2ndz</last_editor>
+        <date_creation>26.07.2022</date_creation>
+        <date_change>01.08.2023</date_change>
+        <description>Object defines a representation of moving or stationary objects by means of three dimensional bounding boxes.</description>
+    </header>
+    <units>
+        <baseunit name="Metre"    symbol="m"   description="Fundamental unit for length"/>
+        <baseunit name="Kilogram" symbol="kg"  description="Fundamental unit for mass"/>
+        <baseunit name="Second"   symbol="s"   description="Fundamental unit for time"/>
+        <baseunit name="Ampere"   symbol="A"   description="Fundamental unit for electric current"/>
+        <baseunit name="Kelvin"   symbol="K"   description="Fundamental unit for thermodynamic temperature"/>
+        <baseunit name="Mole"     symbol="mol" description="Fundamental unit for amount of substance"/>
+        <baseunit name="Candela"  symbol="cd"  description="Fundamental unit for luminous intensity"/>
+        <baseunit name="Degree"   symbol="deg" description="Non-SI standard unit for angle"/>
+        <baseunit name="Radiant"  symbol="rad" description="Non-SI standard unit for angle"/>
+        <baseunit name="Unitless" symbol=""    description="No SI, but needed for own unit definitions"/>
+        <baseunit name="nou"      symbol=""    description="No SI, but needed for no unit definitions"/>
+        <prefixes name="yotta"    symbol="Y"   power="24"/>
+        <prefixes name="zetta"    symbol="Z"   power="21"/>
+        <prefixes name="exa"      symbol="E"   power="18"/>
+        <prefixes name="peta"     symbol="P"   power="15"/>
+        <prefixes name="tera"     symbol="T"   power="12"/>
+        <prefixes name="giga"     symbol="G"   power="9"/>
+        <prefixes name="mega"     symbol="M"   power="6"/>
+        <prefixes name="kilo"     symbol="k"   power="3"/>
+        <prefixes name="hecto"    symbol="h"   power="2"/>
+        <prefixes name="deca"     symbol="da"  power="1"/>
+        <prefixes name="deci"     symbol="d"   power="-1"/>
+        <prefixes name="centi"    symbol="c"   power="-2"/>
+        <prefixes name="milli"    symbol="m"   power="-3"/>
+        <prefixes name="micro"    symbol="u"   power="-6"/>
+        <prefixes name="nano"     symbol="n"   power="-9"/>
+        <prefixes name="pico"     symbol="p"   power="-12"/>
+        <prefixes name="femto"    symbol="f"   power="-15"/>
+        <prefixes name="atto"     symbol="a"   power="-18"/>
+        <prefixes name="zepto"    symbol="z"   power="-21"/>
+        <prefixes name="yocto"    symbol="y"   power="-24"/>
+    </units>
+    <datatypes>
+        <datatype name="tBool"    size="8"  description="predefined ADTF tBool datatype"    min="tFalse"               max="tTrue"/>
+        <datatype name="tChar"    size="8"  description="predefined ADTF tChar datatype"    min="-128"                 max="127"/>
+        <datatype name="tUInt8"   size="8"  description="predefined ADTF tUInt8 datatype"   min="0"                    max="255"/>
+        <datatype name="tInt8"    size="8"  description="predefined ADTF tInt8 datatype"    min="-128"                 max="127"/>
+        <datatype name="tUInt16"  size="16" description="predefined ADTF tUInt16 datatype"  min="0"                    max="65535"/>
+        <datatype name="tInt16"   size="16" description="predefined ADTF tInt16 datatype"   min="-32768"               max="32767"/>
+        <datatype name="tUInt32"  size="32" description="predefined ADTF tUInt32 datatype"  min="0"                    max="4294967295"/>
+        <datatype name="tInt32"   size="32" description="predefined ADTF tInt32 datatype"   min="-2147483648"          max="2147483647"/>
+        <datatype name="tUInt64"  size="64" description="predefined ADTF tUInt64 datatype"  min="0"                    max="18446744073709551615"/>
+        <datatype name="tInt64"   size="64" description="predefined ADTF tInt64 datatype"   min="-9223372036854775808" max="9223372036854775807"/>
+        <datatype name="tFloat32" size="32" description="predefined ADTF tFloat32 datatype" min="-3.402823e+38"        max="3.402823e+38"/>
+        <datatype name="tFloat64" size="64" description="predefined ADTF tFloat64 datatype" min="-1.797693e+308"       max="1.797693e+308"/>
+    </datatypes>
+    <enums>
+        <enum name="Vef_GenericSensor_ObjectValidityMask" type="tUInt32">
+            <element name="OVM_None"                            value="0"          comment="No value of any Vef_GenericSensor_Object struct member is valid"/>
+            <element name="OVM_PositionCartesian"               value="1"          comment="The value of Vef_GenericSensor_Object.position_cartesian is valid, if the bit is set"/>
+            <element name="OVM_PositionCartesianStdDev"         value="2"          comment="The value of Vef_GenericSensor_Object.position_cartesian_std_dev is valid, if the bit is set"/>
+            <element name="OVM_SpeedCartesian"                  value="4"          comment="The value of Vef_GenericSensor_Object.speed_cartesian is valid, if the bit is set"/>
+            <element name="OVM_SpeedCartesianStdDev"            value="8"          comment="The value of Vef_GenericSensor_Object.speed_cartesian_std_dev is valid, if the bit is set"/>
+            <element name="OVM_AccelerationCartesian"           value="16"         comment="The value of Vef_GenericSensor_Object.acceleration_cartesian is valid, if the bit is set"/>
+            <element name="OVM_AccelerationCartesianStdDev"     value="32"         comment="The value of Vef_GenericSensor_Object.acceleration_cartesian_std_dev is valid, if the bit is set"/>
+            <element name="OVM_Size"                            value="64"         comment="The value of Vef_GenericSensor_Object.size is valid, if the bit is set"/>
+            <element name="OVM_BoundingBoxOffset"               value="128"        comment="The value of Vef_GenericSensor_Object.bounding_box_offset is valid, if the bit is set"/>
+            <element name="OVM_AngleRates"                      value="256"        comment="The value of Vef_GenericSensor_Object.angle_rates is valid, if the bit is set"/>
+            <element name="OVM_SpeedAbs"                        value="512"        comment="The value of Vef_GenericSensor_Object.speed_abs is valid, if the bit is set"/>
+            <element name="OVM_SpeedRotationCompensated"        value="1024"       comment="The value of Vef_GenericSensor_Object.speed_rotation_compensated is valid, if the bit is set"/>
+            <element name="OVM_AccelerationAbs"                 value="2048"       comment="The value of Vef_GenericSensor_Object.acceleration_abs is valid, if the bit is set"/>
+            <element name="OVM_AccelerationRotationCompensated" value="4096"       comment="The value of Vef_GenericSensor_Object.acceleration_rotation_compensated is valid, if the bit is set"/>
+            <element name="OVM_DetectionTime"                   value="8192"       comment="The value of Vef_GenericSensor_Object.detection_time is valid, if the bit is set"/>
+            <element name="OVM_ObjectId"                        value="16384"      comment="The value of Vef_GenericSensor_Object.object_id is valid, if the bit is set"/>
+            <element name="OVM_ObjectType"                      value="32768"      comment="The value of Vef_GenericSensor_Object.object_type is valid, if the bit is set"/>
+            <element name="OVM_CartesianCoordinateSystem"       value="65536"      comment="The value of Vef_GenericSensor_Object.cartesian_coordinate_system is valid, if the bit is set"/>
+            <element name="OVM_DetectedId"                      value="131072"     comment="The value of Vef_GenericSensor_Object.cartesian_detected_id is valid, if the bit is set"/>
+            <element name="OVM_LaneId"                          value="262144"     comment="The value of Vef_GenericSensor_Object.lane_id is valid, if the bit is set"/>
+            <element name="OVM_Visibility"                      value="524288"     comment="The value of Vef_GenericSensor_Object.visibility is valid, if the bit is set"/>
+            <element name="OVM_BrakeState"                      value="1048576"    comment="The value of Vef_GenericSensor_Object.brake_state is valid, if the bit is set"/>
+            <element name="OVM_CountSensorDetect"               value="2097152"    comment="The value of Vef_GenericSensor_Object.count_sensor_detect is valid, if the bit is set"/>
+            <element name="OVM_SensorIds"                       value="4194304"    comment="The value of Vef_GenericSensor_Object.sensor_ids is valid, if the bit is set"/>
+            <element name="OVM_AssignedLanePercentage"          value="8388608"    comment="The value of Vef_GenericSensor_Object.assigned_lane_percentage is valid, if the bit is set"/>
+            <element name="OVM_PositionNearestPoint"            value="16777216"   comment="The value of Vef_GenericSensor_Object.position_nearest_point is valid, if the bit is set"/>
+            <element name="OVM_IndicatorLeft"                   value="33554432"   comment="The value of Vef_GenericSensor_Object.indicator_left is valid, if the bit is set"/>
+            <element name="OVM_IndicatorRight"                  value="67108864"   comment="The value of Vef_GenericSensor_Object.indicator_right is valid, if the bit is set"/>
+            <element name="OVM_Color"                           value="134217728"  comment="The value of Vef_GenericSensor_Object.color is valid, if the bit is set"/>
+            <element name="OVM_ValidSensors"                    value="268435456"  comment="The value of Vef_GenericSensor_Object.valid_sensors is valid, if the bit is set"/>
+            <element name="OVM_SourceSensorIds"                 value="536870912"  comment="The value of Vef_GenericSensor_Object.source_sensor_ids is valid, if the bit is set"/>
+            <element name="OVM_TrackingId"                      value="1073741824" comment="The value of Vef_GenericSensor_Object.tracking_id is valid, if the bit is set"/>
+         </enum>
+          <enum name="Vef_GenericSensor_BrakeStates" type="tUInt32">
+            <element name="BS_None" value="0" comment="Vef_GenericSensor_BrakeStates is undefined"/>
+            <element name="BS_Off"  value="1" comment="Brake off"/>
+            <element name="BS_On"   value="2" comment="Brake on"/>
+        </enum>
+        <enum name="Vef_GenericSensor_IndicatorRight" type="tUInt32">
+            <element name="IR_None" value="0" comment="Vef_GenericSensor_IndicatorRight is undefined"/>
+            <element name="IR_Off"  value="1" comment="Right indicator off"/>
+            <element name="IR_On"   value="2" comment="Right indicator on"/>
+        </enum>
+         <enum name="Vef_GenericSensor_IndicatorLeft" type="tUInt32">
+            <element name="IL_None" value="0" comment="Vef_GenericSensor_IndicatorLeft is undefined"/>
+            <element name="IL_Off"  value="1" comment="Left indicator off"/>
+            <element name="IL_On"   value="2" comment="Left indicator on"/>
+        </enum>
+        <enum name="Vef_GenericSensor_ObjectColor" type="tUInt32">
+            <element name="OC_None"     value="0"   comment="Vef_GenericSensor_ObjectColor is undefined"/>
+            <element name="OC_Standard" value="1"   comment="standard"/>
+            <element name="OC_Blue"     value="2"   comment="blue"/>
+            <element name="OC_Green"    value="4"   comment="green"/>
+            <element name="OC_Red"      value="8"   comment="red"/>
+            <element name="OC_White"    value="16"  comment="white"/>
+            <element name="OC_Yellow"   value="32"  comment="yellow"/>
+            <element name="OC_Violet"   value="64"  comment="violet"/>
+            <element name="OC_Magenta"  value="128" comment="magenta"/>
+            <element name="OC_Cyan"     value="256" comment="cyan"/>
+            <element name="OC_Black"    value="512" comment="black"/>
+        </enum>
+    </enums>
+    <structs>
+        <struct name="Vef_GenericSensor_Object" version="1" alignment="8" comment="Specification of an object detected by a sensor"> <!-- 736 bytes -->     
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="0"   name="position_cartesian"                type="Vef_Base_Frame"          unit=""  min=""               max=""              comment="Structure: Center position of the object in cartesian coordinates"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="48"  name="position_cartesian_std_dev"        type="Vef_Base_Frame"          unit=""  min=""               max=""              comment="Structure: Standard deviation of the center position of the object in cartesian coordinates"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="96"  name="speed_cartesian"                   type="Vef_Base_Frame"          unit=""  min=""               max=""              comment="Structure: Speed of the object in cartesian coordinates"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="144" name="speed_cartesian_std_dev"           type="Vef_Base_Frame"          unit=""  min=""               max=""              comment="Structure: Standard deviation of the speed of the object in cartesian coordinates"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="192" name="acceleration_cartesian"            type="Vef_Base_Frame"          unit=""  min=""               max=""              comment="Structure: Acceleration of the object in cartesian coordinates"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="240" name="acceleration_cartesian_std_dev"    type="Vef_Base_Frame"          unit=""  min=""               max=""              comment="Structure: Standard deviation of the acceleration of the object in cartesian coordinates"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="288" name="size"                              type="Vef_Base_ObjectSize"     unit=""  min=""               max=""              comment="Structure: Size of the object"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="312" name="bounding_box_offset"               type="tFloat64"                unit="m" min="-1.797693e+308" max="1.797693e+308" comment="Offset of bounding box"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="320" name="angle_rates"                       type="Vef_Base_CoordCartesian" unit=""  min=""               max=""              comment="Structure: Angle rates"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="344" name="speed_abs"                         type="Vef_Base_CoordCartesian" unit=""  min=""               max=""              comment="Structure: Absolute velocity"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="368" name="speed_rotation_compensated"        type="Vef_Base_CoordCartesian" unit=""  min=""               max=""              comment="Structure: Rotation-compensated velocity"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="392" name="acceleration_abs"                  type="Vef_Base_CoordCartesian" unit=""  min=""               max=""              comment="Structure: Absolute acceleration"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="416" name="acceleration_rotation_compensated" type="Vef_Base_CoordCartesian" unit=""  min=""               max=""              comment="Structure: Rotation-compensated acceleration"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="440" name="detection_time"                    type="Vef_Base_Timestamp"      unit=""  min=""               max=""              comment="Structure: Timestamp when the object was detected first by the sensor"/>
+            <element alignment="8" arraysize="6"  byteorder="LE" bytepos="456" name="assigned_lane_percentage"          type="tFloat64"                unit=""  min="0"              max="1"             comment="Percentage value of the object's width in the corresponding lane"/>
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="504" name="position_nearest_point"            type="Vef_Base_Frame"          unit="m" min=""               max=""              comment="Structure: Position of the closest point on a detected object"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="552" name="validity_mask"                     type="tUInt32"                 unit=""  min=""               max=""              comment="Enumeration: Vef_GenericSensor_ObjectValidityMask - Validity mask of Object"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="556" name="color"                             type="tUInt32"                 unit=""  min=""               max=""              comment="Enumeration: Vef_GenericSensor_ObjectColor - Dominant color of the object"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="560" name="object_id"                         type="tUInt32"                 unit=""  min="0"              max="4294967295"    comment="Unique Id of the object"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="564" name="object_type"                       type="tUInt32"                 unit=""  min=""               max=""              comment="Enumeration: Vef_Base_ObjectType - Type of the object"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="568" name="cartesian_coordinate_system"       type="tUInt32"                 unit=""  min=""               max=""              comment="Enumeration: Vef_Base_CartesianCoordinateSystem - Object is described in the chosen cartesian coordinate system"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="572" name="detected_id"                       type="tUInt32"                 unit=""  min="0"              max="4294967295"    comment="Detected id"/>
+            <element alignment="4" arraysize="6"  byteorder="LE" bytepos="576" name="lane_id"                           type="tInt32"                  unit=""  min="-2147483648"    max="2147483647"    comment="List of lane ids the detected object is assigned to. The list is not sorted in a hierarchical manner"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="600" name="visibility"                        type="tUInt32"                 unit=""  min="0"              max="100"           comment="Visibility of traffic object from 0 to 100"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="604" name="brake_state"                       type="tUInt32"                 unit=""  min=""               max=""              comment="Enumeration: Vef_GenericSensor_BrakeStates - States of brake"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="608" name="indicator_right"                   type="tUInt32"                 unit=""  min=""               max=""              comment="Enumeration: Vef_GenericSensor_IndicatorRight - States of right indicator"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="612" name="indicator_left"                    type="tUInt32"                 unit=""  min=""               max=""              comment="Enumeration: Vef_GenericSensor_IndicatorLeft - States of left indicator"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="616" name="valid_sensors"                     type="tUInt32"                 unit=""  min="0"              max="4294967295"    comment="Number of sensors that detected the object"/>
+            <element alignment="4" arraysize="20" byteorder="LE" bytepos="620" name="source_sensor_ids"                 type="tInt32"                  unit=""  min="-2147483648"    max="2147483647"    comment="Ids of sensors that detected the object"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="700" name="tracking_id"                       type="tUInt32"                 unit=""  min="0"              max="4294967295"    comment="Id of the object as assigned by the sensor internally"/>
+            <element alignment="4" arraysize="6"  byteorder="LE" bytepos="704" name="connected_ids"                     type="tUInt32"                 unit=""  min="0"              max="4294967295"    comment="Global ids of objects that are connected to the deteced object, such as trailers connected to vehicles"/>
+            <element alignment="4" arraysize="1"  byteorder="LE" bytepos="728" name="occlusion_ratio"                   type="tFloat32"                unit=""  min="0"              max="1"             comment="The ratio of occlusion describes how much of an object is obstructed by another object"/>
+            <element alignment="1" arraysize="1"  byteorder="LE" bytepos="732" name="valid_lane_ids"                    type="tUInt8"                  unit=""  min="0"              max="255"           comment="Number of valid lane_ids in lane_id array"/>            
+            <element alignment="1" arraysize="1"  byteorder="LE" bytepos="733" name="valid_connected_ids"               type="tUInt8"                  unit=""  min="0"              max="255"           comment="Number of valid global ids of connected objects in connected_ids array"/>            
+            <element alignment="1" arraysize="2"  byteorder="LE" bytepos="734" name="reserved"                          type="tUInt8"                  unit=""  min=""               max=""              comment="Reserved for padding and later use"/>            
+        </struct>
+        <struct name="Vef_GenericSensor_Objects" version="1" alignment="8" comment="A list of objects detected by a sensor"> <!-- 47120 bytes -->
+            <element alignment="8" arraysize="1"  byteorder="LE" bytepos="0"     name="version"       type="Vef_Base_Version"         unit="" min=""  max=""   comment="Structure: Version of the VEF Data Model Generic Sensor"/>  
+            <element alignment="8" arraysize="64" byteorder="LE" bytepos="8"     name="objects"       type="Vef_GenericSensor_Object" unit="" min=""  max=""   comment="Structure: List of objects"/>   
+            <element alignment="1" arraysize="1"  byteorder="LE" bytepos="47112" name="valid_objects" type="tUInt8"                   unit="" min="0" max="64" comment="Number of valid objects in array"/>
+            <element alignment="1" arraysize="7"  byteorder="LE" bytepos="47113" name="reserved"      type="tUInt8"                   unit="" min=""  max=""   comment="Reserved for padding and later use"/>            
+        </struct>
+    </structs>
+    <streams/>
+</adtf:ddl>

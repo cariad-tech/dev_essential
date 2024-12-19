@@ -2,7 +2,7 @@
  * @file
  * Implements a simple class to gain access to the necessary information provided by a URL
  *
- * Copyright @ 2021 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed

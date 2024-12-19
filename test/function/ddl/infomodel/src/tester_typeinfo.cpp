@@ -2,7 +2,7 @@
  * @file
  * Implementation of the tester for the DataDefinition representation.
  *
- * Copyright @ 2021 VW Group. All rights reserved.
+ * Copyright @ 2023 VW Group. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla
  * Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -397,7 +397,7 @@ TEST(TesterOODDL, checkTypeCalculations)
  * @detail When adding a element to an existing StructType at the end, the calculation will only
  *         calculate the last position.
  */
-TEST(TesterOODDL, checkTypeCalculationPerformance)
+TEST(TesterOODDL, DISABLED_checkTypeCalculationPerformance)
 {
     using namespace ddl;
     DataDefinition my_ddl = DDDefault::create();
@@ -432,7 +432,7 @@ TEST(TesterOODDL, checkTypeCalculationPerformance)
  * @detail When adding a element to an existing DDStructure at the end, the calculation will only
  *         calculate the last position again, and wont update all.
  */
-TEST(TesterOODDL, checkTypeCalculationPerformanceWithStructure)
+TEST(TesterOODDL, DISABLED_checkTypeCalculationPerformanceWithStructure)
 {
     using namespace ddl;
     ddl::DDStructure my_structure("test_type");

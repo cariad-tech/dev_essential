@@ -813,6 +813,22 @@ public:
 
 private:
     StructType::Elements::container_named_type _named_container;
+
+#ifdef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+public:
+    const StructType::Elements::container_named_compatibility_type* getCompatibleContainer() const
+    {
+        return &_named_compatible_container;
+    }
+    StructType::Elements::container_named_compatibility_type* getCompatibleContainer()
+    {
+        return &_named_compatible_container;
+    }
+
+private:
+    StructType::Elements::container_named_compatibility_type _named_compatible_container;
+#endif
+
 };
 
 StructType::StructType(const std::string& name,
@@ -845,7 +861,7 @@ StructType& StructType::operator=(const StructType& other)
     _comment = other._comment;
     _ddl_version = other._ddl_version;
     _elements = other._elements;
-    auto named_list = getNamedItemList();
+    auto named_list = getInfo<NamedContainerInfoStructType>()->getContainer();
     named_list->clear();
     auto other_element_it = other._elements.begin();
     for (auto& value: _elements) {
@@ -872,7 +888,7 @@ StructType::StructType(const StructType& other)
       _elements(other._elements)
 {
     setInfo<NamedContainerInfoStructType>(std::make_shared<NamedContainerInfoStructType>());
-    auto named_list = getNamedItemList();
+    auto named_list = getInfo<NamedContainerInfoStructType>()->getContainer();
     auto other_element_it = other._elements.begin();
     for (auto& value: _elements) {
         (*named_list)[value->getName()] = value;
@@ -1068,15 +1084,34 @@ void StructType::notify(ModelEventCode code,
     utility::TypeAccessMapSubject<StructType>::notifyChanged(forward_code, *this, additional_info);
 }
 
-const StructType::Elements::container_named_type* StructType::getNamedItemList() const
+const StructType::Elements::container_named_compatibility_type* StructType::getNamedItemList() const
+{
+#ifdef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+    return getInfo<NamedContainerInfoStructType>()->getCompatibleContainer();
+#else
+    return getInfo<NamedContainerInfoStructType>()->getContainer();
+#endif
+}
+
+StructType::Elements::container_named_compatibility_type* StructType::getNamedItemList()
+{
+#ifdef dev_essential_TYPE_ACCESS_LIST_COMPATIBILITY
+    return getInfo<NamedContainerInfoStructType>()->getCompatibleContainer();
+#else
+    return getInfo<NamedContainerInfoStructType>()->getContainer();
+#endif
+}
+
+const StructType::Elements::container_named_type* StructType::getNamedItemViewList() const
 {
     return getInfo<NamedContainerInfoStructType>()->getContainer();
 }
 
-StructType::Elements::container_named_type* StructType::getNamedItemList()
+StructType::Elements::container_named_type* StructType::getNamedItemViewList()
 {
     return getInfo<NamedContainerInfoStructType>()->getContainer();
 }
+
 
 /*************************************************************************************************************/
 // StreamMetaType

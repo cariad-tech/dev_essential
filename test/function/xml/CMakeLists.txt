@@ -1,4 +1,4 @@
-# Copyright @ 2021 VW Group. All rights reserved.
+# Copyright @ 2023 VW Group. All rights reserved.
 #
 # This Source Code Form is subject to the terms of the Mozilla
 # Public License, v. 2.0. If a copy of the MPL was not distributed
@@ -15,7 +15,7 @@ cmake_path(CONVERT "${CMAKE_CURRENT_BINARY_DIR}/"
 
 add_executable(xml_tests src/xml_test.cpp
                          src/xml_test_sort.cpp)
-target_link_libraries(xml_tests PRIVATE GTest::gtest_main
+target_link_libraries(xml_tests PRIVATE gtest::gtest
                                         dev_essential::xml
                                         dev_essential::filesystem)
 target_compile_definitions(xml_tests PRIVATE TEST_FILES_DIR="${test_files_dir}"
